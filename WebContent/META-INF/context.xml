@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiResourceLocking="false" privileged="true">
+        <ResourceLink name="mail/sipcmMS" global="mail/Session"
+                type="javax.mail.Session">
+        </ResourceLink>
+        <!--
+                <Resource name="jdbc/sipcmDS" auth="Container"
+                type="javax.sql.DataSource" username="sa" password="sasa"
+                driverClassName="com.mysql.jdbc.Driver"
+                url="jdbc:mysql://localhost:3306/sipcm?autoReconnect=true"
+                maxActive="50" maxIdle="10" maxWait="10000" />
+        -->
+        <ResourceLink name="jdbc/sipcmDS" global="jdbc/sipcmDS"
+                type="javax.sql.DataSource">
+        </ResourceLink>
+</Context>
