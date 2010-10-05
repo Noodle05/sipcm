@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	you under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<ivy-module version="2.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+	<info organisation="com.sipcm" module="SIPConnectionCenter" />
+	<configurations>
+		<include file="../settings/ivy-config.xml" />
+	</configurations>
+	<dependencies>
+		<dependency name="SIPCMBase" rev="latest.integration" />
+		<dependency org="c3p0" name="c3p0" rev="0.9.1.2"
+			conf="test->default;foride->sources,javadoc" />
+		<dependency org="org.apache.httpcomponents" name="httpclient"
+			rev="4.0.1" conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.hibernate" name="hibernate-c3p0"
+			rev="3.5.6-Final" conf="runtime->default;foride->sources,javadoc">
+			<exclude module="c3p0" />
+		</dependency>
+		<dependency org="mysql" name="mysql-connector-java" rev="5.1.13"
+			conf="provided->default;foride->sources,javadoc" />
+		<dependency org="javax.sip" name="jain-sip-api" rev="1.2"
+			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="javax.sip" name="jain-sip-ri" rev="1.2.157"
+			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.dnsjava" name="dnsjava" rev="2.0.6"
+			conf="compile->default;foride->sources,javadoc" />
+	</dependencies>
+</ivy-module>

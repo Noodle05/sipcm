@@ -1,0 +1,31 @@
+<ivysettings>
+	<properties file="${ivy.settings.dir}/ivysettings.properties" />
+	<settings defaultResolver="default" />
+	<include url="${ivy.default.settings.dir}/ivysettings-shared.xml" />
+	<include url="${ivy.default.settings.dir}/ivysettings-local.xml" />
+	<resolvers>
+		<chain name="public">
+			<!-- official maven2 repo -->
+			<ibiblio name="maven2" m2compatible="true" />
+
+			<!-- jboss maven2 repo, used for jbpm -->
+			<ibiblio name="jboss" m2compatible="true" checksums=""
+				root="https://repository.jboss.org/nexus/content/groups/public/" />
+
+			<!-- some jbpm modules seem to be missing from jboss repo, here is one 
+				where we can get what we need -->
+			<ibiblio name="java.net" root="http://download.java.net/maven/2/"
+				pattern="[organisation]/[type]s/[artifact]-[revision].[ext]" />
+			<filesystem name="projects">
+				<artifact pattern="${repository.dir}/[artifact]-[revision].[ext]" />
+				<ivy pattern="${repository.dir}/[module]-[revision].xml" />
+			</filesystem>
+		</chain>
+	</resolvers>
+	<include url="${ivy.default.settings.dir}/ivysettings-main-chain.xml" />
+	<include url="${ivy.default.settings.dir}/ivysettings-default-chain.xml" />
+	<modules>
+		<module organisation="com.sipcm" name="SIPCMBase" resolver="projects" />
+	</modules>
+</ivysettings>
+

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+                http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+                http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+	<bean id="placeholderConfig" class="com.sipcm.spring.EncryptedPlaceholderConfigurer"
+		init-method="init">
+		<property name="location" value="config/config.properties" />
+	</bean>
+
+	<bean id="hibernateStringEncryptor"
+		class="org.jasypt.hibernate.encryptor.HibernatePBEStringEncryptor">
+		<property name="registeredName">
+			<value>sipHibernateStringEncryptor</value>
+		</property>
+		<property name="algorithm">
+			<value>PBEWithMD5AndTripleDES</value>
+		</property>
+		<property name="password">
+			<value>${string.encryptor.password.encrypted}</value>
+		</property>
+	</bean>
+
+	<context:component-scan base-package="com.sipcm" />
+
+	<aop:aspectj-autoproxy />
+
+	<tx:annotation-driven transaction-manager="txManager" />
+
+	<bean id="global.jce.provider" class="org.bouncycastle.jce.provider.BouncyCastleProvider" />
+
+	<bean id="global.threadPool" class="com.sipcm.process.BackendThreadPool"
+		init-method="prestartAllCoreThreads" destroy-method="shutdown">
+		<constructor-arg index="0" type="int" value="30" />
+		<constructor-arg index="1" type="int">
+			<util:constant static-field="java.lang.Integer.MAX_VALUE" />
+		</constructor-arg>
+		<constructor-arg index="2" type="long" value="180" />
+		<constructor-arg index="3">
+			<util:constant static-field="java.util.concurrent.TimeUnit.SECONDS" />
+		</constructor-arg>
+		<constructor-arg index="4">
+			<bean class="java.util.concurrent.SynchronousQueue" />
+		</constructor-arg>
+		<constructor-arg index="5" ref="global.threadFactory" />
+	</bean>
+
+	<bean id="global.scheduled.threadPool" class="com.sipcm.process.BackendScheduledThreadPool"
+		init-method="prestartAllCoreThreads" destroy-method="shutdown">
+		<constructor-arg index="0" type="int" value="5" />
+		<constructor-arg index="1" ref="global.threadFactory" />
+	</bean>
+
+	<bean id="applicationConfiguration" class="org.apache.commons.configuration.DataConfiguration">
+		<constructor-arg index="0"
+			ref="abstractApplicationConfiguration" />
+	</bean>
+</beans>
