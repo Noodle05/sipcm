@@ -46,8 +46,6 @@
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.jasypt" name="jasypt" rev="1.6"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="org.hibernate" name="ejb3-persistence"
-			rev="1.0.2.GA" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.hibernate" name="hibernate-core" rev="3.5.6-Final"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.hibernate" name="hibernate-annotations"

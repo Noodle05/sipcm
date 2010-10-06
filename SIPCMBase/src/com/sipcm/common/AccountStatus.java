@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.sipcm.account;
+package com.sipcm.common;
 
 /**
  * @author wgao
