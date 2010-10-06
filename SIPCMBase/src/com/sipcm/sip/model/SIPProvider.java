@@ -3,7 +3,7 @@
  */
 package com.sipcm.sip.model;
 
-import java.sql.Timestamp;
+import java.io.Serializable;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -14,13 +14,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLDeleteAll;
 
+import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
-import com.sipcm.base.model.TrackableEntity;
 
 /**
  * @author wgao
@@ -30,29 +29,15 @@ import com.sipcm.base.model.TrackableEntity;
 @Table(name = "tbl_sipprovider", uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "name", "deletedate" }),
 		@UniqueConstraint(columnNames = { "domainname", "deletedate" }) })
-@FilterDef(name = "deleteDateFilter")
-@Filter(name = "deleteDateFilter", condition = "deletedate IS NULL")
 @SQLDelete(sql = "UPDATE tbl_sipprovider SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
-@SQLDeleteAll(sql = "UPDATE tbl_sipprovider SET deletedate = CURRENT_TIMESTAMP WHERE deletedate IS NOT NULL")
-public class SIPProvider implements TrackableEntity, IdBasedEntity<Integer> {
+public class SIPProvider extends AbstractTrackableEntity implements
+		IdBasedEntity<Integer>, Serializable {
 	private static final long serialVersionUID = -6112174515534743458L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "ID")
 	private Integer id;
-
-	@Basic
-	@Column(name = "createdate", nullable = false)
-	private Timestamp createDate;
-
-	@Basic
-	@Column(name = "lastmodify", nullable = false)
-	private Timestamp lastModify;
-
-	@Basic
-	@Column(name = "deletedate")
-	private Timestamp deleteDate;
 
 	@Basic
 	@Column(name = "name", length = 64, nullable = false)
@@ -63,7 +48,7 @@ public class SIPProvider implements TrackableEntity, IdBasedEntity<Integer> {
 	private String domain;
 
 	@Basic
-	@Column(name = "name", length = 256)
+	@Column(name = "proxy", length = 256)
 	private String proxy;
 
 	/**
@@ -82,51 +67,6 @@ public class SIPProvider implements TrackableEntity, IdBasedEntity<Integer> {
 	@Override
 	public Integer getId() {
 		return id;
-	}
-
-	/**
-	 * @param createDate
-	 *            the createDate to set
-	 */
-	public void setCreateDate(Timestamp createDate) {
-		this.createDate = createDate;
-	}
-
-	/**
-	 * @return the createDate
-	 */
-	public Timestamp getCreateDate() {
-		return createDate;
-	}
-
-	/**
-	 * @param lastModify
-	 *            the lastModify to set
-	 */
-	public void setLastModify(Timestamp lastModify) {
-		this.lastModify = lastModify;
-	}
-
-	/**
-	 * @return the lastModify
-	 */
-	public Timestamp getLastModify() {
-		return lastModify;
-	}
-
-	/**
-	 * @param deleteDate
-	 *            the deleteDate to set
-	 */
-	public void setDeleteDate(Timestamp deleteDate) {
-		this.deleteDate = deleteDate;
-	}
-
-	/**
-	 * @return the deleteDate
-	 */
-	public Timestamp getDeleteDate() {
-		return deleteDate;
 	}
 
 	/**
@@ -172,5 +112,54 @@ public class SIPProvider implements TrackableEntity, IdBasedEntity<Integer> {
 	 */
 	public String getProxy() {
 		return proxy;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		HashCodeBuilder hcb = new HashCodeBuilder(7, 35);
+		hcb.append(name.toUpperCase());
+		hcb.append(deleteDate);
+		return hcb.toHashCode();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		if (other == null || !(other instanceof SIPProvider)) {
+			return false;
+		}
+		final SIPProvider obj = (SIPProvider) other;
+		EqualsBuilder eb = new EqualsBuilder();
+		eb.append(name.toUpperCase(), obj.name.toUpperCase());
+		eb.append(deleteDate, obj.deleteDate);
+		return eb.isEquals();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("SIPProvider[");
+		if (id != null) {
+			sb.append("id=").append(id).append(",");
+		}
+		sb.append("name=").append(name).append("]");
+		return sb.toString();
 	}
 }

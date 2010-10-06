@@ -11,5 +11,7 @@ import com.sipcm.common.model.User;
  * 
  */
 public interface UserService extends Service<User, Long> {
+	public User getUserByUsername(String username);
 
+	public User getUserBySipId(String sipId);
 }

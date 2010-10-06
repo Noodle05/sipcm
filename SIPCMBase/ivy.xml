@@ -17,6 +17,8 @@
 		<include file="../settings/ivy-config.xml" />
 	</configurations>
 	<dependencies>
+		<dependency org="c3p0" name="c3p0" rev="0.9.1.2"
+			conf="test->default;foride->sources,javadoc" />
 		<dependency org="commons-cli" name="commons-cli" rev="1.2"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.4"
@@ -75,6 +77,8 @@
 		<dependency org="opensymphony" name="quartz" rev="1.6.3"
 			conf="runtime->default" />
 		<dependency org="junit" name="junit" rev="4.8.1"
+			conf="test->default;foride->sources,javadoc" />
+		<dependency org="hsqldb" name="hsqldb" rev="1.8.0.10"
 			conf="test->default;foride->sources,javadoc" />
 	</dependencies>
 </ivy-module>

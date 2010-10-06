@@ -3,7 +3,7 @@
  */
 package com.sipcm.common.model;
 
-import java.sql.Timestamp;
+import java.io.Serializable;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -16,13 +16,10 @@ import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLDeleteAll;
 
+import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
-import com.sipcm.base.model.TrackableEntity;
 
 /**
  * @author wgao
@@ -32,28 +29,15 @@ import com.sipcm.base.model.TrackableEntity;
 @Table(name = "tbl_country", uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "name", "deletedate" }),
 		@UniqueConstraint(columnNames = { "iso_3316_code", "deletedate" }) })
-@FilterDef(name = "deleteDateFilter")
-@Filter(name = "deleteDateFilter", condition = "deletedate IS NULL")
 @SQLDelete(sql = "UPDATE tbl_country SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
-@SQLDeleteAll(sql = "UPDATE tbl_country SET deletedate = CURRENT_TIMESTAMP WHERE deletedate IS NOT NULL")
-public class Country implements IdBasedEntity<Integer>, TrackableEntity {
+public class Country extends AbstractTrackableEntity implements
+		IdBasedEntity<Integer>, Serializable {
 	private static final long serialVersionUID = -9217749234056452234L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
 	private Integer id;
-	@Basic
-	@Column(name = "createdate", nullable = false)
-	private Timestamp createDate;
-
-	@Basic
-	@Column(name = "lastmodify", nullable = false)
-	private Timestamp lastModify;
-
-	@Basic
-	@Column(name = "deleteDate")
-	private Timestamp deleteDate;
 
 	@Basic
 	@Column(name = "name", length = 64, nullable = false)
@@ -84,69 +68,6 @@ public class Country implements IdBasedEntity<Integer>, TrackableEntity {
 	 */
 	public Integer getId() {
 		return id;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.base.model.TrackableEntity#setCreateDate(java.sql.Timestamp)
-	 */
-	@Override
-	public void setCreateDate(Timestamp createDate) {
-		this.createDate = createDate;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.base.model.TrackableEntity#getCreateDate()
-	 */
-	@Override
-	public Timestamp getCreateDate() {
-		return createDate;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.base.model.TrackableEntity#setLastModify(java.sql.Timestamp)
-	 */
-	@Override
-	public void setLastModify(Timestamp lastModify) {
-		this.lastModify = lastModify;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.base.model.TrackableEntity#getLastModify()
-	 */
-	@Override
-	public Timestamp getLastModify() {
-		return lastModify;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.base.model.TrackableEntity#setDeleteDate(java.sql.Timestamp)
-	 */
-	@Override
-	public void setDeleteDate(Timestamp deleteDate) {
-		this.deleteDate = deleteDate;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.base.model.TrackableEntity#getDeleteDate()
-	 */
-	@Override
-	public Timestamp getDeleteDate() {
-		return deleteDate;
 	}
 
 	/**
@@ -217,7 +138,7 @@ public class Country implements IdBasedEntity<Integer>, TrackableEntity {
 	@Override
 	public int hashCode() {
 		HashCodeBuilder hcb = new HashCodeBuilder(13, 17);
-		hcb.append(name);
+		hcb.append(name.toUpperCase());
 		hcb.append(deleteDate);
 		return hcb.toHashCode();
 	}
@@ -237,7 +158,7 @@ public class Country implements IdBasedEntity<Integer>, TrackableEntity {
 		}
 		final Country obj = (Country) other;
 		EqualsBuilder eb = new EqualsBuilder();
-		eb.append(name, obj.name);
+		eb.append(name.toUpperCase(), obj.name.toUpperCase());
 		eb.append(deleteDate, obj.deleteDate);
 		return eb.isEquals();
 	}
@@ -250,7 +171,11 @@ public class Country implements IdBasedEntity<Integer>, TrackableEntity {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Country[name=").append(name).append(",iso3316code=")
+		sb.append("Country[");
+		if (id != null) {
+			sb.append("id=").append(id).append(",");
+		}
+		sb.append("name=").append(name).append(",iso3316code=")
 				.append(iso3316Code).append("]");
 		return sb.toString();
 	}

@@ -19,7 +19,7 @@
 	<dependencies>
 		<dependency name="SIPCMBase" rev="latest.integration" />
 		<dependency org="c3p0" name="c3p0" rev="0.9.1.2"
-			conf="test->default;foride->sources,javadoc" />
+			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.apache.httpcomponents" name="httpclient"
 			rev="4.0.1" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.hibernate" name="hibernate-c3p0"
@@ -27,7 +27,7 @@
 			<exclude module="c3p0" />
 		</dependency>
 		<dependency org="mysql" name="mysql-connector-java" rev="5.1.13"
-			conf="provided->default;foride->sources,javadoc" />
+			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="javax.sip" name="jain-sip-api" rev="1.2"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="javax.sip" name="jain-sip-ri" rev="1.2.157"

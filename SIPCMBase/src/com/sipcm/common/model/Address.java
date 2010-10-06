@@ -3,9 +3,8 @@
  */
 package com.sipcm.common.model;
 
-import java.sql.Timestamp;
+import java.io.Serializable;
 
-import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,13 +15,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLDeleteAll;
 
+import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
-import com.sipcm.base.model.TrackableEntity;
 
 /**
  * @author wgao
@@ -30,29 +26,15 @@ import com.sipcm.base.model.TrackableEntity;
  */
 @Entity
 @Table(name = "tbl_address")
-@FilterDef(name = "deleteDateFilter")
-@Filter(name = "deleteDateFilter", condition = "deletedate IS NULL")
 @SQLDelete(sql = "UPDATE tbl_address SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
-@SQLDeleteAll(sql = "UPDATE tbl_address SET deletedate = CURRENT_TIMESTAMP WHERE deletedate IS NOT NULL")
-public class Address implements IdBasedEntity<Long>, TrackableEntity {
+public class Address extends AbstractTrackableEntity implements
+		IdBasedEntity<Long>, Serializable {
 	private static final long serialVersionUID = 2939015763392613558L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
 	private Long id;
-
-	@Basic
-	@Column(name = "createdate", nullable = false)
-	private Timestamp createDate;
-
-	@Basic
-	@Column(name = "lastmodify", nullable = false)
-	private Timestamp lastModify;
-
-	@Basic
-	@Column(name = "deleteDate")
-	private Timestamp deleteDate;
 
 	@Column(name = "address_line_1", length = 256, nullable = false)
 	private String addressLine1;
@@ -89,69 +71,6 @@ public class Address implements IdBasedEntity<Long>, TrackableEntity {
 	@Override
 	public Long getId() {
 		return id;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.base.model.TrackableEntity#setCreateDate(java.sql.Timestamp)
-	 */
-	@Override
-	public void setCreateDate(Timestamp createDate) {
-		this.createDate = createDate;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.base.model.TrackableEntity#getCreateDate()
-	 */
-	@Override
-	public Timestamp getCreateDate() {
-		return createDate;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.base.model.TrackableEntity#setLastModify(java.sql.Timestamp)
-	 */
-	@Override
-	public void setLastModify(Timestamp lastModify) {
-		this.lastModify = lastModify;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.base.model.TrackableEntity#getLastModify()
-	 */
-	@Override
-	public Timestamp getLastModify() {
-		return lastModify;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.base.model.TrackableEntity#setDeleteDate(java.sql.Timestamp)
-	 */
-	@Override
-	public void setDeleteDate(Timestamp deleteDate) {
-		this.deleteDate = deleteDate;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.base.model.TrackableEntity#getDeleteDate()
-	 */
-	@Override
-	public Timestamp getDeleteDate() {
-		return deleteDate;
 	}
 
 	/**
@@ -242,5 +161,22 @@ public class Address implements IdBasedEntity<Long>, TrackableEntity {
 	 */
 	public Country getCountry() {
 		return country;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(addressLine1);
+		if (addressLine2 != null) {
+			sb.append(" ").append(addressLine2);
+		}
+		sb.append(city).append(" ").append(zipcode).append(" ").append(state)
+				.append(country.getName());
+		return sb.toString();
 	}
 }

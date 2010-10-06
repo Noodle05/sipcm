@@ -10,7 +10,7 @@
                 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 	<bean id="placeholderConfig" class="com.sipcm.spring.EncryptedPlaceholderConfigurer"
 		init-method="init">
-		<property name="location" value="config/config.properties" />
+		<property name="location" value="${appRoot}/config/config.properties" />
 	</bean>
 
 	<bean id="hibernateStringEncryptor"
@@ -31,8 +31,6 @@
 	<aop:aspectj-autoproxy />
 
 	<tx:annotation-driven transaction-manager="txManager" />
-
-	<bean id="global.jce.provider" class="org.bouncycastle.jce.provider.BouncyCastleProvider" />
 
 	<bean id="global.threadPool" class="com.sipcm.process.BackendThreadPool"
 		init-method="prestartAllCoreThreads" destroy-method="shutdown">

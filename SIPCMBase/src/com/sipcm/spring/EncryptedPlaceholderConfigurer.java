@@ -7,6 +7,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jasypt.util.text.StrongTextEncryptor;
 import org.jasypt.util.text.TextEncryptor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
@@ -42,7 +43,8 @@ public class EncryptedPlaceholderConfigurer extends
 			String propertyName = (String) propertyNames.nextElement();
 			String propertyValue = props.getProperty(propertyName);
 			String convertedValue = convertPropertyValue(propertyValue);
-			if (propertyName.endsWith(ENCRYPTED_PROPERTIES_SUFFIX)) {
+			if (propertyName.endsWith(ENCRYPTED_PROPERTIES_SUFFIX)
+					&& StringUtils.isNotBlank(convertedValue)) {
 				try {
 					convertedValue = textEncryptor.decrypt(convertedValue);
 				} catch (Exception exp) {

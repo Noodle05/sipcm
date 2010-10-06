@@ -3,8 +3,8 @@
  */
 package com.sipcm.common.model;
 
+import java.io.Serializable;
 import java.sql.Date;
-import java.sql.Timestamp;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -18,46 +18,32 @@ import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLDeleteAll;
 import org.hibernate.annotations.Type;
 
+import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
-import com.sipcm.base.model.TrackableEntity;
 import com.sipcm.common.AccountStatus;
+import com.sipcm.common.OnlineStatus;
 
 /**
  * @author wgao
  * 
  */
 @Entity
-@Table(name = "tbl_user", uniqueConstraints = { @UniqueConstraint(columnNames = {
-		"email", "deletedate" }) })
-@FilterDef(name = "deleteDateFilter")
-@Filter(name = "deleteDateFilter", condition = "deletedate IS NULL")
+@Table(name = "tbl_user", uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "email", "deletedate" }),
+		@UniqueConstraint(columnNames = { "username", "deletedate" }),
+		@UniqueConstraint(columnNames = { "sipid", "deletedate" }) })
 @SQLDelete(sql = "UPDATE tbl_user SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
-@SQLDeleteAll(sql = "UPDATE tbl_user SET deletedate = CURRENT_TIMESTAMP WHERE deletedate IS NOT NULL")
-public class User implements IdBasedEntity<Long>, TrackableEntity {
+public class User extends AbstractTrackableEntity implements
+		IdBasedEntity<Long>, Serializable {
 	private static final long serialVersionUID = 4305835276667230335L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
 	private Long id;
-
-	@Basic
-	@Column(name = "createdate", nullable = false)
-	private Timestamp createDate;
-
-	@Basic
-	@Column(name = "lastmodify", nullable = false)
-	private Timestamp lastModify;
-
-	@Basic
-	@Column(name = "deleteDate")
-	private Timestamp deleteDate;
 
 	@Basic
 	@Column(name = "first_name", length = 64, nullable = false)
@@ -84,7 +70,7 @@ public class User implements IdBasedEntity<Long>, TrackableEntity {
 	private String email;
 
 	@Basic
-	@Column(name = "username", length = 64, nullable = false, unique = true)
+	@Column(name = "username", length = 64, nullable = false)
 	private String username;
 
 	@Type(type = "encryptedString")
@@ -96,20 +82,16 @@ public class User implements IdBasedEntity<Long>, TrackableEntity {
 	private AccountStatus status;
 
 	@Basic
-	@Column(name = "sipdomain", length = 256)
-	private String sipDomain;
-
-	@Basic
-	@Column(name = "sipproxy", length = 256)
-	private String sipProxy;
-
-	@Basic
 	@Column(name = "sipid", length = 32, nullable = false)
 	private String sipId;
 
 	@Type(type = "encryptedString")
 	@Column(name = "sippassword", length = 64, nullable = false)
 	private String sipPassword;
+
+	@Enumerated
+	@Column(name = "sipstatus", nullable = false)
+	private OnlineStatus sipStatus;
 
 	/**
 	 * @param id
@@ -127,69 +109,6 @@ public class User implements IdBasedEntity<Long>, TrackableEntity {
 	@Override
 	public Long getId() {
 		return id;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.base.model.TrackableEntity#setCreateDate(java.sql.Timestamp)
-	 */
-	@Override
-	public void setCreateDate(Timestamp createDate) {
-		this.createDate = createDate;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.base.model.TrackableEntity#getCreateDate()
-	 */
-	@Override
-	public Timestamp getCreateDate() {
-		return createDate;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.base.model.TrackableEntity#setLastModify(java.sql.Timestamp)
-	 */
-	@Override
-	public void setLastModify(Timestamp lastModify) {
-		this.lastModify = lastModify;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.base.model.TrackableEntity#getLastModify()
-	 */
-	@Override
-	public Timestamp getLastModify() {
-		return lastModify;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.base.model.TrackableEntity#setDeleteDate(java.sql.Timestamp)
-	 */
-	@Override
-	public void setDeleteDate(Timestamp deleteDate) {
-		this.deleteDate = deleteDate;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.base.model.TrackableEntity#getDeleteDate()
-	 */
-	@Override
-	public Timestamp getDeleteDate() {
-		return deleteDate;
 	}
 
 	/**
@@ -338,36 +257,6 @@ public class User implements IdBasedEntity<Long>, TrackableEntity {
 	}
 
 	/**
-	 * @param sipDomain
-	 *            the sipDomain to set
-	 */
-	public void setSipDomain(String sipDomain) {
-		this.sipDomain = sipDomain;
-	}
-
-	/**
-	 * @return the sipDomain
-	 */
-	public String getSipDomain() {
-		return sipDomain;
-	}
-
-	/**
-	 * @param sipProxy
-	 *            the sipProxy to set
-	 */
-	public void setSipProxy(String sipProxy) {
-		this.sipProxy = sipProxy;
-	}
-
-	/**
-	 * @return the sipProxy
-	 */
-	public String getSipProxy() {
-		return sipProxy;
-	}
-
-	/**
 	 * @param sipId
 	 *            the sipId to set
 	 */
@@ -395,6 +284,21 @@ public class User implements IdBasedEntity<Long>, TrackableEntity {
 	 */
 	public String getSipPassword() {
 		return sipPassword;
+	}
+
+	/**
+	 * @param sipStatus
+	 *            the sipStatus to set
+	 */
+	public void setSipStatus(OnlineStatus sipStatus) {
+		this.sipStatus = sipStatus;
+	}
+
+	/**
+	 * @return the sipStatus
+	 */
+	public OnlineStatus getSipStatus() {
+		return sipStatus;
 	}
 
 	/*
@@ -425,7 +329,7 @@ public class User implements IdBasedEntity<Long>, TrackableEntity {
 		}
 		final User obj = (User) other;
 		EqualsBuilder eb = new EqualsBuilder();
-		eb.append(email, obj.email);
+		eb.append(email.toUpperCase(), obj.email.toUpperCase());
 		return eb.isEquals();
 	}
 
@@ -439,9 +343,10 @@ public class User implements IdBasedEntity<Long>, TrackableEntity {
 		StringBuilder sb = new StringBuilder();
 		sb.append("User[");
 		if (id != null) {
-			sb.append("id=").append(id);
+			sb.append("id=").append(id).append(",");
 		}
-		sb.append("email=").append(email).append("]");
+		sb.append("displayname=").append(getDisplayName()).append(",email=")
+				.append(email).append("]");
 		return sb.toString();
 	}
 }

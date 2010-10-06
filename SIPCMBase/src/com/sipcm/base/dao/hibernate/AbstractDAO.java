@@ -23,10 +23,13 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.FilterDefs;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.metadata.ClassMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -44,11 +47,15 @@ import com.sipcm.base.filter.Sort;
  */
 public abstract class AbstractDAO<Entity extends Serializable, ID extends Serializable>
 		extends HibernateDaoSupport implements DAO<Entity, ID> {
+	public static final String DEFAULT_FILTER = "defaultFilter";
+
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected String entityName;
 
 	protected Class<Entity> entityClass;
+
+	protected boolean hasDefaultFilter;
 
 	@SuppressWarnings("unchecked")
 	@PostConstruct
@@ -59,6 +66,22 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 		if (logger.isDebugEnabled()) {
 			logger.debug("Entity class been initialized as: {}",
 					entityClass.getName());
+		}
+		FilterDefs fds = AnnotationUtils.findAnnotation(entityClass,
+				FilterDefs.class);
+		if (fds != null) {
+			for (FilterDef fd : fds.value()) {
+				if (DEFAULT_FILTER.equals(fd.name())) {
+					hasDefaultFilter = true;
+				}
+			}
+		}
+		if (!hasDefaultFilter) {
+			FilterDef fd = AnnotationUtils.findAnnotation(entityClass,
+					FilterDef.class);
+			if (fd != null && DEFAULT_FILTER.equals(fd.name())) {
+				hasDefaultFilter = true;
+			}
 		}
 	}
 
@@ -106,6 +129,9 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 				new HibernateCallback<List<Entity>>() {
 					public List<Entity> doInHibernate(Session session)
 							throws HibernateException, SQLException {
+						if (hasDefaultFilter) {
+							session.enableFilter(DEFAULT_FILTER);
+						}
 						return processFind(session, filter, sort, page);
 					}
 				});
@@ -161,6 +187,9 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 		Entity ret = ht.execute(new HibernateCallback<Entity>() {
 			public Entity doInHibernate(Session session)
 					throws HibernateException, SQLException {
+				if (hasDefaultFilter) {
+					session.enableFilter(DEFAULT_FILTER);
+				}
 				return processFindUnique(session, filter);
 			}
 		});
@@ -196,6 +225,9 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 		Number count = ht.execute(new HibernateCallback<Number>() {
 			public Number doInHibernate(Session session)
 					throws HibernateException, SQLException {
+				if (hasDefaultFilter) {
+					session.enableFilter(DEFAULT_FILTER);
+				}
 				return processRowCount(session, filter);
 			}
 		});
