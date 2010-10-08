@@ -28,8 +28,8 @@
 		</dependency>
 		<dependency org="mysql" name="mysql-connector-java" rev="5.1.13"
 			conf="runtime->default;foride->sources,javadoc" />
-		<dependency org="javax.sip" name="jain-sip-api" rev="1.2"
-			conf="compile->default;foride->sources,javadoc" />
+		<!--  dependency org="javax.sip" name="jain-sip-api" rev="1.2"
+			conf="compile->default;foride->sources,javadoc" / -->
 		<dependency org="javax.sip" name="jain-sip-ri" rev="1.2.157"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.dnsjava" name="dnsjava" rev="2.0.6"

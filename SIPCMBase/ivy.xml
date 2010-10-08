@@ -76,6 +76,8 @@
 			rev="3.0.4.RELEASE" conf="test->default;foride->sources,javadoc" />
 		<dependency org="opensymphony" name="quartz" rev="1.6.3"
 			conf="runtime->default" />
+		<dependency org="com.google.guava" name="guava" rev="r07"
+			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="junit" name="junit" rev="4.8.1"
 			conf="test->default;foride->sources,javadoc" />
 		<dependency org="hsqldb" name="hsqldb" rev="1.8.0.10"
