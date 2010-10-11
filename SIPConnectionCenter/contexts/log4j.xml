@@ -31,11 +31,11 @@
 	</logger>
 
 	<logger name="org.hibernate.SQL" additivity="false">
-		<level value="debug" />
+		<level value="warn" />
 		<appender-ref ref="RollingFileAppender" />
 	</logger>
 	<logger name="org.hibernate.type" additivity="false">
-		<level value="trace" />
+		<level value="warn" />
 		<appender-ref ref="RollingFileAppender" />
 	</logger>
 

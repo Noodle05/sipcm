@@ -21,18 +21,18 @@ import org.hibernate.annotations.SQLDelete;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
-import com.sipcm.sip.VoipVenderType;
+import com.sipcm.sip.VoipVendorType;
 
 /**
  * @author wgao
  * 
  */
 @Entity
-@Table(name = "tbl_voipvender", uniqueConstraints = {
+@Table(name = "tbl_voipvendor", uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "name", "deletedate" }),
 		@UniqueConstraint(columnNames = { "domainname", "deletedate" }) })
-@SQLDelete(sql = "UPDATE tbl_voipvender SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
-public class VoipVender extends AbstractTrackableEntity implements
+@SQLDelete(sql = "UPDATE tbl_voipvendor SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
+public class VoipVendor extends AbstractTrackableEntity implements
 		IdBasedEntity<Integer>, Serializable {
 	private static final long serialVersionUID = -6112174515534743458L;
 
@@ -55,7 +55,7 @@ public class VoipVender extends AbstractTrackableEntity implements
 
 	@Enumerated
 	@Column(name = "type", nullable = false)
-	private VoipVenderType type;
+	private VoipVendorType type;
 
 	/**
 	 * @param id
@@ -124,14 +124,14 @@ public class VoipVender extends AbstractTrackableEntity implements
 	 * @param type
 	 *            the type to set
 	 */
-	public void setType(VoipVenderType type) {
+	public void setType(VoipVendorType type) {
 		this.type = type;
 	}
 
 	/**
 	 * @return the type
 	 */
-	public VoipVenderType getType() {
+	public VoipVendorType getType() {
 		return type;
 	}
 
@@ -158,10 +158,10 @@ public class VoipVender extends AbstractTrackableEntity implements
 		if (this == other) {
 			return true;
 		}
-		if (other == null || !(other instanceof VoipVender)) {
+		if (other == null || !(other instanceof VoipVendor)) {
 			return false;
 		}
-		final VoipVender obj = (VoipVender) other;
+		final VoipVendor obj = (VoipVendor) other;
 		EqualsBuilder eb = new EqualsBuilder();
 		eb.append(name.toUpperCase(), obj.name.toUpperCase());
 		eb.append(deleteDate, obj.deleteDate);
@@ -176,7 +176,7 @@ public class VoipVender extends AbstractTrackableEntity implements
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("SIPProvider[");
+		sb.append("VoipVendor[");
 		if (id != null) {
 			sb.append("id=").append(id).append(",");
 		}

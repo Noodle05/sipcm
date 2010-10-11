@@ -18,24 +18,24 @@ import org.springframework.stereotype.Component;
  * @author wgao
  * 
  */
-@Component("sipServerListener")
-public class SipServerListener implements SipListener {
-	@Resource(name = "sipServerMessageProcessor")
+@Component("sipClientListener")
+public class SipClientListener implements SipListener {
+	@Resource(name = "sipClientMessageProcessor")
 	private SipRequestProcessor requestProcessor;
 
-	@Resource(name = "sipServerMessageProcessor")
+	@Resource(name = "sipClientMessageProcessor")
 	private SipResponseProcessor responseProcessor;
 
-	@Resource(name = "sipServerMessageProcessor")
+	@Resource(name = "sipClientMessageProcessor")
 	private SipTimeoutProcessor timeoutProcessor;
 
-	@Resource(name = "sipServerMessageProcessor")
+	@Resource(name = "sipClientMessageProcessor")
 	private SipIOExceptionProcessor ioExceptionProcessor;
 
-	@Resource(name = "sipServerMessageProcessor")
+	@Resource(name = "sipClientMessageProcessor")
 	private SipTransactionTerminatedProcessor transactionTerminatedProcessor;
 
-	@Resource(name = "sipServerMessageProcessor")
+	@Resource(name = "sipClientMessageProcessor")
 	private SipDialogTerminatedProcessor dialogTerminatedProcessor;
 
 	/*

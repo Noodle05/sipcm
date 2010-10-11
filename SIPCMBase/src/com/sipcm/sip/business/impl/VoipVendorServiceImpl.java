@@ -10,17 +10,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sipcm.base.business.impl.AbstractService;
 import com.sipcm.base.dao.DAO;
-import com.sipcm.sip.business.VoipVenderService;
-import com.sipcm.sip.model.VoipVender;
+import com.sipcm.sip.business.VoipVendorService;
+import com.sipcm.sip.model.VoipVendor;
 
 /**
  * @author wgao
  * 
  */
-@Service("voipVenderService")
+@Service("voipVendorService")
 @Transactional(readOnly = true)
-public class VoipVenderServiceImpl extends AbstractService<VoipVender, Integer>
-		implements VoipVenderService {
+public class VoipVendorServiceImpl extends AbstractService<VoipVendor, Integer>
+		implements VoipVendorService {
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -30,7 +30,7 @@ public class VoipVenderServiceImpl extends AbstractService<VoipVender, Integer>
 	 */
 	@Override
 	@Resource(name = "voipVenderDAO")
-	public void setDAO(DAO<VoipVender, Integer> dao) {
+	public void setDAO(DAO<VoipVendor, Integer> dao) {
 		this.dao = dao;
 	}
 }

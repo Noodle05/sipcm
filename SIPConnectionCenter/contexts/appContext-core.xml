@@ -64,7 +64,10 @@
 	</bean>
 	<util:list id="configurations">
 		<bean class="org.apache.commons.configuration.XMLPropertiesConfiguration">
-			<constructor-arg index="0" value="${appRoot}/config/system-config.xml" />
+			<constructor-arg index="0"
+				value="${appRoot}/config/system-config.xml" />
 		</bean>
 	</util:list>
+
+	<bean id="stringDigester" class="org.jasypt.digest.StandardStringDigester" />
 </beans>

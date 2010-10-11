@@ -17,7 +17,6 @@ import javax.sip.message.Request;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.sipcm.common.AuthenticationException;
 import com.sipcm.common.InvalidPasswordException;
@@ -29,7 +28,6 @@ import com.sipcm.common.model.User;
  * @author wgao
  * 
  */
-@Component("userSessionManager")
 public abstract class UserSessionManager {
 	public static final Logger logger = LoggerFactory
 			.getLogger(UserSessionManager.class);

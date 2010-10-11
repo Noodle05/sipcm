@@ -63,11 +63,11 @@ account VARCHAR(256) NOT NULL,
 password VARCHAR(256) NOT NULL, 
 type INTEGER NOT NULL, 
 user_id BIGINT, 
-voipvender_id INTEGER, 
+voipvendor_id INTEGER, 
 PRIMARY KEY (id), 
-UNIQUE (user_id, voipvender_id, deletedate));
+UNIQUE (user_id, voipvendor_id, deletedate));
 
-CREATE TABLE tbl_voipvender (
+CREATE TABLE tbl_voipvendor (
 id INTEGER NOT NULL AUTO_INCREMENT, 
 createdate DATETIME, 
 deletedate DATETIME, 
@@ -89,8 +89,8 @@ ADD index FKC63955615DCD2F6B (user_id),
 ADD CONSTRAINT FKC63955615DCD2F6B foreign key (user_id) references tbl_user (id);
 
 ALTER TABLE tbl_uservoipaccount 
-ADD index FKC63955617143D8AA (voipvender_id), 
-ADD CONSTRAINT FKC63955617143D8AA foreign key (voipvender_id) references tbl_voipvender (id);
+ADD index FKC63955617143D8AA (voipvendor_id), 
+ADD CONSTRAINT FKC63955617143D8AA foreign key (voipvendor_id) references tbl_voipvendor (id);
 
 
 DELIMITER //                                                          
@@ -127,7 +127,7 @@ BEGIN
   END IF;
 END;//
 
-CREATE TRIGGER tgr_voipvender_createdate BEFORE INSERT ON tbl_voipvender
+CREATE TRIGGER tgr_voipvendor_createdate BEFORE INSERT ON tbl_voipvendor
 FOR EACH ROW
 BEGIN
   IF NEW.createdate IS NULL THEN

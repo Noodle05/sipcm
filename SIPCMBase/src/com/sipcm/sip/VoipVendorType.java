@@ -7,6 +7,6 @@ package com.sipcm.sip;
  * @author wgao
  * 
  */
-public enum VoipVenderType {
+public enum VoipVendorType {
 	SIP, GOOGLE_VOICE
 }

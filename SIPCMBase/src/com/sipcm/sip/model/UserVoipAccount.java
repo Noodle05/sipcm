@@ -31,7 +31,7 @@ import com.sipcm.sip.VoipAccountType;
  */
 @Entity
 @Table(name = "tbl_uservoipaccount", uniqueConstraints = { @UniqueConstraint(columnNames = {
-		"user_id", "voipvender_id", "deletedate" }) })
+		"user_id", "voipvendor_id", "deletedate" }) })
 @SQLDelete(sql = "UPDATE tbl_uservoipaccount SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
 public class UserVoipAccount extends AbstractTrackableEntity implements
 		TrackableEntity, IdBasedEntity<Long> {
@@ -47,8 +47,8 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	private User ownser;
 
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-	@JoinColumn(name = "voipvender_id")
-	private VoipVender voipVender;
+	@JoinColumn(name = "voipvendor_id")
+	private VoipVendor voipVendor;
 
 	@Basic
 	@Column(name = "account", length = 256, nullable = false)
@@ -95,18 +95,18 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	}
 
 	/**
-	 * @param voipVender
-	 *            the voipVender to set
+	 * @param voipVendor
+	 *            the voipVendor to set
 	 */
-	public void setVoipVender(VoipVender voipVender) {
-		this.voipVender = voipVender;
+	public void setVoipVendor(VoipVendor voipVendor) {
+		this.voipVendor = voipVendor;
 	}
 
 	/**
-	 * @return the voipVender
+	 * @return the voipVendor
 	 */
-	public VoipVender getVoipVender() {
-		return voipVender;
+	public VoipVendor getVoipVendor() {
+		return voipVendor;
 	}
 
 	/**

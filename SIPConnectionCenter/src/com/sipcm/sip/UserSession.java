@@ -12,7 +12,7 @@ import com.sipcm.common.model.User;
  * @author wgao
  * 
  */
-@Component("userSession")
+@Component("sipUserSession")
 @Scope("prototype")
 public class UserSession {
 	private User user;

@@ -58,6 +58,4 @@
 		<constructor-arg index="0"
 			ref="abstractApplicationConfiguration" />
 	</bean>
-
-	<bean id="stringDigester" class="org.jasypt.digest.StandardStringDigester" />
 </beans>
