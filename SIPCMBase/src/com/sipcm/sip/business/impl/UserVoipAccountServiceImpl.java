@@ -8,20 +8,20 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sipcm.base.business.impl.AbstractTrackableService;
+import com.sipcm.base.business.impl.AbstractService;
 import com.sipcm.base.dao.DAO;
-import com.sipcm.sip.business.SIPProviderService;
-import com.sipcm.sip.model.SIPProvider;
+import com.sipcm.sip.business.UserVoipAccountService;
+import com.sipcm.sip.model.UserVoipAccount;
 
 /**
  * @author wgao
  * 
  */
-@Service("sipProviderService")
+@Service("userVoidAccountService")
 @Transactional(readOnly = true)
-public class SIPProviderServiceImpl extends
-		AbstractTrackableService<SIPProvider, Integer> implements
-		SIPProviderService {
+public class UserVoipAccountServiceImpl extends
+		AbstractService<UserVoipAccount, Long> implements
+		UserVoipAccountService {
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -30,8 +30,8 @@ public class SIPProviderServiceImpl extends
 	 * .DAO)
 	 */
 	@Override
-	@Resource(name = "sipProviderDao")
-	public void setDAO(DAO<SIPProvider, Integer> dao) {
+	@Resource(name = "userVoipAccountDAO")
+	public void setDAO(DAO<UserVoipAccount, Long> dao) {
 		this.dao = dao;
 	}
 }

@@ -82,5 +82,7 @@
 			conf="test->default;foride->sources,javadoc" />
 		<dependency org="hsqldb" name="hsqldb" rev="1.8.0.10"
 			conf="test->default;foride->sources,javadoc" />
+		<dependency org="mysql" name="mysql-connector-java" rev="5.1.13"
+			conf="test->default;foride->sources,javadoc" />
 	</dependencies>
 </ivy-module>

@@ -10,7 +10,7 @@
                 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 	<bean id="placeholderConfig" class="com.sipcm.spring.EncryptedPlaceholderConfigurer"
 		init-method="init">
-		<property name="location" value="/config.properties" />
+		<property name="location" value="file:${appRoot}/config/config.properties" />
 	</bean>
 
 	<bean id="hibernateStringEncryptor"
@@ -54,10 +54,17 @@
 		<constructor-arg index="1" ref="global.threadFactory" />
 	</bean>
 
-	<bean id="applicationConfiguration" class="org.apache.commons.configuration.DataConfiguration">
+	<bean id="applicationConfiguration" class="org.apache.commons.configuration.CompositeConfiguration">
+		<constructor-arg index="0" ref="dataConfiguration" />
+		<constructor-arg index="1" ref="configurations" />
+	</bean>
+	<bean id="dataConfiguration" class="org.apache.commons.configuration.DataConfiguration">
 		<constructor-arg index="0"
 			ref="abstractApplicationConfiguration" />
 	</bean>
-
-	<bean id="stringDigester" class="org.jasypt.digest.StandardStringDigester" />
+	<util:list id="configurations">
+		<bean class="org.apache.commons.configuration.XMLPropertiesConfiguration">
+			<constructor-arg index="0" value="${appRoot}/config/system-config.xml" />
+		</bean>
+	</util:list>
 </beans>

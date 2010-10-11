@@ -8,7 +8,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sipcm.base.business.impl.AbstractTrackableService;
+import com.sipcm.base.business.impl.AbstractService;
 import com.sipcm.base.dao.DAO;
 import com.sipcm.common.business.CountryService;
 import com.sipcm.common.model.Country;
@@ -19,8 +19,8 @@ import com.sipcm.common.model.Country;
  */
 @Service("countryService")
 @Transactional(readOnly = true)
-public class CountryServiceImpl extends
-		AbstractTrackableService<Country, Integer> implements CountryService {
+public class CountryServiceImpl extends AbstractService<Country, Integer>
+		implements CountryService {
 	/*
 	 * (non-Javadoc)
 	 * 

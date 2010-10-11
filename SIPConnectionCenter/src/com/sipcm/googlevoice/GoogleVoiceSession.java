@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -31,6 +32,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -44,14 +46,17 @@ import com.sipcm.common.AuthenticationException;
 public class GoogleVoiceSession {
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.A.B.C Safari/525.13";
 
-	private static final String loginUrl = "https://www.google.com/accounts/ClientLogin";
-	private static final String baseUrl = "https://www.google.com/voice/";
+	private static final String loginPageUrl = "https://www.google.com/accounts/ServiceLogin";
+	private static final String loginUrl = "https://www.google.com/accounts/ServiceLoginAuth";
+	private static final String continueUrl = "https://www.google.com/voice/account/signin";
 	private static final String callUrl = "https://www.google.com/voice/call/connect/";
 	private static final String cancelUrl = "https://www.google.com/voice/call/cancel/";
 
-	private static final Pattern authPattern = Pattern.compile("^Auth=(.*)$");
+	private static Pattern galxPattern = Pattern.compile(
+			".*name=\"GALX\"\\s*value=\"([^\"]*)\".*", Pattern.DOTALL);
+
 	private static final Pattern rnr_sePattern = Pattern
-			.compile("^\\s*'_rnr_se':\\s+'(.*)',\\s*$");
+			.compile("^\\s*'_rnr_se':\\s*'(.*)',\\s*$");
 	private static final Pattern errorPattern = Pattern.compile("^Error=(.*)$");
 	private static final Pattern captchaTokenPattern = Pattern
 			.compile("^CaptchaToken=(.*)$");
@@ -61,7 +66,6 @@ public class GoogleVoiceSession {
 	private String username;
 	private String password;
 	private HttpClient httpClient;
-	private String authToken;
 	private String rnrSe;
 	private int maxRetry = 1;
 
@@ -81,11 +85,6 @@ public class GoogleVoiceSession {
 			@Override
 			public void process(HttpRequest request, HttpContext context)
 					throws HttpException, IOException {
-				if (!request.containsHeader("Authentication")
-						&& authToken != null) {
-					request.addHeader("Authorization", "GoogleLogin auth="
-							+ authToken);
-				}
 				request.setHeader("User-agent", USER_AGENT);
 			}
 		});
@@ -94,68 +93,52 @@ public class GoogleVoiceSession {
 
 	public void login() throws ClientProtocolException, IOException,
 			AuthenticationException, HttpResponseException {
+		HttpGet loginPage = new HttpGet(loginPageUrl);
+		HttpResponse response = httpClient.execute(loginPage);
+		String loginBody = EntityUtils.toString(response.getEntity());
+		Matcher m = galxPattern.matcher(loginBody);
+		String galx = null;
+		if (m.matches()) {
+			galx = m.group(1);
+		} else {
+			throw new NoAuthTokenException();
+		}
+
 		HttpPost login = new HttpPost(loginUrl);
 		List<NameValuePair> ps = new ArrayList<NameValuePair>();
-		ps.add(new BasicNameValuePair("accountType", "GOOGLE"));
 		ps.add(new BasicNameValuePair("Email", username));
 		ps.add(new BasicNameValuePair("Passwd", password));
-		ps.add(new BasicNameValuePair("service", "grandcentral"));
-		ps.add(new BasicNameValuePair("source", "sipcm-sipcm-1.0"));
+		ps.add(new BasicNameValuePair("continue", continueUrl));
+		ps.add(new BasicNameValuePair("GALX", galx));
 		HttpEntity oe = new UrlEncodedFormEntity(ps);
 		login.setEntity(oe);
-		HttpResponse response = httpClient.execute(login);
+		response = httpClient.execute(login);
+		while (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+			Header lh = response.getFirstHeader("Location");
+			HttpGet redirect = new HttpGet(lh.getValue());
+			response = httpClient.execute(redirect);
+		}
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					response.getEntity().getContent()));
 			try {
-				authToken = null;
 				String tmp = null;
 				while ((tmp = reader.readLine()) != null) {
-					Matcher m = authPattern.matcher(tmp);
+					m = rnr_sePattern.matcher(tmp);
 					if (m.matches()) {
-						authToken = m.group(1);
+						rnrSe = m.group(1);
 						break;
 					}
 				}
 			} finally {
 				reader.close();
 			}
-			if (authToken != null) {
-				HttpGet base = new HttpGet(baseUrl);
-				response = httpClient.execute(base);
-				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-					reader = new BufferedReader(new InputStreamReader(response
-							.getEntity().getContent()));
-					try {
-						String tmp = null;
-						while ((tmp = reader.readLine()) != null) {
-							Matcher m = rnr_sePattern.matcher(tmp);
-							if (m.matches()) {
-								rnrSe = m.group(1);
-								break;
-							}
-						}
-					} finally {
-						reader.close();
-					}
-					if (rnrSe == null) {
-						throw new NoRnrSeException();
-					}
-				} else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
-					parseError(response.getEntity());
-				} else {
-					throw new HttpResponseException(response.getStatusLine()
-							.getStatusCode(),
-							"Error happened when parse rnr_se");
-				}
-			} else {
-				throw new NoAuthTokenException();
+			if (rnrSe == null) {
+				throw new NoRnrSeException();
 			}
-		} else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
-			parseError(response.getEntity());
 		} else {
 			throw new HttpResponseException(response.getStatusLine()
-					.getStatusCode(), "Error happened when parse auth tokens");
+					.getStatusCode(), "Error happened during login.");
 		}
 	}
 

@@ -15,6 +15,7 @@ import java.util.TooManyListenersException;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ListeningPoint;
@@ -29,6 +30,7 @@ import javax.sip.message.MessageFactory;
 
 import org.apache.commons.configuration.Configuration;
 import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,9 +39,11 @@ import org.springframework.stereotype.Component;
  */
 @Component("sipCenter")
 public class SipCenter {
+	public static final String STACK_NAME = "sip.stackname";
 	public static final String LISTEN_INTERFACE = "sip.interfaces";
 	public static final String LISTEN_PORT = "sip.port";
 	public static final String LISTEN_TRANSPORT = "sip.transport";
+	public static final String SIP_DEBUGLOGEVEL = "sip.loglevel";
 
 	private static String SINGLE_IP = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
 	private static Pattern IP_PATTERN = Pattern.compile(SINGLE_IP + "\\."
@@ -114,6 +118,8 @@ public class SipCenter {
 		}
 		int port = config.getInt(LISTEN_PORT, 5060);
 		String transport = config.getString(LISTEN_TRANSPORT, "udp");
+		String stackName = config.getString(STACK_NAME, "sipcm.com");
+		String logLevel = config.getString(SIP_DEBUGLOGEVEL, "8");
 
 		sipFactory = SipFactory.getInstance();
 		sipFactory.setPathName("gov.nist");
@@ -121,17 +127,19 @@ public class SipCenter {
 		headerFactory = sipFactory.createHeaderFactory();
 		messageFactory = sipFactory.createMessageFactory();
 		Properties properties = new Properties();
-		properties.setProperty("javax.sip.STACK_NAME", "wgao");
+		properties.setProperty("javax.sip.STACK_NAME", stackName);
 		properties
 				.setProperty("gov.nist.javax.sip.MAX_MESSAGE_SIZE", "1048576");
 		properties.setProperty("gov.nist.javax.sip.DEBUG_LOG",
-				"SIPClientDebug.txt");
+				"SIPServerDebug.txt");
 		properties.setProperty("gov.nist.javax.sip.SERVER_LOG",
-				"SIPClientlog.txt");
+				"SIPServerLog.txt");
 		properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", "16");
 		// Drop the client connection after we are done with the transaction.
 		properties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS",
 				"true");
+		properties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
+		properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "50");
 		sipStack = sipFactory.createSipStack(properties);
 
 		for (InetAddress ia : addrs) {
@@ -139,7 +147,12 @@ public class SipCenter {
 					ia.getHostAddress(), port, transport);
 			SipProvider sipProvider = sipStack.createSipProvider(lp);
 			sipProvider.addSipListener(listener);
-			sipStack.start();
 		}
+		sipStack.start();
+	}
+
+	@PreDestroy
+	public void destroy() {
+		sipStack.stop();
 	}
 }

@@ -8,6 +8,7 @@ import java.io.Serializable;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -20,23 +21,24 @@ import org.hibernate.annotations.SQLDelete;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
+import com.sipcm.sip.VoipVenderType;
 
 /**
  * @author wgao
  * 
  */
 @Entity
-@Table(name = "tbl_sipprovider", uniqueConstraints = {
+@Table(name = "tbl_voipvender", uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "name", "deletedate" }),
 		@UniqueConstraint(columnNames = { "domainname", "deletedate" }) })
-@SQLDelete(sql = "UPDATE tbl_sipprovider SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
-public class SIPProvider extends AbstractTrackableEntity implements
+@SQLDelete(sql = "UPDATE tbl_voipvender SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
+public class VoipVender extends AbstractTrackableEntity implements
 		IdBasedEntity<Integer>, Serializable {
 	private static final long serialVersionUID = -6112174515534743458L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "ID")
+	@Column(name = "id")
 	private Integer id;
 
 	@Basic
@@ -50,6 +52,10 @@ public class SIPProvider extends AbstractTrackableEntity implements
 	@Basic
 	@Column(name = "proxy", length = 256)
 	private String proxy;
+
+	@Enumerated
+	@Column(name = "type", nullable = false)
+	private VoipVenderType type;
 
 	/**
 	 * @param id
@@ -114,6 +120,21 @@ public class SIPProvider extends AbstractTrackableEntity implements
 		return proxy;
 	}
 
+	/**
+	 * @param type
+	 *            the type to set
+	 */
+	public void setType(VoipVenderType type) {
+		this.type = type;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public VoipVenderType getType() {
+		return type;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -137,10 +158,10 @@ public class SIPProvider extends AbstractTrackableEntity implements
 		if (this == other) {
 			return true;
 		}
-		if (other == null || !(other instanceof SIPProvider)) {
+		if (other == null || !(other instanceof VoipVender)) {
 			return false;
 		}
-		final SIPProvider obj = (SIPProvider) other;
+		final VoipVender obj = (VoipVender) other;
 		EqualsBuilder eb = new EqualsBuilder();
 		eb.append(name.toUpperCase(), obj.name.toUpperCase());
 		eb.append(deleteDate, obj.deleteDate);

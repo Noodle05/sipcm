@@ -5,14 +5,18 @@ package com.sipcm.common.model;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.Set;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -25,6 +29,8 @@ import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
 import com.sipcm.common.AccountStatus;
 import com.sipcm.common.OnlineStatus;
+import com.sipcm.common.PhoneNumberStatus;
+import com.sipcm.sip.model.UserVoipAccount;
 
 /**
  * @author wgao
@@ -73,8 +79,8 @@ public class User extends AbstractTrackableEntity implements
 	@Column(name = "username", length = 64, nullable = false)
 	private String username;
 
-	@Type(type = "encryptedString")
-	@Column(name = "password", length = 64)
+	@Basic
+	@Column(name = "password", length = 256)
 	private String password;
 
 	@Enumerated
@@ -86,12 +92,24 @@ public class User extends AbstractTrackableEntity implements
 	private String sipId;
 
 	@Type(type = "encryptedString")
-	@Column(name = "sippassword", length = 64, nullable = false)
+	@Column(name = "sippassword", length = 256, nullable = false)
 	private String sipPassword;
 
 	@Enumerated
 	@Column(name = "sipstatus", nullable = false)
 	private OnlineStatus sipStatus;
+
+	@Basic
+	@Column(name = "phonenumber", length = 32)
+	private String phoneNumber;
+
+	@Enumerated
+	@Column(name = "phonenumberstatus")
+	private PhoneNumberStatus phoneNumberStatus;
+
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "user_id")
+	private Set<UserVoipAccount> voipAccounts;
 
 	/**
 	 * @param id
@@ -299,6 +317,51 @@ public class User extends AbstractTrackableEntity implements
 	 */
 	public OnlineStatus getSipStatus() {
 		return sipStatus;
+	}
+
+	/**
+	 * @param phoneNumber
+	 *            the phoneNumber to set
+	 */
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	/**
+	 * @return the phoneNumber
+	 */
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	/**
+	 * @param phoneNumberStatus
+	 *            the phoneNumberStatus to set
+	 */
+	public void setPhoneNumberStatus(PhoneNumberStatus phoneNumberStatus) {
+		this.phoneNumberStatus = phoneNumberStatus;
+	}
+
+	/**
+	 * @return the phoneNumberStatus
+	 */
+	public PhoneNumberStatus getPhoneNumberStatus() {
+		return phoneNumberStatus;
+	}
+
+	/**
+	 * @param voipAccounts
+	 *            the voipAccounts to set
+	 */
+	public void setSipAccounts(Set<UserVoipAccount> voipAccounts) {
+		this.voipAccounts = voipAccounts;
+	}
+
+	/**
+	 * @return the voipAccounts
+	 */
+	public Set<UserVoipAccount> getVoipAccounts() {
+		return voipAccounts;
 	}
 
 	/*

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<comment>Calling Center configuration file</comment>
+	<entry key="sip.stackname">sipcm.com</entry>
+	<entry key="sip.interfaces">*</entry>
+	<entry key="sip.port">5060</entry>
+	<entry key="sip.transport">udp</entry>
+	<entry key="sip.loglevel">16</entry>
+</properties>

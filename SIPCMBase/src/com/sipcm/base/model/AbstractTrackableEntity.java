@@ -23,11 +23,11 @@ public abstract class AbstractTrackableEntity implements TrackableEntity {
 	private static final long serialVersionUID = 1902546028219639721L;
 
 	@Basic
-	@Column(name = "createdate", nullable = false)
+	@Column(name = "createdate")
 	protected Timestamp createDate;
 
 	@Basic
-	@Column(name = "lastmodify", nullable = false)
+	@Column(name = "lastmodify")
 	protected Timestamp lastModify;
 
 	@Basic

@@ -8,7 +8,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sipcm.base.business.impl.AbstractTrackableService;
+import com.sipcm.base.business.impl.AbstractService;
 import com.sipcm.base.dao.DAO;
 import com.sipcm.common.business.AddressService;
 import com.sipcm.common.model.Address;
@@ -19,7 +19,7 @@ import com.sipcm.common.model.Address;
  */
 @Service("addressService")
 @Transactional(readOnly = true)
-public class AddressServiceImpl extends AbstractTrackableService<Address, Long>
+public class AddressServiceImpl extends AbstractService<Address, Long>
 		implements AddressService {
 	/*
 	 * (non-Javadoc)

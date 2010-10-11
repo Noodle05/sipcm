@@ -5,11 +5,12 @@ package com.sipcm.common.business.impl;
 
 import javax.annotation.Resource;
 
+import org.jasypt.digest.StringDigester;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sipcm.base.business.impl.AbstractTrackableService;
+import com.sipcm.base.business.impl.AbstractService;
 import com.sipcm.base.dao.DAO;
 import com.sipcm.base.filter.Filter;
 import com.sipcm.common.AccountStatus;
@@ -23,8 +24,11 @@ import com.sipcm.common.model.User;
  */
 @Service("userService")
 @Transactional(readOnly = true)
-public class UserServiceImpl extends AbstractTrackableService<User, Long>
-		implements UserService {
+public class UserServiceImpl extends AbstractService<User, Long> implements
+		UserService {
+	@Resource(name = "stringDigester")
+	private StringDigester stringDigester;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -68,5 +72,32 @@ public class UserServiceImpl extends AbstractTrackableService<User, Long>
 	public User getUserBySipId(String sipId) {
 		Filter filter = filterFactory.createSimpleFilter("sipId", sipId);
 		return dao.getUniqueEntity(filter);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.common.business.UserService#setUserPassword(com.sipcm.common
+	 * .model.User, java.lang.String)
+	 */
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS)
+	public User setPassword(User entity, String password) {
+		entity.setPassword(stringDigester.digest(password));
+		return entity;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.common.business.UserService#matchPassword(com.sipcm.common.
+	 * model.User, java.lang.String)
+	 */
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS)
+	public boolean matchPassword(User entity, String password) {
+		return stringDigester.matches(password, entity.getPassword());
 	}
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * @author wgao
  * 
  */
-@Component("sipRequestProcessCenter")
+@Component("sipServerRequestProcessor")
 public class SipServerRequestProcessCenter {
 
 }

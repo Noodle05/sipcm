@@ -1,7 +1,6 @@
 package com.sipcm.common;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +32,7 @@ public class UserServiceTest {
 		user.setEmail("wei.j.gao@gmail.com");
 		user.setSipId("SCM00001");
 		user.setSipPassword("DSY3NB");
-		user.setPassword("P@ssw0rd");
+		userService.setPassword(user, "P@ssw0rd");
 		users.add(user);
 		user = userService.createNewEntity();
 		user.setFirstName("Lindsey");
@@ -42,7 +41,7 @@ public class UserServiceTest {
 		user.setEmail("lindsey.george@gmail.com");
 		user.setSipId("SCM00002");
 		user.setSipPassword("38NSFP");
-		user.setPassword("P@ssw0rd");
+		userService.setPassword(user, "P@ssw0rd");
 		users.add(user);
 		userService.saveEntities(users);
 	}
@@ -51,7 +50,7 @@ public class UserServiceTest {
 	public void testSearchUsername() {
 		User user = userService.getUserByUsername("wgao");
 		assertNotNull(user);
-		assertEquals(user.getPassword(), "P@ssw0rd");
+		assertTrue(userService.matchPassword(user, "P@ssw0rd"));
 	}
 
 	@Test

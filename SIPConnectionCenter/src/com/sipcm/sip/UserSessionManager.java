@@ -15,6 +15,8 @@ import javax.sip.header.ProxyAuthorizationHeader;
 import javax.sip.message.Request;
 
 import org.apache.commons.configuration.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sipcm.common.AuthenticationException;
@@ -29,6 +31,9 @@ import com.sipcm.common.model.User;
  */
 @Component("userSessionManager")
 public abstract class UserSessionManager {
+	public static final Logger logger = LoggerFactory
+			.getLogger(UserSessionManager.class);
+
 	public static final String SIP_REALM = "sipcm.realm";
 	public static final String DEFAULT_REALM = "sipcm.com";
 
