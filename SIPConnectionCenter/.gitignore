@@ -4,3 +4,7 @@
 /ivy
 /.settings
 /.springBeans
+/SIPClientLog.txt
+/SIPClientDebug.txt
+/SIPServerDebug.txt
+/SIPServerLog.txt
