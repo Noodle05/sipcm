@@ -29,7 +29,7 @@ public class VoipVendorServiceImpl extends AbstractService<VoipVendor, Integer>
 	 * .DAO)
 	 */
 	@Override
-	@Resource(name = "voipVenderDAO")
+	@Resource(name = "voipVendorDAO")
 	public void setDAO(DAO<VoipVendor, Integer> dao) {
 		this.dao = dao;
 	}

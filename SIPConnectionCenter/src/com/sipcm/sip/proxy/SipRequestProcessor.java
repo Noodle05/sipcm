@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.sipcm.sip;
+package com.sipcm.sip.proxy;
 
 import javax.sip.RequestEvent;
 

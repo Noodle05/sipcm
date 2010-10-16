@@ -7,6 +7,7 @@ import java.util.Collection;
 
 import javax.annotation.Resource;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -54,6 +55,7 @@ public class UserServiceTest {
 	}
 
 	@Test
+	@Ignore
 	public void testDelete() {
 		User user = userService.getUserBySipId("SCM00001");
 		assertNotNull(user);

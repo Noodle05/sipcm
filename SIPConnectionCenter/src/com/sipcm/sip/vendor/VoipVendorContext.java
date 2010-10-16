@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.sipcm.sip;
+package com.sipcm.sip.vendor;
 
 import com.sipcm.sip.model.VoipVendor;
 

@@ -10,6 +10,6 @@ import com.sipcm.sip.model.VoipVendor;
  * @author wgao
  *
  */
-public interface VoipVenderDAO extends DAO<VoipVendor, Integer> {
+public interface VoipVendorDAO extends DAO<VoipVendor, Integer> {
 
 }

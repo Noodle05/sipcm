@@ -104,7 +104,7 @@ public class DnsUtil {
 			lookup(a, "sipgate.com");
 			lookup(a, "nonoh.net");
 			lookup(a, "localphone.com");
-			lookup(a, "gaofamily.org");
+			lookup(a, "ipkall.com");
 			lookup(a, "ooma.com");
 		} catch (Exception e) {
 			e.printStackTrace();

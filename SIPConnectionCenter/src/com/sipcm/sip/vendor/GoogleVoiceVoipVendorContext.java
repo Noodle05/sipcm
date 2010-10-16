@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.sipcm.sip;
+package com.sipcm.sip.vendor;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.sipcm.sip;
+package com.sipcm.sip.proxy;
 
 import javax.sip.DialogTerminatedEvent;
 import javax.sip.IOExceptionEvent;
@@ -11,6 +11,7 @@ import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
 
 import org.springframework.stereotype.Component;
+
 
 /**
  * @author wgao

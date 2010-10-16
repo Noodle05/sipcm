@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.sipcm.sip;
+package com.sipcm.sip.vendor;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +11,8 @@ import javax.annotation.Resource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.sipcm.sip.IpPort;
+import com.sipcm.sip.Protocol;
 import com.sipcm.sip.model.VoipVendor;
 import com.sipcm.util.DnsUtil;
 

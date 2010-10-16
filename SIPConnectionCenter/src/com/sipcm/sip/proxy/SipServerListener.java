@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.sipcm.sip;
+package com.sipcm.sip.proxy;
 
 import javax.annotation.Resource;
 import javax.sip.DialogTerminatedEvent;
@@ -14,28 +14,29 @@ import javax.sip.TransactionTerminatedEvent;
 
 import org.springframework.stereotype.Component;
 
+
 /**
  * @author wgao
  * 
  */
-@Component("sipClientListener")
-public class SipClientListener implements SipListener {
-	@Resource(name = "sipClientMessageProcessor")
+@Component("sipServerListener")
+public class SipServerListener implements SipListener {
+	@Resource(name = "sipServerMessageProcessor")
 	private SipRequestProcessor requestProcessor;
 
-	@Resource(name = "sipClientMessageProcessor")
+	@Resource(name = "sipServerMessageProcessor")
 	private SipResponseProcessor responseProcessor;
 
-	@Resource(name = "sipClientMessageProcessor")
+	@Resource(name = "sipServerMessageProcessor")
 	private SipTimeoutProcessor timeoutProcessor;
 
-	@Resource(name = "sipClientMessageProcessor")
+	@Resource(name = "sipServerMessageProcessor")
 	private SipIOExceptionProcessor ioExceptionProcessor;
 
-	@Resource(name = "sipClientMessageProcessor")
+	@Resource(name = "sipServerMessageProcessor")
 	private SipTransactionTerminatedProcessor transactionTerminatedProcessor;
 
-	@Resource(name = "sipClientMessageProcessor")
+	@Resource(name = "sipServerMessageProcessor")
 	private SipDialogTerminatedProcessor dialogTerminatedProcessor;
 
 	/*

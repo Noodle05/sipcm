@@ -16,16 +16,9 @@
 				where we can get what we need -->
 			<ibiblio name="java.net" root="http://download.java.net/maven/2/"
 				pattern="[organisation]/[type]s/[artifact]-[revision].[ext]" />
-			<filesystem name="projects">
-				<artifact pattern="${repository.dir}/[artifact]-[revision].[ext]" />
-				<ivy pattern="${repository.dir}/[module]-[revision].xml" />
-			</filesystem>
 		</chain>
 	</resolvers>
 	<include url="${ivy.default.settings.dir}/ivysettings-main-chain.xml" />
 	<include url="${ivy.default.settings.dir}/ivysettings-default-chain.xml" />
-	<modules>
-		<module organisation="com.sipcm" name="SIPCMBase" resolver="projects" />
-	</modules>
 </ivysettings>
 

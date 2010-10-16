@@ -26,7 +26,7 @@ import org.hibernate.dialect.Dialect;
  */
 public class SchemaCreator {
 	public static final String DEFAULT_BASE_PACKAGE = "com.sipcm";
-	public static final String DEFAULT_DIALECT = "org.hibernate.dialect.MySQL5Dialect";
+	public static final String DEFAULT_DIALECT = "org.hibernate.dialect.MySQL5InnoDBDialect";
 	public static final String DEFAULT_SEPARATER = ";";
 	public static final int CREATE = 1;
 	public static final int DROP = 2;

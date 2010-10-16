@@ -27,9 +27,6 @@ import javax.sip.SipFactory;
 import javax.sip.SipListener;
 import javax.sip.SipProvider;
 import javax.sip.SipStack;
-import javax.sip.address.AddressFactory;
-import javax.sip.header.HeaderFactory;
-import javax.sip.message.MessageFactory;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.ArrayUtils;
@@ -46,11 +43,17 @@ public class SipCenter {
 	public static final String LISTEN_SERVER_INTERFACE = "sip.server.interfaces";
 	public static final String LISTEN_SERVER_PORT = "sip.server.port";
 	public static final String LISTEN_SERVER_TRANSPORT = "sip.server.transport";
+	public static final String SIP_SERVER_THREADPOOLSIZE = "sip.server.threadpoolsize";
 	public static final String SIP_SERVER_LOGEVEL = "sip.server.loglevel";
+	public static final String SIP_SERVER_LOGFILE = "sip.server.logfile";
+	public static final String SIP_SERVER_DEBUGFILE = "sip.server.debugfile";
 	public static final String CLIENT_STACK_NAME = "sip.client.stackname";
 	public static final String LISTEN_CLIENT_INTERFACE = "sip.client.interfaces";
 	public static final String LISTEN_CLIENT_PORT = "sip.client.port";
+	public static final String SIP_CLIENT_THREADPOOLSIZE = "sip.client.threadpoolsize";
 	public static final String SIP_CLIENT_LOGEVEL = "sip.client.loglevel";
+	public static final String SIP_CLIENT_LOGFILE = "sip.client.logfile";
+	public static final String SIP_CLIENT_DEBUGFILE = "sip.client.debugfile";
 	public static final String IPV4_ONLY = "sip.ipv4.only";
 
 	private static String SINGLE_IP = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
@@ -60,10 +63,9 @@ public class SipCenter {
 	@Resource(name = "applicationConfiguration")
 	private Configuration config;
 
+	@Resource(name = "sipFactory")
 	private SipFactory sipFactory;
-	private AddressFactory addressFactory;
-	private MessageFactory messageFactory;
-	private HeaderFactory headerFactory;
+
 	private SipStack serverSipStack;
 	private SipStack clientSipStack;
 
@@ -201,28 +203,26 @@ public class SipCenter {
 
 		String serverStackName = config.getString(SERVER_STACK_NAME,
 				"server.sipcm.com");
-		String serverLogLevel = config.getString(SIP_SERVER_LOGEVEL, "32");
+		String serverLogLevel = config.getString(SIP_SERVER_LOGEVEL, "0");
 
-		sipFactory = SipFactory.getInstance();
-		sipFactory.setPathName("gov.nist");
-		addressFactory = sipFactory.createAddressFactory();
-		headerFactory = sipFactory.createHeaderFactory();
-		messageFactory = sipFactory.createMessageFactory();
+		int serverThreadPoolSize = config.getInt(SIP_SERVER_THREADPOOLSIZE, 20);
+
 		Properties properties = new Properties();
 		properties.setProperty("javax.sip.STACK_NAME", serverStackName);
 		properties
 				.setProperty("gov.nist.javax.sip.MAX_MESSAGE_SIZE", "1048576");
 		properties.setProperty("gov.nist.javax.sip.DEBUG_LOG",
-				"SIPServerDebug.txt");
+				config.getString(SIP_SERVER_DEBUGFILE));
 		properties.setProperty("gov.nist.javax.sip.SERVER_LOG",
-				"SIPServerLog.txt");
+				config.getString(SIP_SERVER_LOGFILE));
 		properties
 				.setProperty("gov.nist.javax.sip.TRACE_LEVEL", serverLogLevel);
 		// Drop the client connection after we are done with the transaction.
 		properties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS",
 				"true");
 		properties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
-		properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "50");
+		properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE",
+				Integer.toString(serverThreadPoolSize));
 		serverSipStack = sipFactory.createSipStack(properties);
 
 		for (InetAddress ia : serverAddrs) {
@@ -232,24 +232,27 @@ public class SipCenter {
 			sipProvider.addSipListener(serverListener);
 		}
 
+		int clientThreadPoolSize = config.getInt(SIP_CLIENT_THREADPOOLSIZE, 20);
+
 		String clientStackName = config.getString(CLIENT_STACK_NAME,
 				"client.sipcm.com");
-		String clientLogLevel = config.getString(SIP_CLIENT_LOGEVEL, "32");
+		String clientLogLevel = config.getString(SIP_CLIENT_LOGEVEL, "0");
 		properties.clear();
 		properties.setProperty("javax.sip.STACK_NAME", clientStackName);
 		properties
 				.setProperty("gov.nist.javax.sip.MAX_MESSAGE_SIZE", "1048576");
 		properties.setProperty("gov.nist.javax.sip.DEBUG_LOG",
-				"SIPClientDebug.txt");
+				config.getString(SIP_CLIENT_DEBUGFILE));
 		properties.setProperty("gov.nist.javax.sip.SERVER_LOG",
-				"SIPClientLog.txt");
+				config.getString(SIP_CLIENT_LOGFILE));
 		properties
 				.setProperty("gov.nist.javax.sip.TRACE_LEVEL", clientLogLevel);
 		// Drop the client connection after we are done with the transaction.
 		properties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS",
 				"true");
 		properties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
-		properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "50");
+		properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE",
+				Integer.toString(clientThreadPoolSize));
 		clientSipStack = sipFactory.createSipStack(properties);
 
 		for (InetAddress ia : clientAddrs) {
@@ -273,17 +276,5 @@ public class SipCenter {
 	public void stop() {
 		serverSipStack.stop();
 		clientSipStack.stop();
-	}
-
-	public AddressFactory getAddressFactory() {
-		return addressFactory;
-	}
-
-	public HeaderFactory getHeaderFactory() {
-		return headerFactory;
-	}
-
-	public MessageFactory getMessageFactory() {
-		return messageFactory;
 	}
 }

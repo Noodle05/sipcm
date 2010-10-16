@@ -6,13 +6,36 @@
                 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
                 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
                 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
-	<bean id="sipUserSessionManager" class="com.sipcm.sip.UserSessionManager">
-		<lookup-method name="createUserSession" bean="sipUserSession" />
+	<bean id="sipLocationService" class="com.sipcm.sip.locationservice.LocationServiceImpl">
+		<lookup-method name="createUserProfile" bean="sipUserProfile" />
 	</bean>
 
-	<bean id="voipVendorManager" class="com.sipcm.sip.VoipVendorManager">
+	<bean id="voipVendorManager" class="com.sipcm.sip.vendor.VoipVendorManager">
 		<lookup-method name="createGoogleVoiceVoipVendorContext"
 			bean="googleVoiceVoipVendorContext" />
 		<lookup-method name="createSipVoipVendorContext" bean="sipVoipVendorContext" />
 	</bean>
+
+	<util:map id="serverMethodMap" key-type="java.lang.String"
+		value-type="com.sipcm.sip.plugins.MethodPlugin">
+		<entry key="REGISTER" value-ref="registerMethod" />
+		<entry key="INVITE" value-ref="inviteMethod" />
+		<entry key="ACK" value-ref="ackMethod" />
+		<entry key="BYE" value-ref="byeMethod" />
+		<entry key="INFO" value-ref="infoMethod" />
+		<entry key="OPTIONS" value-ref="optionsMethod" />
+		<entry key="CANCEL" value-ref="cancelMethod" />
+	</util:map>
+
+	<bean id="sipFactory" class="javax.sip.SipFactory" factory-method="getInstance"
+		init-method="resetFactory" />
+
+	<bean id="sipAddressFactory" factory-bean="sipFactory"
+		factory-method="createAddressFactory" />
+
+	<bean id="sipHeaderFactory" factory-bean="sipFactory"
+		factory-method="createHeaderFactory" />
+
+	<bean id="sipMessageFactory" factory-bean="sipFactory"
+		factory-method="createMessageFactory" />
 </beans>

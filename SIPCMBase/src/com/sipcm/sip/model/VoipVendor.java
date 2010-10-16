@@ -46,7 +46,7 @@ public class VoipVendor extends AbstractTrackableEntity implements
 	private String name;
 
 	@Basic
-	@Column(name = "domainname", length = 256, nullable = false)
+	@Column(name = "domainname", length = 255, nullable = false)
 	private String domain;
 
 	@Basic

@@ -7,9 +7,21 @@
 	<entry key="sip.server.interfaces">en0</entry>
 	<entry key="sip.server.port">5060</entry>
 	<entry key="sip.server.transport">udp</entry>
-	<entry key="sip.server.loglevel">16</entry>
+	<entry key="sip.server.threadpoolsize">20</entry>
+	<entry key="sip.server.loglevel">32</entry>
+	<entry key="sip.server.logfile">SIPServerLog.txt</entry>
+	<entry key="sip.server.debugfile">SIPServerDebug.txt</entry>
 	<entry key="sip.client.stackname">client.sipcm.com</entry>
 	<entry key="sip.client.interfaces">en0</entry>
 	<entry key="sip.client.port">5070</entry>
-	<entry key="sip.client.loglevel">16</entry>
+	<entry key="sip.client.threadpoolsize">20</entry>
+	<entry key="sip.client.loglevel">32</entry>
+	<entry key="sip.client.logfile">SIPClientLog.txt</entry>
+	<entry key="sip.client.debugfile">SIPClientDebug.txt</entry>
+	<entry key="domainname">sipcm.com</entry>
+	<entry key="sip.server.realm">sipcm.com</entry>
+	<entry key="sip.server.interval.min">900</entry>
+
+	<entry key="sip.expirestime.min">120</entry>
+	<entry key="sip.expirestime.max">600</entry>
 </properties>

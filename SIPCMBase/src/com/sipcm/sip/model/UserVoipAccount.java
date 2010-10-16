@@ -42,11 +42,11 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	@Column(name = "id")
 	private Long id;
 
-	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, optional = false)
 	@JoinColumn(name = "user_id")
 	private User ownser;
 
-	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, optional = false)
 	@JoinColumn(name = "voipvendor_id")
 	private VoipVendor voipVendor;
 

@@ -17,7 +17,6 @@
 		<include file="../settings/ivy-config.xml" />
 	</configurations>
 	<dependencies>
-		<dependency name="SIPCMBase" rev="latest.integration" />
 		<dependency org="c3p0" name="c3p0" rev="0.9.1.2"
 			conf="test->default;foride->sources,javadoc" />
 		<dependency org="org.hibernate" name="hibernate-c3p0"
@@ -36,5 +35,64 @@
 			rev="3.0.3.RELEASE" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="mysql" name="mysql-connector-java" rev="5.1.13"
 			conf="provided->default;foride->sources,javadoc" />
+		<dependency org="commons-codec" name="commons-codec" rev="1.4"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="commons-collections" name="commons-collections"
+			rev="3.2.1" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="commons-configuration" name="commons-configuration"
+			rev="1.6" conf="compile->default;foride->sources,javadoc">
+			<exclude module="commons-digester" />
+		</dependency>
+		<dependency org="commons-digester" name="commons-digester"
+			rev="2.1" conf="runtime->default;foride->sources,javadoc">
+			<exclude module="commons-beanutils" />
+		</dependency>
+		<dependency org="commons-lang" name="commons-lang" rev="2.4"
+			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="javassist" name="javassist" rev="3.8.0.GA"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="log4j" name="log4j" rev="1.2.16"
+			conf="runtime->default;foride->sources,javadoc">
+			<exclude module="jmxri" />
+			<exclude module="jmxtools" />
+			<exclude module="jms" />
+			<exclude module="mail" />
+		</dependency>
+		<dependency org="cglib" name="cglib-nodep" rev="2.2"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.jasypt" name="jasypt" rev="1.6"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.5.6-Final"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.hibernate" name="hibernate-annotations"
+			rev="3.5.6-Final" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.aspectj" name="aspectjrt" rev="1.6.9"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.aspectj" name="aspectjtools" rev="1.6.9"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1"
+			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-aop"
+			rev="3.0.4.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-beans"
+			rev="3.0.4.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-context-support"
+			rev="3.0.4.RELEASE" conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-core"
+			rev="3.0.4.RELEASE" conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-jdbc"
+			rev="3.0.4.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-orm"
+			rev="3.0.4.RELEASE" conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-test"
+			rev="3.0.4.RELEASE" conf="test->default;foride->sources,javadoc" />
+		<dependency org="opensymphony" name="quartz" rev="1.6.3"
+			conf="runtime->default" />
+		<dependency org="com.google.guava" name="guava" rev="r07"
+			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="junit" name="junit" rev="4.8.1"
+			conf="test->default;foride->sources,javadoc" />
 	</dependencies>
 </ivy-module>

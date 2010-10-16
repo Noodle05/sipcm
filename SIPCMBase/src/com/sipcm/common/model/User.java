@@ -72,15 +72,15 @@ public class User extends AbstractTrackableEntity implements
 	private Date birthDay;
 
 	@Basic
-	@Column(name = "email", length = 256, nullable = false)
+	@Column(name = "email", length = 255, nullable = false)
 	private String email;
 
 	@Basic
-	@Column(name = "username", length = 64, nullable = false)
+	@Column(name = "username", length = 32, nullable = false)
 	private String username;
 
 	@Basic
-	@Column(name = "password", length = 256)
+	@Column(name = "password", length = 32)
 	private String password;
 
 	@Enumerated
@@ -92,7 +92,7 @@ public class User extends AbstractTrackableEntity implements
 	private String sipId;
 
 	@Type(type = "encryptedString")
-	@Column(name = "sippassword", length = 256, nullable = false)
+	@Column(name = "sippassword", length = 64, nullable = false)
 	private String sipPassword;
 
 	@Enumerated
