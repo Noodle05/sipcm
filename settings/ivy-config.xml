@@ -1,7 +1,0 @@
-<configurations>
-	<conf name="provided" description="System provided" />
-	<conf name="compile" description="Build Time dependencies" />
-	<conf name="test" description="Test Time dependencies" extends="runtime" />
-	<conf name="runtime" description="Run Time dependencies" extends="compile" />
-	<conf name="foride" extends="compile" />
-</configurations>
