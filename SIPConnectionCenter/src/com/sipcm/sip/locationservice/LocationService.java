@@ -2,26 +2,26 @@ package com.sipcm.sip.locationservice;
 
 import java.util.Collection;
 
-import javax.sip.address.SipURI;
-import javax.sip.header.ContactHeader;
+import javax.servlet.sip.Address;
 
 import com.sipcm.common.model.User;
 
 public interface LocationService {
 
-	public void removeAllBinding(SipURI key) throws UserNotFoundException;
+	public void removeAllBinding(String key) throws UserNotFoundException;
 
-	public Binding getBinding(SipURI key, ContactHeader contactHeader);
+	public Binding getBinding(String key, Address address);
 
-	public void removeBinding(SipURI key, ContactHeader contactHeader)
+	public void removeBinding(String key, Address address)
 			throws UserNotFoundException;
 
-	public void updateRegistration(SipURI key, ContactHeader contactHeader,
-			String callId, long cseq) throws UserNotFoundException;
-
-	public Collection<ContactHeader> getContactHeaders(SipURI key)
+	public void updateRegistration(String key, Address address, String callId)
 			throws UserNotFoundException;
 
-	public void register(SipURI key, User user, ContactHeader contactHeader,
-			String callid, long cseq);
+	public Collection<Address> getAddresses(String key)
+			throws UserNotFoundException;
+
+	public void register(String key, User user, Address address, String callid);
+
+	public void checkContactExpires();
 }

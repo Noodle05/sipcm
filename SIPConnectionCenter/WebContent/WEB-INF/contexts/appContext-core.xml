@@ -8,9 +8,17 @@
                 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
                 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
                 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+	<context:spring-configured />
+	<context:annotation-config />
+	<context:component-scan base-package="com.sipcm" />
+
+	<context:load-time-weaver />
+
+	<aop:aspectj-autoproxy />
+
 	<bean id="placeholderConfig" class="com.sipcm.spring.EncryptedPlaceholderConfigurer"
 		init-method="init">
-		<property name="location" value="file:${appRoot}/config/config.properties" />
+		<property name="location" value="/WEB-INF/config/config.properties" />
 	</bean>
 
 	<bean id="hibernateStringEncryptor"
@@ -25,10 +33,6 @@
 			<value>${string.encryptor.password.encrypted}</value>
 		</property>
 	</bean>
-
-	<context:component-scan base-package="com.sipcm" />
-
-	<aop:aspectj-autoproxy />
 
 	<tx:annotation-driven transaction-manager="txManager" />
 
@@ -54,6 +58,10 @@
 		<constructor-arg index="1" ref="global.threadFactory" />
 	</bean>
 
+	<bean id="email.queue" class="java.util.concurrent.LinkedBlockingQueue">
+		<constructor-arg index="0" value="500" />
+	</bean>
+
 	<bean id="applicationConfiguration" class="org.apache.commons.configuration.CompositeConfiguration">
 		<constructor-arg index="0" ref="dataConfiguration" />
 		<constructor-arg index="1" ref="configurations" />
@@ -65,7 +73,7 @@
 	<util:list id="configurations">
 		<bean class="org.apache.commons.configuration.XMLPropertiesConfiguration">
 			<constructor-arg index="0"
-				value="${appRoot}/config/system-config.xml" />
+				value="${webapp.root}/WEB-INF/config/system-config.xml" />
 		</bean>
 	</util:list>
 

@@ -5,6 +5,8 @@ package com.sipcm.common.business.impl;
 
 import javax.annotation.Resource;
 
+import org.apache.catalina.realm.RealmBase;
+import org.apache.commons.configuration.Configuration;
 import org.jasypt.digest.StringDigester;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,8 +28,12 @@ import com.sipcm.common.model.User;
 @Transactional(readOnly = true)
 public class UserServiceImpl extends AbstractService<User, Long> implements
 		UserService {
+	public static final String DOMAIN_NAME = "sip.server.realm";
 	@Resource(name = "stringDigester")
 	private StringDigester stringDigester;
+
+	@Resource(name = "applicationConfiguration")
+	private Configuration appConfig;
 
 	/*
 	 * (non-Javadoc)
@@ -66,25 +72,18 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.common.business.UserService#getUserBySipId(java.lang.String)
-	 */
-	@Override
-	public User getUserBySipId(String sipId) {
-		Filter filter = filterFactory.createSimpleFilter("sipId", sipId);
-		return dao.getUniqueEntity(filter);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
 	 * com.sipcm.common.business.UserService#setUserPassword(com.sipcm.common
 	 * .model.User, java.lang.String)
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS)
 	public User setPassword(User entity, String password) {
-		entity.setPassword(stringDigester.digest(password));
+		StringBuilder sb = new StringBuilder();
+		sb.append(entity.getUsername()).append(":")
+				.append(appConfig.getString(DOMAIN_NAME)).append(":")
+				.append(password);
+		String passwd = RealmBase.Digest(sb.toString(), "MD5", null);
+		entity.setPassword(stringDigester.digest(passwd));
 		return entity;
 	}
 

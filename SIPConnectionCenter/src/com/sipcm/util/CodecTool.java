@@ -25,6 +25,8 @@ public class CodecTool {
 	public static final String OPTION_ENCRYPT_LONG = "encrypt";
 	public static final String OPTION_DECRYPT = "d";
 	public static final String OPTION_DECRYPT_LONG = "decrypt";
+	public static final String OPTION_PASSWORD = "p";
+	public static final String OPTION_PASSWORD_LONG = "password";
 
 	private static final StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
 
@@ -44,12 +46,16 @@ public class CodecTool {
 				"encrypt password");
 		Option oDecrypt = new Option(OPTION_DECRYPT, OPTION_DECRYPT_LONG, true,
 				"decrypt password (default: encrypt password)");
+		Option oPasswd = new Option(OPTION_PASSWORD, OPTION_PASSWORD_LONG,
+				true, "Alogrithm password");
 		Options options = new Options();
-		options.addOption(oHelp).addOption(oEncrypt).addOption(oDecrypt);
+		options.addOption(oHelp).addOption(oEncrypt).addOption(oDecrypt)
+				.addOption(oPasswd);
 		CommandLineParser parser = new GnuParser();
 
 		String encryptString;
 		String decryptString;
+		String password;
 		try {
 			CommandLine line = parser.parse(options, args);
 			if (line.hasOption(OPTION_HELP)) {
@@ -66,6 +72,15 @@ public class CodecTool {
 				decryptString = line.getOptionValue(OPTION_DECRYPT);
 			} else {
 				decryptString = null;
+			}
+			if (line.hasOption(OPTION_PASSWORD)) {
+				password = line.getOptionValue(OPTION_PASSWORD);
+			} else {
+				password = null;
+			}
+
+			if (password != null) {
+				textEncryptor.setPassword(password);
 			}
 
 			if (encryptString != null) {

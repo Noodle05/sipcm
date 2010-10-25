@@ -5,7 +5,7 @@ package com.sipcm.sip.locationservice;
 
 import java.io.Serializable;
 
-import javax.sip.header.ContactHeader;
+import javax.servlet.sip.Address;
 
 /**
  * @author wgao
@@ -14,16 +14,16 @@ import javax.sip.header.ContactHeader;
 public class Binding implements Serializable, Comparable<Binding> {
 	private static final long serialVersionUID = 6769447997175661766L;
 
-	private ContactHeader contactHeader;
+	private Address address;
 
 	private String callId;
 
-	private long cseq;
+	private long lastCheck;
 
-	public Binding(ContactHeader contactHeader, String callId, long cseq) {
-		this.contactHeader = contactHeader;
+	public Binding(Address address, String callId) {
+		this.address = address;
 		this.callId = callId;
-		this.cseq = cseq;
+		lastCheck = System.currentTimeMillis();
 	}
 
 	/*
@@ -33,8 +33,8 @@ public class Binding implements Serializable, Comparable<Binding> {
 	 */
 	@Override
 	public int compareTo(Binding o) {
-		float q1 = contactHeader.getQValue();
-		float q2 = o.contactHeader.getQValue();
+		float q1 = address.getQ();
+		float q2 = o.address.getQ();
 		if (q1 > q2) {
 			return 1;
 		} else if (q2 > q1) {
@@ -44,15 +44,28 @@ public class Binding implements Serializable, Comparable<Binding> {
 		}
 	}
 
-	public ContactHeader getContactHeader() {
-		return contactHeader;
+	public Address getAddress() {
+		return address;
 	}
 
 	public String getCallId() {
 		return callId;
 	}
 
-	public long getCseq() {
-		return cseq;
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Binding[").append("Address=").append(address)
+				.append(",CallId=").append(callId).append("]");
+		return sb.toString();
+	}
+
+	public void onContactExpire() {
+		long now = System.currentTimeMillis();
+		try {
+			int time = (int) ((now - lastCheck) / 1000L);
+			address.setExpires(address.getExpires() - time);
+		} finally {
+			lastCheck = now;
+		}
 	}
 }

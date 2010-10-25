@@ -6,12 +6,13 @@ package com.sipcm.sip.locationservice;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
-import javax.sip.address.SipURI;
-import javax.sip.header.ContactHeader;
+import javax.servlet.sip.Address;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,24 +27,24 @@ public abstract class LocationServiceImpl implements LocationService {
 	public static final Logger logger = LoggerFactory
 			.getLogger(LocationServiceImpl.class);
 
-	private ConcurrentMap<SipURI, UserProfile> userProfiles;
+	private ConcurrentMap<String, UserProfile> userProfiles;
 
 	protected abstract UserProfile createUserProfile();
 
 	@PostConstruct
 	public void init() throws NoSuchAlgorithmException {
-		userProfiles = new ConcurrentHashMap<SipURI, UserProfile>();
+		userProfiles = new ConcurrentHashMap<String, UserProfile>();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.sip.locationservice.LocationService#removeAllBinding(javax.
-	 * sip.address.SipURI)
+	 * com.sipcm.sip.locationservice.LocationService#removeAllBinding(java.lang
+	 * .String)
 	 */
 	@Override
-	public void removeAllBinding(SipURI key) throws UserNotFoundException {
+	public void removeAllBinding(String key) throws UserNotFoundException {
 		if (userProfiles.remove(key) == null) {
 			throw new UserNotFoundException();
 		}
@@ -53,14 +54,14 @@ public abstract class LocationServiceImpl implements LocationService {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.sip.locationservice.LocationService#getBinding(javax.sip.address
-	 * .SipURI, javax.sip.header.ContactHeader)
+	 * com.sipcm.sip.locationservice.LocationService#getBinding(java.lang.String
+	 * , javax.servlet.sip.Address)
 	 */
 	@Override
-	public Binding getBinding(SipURI key, ContactHeader contactHeader) {
+	public Binding getBinding(String key, Address address) {
 		UserProfile userProfile = userProfiles.get(key);
 		if (userProfile != null) {
-			return userProfile.getBinding(contactHeader);
+			return userProfile.getBinding(address);
 		}
 		return null;
 	}
@@ -69,14 +70,14 @@ public abstract class LocationServiceImpl implements LocationService {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.sip.locationservice.LocationService#removeBinding(javax.sip
-	 * .address.SipURI, javax.sip.header.ContactHeader)
+	 * com.sipcm.sip.locationservice.LocationService#removeBinding(java.lang
+	 * .String, javax.servlet.sip.Address)
 	 */
 	@Override
-	public void removeBinding(SipURI key, ContactHeader contactHeader)
+	public void removeBinding(String key, Address address)
 			throws UserNotFoundException {
 		UserProfile userProfile = getUserProfile(key);
-		Binding existingBinding = userProfile.getBinding(contactHeader);
+		Binding existingBinding = userProfile.getBinding(address);
 		if (existingBinding != null) {
 			userProfile.removeBinding(existingBinding);
 		}
@@ -89,38 +90,43 @@ public abstract class LocationServiceImpl implements LocationService {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.sip.locationservice.LocationService#updateRegistration(javax
-	 * .sip.address.SipURI, javax.sip.header.ContactHeader, java.lang.String,
-	 * long)
+	 * com.sipcm.sip.locationservice.LocationService#updateRegistration(java
+	 * .lang.String, javax.servlet.sip.Address, java.lang.String)
 	 */
 	@Override
-	public void updateRegistration(SipURI key, ContactHeader contactHeader,
-			String callId, long cseq) throws UserNotFoundException {
+	public void updateRegistration(String key, Address address, String callId)
+			throws UserNotFoundException {
 		UserProfile userProfile = getUserProfile(key);
-		userProfile.updateBinding(contactHeader, callId, cseq);
+		userProfile.updateBinding(address, callId);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.sip.locationservice.LocationService#getContactHeaders(javax
-	 * .sip.address.SipURI)
+	 * com.sipcm.sip.locationservice.LocationService#getAddresses(java.lang.
+	 * String)
 	 */
 	@Override
-	public Collection<ContactHeader> getContactHeaders(SipURI key)
+	public Collection<Address> getAddresses(String key)
 			throws UserNotFoundException {
 		UserProfile userProfile = userProfiles.get(key);
 		if (userProfile != null) {
-			return userProfile.getContactHeaders();
+			return userProfile.getAddresses();
 		} else {
 			return Collections.emptyList();
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.locationservice.LocationService#register(java.lang.String,
+	 * com.sipcm.common.model.User, javax.servlet.sip.Address, java.lang.String)
+	 */
 	@Override
-	public void register(SipURI key, User user, ContactHeader contactHeader,
-			String callId, long cseq) {
+	public void register(String key, User user, Address address, String callId) {
 		UserProfile userProfile = createUserProfile();
 		userProfile.setAddressOfRecord(key);
 		userProfile.setUser(user);
@@ -128,15 +134,43 @@ public abstract class LocationServiceImpl implements LocationService {
 		if (up != null) {
 			userProfile = up;
 		}
-		Binding binding = new Binding(contactHeader, callId, cseq);
+		Binding binding = new Binding(address, callId);
 		userProfile.addBinding(binding);
 	}
 
-	public UserProfile getUserProfile(SipURI key) throws UserNotFoundException {
+	private UserProfile getUserProfile(String key) throws UserNotFoundException {
 		UserProfile userProfile = userProfiles.get(key);
 		if (userProfile == null) {
 			throw new UserNotFoundException();
 		}
 		return userProfile;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.locationservice.LocationService#checkContactExpires(long)
+	 */
+	@Override
+	public void checkContactExpires() {
+		Iterator<Entry<String, UserProfile>> ite = userProfiles.entrySet()
+				.iterator();
+		while (ite.hasNext()) {
+			Entry<String, UserProfile> entry = ite.next();
+			UserProfile userProfile = entry.getValue();
+			if (logger.isTraceEnabled()) {
+				logger.trace("Checking contacts expirestime for: {}",
+						userProfile.getAddressOfRecord());
+			}
+			userProfile.checkContactExpires();
+			if (userProfile.isEmpty()) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("{} has no contact remaining, remove it.",
+							userProfile.getAddressOfRecord());
+				}
+				ite.remove();
+			}
+		}
 	}
 }

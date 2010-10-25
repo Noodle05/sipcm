@@ -1,6 +1,8 @@
 package com.sipcm.common;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,12 +20,13 @@ import com.sipcm.common.model.User;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "/appContext-core.xml", "/appContext-datasource.xml",
-		"/appContext-hibernate.xml" })
+		"/appContext-hibernate.xml", "/appContext-mailer.xml" })
 public class UserServiceTest {
 	@Resource(name = "userService")
 	private UserService userService;
 
 	@Test
+	// @Ignore
 	public void testCreateNew() {
 		Collection<User> users = new ArrayList<User>(2);
 		User user = userService.createNewEntity();
@@ -31,8 +34,6 @@ public class UserServiceTest {
 		user.setLastName("Gao");
 		user.setUsername("wgao");
 		user.setEmail("wei.j.gao@gmail.com");
-		user.setSipId("SCM00001");
-		user.setSipPassword("DSY3NB");
 		userService.setPassword(user, "P@ssw0rd");
 		users.add(user);
 		user = userService.createNewEntity();
@@ -40,14 +41,13 @@ public class UserServiceTest {
 		user.setLastName("George");
 		user.setUsername("lgeorge");
 		user.setEmail("lindsey.george@gmail.com");
-		user.setSipId("SCM00002");
-		user.setSipPassword("38NSFP");
 		userService.setPassword(user, "P@ssw0rd");
 		users.add(user);
 		userService.saveEntities(users);
 	}
 
 	@Test
+	@Ignore
 	public void testSearchUsername() {
 		User user = userService.getUserByUsername("wgao");
 		assertNotNull(user);
@@ -57,7 +57,7 @@ public class UserServiceTest {
 	@Test
 	@Ignore
 	public void testDelete() {
-		User user = userService.getUserBySipId("SCM00001");
+		User user = userService.getUserByUsername("wgao");
 		assertNotNull(user);
 		Long id = user.getId();
 		userService.removeEntityById(id);

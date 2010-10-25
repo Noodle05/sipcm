@@ -1,5 +1,4 @@
 <ivysettings>
-	<properties file="${ivy.settings.dir}/ivysettings.properties" />
 	<settings defaultResolver="default" />
 	<include url="${ivy.default.settings.dir}/ivysettings-shared.xml" />
 	<include url="${ivy.default.settings.dir}/ivysettings-local.xml" />

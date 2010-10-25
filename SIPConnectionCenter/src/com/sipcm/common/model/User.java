@@ -12,10 +12,13 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -23,7 +26,6 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Type;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
@@ -39,8 +41,7 @@ import com.sipcm.sip.model.UserVoipAccount;
 @Entity
 @Table(name = "tbl_user", uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "email", "deletedate" }),
-		@UniqueConstraint(columnNames = { "username", "deletedate" }),
-		@UniqueConstraint(columnNames = { "sipid", "deletedate" }) })
+		@UniqueConstraint(columnNames = { "username", "deletedate" }) })
 @SQLDelete(sql = "UPDATE tbl_user SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
 public class User extends AbstractTrackableEntity implements
 		IdBasedEntity<Long>, Serializable {
@@ -87,14 +88,6 @@ public class User extends AbstractTrackableEntity implements
 	@Column(name = "status", nullable = false)
 	private AccountStatus status;
 
-	@Basic
-	@Column(name = "sipid", length = 32, nullable = false)
-	private String sipId;
-
-	@Type(type = "encryptedString")
-	@Column(name = "sippassword", length = 64, nullable = false)
-	private String sipPassword;
-
 	@Enumerated
 	@Column(name = "sipstatus", nullable = false)
 	private OnlineStatus sipStatus;
@@ -107,9 +100,13 @@ public class User extends AbstractTrackableEntity implements
 	@Column(name = "phonenumberstatus")
 	private PhoneNumberStatus phoneNumberStatus;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id")
 	private Set<UserVoipAccount> voipAccounts;
+
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinTable(name = "tbl_userrole", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles;
 
 	/**
 	 * @param id
@@ -275,36 +272,6 @@ public class User extends AbstractTrackableEntity implements
 	}
 
 	/**
-	 * @param sipId
-	 *            the sipId to set
-	 */
-	public void setSipId(String sipId) {
-		this.sipId = sipId;
-	}
-
-	/**
-	 * @return the sipId
-	 */
-	public String getSipId() {
-		return sipId;
-	}
-
-	/**
-	 * @param sipPassword
-	 *            the sipPassword to set
-	 */
-	public void setSipPassword(String sipPassword) {
-		this.sipPassword = sipPassword;
-	}
-
-	/**
-	 * @return the sipPassword
-	 */
-	public String getSipPassword() {
-		return sipPassword;
-	}
-
-	/**
 	 * @param sipStatus
 	 *            the sipStatus to set
 	 */
@@ -362,6 +329,21 @@ public class User extends AbstractTrackableEntity implements
 	 */
 	public Set<UserVoipAccount> getVoipAccounts() {
 		return voipAccounts;
+	}
+
+	/**
+	 * @param roles
+	 *            the roles to set
+	 */
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
+
+	/**
+	 * @return the roles
+	 */
+	public Set<Role> getRoles() {
+		return roles;
 	}
 
 	/*

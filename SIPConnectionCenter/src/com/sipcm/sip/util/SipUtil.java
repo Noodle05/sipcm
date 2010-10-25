@@ -5,11 +5,9 @@ package com.sipcm.sip.util;
 
 import gov.nist.javax.sip.address.SipUri;
 
-import javax.sip.address.Address;
-import javax.sip.address.SipURI;
-import javax.sip.address.URI;
-import javax.sip.header.ToHeader;
+import javax.servlet.sip.URI;
 
+import org.mobicents.servlet.sip.address.SipURIImpl;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,27 +16,16 @@ import org.springframework.stereotype.Component;
  */
 @Component("sipUtil")
 public class SipUtil {
-
-	public SipURI getLocationServiceKey(ToHeader toHeader) {
-		Address address = toHeader.getAddress();
-		URI uri = address.getURI();
-		if (uri.isSipURI()) {
-			SipUri su = (SipUri) uri.clone();
-			su.clearPassword();
-			su.clearQheaders();
-			su.clearUriParms();
-			return su;
-		}
-		return null;
-	}
-
 	public URI getCanonicalizedURI(URI uri) {
-		if (uri != null && uri.isSipURI()) {
-			SipUri sipUri = (SipUri) uri.clone();
-			sipUri.clearUriParms();
-
-			return sipUri;
-		} else
-			return uri;
+		if (uri instanceof SipURIImpl) {
+			SipURIImpl su = (SipURIImpl) uri.clone();
+			javax.sip.address.URI ur = su.getURI();
+			if (ur instanceof SipUri) {
+				SipUri sur = (SipUri) ur;
+				sur.clearUriParms();
+				return su;
+			}
+		}
+		return uri;
 	}
 }

@@ -16,26 +16,27 @@
 		<lookup-method name="createSipVoipVendorContext" bean="sipVoipVendorContext" />
 	</bean>
 
-	<util:map id="serverMethodMap" key-type="java.lang.String"
-		value-type="com.sipcm.sip.plugins.MethodPlugin">
-		<entry key="REGISTER" value-ref="registerMethod" />
-		<entry key="INVITE" value-ref="inviteMethod" />
-		<entry key="ACK" value-ref="ackMethod" />
-		<entry key="BYE" value-ref="byeMethod" />
-		<entry key="INFO" value-ref="infoMethod" />
-		<entry key="OPTIONS" value-ref="optionsMethod" />
-		<entry key="CANCEL" value-ref="cancelMethod" />
-	</util:map>
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="contactExpiresTrigger" />
+			</list>
+		</property>
+	</bean>
 
-	<bean id="sipFactory" class="javax.sip.SipFactory" factory-method="getInstance"
-		init-method="resetFactory" />
+	<bean id="contactExpiresTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<!-- see the example of method invoking job above -->
+		<property name="jobDetail" ref="contactExpiresJob" />
+		<!-- 10 seconds -->
+		<property name="startDelay" value="10000" />
+		<!-- repeat every 10 seconds -->
+		<property name="repeatInterval" value="10000" />
+	</bean>
 
-	<bean id="sipAddressFactory" factory-bean="sipFactory"
-		factory-method="createAddressFactory" />
-
-	<bean id="sipHeaderFactory" factory-bean="sipFactory"
-		factory-method="createHeaderFactory" />
-
-	<bean id="sipMessageFactory" factory-bean="sipFactory"
-		factory-method="createMessageFactory" />
+	<bean id="contactExpiresJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="contactExpiresTask" />
+		<property name="targetMethod" value="onCheckExpire" />
+		<property name="concurrent" value="false" />
+	</bean>
 </beans>
