@@ -1,0 +1,11 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	<bean id="global.mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="session">
+			<bean class="org.springframework.jndi.JndiObjectFactoryBean">
+				<property name="jndiName" value="java:/comp/env/mail/sipcmMS" />
+			</bean>
+		</property>
+	</bean>
+</beans>
