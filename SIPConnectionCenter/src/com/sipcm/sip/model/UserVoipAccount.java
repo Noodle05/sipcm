@@ -8,6 +8,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -46,7 +47,7 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	@JoinColumn(name = "user_id")
 	private User ownser;
 
-	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, optional = false)
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "voipvendor_id")
 	private VoipVendor voipVendor;
 
@@ -57,6 +58,10 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	@Type(type = "encryptedString")
 	@Column(name = "password", length = 256, nullable = false)
 	private String password;
+
+	@Basic
+	@Column(name = "phone_number", length = 32)
+	private String phoneNumber;
 
 	@Enumerated
 	@Column(name = "type", nullable = false)
@@ -137,6 +142,21 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	 */
 	public String getPassword() {
 		return password;
+	}
+
+	/**
+	 * @param phoneNumber
+	 *            the phoneNumber to set
+	 */
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	/**
+	 * @return the phoneNumber
+	 */
+	public String getPhoneNumber() {
+		return phoneNumber;
 	}
 
 	/**

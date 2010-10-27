@@ -40,6 +40,13 @@ public class Binding implements Serializable, Comparable<Binding> {
 		} else if (q2 > q1) {
 			return -1;
 		} else {
+			int expiresTime1 = address.getExpires();
+			int expiresTime2 = o.address.getExpires();
+			if (expiresTime1 < expiresTime2) {
+				return 1;
+			} else if (expiresTime1 > expiresTime2) {
+				return -1;
+			}
 			return 0;
 		}
 	}

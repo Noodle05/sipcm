@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sipcm.common.model.User;
+import com.sipcm.googlevoice.GoogleVoiceSession;
 import com.sipcm.sip.util.SipUtil;
 
 /**
@@ -47,6 +48,10 @@ public class UserProfile {
 	private Lock bindingsReadLock;
 
 	private Lock bindingsWriteLock;
+
+	private UserProfileStatus status;
+
+	private GoogleVoiceSession gvSession;
 
 	@PostConstruct
 	public void init() {
@@ -207,5 +212,26 @@ public class UserProfile {
 		} finally {
 			bindingsReadLock.unlock();
 		}
+	}
+
+	public UserProfileStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(UserProfileStatus status) {
+		this.status = status;
+	}
+
+	public GoogleVoiceSession getGvSession() {
+		return gvSession;
+	}
+
+	public void setGvSession(GoogleVoiceSession gvSession) {
+		this.gvSession = gvSession;
+	}
+
+	public Object getWaitingFromNumber() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

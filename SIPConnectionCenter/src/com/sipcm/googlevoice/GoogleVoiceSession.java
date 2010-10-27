@@ -65,17 +65,13 @@ public class GoogleVoiceSession {
 
 	private String username;
 	private String password;
+	private String myNumber;
 	private HttpClient httpClient;
 	private String rnrSe;
 	private int maxRetry = 1;
 
 	@Resource(name = "googleVoiceManager")
 	private GoogleVoiceManager manager;
-
-	public GoogleVoiceSession(String username, String password) {
-		this.username = username;
-		this.password = password;
-	}
 
 	public void init() {
 		HttpParams params = new BasicHttpParams();
@@ -142,13 +138,13 @@ public class GoogleVoiceSession {
 		}
 	}
 
-	public void call(String origination, String destination, String phoneType)
+	public void call(String destination, String phoneType)
 			throws ClientProtocolException, IOException, HttpResponseException,
 			AuthenticationException {
 		HttpPost callPost = new HttpPost(callUrl);
 		List<NameValuePair> ps = new ArrayList<NameValuePair>();
 		ps.add(new BasicNameValuePair("outgoingNumber", destination));
-		ps.add(new BasicNameValuePair("forwardingNumber", origination));
+		ps.add(new BasicNameValuePair("forwardingNumber", myNumber));
 		ps.add(new BasicNameValuePair("subscriberNumber", "undefined"));
 		ps.add(new BasicNameValuePair("phoneType", phoneType));
 		ps.add(new BasicNameValuePair("remember", "0"));
@@ -175,7 +171,9 @@ public class GoogleVoiceSession {
 			throws ClientProtocolException, IOException, HttpResponseException,
 			AuthenticationException {
 		HttpResponse response = httpClient.execute(request);
-		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
+		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+			return;
+		} else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
 			if (retry < maxRetry) {
 				login();
 				callMethod(request, retry++);
@@ -220,5 +218,21 @@ public class GoogleVoiceSession {
 			throw new HttpResponseException(HttpStatus.SC_FORBIDDEN,
 					"Error happened when parse error page. Cannot find error code.");
 		}
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setMyNumber(String myNumber) {
+		this.myNumber = myNumber;
+	}
+
+	public String getMyNumber() {
+		return myNumber;
 	}
 }

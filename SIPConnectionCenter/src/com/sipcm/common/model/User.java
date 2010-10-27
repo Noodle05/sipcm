@@ -96,6 +96,10 @@ public class User extends AbstractTrackableEntity implements
 	@Column(name = "phonenumber", length = 32)
 	private String phoneNumber;
 
+	@Basic
+	@Column(name = "default_area", length = 10)
+	private String defaultArea;
+
 	@Enumerated
 	@Column(name = "phonenumberstatus")
 	private PhoneNumberStatus phoneNumberStatus;
@@ -299,6 +303,21 @@ public class User extends AbstractTrackableEntity implements
 	 */
 	public String getPhoneNumber() {
 		return phoneNumber;
+	}
+
+	/**
+	 * @param defaultArea
+	 *            the defaultArea to set
+	 */
+	public void setDefaultArea(String defaultArea) {
+		this.defaultArea = defaultArea;
+	}
+
+	/**
+	 * @return the defaultArea
+	 */
+	public String getDefaultArea() {
+		return defaultArea;
 	}
 
 	/**

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="SIPConnectionManager" default="dist">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="SIPConnectionCenter" default="dist">
 	<property file="build.properties" />
 
 	<property name="ivy.install.version" value="2.2.0-rc1" />
@@ -83,13 +83,13 @@
 		</copy>
 		<copy todir="${dist.dir}/webinf">
 			<fileset dir="${web.dir}/WEB-INF">
-				<include name="sip.xml" />
+				<!-- include name="sip.xml" / -->
 				<include name="faces-config.xml" />
 			</fileset>
 		</copy>
 		<war destfile="${dist.dir}/${war.filename}" webxml="${web.dir}/WEB-INF/web.xml">
 			<lib dir="${dist.dir}/lib" />
-			<webinf dir="${dist.dir}/webinf" includes="config/*,contexts/*,sip.xml,faces-config.xml" />
+			<webinf dir="${dist.dir}/webinf" includes="config/*,contexts/*,faces-config.xml" />
 			<metainf file="${web.dir}/META-INF/context.xml" />
 			<classes dir="${web.dir}/WEB-INF/classes" />
 		</war>

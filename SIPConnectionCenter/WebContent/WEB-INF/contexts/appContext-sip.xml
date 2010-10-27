@@ -16,6 +16,14 @@
 		<lookup-method name="createSipVoipVendorContext" bean="sipVoipVendorContext" />
 	</bean>
 
+	<bean id="googleVoiceManager" class="com.sipcm.googlevoice.GoogleVoiceManager">
+		<lookup-method name="getGoogleVoiceSession" bean="googleVoiceSession" />
+	</bean>
+
+	<!-- bean id="sipFactory" class="org.springframework.jndi.JndiObjectFactoryBean"> 
+		<property name="jndiName" value="java:comp/env/sip/org.gaofamily.CallCenter/SipFactory" 
+		/> </bean -->
+
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
@@ -38,5 +46,16 @@
 		<property name="targetObject" ref="contactExpiresTask" />
 		<property name="targetMethod" value="onCheckExpire" />
 		<property name="concurrent" value="false" />
+	</bean>
+
+	<util:map id="voipVendorToServletMap" key-type="com.sipcm.sip.VoipVendorType"
+		value-type="java.lang.String">
+		<entry key="SIP" value="DelegatedServlet" />
+		<entry key="GOOGLE_VOICE" value="GoogleVoiceServlet" />
+	</util:map>
+
+	<bean id="sipLoginConfig" class="org.mobicents.servlet.sip.startup.loading.SipLoginConfig">
+		<property name="authMethod" value="DIGEST" />
+		<property name="realmName" value="gaofamily.org" />
 	</bean>
 </beans>

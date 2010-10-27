@@ -138,7 +138,15 @@ public abstract class LocationServiceImpl implements LocationService {
 		userProfile.addBinding(binding);
 	}
 
-	private UserProfile getUserProfile(String key) throws UserNotFoundException {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.locationservice.LocationService#getUserProfile(java.lang
+	 * .String)
+	 */
+	@Override
+	public UserProfile getUserProfile(String key) throws UserNotFoundException {
 		UserProfile userProfile = userProfiles.get(key);
 		if (userProfile == null) {
 			throw new UserNotFoundException();

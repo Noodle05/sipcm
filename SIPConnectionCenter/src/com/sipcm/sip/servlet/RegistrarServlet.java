@@ -14,6 +14,7 @@ import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.URI;
+import javax.servlet.sip.annotation.SipServlet;
 import javax.sip.header.ContactHeader;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import com.sipcm.sip.locationservice.LocationService;
  * 
  */
 @Configurable
+@SipServlet(name = "RegistrarServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
 public class RegistrarServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = 2954502051478832933L;
 
@@ -67,7 +69,7 @@ public class RegistrarServlet extends AbstractSipServlet {
 	}
 
 	private void processRegister(SipServletRequest req) throws Exception {
-		User user = null;
+		User user = (User)req.getAttribute(USER_ATTRIBUTE);
 		URI toURI = req.getTo().getURI();
 		if (toURI.isSipURI()) {
 			final SipURI sipUri = (SipURI) toURI;
@@ -79,18 +81,14 @@ public class RegistrarServlet extends AbstractSipServlet {
 				response.send();
 				return;
 			}
-			String username = sipUri.getUser();
-			user = userService.getUserByUsername(username);
-			toURI = sipFactory.createSipURI(username, sipUri.getHost());
+			if (user == null) {
+				String username = sipUri.getUser();
+				user = userService.getUserByUsername(username);
+			}
+			toURI = sipFactory.createSipURI(user.getUsername(), sipUri.getHost());
 		} else {
 			SipServletResponse response = req
 					.createResponse(SipServletResponse.SC_UNSUPPORTED_URI_SCHEME);
-			response.send();
-			return;
-		}
-		if (user == null) {
-			SipServletResponse response = req
-					.createResponse(SipServletResponse.SC_NOT_FOUND);
 			response.send();
 			return;
 		}

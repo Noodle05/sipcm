@@ -24,4 +24,6 @@ public interface LocationService {
 	public void register(String key, User user, Address address, String callid);
 
 	public void checkContactExpires();
+
+	public UserProfile getUserProfile(String key) throws UserNotFoundException;
 }

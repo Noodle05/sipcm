@@ -3,7 +3,9 @@
  */
 package com.sipcm.sip.servlet;
 
+import java.io.IOException;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -12,6 +14,8 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.sip.SipFactory;
 import javax.servlet.sip.SipServlet;
+import javax.servlet.sip.SipServletRequest;
+import javax.servlet.sip.SipServletResponse;
 
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
@@ -30,6 +34,11 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 
 	public static final String DOMAIN_NAME = "domainname";
 
+	public static final String USER_ATTRIBUTE = "com.sipcm.user";
+	public static final String USER_VOIP_ACCOUNT = "com.sipcm.voip.account";
+
+	public static final Pattern PHONE_NUMBER = Pattern.compile("^(\\+?\\d+)$");
+
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected SipFactory sipFactory;
@@ -41,15 +50,19 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 	@Override
 	public void init() throws ServletException {
 		super.init();
-		logger.info("the simple sip servlet has been started");
+		if (logger.isInfoEnabled()) {
+			logger.info(getServletName() + " has been started");
+		}
 		try {
 			// Getting the Sip factory from the JNDI Context
 			Properties jndiProps = new Properties();
 			Context initCtx = new InitialContext(jndiProps);
 			Context envCtx = (Context) initCtx.lookup("java:comp/env");
 			sipFactory = (SipFactory) envCtx
-					.lookup("sip/com.sipcm.CallCenter/SipFactory");
-			logger.info("Sip Factory ref from JNDI : " + sipFactory);
+					.lookup("sip/org.gaofamily.CallCenter/SipFactory");
+			if (logger.isInfoEnabled()) {
+				logger.info("Sip Factory ref from JNDI : " + sipFactory);
+			}
 		} catch (NamingException e) {
 			throw new ServletException("Uh oh -- JNDI problem !", e);
 		}
@@ -57,5 +70,31 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 
 	protected String getDomain() {
 		return appConfig.getString(DOMAIN_NAME);
+	}
+
+	protected void responseError(SipServletRequest req, int statusCode)
+			throws IOException {
+		responseError(req, statusCode, null);
+	}
+
+	protected void responseError(SipServletRequest req, int statusCode,
+			String reasonPhrase) throws IOException {
+		SipServletResponse response = req.createResponse(statusCode,
+				reasonPhrase);
+		response.send();
+	}
+
+	/**
+	 * Get digital only format phone number.
+	 * 
+	 * @param myNumber
+	 * @return
+	 */
+	protected String getCanonicalizedPhoneNumber(String phoneNumber) {
+		String newNumber = phoneNumber.replaceAll("[^\\+|^\\d]", "");
+		if (newNumber.startsWith("+")) {
+			newNumber = "011" + newNumber.substring(1);
+		}
+		return newNumber;
 	}
 }
