@@ -4,13 +4,9 @@
 package com.sipcm.sip.servlet;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.security.Principal;
 
 import javax.servlet.ServletException;
-import javax.servlet.sip.Address;
 import javax.servlet.sip.B2buaHelper;
 import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipServletRequest;
@@ -20,19 +16,18 @@ import javax.servlet.sip.SipURI;
 import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
 
+import org.mobicents.servlet.sip.core.session.MobicentsSipSession;
+import org.mobicents.servlet.sip.message.B2buaHelperImpl;
+import org.mobicents.servlet.sip.message.SipServletRequestImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.sipcm.common.model.User;
 import com.sipcm.googlevoice.GoogleVoiceManager;
 import com.sipcm.googlevoice.GoogleVoiceSession;
-import com.sipcm.sip.VoipVendorType;
-import com.sipcm.sip.locationservice.LocationService;
-import com.sipcm.sip.locationservice.UserNotFoundException;
-import com.sipcm.sip.locationservice.UserProfile;
-import com.sipcm.sip.locationservice.UserProfileStatus;
 import com.sipcm.sip.model.UserVoipAccount;
-import com.sipcm.sip.util.SipUtil;
+import com.sipcm.sip.util.GvB2buaHelperImpl;
 
 /**
  * @author wgao
@@ -40,20 +35,11 @@ import com.sipcm.sip.util.SipUtil;
  */
 @Configurable
 @SipServlet(name = "GoogleVoiceServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
-public class GoogleVoiceServlet extends AbstractSipServlet {
+public class GoogleVoiceServlet extends B2bServlet {
 	private static final long serialVersionUID = 1812855574907498697L;
-	public static final Pattern USA_CANADA_PHONE = Pattern
-			.compile("^([\\d{7}|\\d{10}|1\\d{10}])$");
 
-	public static final Pattern PHONE_NUMBER = Pattern.compile("^(\\+?\\d+)$");
-
-	@Autowired
-	@Qualifier("sipLocationService")
-	private LocationService locationService;
-
-	@Autowired
-	@Qualifier("sipUtil")
-	private SipUtil sipUtil;
+	public static final String ORIGINAL_SESSION = "com.sipcm.original.session";
+	public static final String GV_SESSION = "com.sipcm.googlevoice.session";
 
 	@Autowired
 	@Qualifier("googleVoiceManager")
@@ -63,319 +49,208 @@ public class GoogleVoiceServlet extends AbstractSipServlet {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * javax.servlet.sip.SipServlet#doInvite(javax.servlet.sip.SipServletRequest
+	 * com.sipcm.sip.servlet.B2bServlet#doInvite(javax.servlet.sip.SipServletRequest
 	 * )
 	 */
 	@Override
-	public void doInvite(SipServletRequest req) throws ServletException,
+	protected void doInvite(SipServletRequest req) throws ServletException,
 			IOException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Get invite request: {}", req);
 		}
 		if (req.isInitial()) {
-			URI toURI = req.getTo().getURI();
-			URI fromURI = req.getFrom().getURI();
-			if (!toURI.isSipURI() || !fromURI.isSipURI()) {
-				SipServletResponse response = req
-						.createResponse(SipServletResponse.SC_UNSUPPORTED_URI_SCHEME);
-				response.send();
-				return;
-			}
-			final SipURI toSipUri = (SipURI) toURI;
-			final SipURI fromSipUri = (SipURI) fromURI;
-			String toHost = toSipUri.getHost();
-			String fromHost = fromSipUri.getHost();
-			if (!getDomain().equalsIgnoreCase(toHost)
-					&& !getDomain().equalsIgnoreCase(fromHost)) {
-				SipServletResponse response = req.createResponse(
-						SipServletResponse.SC_FORBIDDEN,
-						"Do not serve your domain.");
-				response.send();
-				return;
-			}
-
-			String toUser = toSipUri.getUser();
-			Matcher m = PHONE_NUMBER.matcher(toUser);
-			if (m.matches()) {
-				if (!getDomain().equalsIgnoreCase(fromHost)) {
-					SipServletResponse response = req.createResponse(
-							SipServletResponse.SC_FORBIDDEN,
-							"Do not serve your domain.");
-					response.send();
+			SipURI toUri = (SipURI) req.getTo().getURI();
+			String toUser = toUri.getUser();
+			if (PHONE_NUMBER.matcher(toUser).matches()) {
+				// This is initial call
+				Principal p = req.getUserPrincipal();
+				if (p == null) {
+					if (logger.isErrorEnabled()) {
+						logger.error("Cannot found login prinipal for outgoing call? this should never happen.");
+					}
+					responseError(req,
+							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 					return;
 				}
-				processOutgoingPhoneInvite(req, m.group(1));
-				return;
-			}
-			processOutgoingB2bInvite(req);
-			return;
-		} else {
-			processForwardingInvite(req);
-			return;
-		}
-	}
-
-	private void processGoogleVoiceCallBack(SipServletRequest req,
-			UserProfile userProfile) {
-		System.out.println("This is for debug purpose.");
-	}
-
-	private void processOutgoingPhoneInvite(SipServletRequest req,
-			String phoneNumber) throws ServletException, IOException {
-		final SipURI fromSipUri = (SipURI) req.getFrom().getURI();
-		URI fromUri = sipFactory.createSipURI(fromSipUri.getUser(),
-				fromSipUri.getHost());
-		UserProfile userProfile = null;
-		try {
-			userProfile = locationService.getUserProfile(fromUri.toString());
-		} catch (UserNotFoundException e) {
-			SipServletResponse response = req.createResponse(
-					SipServletResponse.SC_PRECONDITION_FAILURE,
-					"In order to call phone number, you need register first.");
-			response.send();
-			return;
-		}
-		Set<UserVoipAccount> voipAccounts = userProfile.getUser()
-				.getVoipAccounts();
-		UserVoipAccount gvAccount = null;
-		if (voipAccounts != null) {
-			for (UserVoipAccount uva : voipAccounts) {
-				if (VoipVendorType.GOOGLE_VOICE.equals(uva.getVoipVendor()
-						.getType())) {
-					gvAccount = uva;
-					break;
+				String username = p.getName();
+				String appSessionId = (String) getServletContext()
+						.getAttribute(APPLICATION_SESSION_ID + username);
+				SipApplicationSession appSession = sipSessionsUtil
+						.getApplicationSessionById(appSessionId);
+				if (appSession == null) {
+					if (logger.isErrorEnabled()) {
+						logger.error(
+								"Cannot found SipApplicationSession for {}? This should never happen",
+								username);
+					}
+					responseError(req,
+							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+					return;
 				}
+				User user = (User) appSession.getAttribute(USER_ATTRIBUTE);
+				UserVoipAccount account = (UserVoipAccount) appSession
+						.getAttribute(USER_VOIP_ACCOUNT);
+				if (user == null) {
+					if (logger.isErrorEnabled()) {
+						logger.error(
+								"Cannot found user for {}? This should never happen",
+								username);
+					}
+					responseError(req,
+							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+					return;
+				}
+				if (account == null) {
+					if (logger.isErrorEnabled()) {
+						logger.error(
+								"Cannot found voip account for {}? This should never happen",
+								username);
+					}
+					responseError(req,
+							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+					return;
+				}
+				processGoogleVoiceCall(req, appSession, user, account, toUser);
+			} else {
+				// This is call back.
+				String appSessionId = (String) getServletContext()
+						.getAttribute(APPLICATION_SESSION_ID + toUser);
+				SipApplicationSession appSession = sipSessionsUtil
+						.getApplicationSessionById(appSessionId);
+				if (appSession == null) {
+					if (logger.isErrorEnabled()) {
+						logger.error(
+								"Cannot found application session for {}? This should never happen",
+								toUser);
+					}
+					responseError(req,
+							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+					return;
+				}
+				getServletContext().removeAttribute(
+						APPLICATION_SESSION_ID + toUser);
+				appSession.removeAttribute(GV_WAITING_FOR_CALLBACK);
+				appSession.removeAttribute(GV_SESSION);
+				SipSession session = req.getSession();
+				SipSession origSession = (SipSession) appSession
+						.getAttribute(ORIGINAL_SESSION);
+				B2buaHelper helper = getB2buaHelper(req);
+				helper.linkSipSessions(session, origSession);
+				SipServletRequest origReq = (SipServletRequest) origSession
+						.getAttribute(ORIGINAL_REQUEST);
+				// Response OK to original request first.
+				SipServletResponse origResponse = origReq
+						.createResponse(SipServletResponse.SC_OK);
+				origResponse.setContentLength(req.getContentLength());
+				origResponse.setContent(req.getContent(), req.getContentType());
+				origResponse.send();
+				// Response OK to this request.
+				SipServletResponse response = req
+						.createResponse(SipServletResponse.SC_OK);
+				response.setContentLength(origReq.getContentLength());
+				response.setContent(origReq.getContent(),
+						origReq.getContentType());
+				response.send();
 			}
-		}
-		if (gvAccount == null) {
-			SipServletResponse response = req.createResponse(
-					SipServletResponse.SC_PRECONDITION_FAILURE,
-					"I support google voice only.");
-			response.send();
+		} else {
+			processInDialogInvite(req);
 			return;
 		}
+	}
+
+	private void processGoogleVoiceCall(SipServletRequest req,
+			SipApplicationSession appSession, User user,
+			UserVoipAccount account, String phoneNumber) throws IOException {
 		GoogleVoiceSession gvSession = googleVoiceManager
-				.getGoogleVoiceSession(gvAccount.getAccount(),
-						gvAccount.getPassword(), gvAccount.getPhoneNumber());
+				.getGoogleVoiceSession(account.getAccount(),
+						account.getPassword(), account.getCallBackNumber());
+		appSession.setAttribute(GV_SESSION, gvSession);
 		try {
 			gvSession.login();
-			gvSession.call(phoneNumber, "1");
-			userProfile.setStatus(UserProfileStatus.WAITING_CALLBACK);
-			userProfile.setGvSession(gvSession);
-		} catch (Exception e) {
-			SipServletResponse response = req.createResponse(
-					SipServletResponse.SC_BAD_GATEWAY,
-					"Cannot make google voice call.");
-			response.send();
-			return;
-		}
-	}
-
-	private void processOutgoingB2bInvite(SipServletRequest req)
-			throws ServletException, IOException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Processing to voip outgoing invite.");
-		}
-		final SipURI toSipURI = (SipURI) req.getTo().getURI();
-		URI toURI = sipFactory.createSipURI(toSipURI.getUser(),
-				toSipURI.getHost());
-		UserProfile userProfile = null;
-		try {
-			if (logger.isTraceEnabled()) {
-				logger.trace("Lookup address with key: {}", toURI);
-			}
-			userProfile = locationService.getUserProfile(toURI.toString());
-		} catch (UserNotFoundException e) {
-			SipServletResponse response = req
-					.createResponse(SipServletResponse.SC_NOT_FOUND);
-			response.send();
-			return;
-		}
-		if (UserProfileStatus.WAITING_CALLBACK.equals(userProfile.getStatus())) {
-			GoogleVoiceSession gvSession = userProfile.getGvSession();
-			if (toSipURI.getUser().equals(
-					getCanonicalizedPhoneNumber(gvSession.getMyNumber()))) {
-				processGoogleVoiceCallBack(req, userProfile);
+			if (gvSession.call(phoneNumber, "1")) {
+				appSession.setAttribute(GV_WAITING_FOR_CALLBACK,
+						getCanonicalizedPhoneNumber(account.getPhoneNumber()));
+				SipSession session = req.getSession();
+				session.setAttribute(ORIGINAL_REQUEST, req);
+				appSession.setAttribute(ORIGINAL_SESSION, session);
+			} else {
+				if (logger.isInfoEnabled()) {
+					logger.info("Google voice call failed.");
+				}
+				responseError(req, SipServletResponse.SC_DECLINE,
+						"Google voice call failed.");
 				return;
 			}
-		}
-		Collection<Address> addresses = null;
-		addresses = userProfile.getAddresses();
-		if (logger.isTraceEnabled()) {
-			logger.trace("Lookup result: ");
-			for (Address a : addresses) {
-				logger.trace("\t{}", a);
-			}
-		}
-		if (addresses != null && !addresses.isEmpty()) {
-			Address address = addresses.iterator().next();
-			B2buaHelper helper = req.getB2buaHelper();
-			SipServletRequest forkedRequest = helper.createRequest(req);
-			forkedRequest.setRequestURI(sipUtil.getCanonicalizedURI(address
-					.getURI()));
-			forkedRequest.getSession().setAttribute("originalRequest", req);
-			forkedRequest.send();
-		} else {
-			SipServletResponse response = req
-					.createResponse(SipServletResponse.SC_NOT_FOUND);
-			response.send();
+		} catch (Exception e) {
+			responseError(req, SipServletResponse.SC_BAD_GATEWAY);
 			return;
 		}
 	}
 
-	private void processForwardingInvite(SipServletRequest req)
-			throws ServletException, IOException {
-		B2buaHelper helper = req.getB2buaHelper();
-		SipSession peerSession = helper.getLinkedSession(req.getSession());
-		SipServletRequest invite = helper.createRequest(peerSession, req, null);
-		invite.getSession().setAttribute("originalRequest", req);
-		invite.send();
-	}
-
-	@Override
-	protected void doBye(SipServletRequest req) throws ServletException,
-			IOException {
-		if (logger.isInfoEnabled()) {
-			logger.info("Got BYE: " + req.toString());
-		}
-		// we send the OK directly to the first call leg
-		SipServletResponse sipServletResponse = req
-				.createResponse(SipServletResponse.SC_OK);
-		sipServletResponse.send();
-
-		// we forward the BYE
-		SipSession session = req.getSession();
-		B2buaHelper helper = req.getB2buaHelper();
-		SipSession linkedSession = helper.getLinkedSession(session);
-		SipServletRequest forkedRequest = linkedSession.createRequest("BYE");
-		if (logger.isInfoEnabled()) {
-			logger.info("forkedRequest = " + forkedRequest);
-		}
-		forkedRequest.send();
-		if (session != null && session.isValid()) {
-			session.invalidate();
-		}
-		return;
-	}
-
-	@Override
-	protected void doUpdate(SipServletRequest req) throws ServletException,
-			IOException {
-		if (logger.isInfoEnabled()) {
-			logger.info("Got UPDATE: " + req.toString());
-		}
-		B2buaHelper helper = req.getB2buaHelper();
-		SipSession peerSession = helper.getLinkedSession(req.getSession());
-		SipServletRequest update = helper.createRequest(peerSession, req, null);
-		update.send();
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.servlet.B2bServlet#doCancel(javax.servlet.sip.SipServletRequest
+	 * )
+	 */
 	@Override
 	protected void doCancel(SipServletRequest req) throws ServletException,
 			IOException {
 		if (logger.isInfoEnabled()) {
 			logger.info("Got CANCEL: " + req.toString());
 		}
-		SipSession session = req.getSession();
-		B2buaHelper helper = req.getB2buaHelper();
-		SipSession linkedSession = helper.getLinkedSession(session);
-		SipServletRequest originalRequest = (SipServletRequest) linkedSession
-				.getAttribute("originalRequest");
-		SipServletRequest cancelRequest = helper.getLinkedSipServletRequest(
-				originalRequest).createCancel();
-		if (logger.isInfoEnabled()) {
-			logger.info("forkedRequest = " + cancelRequest);
-		}
-		cancelRequest.send();
-	}
-
-	@Override
-	protected void doSuccessResponse(SipServletResponse response)
-			throws ServletException, IOException {
-		if (logger.isInfoEnabled()) {
-			logger.info("Got : " + response.toString());
-		}
-		if (response.getMethod().indexOf("BYE") != -1) {
-			SipSession sipSession = response.getSession(false);
-			if (sipSession != null && sipSession.isValid()) {
-				sipSession.invalidate();
+		URI fromUri = req.getFrom().getURI();
+		if (fromUri.isSipURI()) {
+			SipURI suri = (SipURI) fromUri;
+			String user = suri.getUser();
+			String appSessionId = (String) getServletContext().getAttribute(
+					APPLICATION_SESSION_ID + user);
+			SipApplicationSession appSession = sipSessionsUtil
+					.getApplicationSessionById(appSessionId);
+			if (appSession != null) {
+				getServletContext().removeAttribute(
+						APPLICATION_SESSION_ID + user);
+				GoogleVoiceSession gvSession = (GoogleVoiceSession) appSession
+						.getAttribute(GV_SESSION);
+				if (gvSession != null) {
+					try {
+						gvSession.cancel();
+					} catch (Exception e) {
+						if (logger.isWarnEnabled()) {
+							logger.warn("Unable to cancel google voice call.");
+						}
+					}
+				}
+				appSession.invalidate();
 			}
-			SipApplicationSession sipApplicationSession = response
-					.getApplicationSession(false);
-			if (sipApplicationSession != null
-					&& sipApplicationSession.isValid()) {
-				sipApplicationSession.invalidate();
-			}
-			return;
-		}
-
-		if (response.getMethod().indexOf("INVITE") != -1) {
-			// if this is a response to an INVITE we ack it and forward the OK
-			SipServletRequest ackRequest = response.createAck();
-			if (logger.isInfoEnabled()) {
-				logger.info("Sending " + ackRequest);
-			}
-			ackRequest.send();
-			// create and sends OK for the first call leg
-			SipServletRequest originalRequest = (SipServletRequest) response
-					.getSession().getAttribute("originalRequest");
-			SipServletResponse responseToOriginalRequest = originalRequest
-					.createResponse(response.getStatus());
-			if (logger.isInfoEnabled()) {
-				logger.info("Sending OK on 1st call leg"
-						+ responseToOriginalRequest);
-			}
-			responseToOriginalRequest.setContentLength(response
-					.getContentLength());
-			if (response.getContent() != null
-					&& response.getContentType() != null)
-				responseToOriginalRequest.setContent(response.getContent(),
-						response.getContentType());
-			responseToOriginalRequest.send();
-		}
-		if (response.getMethod().indexOf("UPDATE") != -1) {
-			B2buaHelper helper = response.getRequest().getB2buaHelper();
-			SipServletRequest orgReq = helper
-					.getLinkedSipServletRequest(response.getRequest());
-			SipServletResponse res2 = orgReq.createResponse(response
-					.getStatus());
-			res2.send();
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.servlet.B2bServlet#getB2buaHelper(javax.servlet.sip.
+	 * SipServletRequest)
+	 */
 	@Override
-	protected void doErrorResponse(SipServletResponse response)
-			throws ServletException, IOException {
-		if (logger.isInfoEnabled()) {
-			logger.info("Got : " + response.getStatus() + " "
-					+ response.getReasonPhrase());
-		}
-		// we don't forward the timeout
-		if (response.getStatus() != 408) {
-			// create and sends the error response for the first call leg
-			SipServletRequest originalRequest = (SipServletRequest) response
-					.getSession().getAttribute("originalRequest");
-			SipServletResponse responseToOriginalRequest = originalRequest
-					.createResponse(response.getStatus());
-			if (logger.isInfoEnabled()) {
-				logger.info("Sending on the first call leg "
-						+ responseToOriginalRequest.toString());
+	protected B2buaHelper getB2buaHelper(SipServletRequest req) {
+		if (req instanceof SipServletRequestImpl) {
+			final SipServletRequestImpl request = (SipServletRequestImpl) req;
+			final MobicentsSipSession session = request.getSipSession();
+			if (session.getProxy() != null)
+				throw new IllegalStateException("Proxy already present");
+			B2buaHelperImpl b2buaHelper = session.getB2buaHelper();
+			if (b2buaHelper != null && b2buaHelper instanceof GvB2buaHelperImpl)
+				return b2buaHelper;
+			if (b2buaHelper == null) {
+				b2buaHelper = (B2buaHelperImpl) req.getB2buaHelper();
 			}
-			responseToOriginalRequest.send();
+			GvB2buaHelperImpl helper = new GvB2buaHelperImpl(b2buaHelper);
+			session.setB2buaHelper(b2buaHelper);
+			return helper;
+		} else {
+			return req.getB2buaHelper();
 		}
-	}
-
-	@Override
-	protected void doProvisionalResponse(SipServletResponse response)
-			throws ServletException, IOException {
-		SipServletRequest originalRequest = (SipServletRequest) response
-				.getSession().getAttribute("originalRequest");
-		SipServletResponse responseToOriginalRequest = originalRequest
-				.createResponse(response.getStatus());
-		if (logger.isInfoEnabled()) {
-			logger.info("Sending on the first call leg "
-					+ responseToOriginalRequest.toString());
-		}
-		responseToOriginalRequest.send();
 	}
 }

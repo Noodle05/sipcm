@@ -54,7 +54,7 @@ public class RegistrarServlet extends AbstractSipServlet {
 	 * )
 	 */
 	@Override
-	public void doRegister(SipServletRequest req) throws ServletException,
+	protected void doRegister(SipServletRequest req) throws ServletException,
 			IOException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Get registration request {}", req);

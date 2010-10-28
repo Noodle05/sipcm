@@ -63,6 +63,10 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	@Column(name = "phone_number", length = 32)
 	private String phoneNumber;
 
+	@Basic
+	@Column(name = "callback_number", length = 32)
+	private String callBackNumber;
+
 	@Enumerated
 	@Column(name = "type", nullable = false)
 	private VoipAccountType type;
@@ -142,6 +146,21 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	 */
 	public String getPassword() {
 		return password;
+	}
+
+	/**
+	 * @param callBackNumber
+	 *            the callBackNumber to set
+	 */
+	public void setCallBackNumber(String callBackNumber) {
+		this.callBackNumber = callBackNumber;
+	}
+
+	/**
+	 * @return the callBackNumber
+	 */
+	public String getCallBackNumber() {
+		return callBackNumber;
 	}
 
 	/**

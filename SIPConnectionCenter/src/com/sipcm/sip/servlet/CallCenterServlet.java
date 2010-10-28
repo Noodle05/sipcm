@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import javax.annotation.PostConstruct;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipURI;
@@ -121,6 +122,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 				return;
 			}
 
+			SipApplicationSession appSession = null;
 			if (getDomain().equalsIgnoreCase(fromHost)) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("From host is the domain we served, check authentication.");
@@ -135,7 +137,11 @@ public class CallCenterServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Authentication pass, set user to request.");
 				}
-				req.setAttribute(USER_ATTRIBUTE, user);
+				appSession = sipFactory.createApplicationSession();
+				getServletContext().setAttribute(
+						APPLICATION_SESSION_ID + user.getUsername(),
+						appSession.getId());
+				appSession.setAttribute(USER_ATTRIBUTE, user);
 			}
 			String toUser = toSipUri.getUser();
 			if (getDomain().equalsIgnoreCase(toHost)) {
@@ -144,7 +150,8 @@ public class CallCenterServlet extends AbstractSipServlet {
 					if (logger.isTraceEnabled()) {
 						logger.trace("This is a request to call a phone.");
 					}
-					if (req.getAttribute(USER_ATTRIBUTE) == null) {
+					if (appSession == null
+							|| appSession.getAttribute(USER_ATTRIBUTE) == null) {
 						if (logger.isDebugEnabled()) {
 							logger.debug("Only local user can call phone number. Response \"not acceptable\"");
 						}
@@ -152,14 +159,14 @@ public class CallCenterServlet extends AbstractSipServlet {
 						responseError(req, SipServletResponse.SC_NOT_ACCEPTABLE);
 						return;
 					}
-					User user = (User) req.getAttribute(USER_ATTRIBUTE);
+					User user = (User) appSession.getAttribute(USER_ATTRIBUTE);
 					if (logger.isTraceEnabled()) {
 						logger.trace("Trying to excute dial plan.");
 					}
 					UserVoipAccount voipAccount = dialplanExecutor.execute(
 							user, m.group(1));
 					if (voipAccount != null) {
-						req.setAttribute(USER_VOIP_ACCOUNT, voipAccount);
+						appSession.setAttribute(USER_VOIP_ACCOUNT, voipAccount);
 						String servlet = voipVendorToServletMap.get(voipAccount
 								.getVoipVendor().getType());
 						if (servlet != null) {

@@ -15,6 +15,7 @@ import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSession;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.URI;
+import javax.servlet.sip.annotation.SipListener;
 import javax.servlet.sip.annotation.SipServlet;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class B2bServlet extends AbstractSipServlet {
 	 * )
 	 */
 	@Override
-	public void doInvite(SipServletRequest req) throws ServletException,
+	protected void doInvite(SipServletRequest req) throws ServletException,
 			IOException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Get invite request: {}", req);
@@ -93,11 +94,11 @@ public class B2bServlet extends AbstractSipServlet {
 		}
 		if (addresses != null && !addresses.isEmpty()) {
 			Address address = addresses.iterator().next();
-			B2buaHelper helper = req.getB2buaHelper();
+			B2buaHelper helper = getB2buaHelper(req);
 			SipServletRequest forkedRequest = helper.createRequest(req);
 			forkedRequest.setRequestURI(sipUtil.getCanonicalizedURI(address
 					.getURI()));
-			forkedRequest.getSession().setAttribute("originalRequest", req);
+			forkedRequest.getSession().setAttribute(ORIGINAL_REQUEST, req);
 			forkedRequest.send();
 		} else {
 			responseError(req, SipServletResponse.SC_NOT_FOUND);
@@ -105,12 +106,12 @@ public class B2bServlet extends AbstractSipServlet {
 		}
 	}
 
-	private void processInDialogInvite(SipServletRequest req)
+	protected void processInDialogInvite(SipServletRequest req)
 			throws ServletException, IOException {
-		B2buaHelper helper = req.getB2buaHelper();
+		B2buaHelper helper = getB2buaHelper(req);
 		SipSession peerSession = helper.getLinkedSession(req.getSession());
 		SipServletRequest invite = helper.createRequest(peerSession, req, null);
-		invite.getSession().setAttribute("originalRequest", req);
+		invite.getSession().setAttribute(ORIGINAL_REQUEST, req);
 		invite.send();
 	}
 
@@ -133,7 +134,7 @@ public class B2bServlet extends AbstractSipServlet {
 
 		// we forward the BYE
 		SipSession session = req.getSession();
-		B2buaHelper helper = req.getB2buaHelper();
+		B2buaHelper helper = getB2buaHelper(req);
 		SipSession linkedSession = helper.getLinkedSession(session);
 		SipServletRequest forkedRequest = linkedSession.createRequest("BYE");
 		if (logger.isDebugEnabled()) {
@@ -159,7 +160,7 @@ public class B2bServlet extends AbstractSipServlet {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Got UPDATE: " + req.toString());
 		}
-		B2buaHelper helper = req.getB2buaHelper();
+		B2buaHelper helper = getB2buaHelper(req);
 		SipSession peerSession = helper.getLinkedSession(req.getSession());
 		SipServletRequest update = helper.createRequest(peerSession, req, null);
 		update.send();
@@ -179,10 +180,10 @@ public class B2bServlet extends AbstractSipServlet {
 			logger.debug("Got CANCEL: " + req.toString());
 		}
 		SipSession session = req.getSession();
-		B2buaHelper helper = req.getB2buaHelper();
+		B2buaHelper helper = getB2buaHelper(req);
 		SipSession linkedSession = helper.getLinkedSession(session);
 		SipServletRequest originalRequest = (SipServletRequest) linkedSession
-				.getAttribute("originalRequest");
+				.getAttribute(ORIGINAL_REQUEST);
 		SipServletRequest cancelRequest = helper.getLinkedSipServletRequest(
 				originalRequest).createCancel();
 		if (logger.isDebugEnabled()) {
@@ -226,7 +227,7 @@ public class B2bServlet extends AbstractSipServlet {
 			ackRequest.send();
 			// create and sends OK for the first call leg
 			SipServletRequest originalRequest = (SipServletRequest) response
-					.getSession().getAttribute("originalRequest");
+					.getSession().getAttribute(ORIGINAL_REQUEST);
 			SipServletResponse responseToOriginalRequest = originalRequest
 					.createResponse(response.getStatus());
 			if (logger.isDebugEnabled()) {
@@ -242,7 +243,7 @@ public class B2bServlet extends AbstractSipServlet {
 			responseToOriginalRequest.send();
 		}
 		if (response.getMethod().indexOf("UPDATE") != -1) {
-			B2buaHelper helper = response.getRequest().getB2buaHelper();
+			B2buaHelper helper = getB2buaHelper(response.getRequest());
 			SipServletRequest orgReq = helper
 					.getLinkedSipServletRequest(response.getRequest());
 			SipServletResponse res2 = orgReq.createResponse(response
@@ -268,7 +269,7 @@ public class B2bServlet extends AbstractSipServlet {
 		if (response.getStatus() != 408) {
 			// create and sends the error response for the first call leg
 			SipServletRequest originalRequest = (SipServletRequest) response
-					.getSession().getAttribute("originalRequest");
+					.getSession().getAttribute(ORIGINAL_REQUEST);
 			SipServletResponse responseToOriginalRequest = originalRequest
 					.createResponse(response.getStatus());
 			if (logger.isInfoEnabled()) {
@@ -290,7 +291,7 @@ public class B2bServlet extends AbstractSipServlet {
 	protected void doProvisionalResponse(SipServletResponse response)
 			throws ServletException, IOException {
 		SipServletRequest originalRequest = (SipServletRequest) response
-				.getSession().getAttribute("originalRequest");
+				.getSession().getAttribute(ORIGINAL_REQUEST);
 		SipServletResponse responseToOriginalRequest = originalRequest
 				.createResponse(response.getStatus());
 		if (logger.isDebugEnabled()) {
@@ -298,5 +299,9 @@ public class B2bServlet extends AbstractSipServlet {
 					+ responseToOriginalRequest.toString());
 		}
 		responseToOriginalRequest.send();
+	}
+
+	protected B2buaHelper getB2buaHelper(SipServletRequest req) {
+		return req.getB2buaHelper();
 	}
 }

@@ -12,10 +12,13 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import javax.servlet.sip.SipErrorEvent;
+import javax.servlet.sip.SipErrorListener;
 import javax.servlet.sip.SipFactory;
 import javax.servlet.sip.SipServlet;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
+import javax.servlet.sip.SipSessionsUtil;
 
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
@@ -36,12 +39,17 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 
 	public static final String USER_ATTRIBUTE = "com.sipcm.user";
 	public static final String USER_VOIP_ACCOUNT = "com.sipcm.voip.account";
+	public static final String ORIGINAL_REQUEST = "com.sipcm.originalRequest";
+	public static final String GV_WAITING_FOR_CALLBACK = "com.sipcm.googlevoice.waiting";
+	public static final String APPLICATION_SESSION_ID = "com.sipcm.appsessionid.";
 
 	public static final Pattern PHONE_NUMBER = Pattern.compile("^(\\+?\\d+)$");
 
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected SipFactory sipFactory;
+
+	protected SipSessionsUtil sipSessionsUtil;
 
 	@Autowired
 	@Qualifier("applicationConfiguration")
@@ -60,8 +68,12 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 			Context envCtx = (Context) initCtx.lookup("java:comp/env");
 			sipFactory = (SipFactory) envCtx
 					.lookup("sip/org.gaofamily.CallCenter/SipFactory");
+			sipSessionsUtil = (SipSessionsUtil) envCtx
+					.lookup("sip/org.gaofamily.CallCenter/SipSessionsUtil");
 			if (logger.isInfoEnabled()) {
-				logger.info("Sip Factory ref from JNDI : " + sipFactory);
+				logger.info("Sip Factory ref from JNDI : " + sipFactory
+						+ ", Sip Sessions Util ref from JNDI : "
+						+ sipSessionsUtil);
 			}
 		} catch (NamingException e) {
 			throw new ServletException("Uh oh -- JNDI problem !", e);

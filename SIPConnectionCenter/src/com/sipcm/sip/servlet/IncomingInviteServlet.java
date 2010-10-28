@@ -7,18 +7,12 @@ import java.io.IOException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.annotation.SipServlet;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import com.sipcm.sip.locationservice.LocationService;
-import com.sipcm.sip.locationservice.UserNotFoundException;
-import com.sipcm.sip.locationservice.UserProfile;
-import com.sipcm.sip.locationservice.UserProfileStatus;
 
 /**
  * @author wgao
@@ -29,10 +23,6 @@ import com.sipcm.sip.locationservice.UserProfileStatus;
 public class IncomingInviteServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = 4938128598461987936L;
 
-	@Autowired
-	@Qualifier("sipLocationService")
-	private LocationService locationService;
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -41,7 +31,7 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 	 * )
 	 */
 	@Override
-	public void doInvite(SipServletRequest req) throws ServletException,
+	protected void doInvite(SipServletRequest req) throws ServletException,
 			IOException {
 		RequestDispatcher dispatcher = null;
 		SipURI toUri = (SipURI) req.getTo().getURI();
@@ -49,20 +39,18 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 		String toUser = toUri.getUser();
 		String fromUser = fromUri.getUser();
 		if (PHONE_NUMBER.matcher(fromUser).matches()) {
-			String key = sipFactory.createSipURI(toUser, toUri.getHost())
-					.toString();
-			UserProfile userProfile = null;
-			try {
-				userProfile = locationService.getUserProfile(key);
-			} catch (UserNotFoundException e) {
-				userProfile = null;
+			String appSessionId = (String) getServletContext().getAttribute(
+					APPLICATION_SESSION_ID + toUser);
+			SipApplicationSession appSession = null;
+			if (appSessionId != null) {
+				appSession = sipSessionsUtil
+						.getApplicationSessionById(appSessionId);
 			}
-			if (userProfile != null
-					&& UserProfileStatus.WAITING_CALLBACK.equals(userProfile
-							.getStatus())
-					&& getCanonicalizedPhoneNumber(fromUser).equals(
-							userProfile.getWaitingFromNumber())) {
-				dispatcher = req.getRequestDispatcher("GoogleVoiceServlet");
+			if (appSession != null) {
+				if (getCanonicalizedPhoneNumber(fromUser).equals(
+						appSession.getAttribute(GV_WAITING_FOR_CALLBACK))) {
+					dispatcher = req.getRequestDispatcher("GoogleVoiceServlet");
+				}
 			}
 		}
 		if (dispatcher == null) {

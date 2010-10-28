@@ -100,8 +100,8 @@
 			rev="3.0.3.RELEASE" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-test"
 			rev="3.0.5.RELEASE" conf="test->default;foride->sources,javadoc" />
-		<dependency org="opensymphony" name="quartz" rev="1.6.3"
-			conf="runtime->default" />
+		<dependency org="org.quartz-scheduler" name="quartz" rev="1.8.4"
+			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.servlet.sip" name="sip-servlets-impl"
 			rev="1.4.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="javax.servlet" name="servlet-api" rev="2.5"

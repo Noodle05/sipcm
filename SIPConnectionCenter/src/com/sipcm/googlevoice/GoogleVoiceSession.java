@@ -6,6 +6,7 @@ package com.sipcm.googlevoice;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -43,7 +44,9 @@ import com.sipcm.common.AuthenticationException;
  */
 @Component("googleVoiceSession")
 @Scope("prototype")
-public class GoogleVoiceSession {
+public class GoogleVoiceSession implements Serializable {
+	private static final long serialVersionUID = 727761632230756155L;
+
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.A.B.C Safari/525.13";
 
 	private static final String loginPageUrl = "https://www.google.com/accounts/ServiceLogin";
@@ -53,7 +56,12 @@ public class GoogleVoiceSession {
 	private static final String cancelUrl = "https://www.google.com/voice/call/cancel/";
 
 	private static Pattern galxPattern = Pattern.compile(
-			".*name=\"GALX\"\\s*value=\"([^\"]*)\".*", Pattern.DOTALL);
+			".*name=\"GALX\"\\s*value=\"([^\"]*)\".*", Pattern.DOTALL
+					+ Pattern.CASE_INSENSITIVE);
+
+	private static final Pattern resultPattern = Pattern.compile(
+			"^\\{\"ok\"\\s*\\:\\s*(false|true).*\\}$", Pattern.DOTALL
+					+ Pattern.CASE_INSENSITIVE);
 
 	private static final Pattern rnr_sePattern = Pattern
 			.compile("^\\s*'_rnr_se':\\s*'(.*)',\\s*$");
@@ -69,6 +77,7 @@ public class GoogleVoiceSession {
 	private HttpClient httpClient;
 	private String rnrSe;
 	private int maxRetry = 1;
+	private boolean cancelCall;
 
 	@Resource(name = "googleVoiceManager")
 	private GoogleVoiceManager manager;
@@ -138,24 +147,29 @@ public class GoogleVoiceSession {
 		}
 	}
 
-	public void call(String destination, String phoneType)
+	public boolean call(String destination, String phoneType)
 			throws ClientProtocolException, IOException, HttpResponseException,
 			AuthenticationException {
-		HttpPost callPost = new HttpPost(callUrl);
-		List<NameValuePair> ps = new ArrayList<NameValuePair>();
-		ps.add(new BasicNameValuePair("outgoingNumber", destination));
-		ps.add(new BasicNameValuePair("forwardingNumber", myNumber));
-		ps.add(new BasicNameValuePair("subscriberNumber", "undefined"));
-		ps.add(new BasicNameValuePair("phoneType", phoneType));
-		ps.add(new BasicNameValuePair("remember", "0"));
-		ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
-		HttpEntity en = new UrlEncodedFormEntity(ps);
-		callPost.setEntity(en);
-		callMethod(callPost, 0);
+		if (!cancelCall) {
+			HttpPost callPost = new HttpPost(callUrl);
+			List<NameValuePair> ps = new ArrayList<NameValuePair>();
+			ps.add(new BasicNameValuePair("outgoingNumber", destination));
+			ps.add(new BasicNameValuePair("forwardingNumber", myNumber));
+			ps.add(new BasicNameValuePair("subscriberNumber", "undefined"));
+			ps.add(new BasicNameValuePair("phoneType", phoneType));
+			ps.add(new BasicNameValuePair("remember", "0"));
+			ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
+			HttpEntity en = new UrlEncodedFormEntity(ps);
+			callPost.setEntity(en);
+			return callMethod(callPost, 0);
+		} else {
+			return false;
+		}
 	}
 
-	public void cancel() throws ClientProtocolException, IOException,
+	public boolean cancel() throws ClientProtocolException, IOException,
 			HttpResponseException, AuthenticationException {
+		cancelCall = true;
 		HttpPost callPost = new HttpPost(cancelUrl);
 		List<NameValuePair> ps = new ArrayList<NameValuePair>();
 		ps.add(new BasicNameValuePair("outgoingNumber", "undefined"));
@@ -164,26 +178,32 @@ public class GoogleVoiceSession {
 		ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
 		HttpEntity en = new UrlEncodedFormEntity(ps);
 		callPost.setEntity(en);
-		callMethod(callPost, 0);
+		return callMethod(callPost, 0);
 	}
 
-	private void callMethod(HttpUriRequest request, int retry)
+	private boolean callMethod(HttpUriRequest request, int retry)
 			throws ClientProtocolException, IOException, HttpResponseException,
 			AuthenticationException {
 		HttpResponse response = httpClient.execute(request);
-		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-			return;
-		} else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
+		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
 			if (retry < maxRetry) {
 				login();
 				callMethod(request, retry++);
 			} else {
 				parseError(response.getEntity());
 			}
-		} else {
+		} else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 			throw new HttpResponseException(response.getStatusLine()
 					.getStatusCode(), "Error happened when parse auth tokens");
 		}
+		String body = EntityUtils.toString(response.getEntity());
+		Matcher m = resultPattern.matcher(body);
+		if (m.matches()) {
+			if ("true".equalsIgnoreCase(m.group(1))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void parseError(HttpEntity entity)
