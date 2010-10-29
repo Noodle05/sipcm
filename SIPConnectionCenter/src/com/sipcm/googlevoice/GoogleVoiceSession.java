@@ -34,6 +34,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +47,9 @@ import com.sipcm.common.AuthenticationException;
 @Component("googleVoiceSession")
 @Scope("prototype")
 public class GoogleVoiceSession implements Serializable {
+	private static final Logger logger = LoggerFactory
+			.getLogger(GoogleVoiceSession.class);
+
 	private static final long serialVersionUID = 727761632230756155L;
 
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.A.B.C Safari/525.13";
@@ -98,7 +103,13 @@ public class GoogleVoiceSession implements Serializable {
 
 	public void login() throws ClientProtocolException, IOException,
 			AuthenticationException, HttpResponseException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Trying to login.");
+		}
 		HttpGet loginPage = new HttpGet(loginPageUrl);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Trying to get galx.");
+		}
 		HttpResponse response = httpClient.execute(loginPage);
 		String loginBody = EntityUtils.toString(response.getEntity());
 		Matcher m = galxPattern.matcher(loginBody);
@@ -106,7 +117,13 @@ public class GoogleVoiceSession implements Serializable {
 		if (m.matches()) {
 			galx = m.group(1);
 		} else {
+			if (logger.isDebugEnabled()) {
+				logger.debug("I cannot find galx for this login.");
+			}
 			throw new NoAuthTokenException();
+		}
+		if (logger.isTraceEnabled()) {
+			logger.trace("Get galx: {}", galx);
 		}
 
 		HttpPost login = new HttpPost(loginUrl);
@@ -117,6 +134,9 @@ public class GoogleVoiceSession implements Serializable {
 		ps.add(new BasicNameValuePair("GALX", galx));
 		HttpEntity oe = new UrlEncodedFormEntity(ps);
 		login.setEntity(oe);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Trying to get rnrse token.");
+		}
 		response = httpClient.execute(login);
 		while (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
 			Header lh = response.getFirstHeader("Location");
@@ -139,9 +159,19 @@ public class GoogleVoiceSession implements Serializable {
 				reader.close();
 			}
 			if (rnrSe == null) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Cannot find rnr.");
+				}
 				throw new NoRnrSeException();
 			}
+			if (logger.isTraceEnabled()) {
+				logger.trace("Find rnr: {}", rnrSe);
+			}
 		} else {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Login page return error {}", response
+						.getStatusLine().getStatusCode());
+			}
 			throw new HttpResponseException(response.getStatusLine()
 					.getStatusCode(), "Error happened during login.");
 		}
@@ -161,14 +191,25 @@ public class GoogleVoiceSession implements Serializable {
 			ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
 			HttpEntity en = new UrlEncodedFormEntity(ps);
 			callPost.setEntity(en);
+			if (logger.isTraceEnabled()) {
+				logger.trace(
+						"Calling \"call\" method with target number {}, callback number {}, phone type {}",
+						new Object[] { destination, myNumber, phoneType });
+			}
 			return callMethod(callPost, 0);
 		} else {
+			if (logger.isDebugEnabled()) {
+				logger.debug("This call already cancelled.");
+			}
 			return false;
 		}
 	}
 
 	public boolean cancel() throws ClientProtocolException, IOException,
 			HttpResponseException, AuthenticationException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Cancelling call.");
+		}
 		cancelCall = true;
 		HttpPost callPost = new HttpPost(cancelUrl);
 		List<NameValuePair> ps = new ArrayList<NameValuePair>();
@@ -178,6 +219,9 @@ public class GoogleVoiceSession implements Serializable {
 		ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
 		HttpEntity en = new UrlEncodedFormEntity(ps);
 		callPost.setEntity(en);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Call \"cancel\" method.");
+		}
 		return callMethod(callPost, 0);
 	}
 
@@ -186,22 +230,44 @@ public class GoogleVoiceSession implements Serializable {
 			AuthenticationException {
 		HttpResponse response = httpClient.execute(request);
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Request rejected.");
+			}
 			if (retry < maxRetry) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Retry with login first.");
+				}
 				login();
 				callMethod(request, retry++);
 			} else {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Call failed, parsing failed reason.");
+				}
 				parseError(response.getEntity());
 			}
 		} else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Call method failed with status code: {}",
+						response.getStatusLine().getStatusCode());
+			}
 			throw new HttpResponseException(response.getStatusLine()
 					.getStatusCode(), "Error happened when parse auth tokens");
 		}
 		String body = EntityUtils.toString(response.getEntity());
+		if (logger.isTraceEnabled()) {
+			logger.trace("Method return body: {}", body);
+		}
 		Matcher m = resultPattern.matcher(body);
 		if (m.matches()) {
 			if ("true".equalsIgnoreCase(m.group(1))) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Method return \"ok\" : true. Success.");
+				}
 				return true;
 			}
+		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Call failed.");
 		}
 		return false;
 	}

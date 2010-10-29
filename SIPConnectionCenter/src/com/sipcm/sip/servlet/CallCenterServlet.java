@@ -137,11 +137,11 @@ public class CallCenterServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Authentication pass, set user to request.");
 				}
-				appSession = sipFactory.createApplicationSession();
+				appSession = req.getApplicationSession();
 				getServletContext().setAttribute(
 						APPLICATION_SESSION_ID + user.getUsername(),
 						appSession.getId());
-				appSession.setAttribute(USER_ATTRIBUTE, user);
+				req.setAttribute(USER_ATTRIBUTE, user);
 			}
 			String toUser = toSipUri.getUser();
 			if (getDomain().equalsIgnoreCase(toHost)) {
@@ -150,8 +150,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 					if (logger.isTraceEnabled()) {
 						logger.trace("This is a request to call a phone.");
 					}
-					if (appSession == null
-							|| appSession.getAttribute(USER_ATTRIBUTE) == null) {
+					if (req.getAttribute(USER_ATTRIBUTE) == null) {
 						if (logger.isDebugEnabled()) {
 							logger.debug("Only local user can call phone number. Response \"not acceptable\"");
 						}
@@ -159,7 +158,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 						responseError(req, SipServletResponse.SC_NOT_ACCEPTABLE);
 						return;
 					}
-					User user = (User) appSession.getAttribute(USER_ATTRIBUTE);
+					User user = (User) req.getAttribute(USER_ATTRIBUTE);
 					if (logger.isTraceEnabled()) {
 						logger.trace("Trying to excute dial plan.");
 					}

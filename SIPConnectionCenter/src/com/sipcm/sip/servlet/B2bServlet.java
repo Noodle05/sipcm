@@ -15,7 +15,6 @@ import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSession;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.URI;
-import javax.servlet.sip.annotation.SipListener;
 import javax.servlet.sip.annotation.SipServlet;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +65,7 @@ public class B2bServlet extends AbstractSipServlet {
 		}
 	}
 
-	private void processInitialInvite(SipServletRequest req)
+	protected void processInitialInvite(SipServletRequest req)
 			throws ServletException, IOException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Processing to voip back to back invite.");
@@ -99,6 +98,9 @@ public class B2bServlet extends AbstractSipServlet {
 			forkedRequest.setRequestURI(sipUtil.getCanonicalizedURI(address
 					.getURI()));
 			forkedRequest.getSession().setAttribute(ORIGINAL_REQUEST, req);
+			if (logger.isTraceEnabled()) {
+				logger.trace("Sending forked request {}", forkedRequest);
+			}
 			forkedRequest.send();
 		} else {
 			responseError(req, SipServletResponse.SC_NOT_FOUND);
@@ -112,6 +114,9 @@ public class B2bServlet extends AbstractSipServlet {
 		SipSession peerSession = helper.getLinkedSession(req.getSession());
 		SipServletRequest invite = helper.createRequest(peerSession, req, null);
 		invite.getSession().setAttribute(ORIGINAL_REQUEST, req);
+		if (logger.isTraceEnabled()) {
+			logger.trace("forwarding in dialog invite request {}", invite);
+		}
 		invite.send();
 	}
 
@@ -130,17 +135,27 @@ public class B2bServlet extends AbstractSipServlet {
 		// we send the OK directly to the first call leg
 		SipServletResponse sipServletResponse = req
 				.createResponse(SipServletResponse.SC_OK);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Response ok to original request.");
+		}
 		sipServletResponse.send();
 
 		// we forward the BYE
 		SipSession session = req.getSession();
 		B2buaHelper helper = getB2buaHelper(req);
 		SipSession linkedSession = helper.getLinkedSession(session);
-		SipServletRequest forkedRequest = linkedSession.createRequest("BYE");
-		if (logger.isDebugEnabled()) {
-			logger.debug("forkedRequest = " + forkedRequest);
+		if (linkedSession != null) {
+			SipServletRequest forkedRequest = linkedSession
+					.createRequest("BYE");
+			if (logger.isTraceEnabled()) {
+				logger.trace("Sending forked bye Request {}", forkedRequest);
+			}
+			forkedRequest.send();
+		} else {
+			if (logger.isInfoEnabled()) {
+				logger.info("Cannot found linked session, got bye at same time?");
+			}
 		}
-		forkedRequest.send();
 		if (session != null && session.isValid()) {
 			session.invalidate();
 		}
@@ -162,7 +177,15 @@ public class B2bServlet extends AbstractSipServlet {
 		}
 		B2buaHelper helper = getB2buaHelper(req);
 		SipSession peerSession = helper.getLinkedSession(req.getSession());
+		if (peerSession == null) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Cannot find linked session!");
+			}
+		}
 		SipServletRequest update = helper.createRequest(peerSession, req, null);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Forwarding update request {}", update);
+		}
 		update.send();
 	}
 
@@ -177,7 +200,7 @@ public class B2bServlet extends AbstractSipServlet {
 	protected void doCancel(SipServletRequest req) throws ServletException,
 			IOException {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Got CANCEL: " + req.toString());
+			logger.debug("Got CANCEL: {}", req.toString());
 		}
 		SipSession session = req.getSession();
 		B2buaHelper helper = getB2buaHelper(req);
@@ -187,7 +210,7 @@ public class B2bServlet extends AbstractSipServlet {
 		SipServletRequest cancelRequest = helper.getLinkedSipServletRequest(
 				originalRequest).createCancel();
 		if (logger.isDebugEnabled()) {
-			logger.debug("forkedRequest = " + cancelRequest);
+			logger.debug("Forwarding cancel request {}", cancelRequest);
 		}
 		cancelRequest.send();
 	}
@@ -230,16 +253,16 @@ public class B2bServlet extends AbstractSipServlet {
 					.getSession().getAttribute(ORIGINAL_REQUEST);
 			SipServletResponse responseToOriginalRequest = originalRequest
 					.createResponse(response.getStatus());
-			if (logger.isDebugEnabled()) {
-				logger.debug("Sending OK on 1st call leg"
-						+ responseToOriginalRequest);
-			}
 			responseToOriginalRequest.setContentLength(response
 					.getContentLength());
 			if (response.getContent() != null
 					&& response.getContentType() != null)
 				responseToOriginalRequest.setContent(response.getContent(),
 						response.getContentType());
+			if (logger.isTraceEnabled()) {
+				logger.trace("Sending OK on 1st call leg {}",
+						responseToOriginalRequest);
+			}
 			responseToOriginalRequest.send();
 		}
 		if (response.getMethod().indexOf("UPDATE") != -1) {
@@ -272,9 +295,9 @@ public class B2bServlet extends AbstractSipServlet {
 					.getSession().getAttribute(ORIGINAL_REQUEST);
 			SipServletResponse responseToOriginalRequest = originalRequest
 					.createResponse(response.getStatus());
-			if (logger.isInfoEnabled()) {
-				logger.info("Sending on the first call leg "
-						+ responseToOriginalRequest.toString());
+			if (logger.isTraceEnabled()) {
+				logger.trace("Sending on the first call leg ",
+						responseToOriginalRequest);
 			}
 			responseToOriginalRequest.send();
 		}

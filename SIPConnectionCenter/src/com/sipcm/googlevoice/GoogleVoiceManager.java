@@ -16,12 +16,16 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author wgao
  * 
  */
 public abstract class GoogleVoiceManager {
+	private Logger logger = LoggerFactory.getLogger(GoogleVoiceManager.class);
+
 	private ClientConnectionManager connMgr;
 
 	protected abstract GoogleVoiceSession getGoogleVoiceSession();
@@ -30,7 +34,8 @@ public abstract class GoogleVoiceManager {
 	public void init() {
 		HttpParams params = new BasicHttpParams();
 		params.setIntParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS, 50);
-		params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, new ConnPerRouteBean(50));
+		params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE,
+				new ConnPerRouteBean(50));
 		Scheme http = new Scheme("http", PlainSocketFactory.getSocketFactory(),
 				80);
 		Scheme https = new Scheme("https", SSLSocketFactory.getSocketFactory(),
@@ -45,6 +50,11 @@ public abstract class GoogleVoiceManager {
 
 	public GoogleVoiceSession getGoogleVoiceSession(String username,
 			String password, String myNumber) {
+		if (logger.isDebugEnabled()) {
+			logger.debug(
+					"Creating new google voice session for {}, call back number {}",
+					username, myNumber);
+		}
 		GoogleVoiceSession session = getGoogleVoiceSession();
 		session.setUsername(username);
 		session.setPassword(password);

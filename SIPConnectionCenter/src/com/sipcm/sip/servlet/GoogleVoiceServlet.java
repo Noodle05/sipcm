@@ -87,7 +87,7 @@ public class GoogleVoiceServlet extends B2bServlet {
 							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 					return;
 				}
-				User user = (User) appSession.getAttribute(USER_ATTRIBUTE);
+				User user = (User) req.getAttribute(USER_ATTRIBUTE);
 				UserVoipAccount account = (UserVoipAccount) appSession
 						.getAttribute(USER_VOIP_ACCOUNT);
 				if (user == null) {
@@ -182,6 +182,9 @@ public class GoogleVoiceServlet extends B2bServlet {
 				return;
 			}
 		} catch (Exception e) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Error happened during google voice call.", e);
+			}
 			responseError(req, SipServletResponse.SC_BAD_GATEWAY);
 			return;
 		}

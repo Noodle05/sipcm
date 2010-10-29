@@ -33,6 +33,9 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 	@Override
 	protected void doInvite(SipServletRequest req) throws ServletException,
 			IOException {
+		if (logger.isTraceEnabled()) {
+			logger.trace("Processing incoming invite.");
+		}
 		RequestDispatcher dispatcher = null;
 		SipURI toUri = (SipURI) req.getTo().getURI();
 		SipURI fromUri = (SipURI) req.getFrom().getURI();
@@ -47,13 +50,26 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 						.getApplicationSessionById(appSessionId);
 			}
 			if (appSession != null) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Found application session for this to user, this probably a google voice call back.");
+				}
 				if (getCanonicalizedPhoneNumber(fromUser).equals(
 						appSession.getAttribute(GV_WAITING_FOR_CALLBACK))) {
+					if (logger.isTraceEnabled()) {
+						logger.trace("Call back number match too, forward to google voice servlet.");
+					}
 					dispatcher = req.getRequestDispatcher("GoogleVoiceServlet");
+				} else {
+					if (logger.isTraceEnabled()) {
+						logger.trace("However call back number doesn't match.");
+					}
 				}
 			}
 		}
 		if (dispatcher == null) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Forward to back-to-back servlet.");
+			}
 			dispatcher = req.getRequestDispatcher("B2bServlet");
 		}
 		dispatcher.forward(req, null);
