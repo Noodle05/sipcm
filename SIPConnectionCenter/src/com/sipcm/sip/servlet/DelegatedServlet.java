@@ -3,6 +3,8 @@
  */
 package com.sipcm.sip.servlet;
 
+import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,7 +82,9 @@ public class DelegatedServlet extends B2bServlet {
 		SipServletRequest forkedRequest = helper.createRequest(req, true,
 				headers);
 		forkedRequest.setRequestURI(toURI);
+		// Remove original authentication headers.
 		forkedRequest.removeHeader(AuthorizationHeader.NAME);
+		forkedRequest.removeHeader(PAssertedIdentityHeader.NAME);
 		forkedRequest.getSession().setAttribute(ORIGINAL_REQUEST, req);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Sending forked request: {}", forkedRequest);
@@ -114,6 +118,9 @@ public class DelegatedServlet extends B2bServlet {
 					}
 					appSession.setAttribute("FirstResponseRecieved", "true");
 					B2buaHelper helper = resp.getRequest().getB2buaHelper();
+					// Need to create request from current session but original
+					// request. Otherwise, linked session in B2buaHelper will
+					// be a mess.
 					SipServletRequest origRequest = (SipServletRequest) resp
 							.getSession().getAttribute(ORIGINAL_REQUEST);
 					AuthInfo authInfo = sipFactory.createAuthInfo();
@@ -122,7 +129,10 @@ public class DelegatedServlet extends B2bServlet {
 							account.getPassword());
 					SipServletRequest challengeRequest = helper.createRequest(
 							resp.getSession(), origRequest, null);
+					// Remove original authentication headers.
 					challengeRequest.removeHeader(AuthorizationHeader.NAME);
+					challengeRequest.removeHeader(PAssertedIdentityHeader.NAME);
+					// Add new authentication headers
 					challengeRequest.addAuthHeader(resp, authInfo);
 					if (logger.isTraceEnabled()) {
 						logger.trace("Sending challenge request {}",
@@ -133,7 +143,7 @@ public class DelegatedServlet extends B2bServlet {
 				}
 			}
 		}
-		if (resp.getStatus() != 408) {
+		if (resp.getStatus() != SipServletResponse.SC_REQUEST_TIMEOUT) {
 			// create and sends the error response for the first call leg
 			SipServletRequest originalRequest = (SipServletRequest) resp
 					.getSession().getAttribute(ORIGINAL_REQUEST);

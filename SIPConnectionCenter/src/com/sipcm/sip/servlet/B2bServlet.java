@@ -17,6 +17,8 @@ import javax.servlet.sip.SipURI;
 import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
 
+import org.mobicents.servlet.sip.core.RoutingState;
+import org.mobicents.servlet.sip.message.SipServletRequestImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -289,10 +291,23 @@ public class B2bServlet extends AbstractSipServlet {
 					+ response.getReasonPhrase());
 		}
 		// we don't forward the timeout
-		if (response.getStatus() != 408) {
+		if (response.getStatus() != SipServletResponse.SC_REQUEST_TIMEOUT) {
 			// create and sends the error response for the first call leg
 			SipServletRequest originalRequest = (SipServletRequest) response
 					.getSession().getAttribute(ORIGINAL_REQUEST);
+			if (originalRequest instanceof SipServletRequestImpl) {
+				final SipServletRequestImpl req = (SipServletRequestImpl) originalRequest;
+				if (RoutingState.CANCELLED.equals(req.getRoutingState())) {
+					// The original request should be google voice invite
+					// request, already canceled.
+					if (logger.isTraceEnabled()) {
+						logger.trace(
+								"Original invite request canceled already, maybe a google voice request. Original invite: {}",
+								req);
+					}
+					return;
+				}
+			}
 			SipServletResponse responseToOriginalRequest = originalRequest
 					.createResponse(response.getStatus());
 			if (logger.isTraceEnabled()) {
