@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.sipcm.sip.util.PhoneNumberUtil;
+
 /**
  * @author wgao
  * 
@@ -41,13 +43,24 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 	public static final String GV_WAITING_FOR_CALLBACK = "com.sipcm.googlevoice.waiting";
 	public static final String APPLICATION_SESSION_ID = "com.sipcm.appsessionid.";
 
+	public static final String US_CA_NUMBER = "\\d{7}|(?:\\+1|1)?\\d{10}";
+	public static final String INTERNATIONAL_NUMBER = "(?:\\+|011)[^1]\\d{7,}";
+
 	public static final Pattern PHONE_NUMBER = Pattern.compile("^(\\+?\\d+)$");
+	public static final Pattern US_CA_NUMBER_PATTERN = Pattern
+			.compile("^(\\d{7}|(?:\\+1|1)?\\d{10})$");
+	public static final Pattern INTERNATIONAL_NUMBER_PATTERN = Pattern
+			.compile("^((?:\\+|011)[^1]\\d{7,})$");
 
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected SipFactory sipFactory;
 
 	protected SipSessionsUtil sipSessionsUtil;
+
+	@Autowired
+	@Qualifier("phoneNumberUtil")
+	protected PhoneNumberUtil phoneNumberUtil;
 
 	@Autowired
 	@Qualifier("applicationConfiguration")
@@ -92,19 +105,5 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 		SipServletResponse response = req.createResponse(statusCode,
 				reasonPhrase);
 		response.send();
-	}
-
-	/**
-	 * Get digital only format phone number.
-	 * 
-	 * @param myNumber
-	 * @return
-	 */
-	protected String getCanonicalizedPhoneNumber(String phoneNumber) {
-		String newNumber = phoneNumber.replaceAll("[^\\+|^\\d]", "");
-		if (newNumber.startsWith("+")) {
-			newNumber = "011" + newNumber.substring(1);
-		}
-		return newNumber;
 	}
 }

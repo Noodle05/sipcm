@@ -53,8 +53,9 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Found application session for this to user, this probably a google voice call back.");
 				}
-				if (getCanonicalizedPhoneNumber(fromUser).equals(
-						appSession.getAttribute(GV_WAITING_FOR_CALLBACK))) {
+				if (phoneNumberUtil.getCanonicalizedPhoneNumber(fromUser)
+						.equals(appSession
+								.getAttribute(GV_WAITING_FOR_CALLBACK))) {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Call back number match too, forward to google voice servlet.");
 					}

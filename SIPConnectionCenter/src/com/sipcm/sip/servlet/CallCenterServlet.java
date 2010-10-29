@@ -163,7 +163,8 @@ public class CallCenterServlet extends AbstractSipServlet {
 						logger.trace("Trying to excute dial plan.");
 					}
 					UserVoipAccount voipAccount = dialplanExecutor.execute(
-							user, m.group(1));
+							user, phoneNumberUtil.getCanonicalizedPhoneNumber(m
+									.group(1)));
 					if (voipAccount != null) {
 						appSession.setAttribute(USER_VOIP_ACCOUNT, voipAccount);
 						String servlet = voipVendorToServletMap.get(voipAccount

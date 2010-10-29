@@ -166,10 +166,13 @@ public class GoogleVoiceServlet extends B2bServlet {
 						account.getPassword(), account.getCallBackNumber());
 		appSession.setAttribute(GV_SESSION, gvSession);
 		try {
+			String pn = phoneNumberUtil.getCorrectUsCaPhoneNumber(phoneNumber,
+					user.getDefaultArea());
 			gvSession.login();
-			if (gvSession.call(phoneNumber, "1")) {
+			if (gvSession.call(pn, "1")) {
 				appSession.setAttribute(GV_WAITING_FOR_CALLBACK,
-						getCanonicalizedPhoneNumber(account.getPhoneNumber()));
+						phoneNumberUtil.getCanonicalizedPhoneNumber(account
+								.getPhoneNumber()));
 				SipSession session = req.getSession();
 				session.setAttribute(ORIGINAL_REQUEST, req);
 				appSession.setAttribute(ORIGINAL_SESSION, session);
