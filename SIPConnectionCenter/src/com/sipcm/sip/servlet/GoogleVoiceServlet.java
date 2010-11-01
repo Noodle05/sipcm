@@ -40,6 +40,7 @@ public class GoogleVoiceServlet extends B2bServlet {
 
 	public static final String ORIGINAL_SESSION = "com.sipcm.original.session";
 	public static final String GV_SESSION = "com.sipcm.googlevoice.session";
+	public static final String ORIGINAL_REQUEST = "com.sipcm.originalRequest";
 
 	@Autowired
 	@Qualifier("googleVoiceManager")
@@ -58,103 +59,90 @@ public class GoogleVoiceServlet extends B2bServlet {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Get invite request: {}", req);
 		}
-		if (req.isInitial()) {
-			SipURI toUri = (SipURI) req.getTo().getURI();
-			String toUser = toUri.getUser();
-			if (PHONE_NUMBER.matcher(toUser).matches()) {
-				// This is initial call
-				Principal p = req.getUserPrincipal();
-				if (p == null) {
-					if (logger.isErrorEnabled()) {
-						logger.error("Cannot found login prinipal for outgoing call? this should never happen.");
-					}
-					responseError(req,
-							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-					return;
+		SipURI toUri = (SipURI) req.getTo().getURI();
+		String toUser = toUri.getUser();
+		if (PHONE_NUMBER.matcher(toUser).matches()) {
+			// This is initial call
+			Principal p = req.getUserPrincipal();
+			if (p == null) {
+				if (logger.isErrorEnabled()) {
+					logger.error("Cannot found login prinipal for outgoing call? this should never happen.");
 				}
-				String username = p.getName();
-				String appSessionId = (String) getServletContext()
-						.getAttribute(APPLICATION_SESSION_ID + username);
-				SipApplicationSession appSession = sipSessionsUtil
-						.getApplicationSessionById(appSessionId);
-				if (appSession == null) {
-					if (logger.isErrorEnabled()) {
-						logger.error(
-								"Cannot found SipApplicationSession for {}? This should never happen",
-								username);
-					}
-					responseError(req,
-							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-					return;
-				}
-				User user = (User) req.getAttribute(USER_ATTRIBUTE);
-				UserVoipAccount account = (UserVoipAccount) appSession
-						.getAttribute(USER_VOIP_ACCOUNT);
-				if (user == null) {
-					if (logger.isErrorEnabled()) {
-						logger.error(
-								"Cannot found user for {}? This should never happen",
-								username);
-					}
-					responseError(req,
-							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-					return;
-				}
-				if (account == null) {
-					if (logger.isErrorEnabled()) {
-						logger.error(
-								"Cannot found voip account for {}? This should never happen",
-								username);
-					}
-					responseError(req,
-							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-					return;
-				}
-				processGoogleVoiceCall(req, appSession, user, account, toUser);
-			} else {
-				// This is call back.
-				String appSessionId = (String) getServletContext()
-						.getAttribute(APPLICATION_SESSION_ID + toUser);
-				SipApplicationSession appSession = sipSessionsUtil
-						.getApplicationSessionById(appSessionId);
-				if (appSession == null) {
-					if (logger.isErrorEnabled()) {
-						logger.error(
-								"Cannot found application session for {}? This should never happen",
-								toUser);
-					}
-					responseError(req,
-							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-					return;
-				}
-				getServletContext().removeAttribute(
-						APPLICATION_SESSION_ID + toUser);
-				appSession.removeAttribute(GV_WAITING_FOR_CALLBACK);
-				appSession.removeAttribute(GV_SESSION);
-				SipSession session = req.getSession();
-				SipSession origSession = (SipSession) appSession
-						.getAttribute(ORIGINAL_SESSION);
-				B2buaHelper helper = getB2buaHelper(req);
-				helper.linkSipSessions(session, origSession);
-				SipServletRequest origReq = (SipServletRequest) origSession
-						.getAttribute(ORIGINAL_REQUEST);
-				// Response OK to original request first.
-				SipServletResponse origResponse = origReq
-						.createResponse(SipServletResponse.SC_OK);
-				origResponse.setContentLength(req.getContentLength());
-				origResponse.setContent(req.getContent(), req.getContentType());
-				origResponse.send();
-				// Response OK to this request.
-				SipServletResponse response = req
-						.createResponse(SipServletResponse.SC_OK);
-				response.setContentLength(origReq.getContentLength());
-				response.setContent(origReq.getContent(),
-						origReq.getContentType());
-				response.send();
+				responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				return;
 			}
+			String username = p.getName();
+			String appSessionId = (String) getServletContext().getAttribute(
+					APPLICATION_SESSION_ID + username);
+			SipApplicationSession appSession = sipSessionsUtil
+					.getApplicationSessionById(appSessionId);
+			if (appSession == null) {
+				if (logger.isErrorEnabled()) {
+					logger.error(
+							"Cannot found SipApplicationSession for {}? This should never happen",
+							username);
+				}
+				responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				return;
+			}
+			User user = (User) req.getAttribute(USER_ATTRIBUTE);
+			UserVoipAccount account = (UserVoipAccount) appSession
+					.getAttribute(USER_VOIP_ACCOUNT);
+			if (user == null) {
+				if (logger.isErrorEnabled()) {
+					logger.error(
+							"Cannot found user for {}? This should never happen",
+							username);
+				}
+				responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				return;
+			}
+			if (account == null) {
+				if (logger.isErrorEnabled()) {
+					logger.error(
+							"Cannot found voip account for {}? This should never happen",
+							username);
+				}
+				responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				return;
+			}
+			processGoogleVoiceCall(req, appSession, user, account, toUser);
 		} else {
-			processInDialogInvite(req);
-			return;
+			// This is call back.
+			String appSessionId = (String) getServletContext().getAttribute(
+					APPLICATION_SESSION_ID + toUser);
+			SipApplicationSession appSession = sipSessionsUtil
+					.getApplicationSessionById(appSessionId);
+			if (appSession == null) {
+				if (logger.isErrorEnabled()) {
+					logger.error(
+							"Cannot found application session for {}? This should never happen",
+							toUser);
+				}
+				responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				return;
+			}
+			getServletContext()
+					.removeAttribute(APPLICATION_SESSION_ID + toUser);
+			appSession.removeAttribute(GV_WAITING_FOR_CALLBACK);
+			appSession.removeAttribute(GV_SESSION);
+			SipSession session = req.getSession();
+			SipSession origSession = (SipSession) appSession
+					.getAttribute(ORIGINAL_SESSION);
+			B2buaHelper helper = getB2buaHelper(req);
+			helper.linkSipSessions(session, origSession);
+			SipServletRequest origReq = (SipServletRequest) origSession
+					.getAttribute(ORIGINAL_REQUEST);
+			// Response OK to original request first.
+			SipServletResponse origResponse = origReq
+					.createResponse(SipServletResponse.SC_OK);
+			copyContent(req, origResponse);
+			origResponse.send();
+			// Response OK to this request.
+			SipServletResponse response = req
+					.createResponse(SipServletResponse.SC_OK);
+			copyContent(origReq, response);
+			response.send();
 		}
 	}
 
@@ -170,9 +158,15 @@ public class GoogleVoiceServlet extends B2bServlet {
 					user.getDefaultArea());
 			gvSession.login();
 			if (gvSession.call(pn, "1")) {
-				appSession.setAttribute(GV_WAITING_FOR_CALLBACK,
-						phoneNumberUtil.getCanonicalizedPhoneNumber(account
-								.getPhoneNumber()));
+				if (logger.isInfoEnabled()) {
+					logger.info("{} is calling {} by google voice",
+							user.getDisplayName(), pn);
+				}
+				appSession
+						.setAttribute(GV_WAITING_FOR_CALLBACK, phoneNumberUtil
+								.getCorrectUsCaPhoneNumber(
+										account.getPhoneNumber(),
+										user.getDefaultArea()));
 				SipSession session = req.getSession();
 				session.setAttribute(ORIGINAL_REQUEST, req);
 				appSession.setAttribute(ORIGINAL_SESSION, session);
@@ -185,8 +179,13 @@ public class GoogleVoiceServlet extends B2bServlet {
 				return;
 			}
 		} catch (Exception e) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Error happened during google voice call.", e);
+			if (logger.isInfoEnabled()) {
+				logger.info(
+						"Error happened during google voice call. Error message: {}",
+						e.getMessage());
+				if (logger.isDebugEnabled()) {
+					logger.debug("Exception stack: ", e);
+				}
 			}
 			responseError(req, SipServletResponse.SC_BAD_GATEWAY);
 			return;
@@ -203,8 +202,8 @@ public class GoogleVoiceServlet extends B2bServlet {
 	@Override
 	protected void doCancel(SipServletRequest req) throws ServletException,
 			IOException {
-		if (logger.isInfoEnabled()) {
-			logger.info("Got CANCEL: " + req.toString());
+		if (logger.isDebugEnabled()) {
+			logger.debug("Got CANCEL: ", req);
 		}
 		URI fromUri = req.getFrom().getURI();
 		if (fromUri.isSipURI()) {

@@ -24,9 +24,9 @@ public class PhoneNumberUtil {
 			.compile("^(" + INTERNATIONAL_NUMBER + ")$");
 
 	public String getCanonicalizedPhoneNumber(String phoneNumber) {
-		if (PHONE_NUMBER.matcher(phoneNumber).matches()) {
-			// Remove any no "+" or no digital characters.
-			String newNumber = phoneNumber.replaceAll("[^\\+|^\\d]", "");
+		// Remove any no "+" or no digital characters.
+		String newNumber = phoneNumber.replaceAll("[^\\+|^\\d]", "");
+		if (PHONE_NUMBER.matcher(newNumber).matches()) {
 			// If using "011" international prefix, replace with "+"
 			if (newNumber.startsWith("011")) {
 				newNumber = "+" + newNumber.substring(3);
@@ -36,21 +36,28 @@ public class PhoneNumberUtil {
 		return phoneNumber;
 	}
 
-	public boolean isUsCaPhoneNumber(String phoneNumber) {
-		return (US_CA_NUMBER_PATTERN.matcher(phoneNumber).matches());
+	public boolean isNaPhoneNumber(String phoneNumber) {
+		return (US_CA_NUMBER_PATTERN
+				.matcher(getCanonicalizedPhoneNumber(phoneNumber)).matches());
 	}
 
 	public boolean isInternationalPhoneNumber(String phoneNumber) {
-		return (INTERNATIONAL_NUMBER_PATTERN.matcher(phoneNumber).matches());
+		return (INTERNATIONAL_NUMBER_PATTERN
+				.matcher(getCanonicalizedPhoneNumber(phoneNumber)).matches());
 	}
 
 	public String getCorrectUsCaPhoneNumber(String phoneNumber,
 			String defaultArea) {
-		if (isUsCaPhoneNumber(phoneNumber)) {
-			String ret = getCanonicalizedPhoneNumber(phoneNumber);
+		String pn = getCanonicalizedPhoneNumber(phoneNumber);
+		if (isNaPhoneNumber(pn)) {
+			String ret = pn;
 			if (ret.length() == 7 && defaultArea != null) {
 				// We need to add area code
 				ret = defaultArea + ret;
+			}
+			// If start with "+" remove it.
+			if (ret.startsWith("+")) {
+				ret = ret.substring(1);
 			}
 			if (ret.length() == 10) {
 				// Add country code "1"
@@ -58,6 +65,6 @@ public class PhoneNumberUtil {
 			}
 			return ret;
 		}
-		return phoneNumber;
+		return pn;
 	}
 }

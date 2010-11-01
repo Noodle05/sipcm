@@ -25,6 +25,7 @@ import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.ToHeader;
 
+import org.mobicents.servlet.sip.message.SipServletRequestImpl;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import com.sipcm.sip.model.UserVoipAccount;
@@ -41,13 +42,33 @@ public class DelegatedServlet extends B2bServlet {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.sip.servlet.B2bServlet#processInitialInvite(javax.servlet.sip
-	 * .SipServletRequest)
+	 * @see com.sipcm.sip.servlet.B2bServlet#doResponse(javax.servlet.sip.
+	 * SipServletResponse)
 	 */
 	@Override
-	protected void processInitialInvite(SipServletRequest req)
-			throws ServletException, IOException {
+	protected void doResponse(SipServletResponse resp) throws ServletException,
+			IOException {
+		if (resp.getStatus() == SipServletResponse.SC_UNAUTHORIZED
+				|| resp.getStatus() == SipServletResponse.SC_PROXY_AUTHENTICATION_REQUIRED) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Get response: {}", resp);
+			}
+			processAuthInfo(resp);
+		} else {
+			super.doResponse(resp);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.servlet.B2bServlet#doInvite(javax.servlet.sip.SipServletRequest
+	 * )
+	 */
+	@Override
+	protected void doInvite(SipServletRequest req) throws ServletException,
+			IOException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Processing to voip delegated invite.");
 		}
@@ -61,13 +82,14 @@ public class DelegatedServlet extends B2bServlet {
 			responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 		}
 		final SipURI toSipURI = (SipURI) req.getTo().getURI();
-		URI toURI = sipFactory.createSipURI(toSipURI.getUser(), account
-				.getVoipVendor().getDomain());
-		SipURI fromURI = sipFactory.createSipURI(account.getAccount(), account
-				.getVoipVendor().getDomain());
+		URI toURI = sipFactory
+				.createSipURI(phoneNumberUtil
+						.getCanonicalizedPhoneNumber(toSipURI.getUser()),
+						account.getVoipVendor().getDomain());
+		SipURI fromURI = sipFactory.createSipURI(account.getPhoneNumber(),
+				account.getVoipVendor().getDomain());
 		Address toAddress = sipFactory.createAddress(toURI);
-		Address fromAddress = sipFactory.createAddress(fromURI, req.getFrom()
-				.getDisplayName());
+		Address fromAddress = sipFactory.createAddress(fromURI, account.getPhoneNumber());
 
 		Map<String, List<String>> headers = new HashMap<String, List<String>>();
 		List<String> address = new ArrayList<String>(1);
@@ -85,76 +107,50 @@ public class DelegatedServlet extends B2bServlet {
 		// Remove original authentication headers.
 		forkedRequest.removeHeader(AuthorizationHeader.NAME);
 		forkedRequest.removeHeader(PAssertedIdentityHeader.NAME);
-		forkedRequest.getSession().setAttribute(ORIGINAL_REQUEST, req);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Sending forked request: {}", forkedRequest);
 		}
 		forkedRequest.send();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.sip.servlet.B2bServlet#doErrorResponse(javax.servlet.sip.
-	 * SipServletResponse)
-	 */
-	@Override
-	protected void doErrorResponse(javax.servlet.sip.SipServletResponse resp)
+	private void processAuthInfo(javax.servlet.sip.SipServletResponse resp)
 			throws javax.servlet.ServletException, java.io.IOException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got error response {}", resp);
-		}
-		if (resp.getStatus() == SipServletResponse.SC_UNAUTHORIZED
-				|| resp.getStatus() == SipServletResponse.SC_PROXY_AUTHENTICATION_REQUIRED) {
-			SipApplicationSession appSession = resp.getApplicationSession();
-			UserVoipAccount account = (UserVoipAccount) appSession
-					.getAttribute(USER_VOIP_ACCOUNT);
-			if (account != null) {
-				// Avoid re-sending if the auth repeatedly fails.
-				if (!"true".equals(appSession
-						.getAttribute("FirstResponseRecieved"))) {
-					if (logger.isTraceEnabled()) {
-						logger.trace("First try.");
-					}
-					appSession.setAttribute("FirstResponseRecieved", "true");
-					B2buaHelper helper = resp.getRequest().getB2buaHelper();
-					// Need to create request from current session but original
-					// request. Otherwise, linked session in B2buaHelper will
-					// be a mess.
-					SipServletRequest origRequest = (SipServletRequest) resp
-							.getSession().getAttribute(ORIGINAL_REQUEST);
-					AuthInfo authInfo = sipFactory.createAuthInfo();
-					authInfo.addAuthInfo(resp.getStatus(), account
-							.getVoipVendor().getDomain(), account.getAccount(),
-							account.getPassword());
-					SipServletRequest challengeRequest = helper.createRequest(
-							resp.getSession(), origRequest, null);
-					// Remove original authentication headers.
-					challengeRequest.removeHeader(AuthorizationHeader.NAME);
-					challengeRequest.removeHeader(PAssertedIdentityHeader.NAME);
-					// Add new authentication headers
-					challengeRequest.addAuthHeader(resp, authInfo);
-					if (logger.isTraceEnabled()) {
-						logger.trace("Sending challenge request {}",
-								challengeRequest);
-					}
-					challengeRequest.send();
-					return;
+		SipApplicationSession appSession = resp.getApplicationSession();
+		UserVoipAccount account = (UserVoipAccount) appSession
+				.getAttribute(USER_VOIP_ACCOUNT);
+		if (account != null) {
+			// Avoid re-sending if the auth repeatedly fails.
+			if (!"true"
+					.equals(appSession.getAttribute("FirstResponseRecieved"))) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("First try.");
 				}
+				appSession.setAttribute("FirstResponseRecieved", "true");
+				B2buaHelper helper = resp.getRequest().getB2buaHelper();
+				// Need to create request from current session but original
+				// request. Otherwise, linked session in B2buaHelper will
+				// be a mess.
+				SipServletRequest origReq = helper
+						.getLinkedSipServletRequest(resp.getRequest());
+				AuthInfo authInfo = sipFactory.createAuthInfo();
+				authInfo.addAuthInfo(resp.getStatus(), account.getVoipVendor()
+						.getDomain(), account.getAccount(), account
+						.getPassword());
+				((SipServletRequestImpl) origReq).cleanUpLastResponses();
+				SipServletRequest challengeRequest = helper.createRequest(
+						resp.getSession(), origReq, null);
+				// Remove original authentication headers.
+				challengeRequest.removeHeader(AuthorizationHeader.NAME);
+				challengeRequest.removeHeader(PAssertedIdentityHeader.NAME);
+				// Add new authentication headers
+				challengeRequest.addAuthHeader(resp, authInfo);
+				if (logger.isTraceEnabled()) {
+					logger.trace("Sending challenge request {}",
+							challengeRequest);
+				}
+				challengeRequest.send();
+				return;
 			}
 		}
-		if (resp.getStatus() != SipServletResponse.SC_REQUEST_TIMEOUT) {
-			// create and sends the error response for the first call leg
-			SipServletRequest originalRequest = (SipServletRequest) resp
-					.getSession().getAttribute(ORIGINAL_REQUEST);
-			SipServletResponse responseToOriginalRequest = originalRequest
-					.createResponse(resp.getStatus());
-			if (logger.isTraceEnabled()) {
-				logger.trace("Sending on the first call leg ",
-						responseToOriginalRequest);
-			}
-			responseToOriginalRequest.send();
-		}
-
 	}
 }

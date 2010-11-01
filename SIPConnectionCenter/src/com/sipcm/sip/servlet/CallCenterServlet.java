@@ -68,8 +68,8 @@ public class CallCenterServlet extends AbstractSipServlet {
 	@Override
 	protected void doRegister(SipServletRequest req) throws ServletException,
 			IOException {
-		if (logger.isInfoEnabled()) {
-			logger.info("Get register request: {}", req);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Get register request: {}", req);
 		}
 		User user = checkAuthentication(req);
 		if (user == null) {
@@ -92,8 +92,8 @@ public class CallCenterServlet extends AbstractSipServlet {
 	@Override
 	protected void doInvite(SipServletRequest req) throws ServletException,
 			IOException {
-		if (logger.isInfoEnabled()) {
-			logger.info("Get invite request: {}", req);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Get invite request: {}", req);
 		}
 		if (req.isInitial()) {
 			if (logger.isTraceEnabled()) {
@@ -166,9 +166,16 @@ public class CallCenterServlet extends AbstractSipServlet {
 							user, phoneNumberUtil.getCanonicalizedPhoneNumber(m
 									.group(1)));
 					if (voipAccount != null) {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Dialplan return {} for {}",
+									voipAccount, req);
+						}
 						appSession.setAttribute(USER_VOIP_ACCOUNT, voipAccount);
 						String servlet = voipVendorToServletMap.get(voipAccount
 								.getVoipVendor().getType());
+						if (logger.isDebugEnabled()) {
+							logger.debug("Forward to servlet: {}", servlet);
+						}
 						if (servlet != null) {
 							RequestDispatcher dispatcher = req
 									.getRequestDispatcher(servlet);
@@ -233,6 +240,27 @@ public class CallCenterServlet extends AbstractSipServlet {
 		} else {
 			super.doInvite(req);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * javax.servlet.sip.SipServlet#doOptions(javax.servlet.sip.SipServletRequest
+	 * )
+	 */
+	@Override
+	protected void doOptions(SipServletRequest req) throws ServletException,
+			IOException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Got options request: {}", req);
+		}
+		SipServletResponse response = req
+				.createResponse(SipServletResponse.SC_OK);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Sending response back: {}", response);
+		}
+		response.send();
 	}
 
 	private User checkAuthentication(SipServletRequest req) throws IOException {

@@ -39,7 +39,6 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 
 	public static final String USER_ATTRIBUTE = "com.sipcm.user";
 	public static final String USER_VOIP_ACCOUNT = "com.sipcm.voip.account";
-	public static final String ORIGINAL_REQUEST = "com.sipcm.originalRequest";
 	public static final String GV_WAITING_FOR_CALLBACK = "com.sipcm.googlevoice.waiting";
 	public static final String APPLICATION_SESSION_ID = "com.sipcm.appsessionid.";
 

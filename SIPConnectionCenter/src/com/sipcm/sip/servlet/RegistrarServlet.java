@@ -69,7 +69,7 @@ public class RegistrarServlet extends AbstractSipServlet {
 	}
 
 	private void processRegister(SipServletRequest req) throws Exception {
-		User user = (User)req.getAttribute(USER_ATTRIBUTE);
+		User user = (User) req.getAttribute(USER_ATTRIBUTE);
 		URI toURI = req.getTo().getURI();
 		if (toURI.isSipURI()) {
 			final SipURI sipUri = (SipURI) toURI;
@@ -85,7 +85,8 @@ public class RegistrarServlet extends AbstractSipServlet {
 				String username = sipUri.getUser();
 				user = userService.getUserByUsername(username);
 			}
-			toURI = sipFactory.createSipURI(user.getUsername(), sipUri.getHost());
+			toURI = sipFactory.createSipURI(user.getUsername(),
+					sipUri.getHost());
 		} else {
 			SipServletResponse response = req
 					.createResponse(SipServletResponse.SC_UNSUPPORTED_URI_SCHEME);
@@ -154,6 +155,10 @@ public class RegistrarServlet extends AbstractSipServlet {
 								logger.trace("Remove addess {}", a);
 							}
 							locationService.removeBinding(key, a);
+							if (logger.isInfoEnabled()) {
+								logger.info("{} deregistered from {}",
+										user.getDisplayName(), a.toString());
+							}
 						} else {
 							if (logger.isTraceEnabled()) {
 								logger.trace("Update address addess {}", a);
@@ -166,6 +171,10 @@ public class RegistrarServlet extends AbstractSipServlet {
 								logger.trace("Add address {}", a);
 							}
 							locationService.register(key, user, a, callId);
+							if (logger.isInfoEnabled()) {
+								logger.info("{} registered from {}",
+										user.getDisplayName(), a.toString());
+							}
 						}
 					}
 				}

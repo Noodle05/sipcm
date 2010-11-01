@@ -45,7 +45,7 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, optional = false)
 	@JoinColumn(name = "user_id")
-	private User ownser;
+	private User owner;
 
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "voipvendor_id")
@@ -89,18 +89,18 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	}
 
 	/**
-	 * @param ownser
+	 * @param owner
 	 *            the ownser to set
 	 */
-	public void setOwnser(User ownser) {
-		this.ownser = ownser;
+	public void setOwnser(User owner) {
+		this.owner = owner;
 	}
 
 	/**
 	 * @return the ownser
 	 */
-	public User getOwnser() {
-		return ownser;
+	public User getOwner() {
+		return owner;
 	}
 
 	/**

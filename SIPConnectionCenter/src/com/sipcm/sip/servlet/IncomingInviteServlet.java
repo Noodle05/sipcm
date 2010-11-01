@@ -53,7 +53,7 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Found application session for this to user, this probably a google voice call back.");
 				}
-				if (phoneNumberUtil.getCanonicalizedPhoneNumber(fromUser)
+				if (phoneNumberUtil.getCorrectUsCaPhoneNumber(fromUser, null)
 						.equals(appSession
 								.getAttribute(GV_WAITING_FOR_CALLBACK))) {
 					if (logger.isTraceEnabled()) {
@@ -62,7 +62,12 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 					dispatcher = req.getRequestDispatcher("GoogleVoiceServlet");
 				} else {
 					if (logger.isTraceEnabled()) {
-						logger.trace("However call back number doesn't match.");
+						logger.trace(
+								"However call back number doesn't match. Waiting call back from {}, this call from {}",
+								appSession
+										.getAttribute(GV_WAITING_FOR_CALLBACK),
+								phoneNumberUtil
+										.getCanonicalizedPhoneNumber(fromUser));
 					}
 				}
 			}

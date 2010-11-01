@@ -26,6 +26,7 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
@@ -106,6 +107,7 @@ public class User extends AbstractTrackableEntity implements
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id")
+	@Where(clause = "deletedate is null")
 	private Set<UserVoipAccount> voipAccounts;
 
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
