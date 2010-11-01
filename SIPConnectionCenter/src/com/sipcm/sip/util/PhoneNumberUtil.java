@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component("phoneNumberUtil")
 public class PhoneNumberUtil {
 	public static final String US_CA_NUMBER = "\\d{7}|(?:\\+1|1)?\\d{10}";
-	public static final String INTERNATIONAL_NUMBER = "(?:\\+|011)[^1]\\d{7,}";
+	public static final String INTERNATIONAL_NUMBER = "(?:\\+|011|00)[^1]\\d{7,}";
 
 	public static final Pattern PHONE_NUMBER = Pattern.compile("^((?:"
 			+ US_CA_NUMBER + ")|(?:" + INTERNATIONAL_NUMBER + "))$");
@@ -30,6 +30,8 @@ public class PhoneNumberUtil {
 			// If using "011" international prefix, replace with "+"
 			if (newNumber.startsWith("011")) {
 				newNumber = "+" + newNumber.substring(3);
+			} else if (newNumber.startsWith("00")) {
+				newNumber = "+" + newNumber.substring(2);
 			}
 			return newNumber;
 		}
@@ -37,13 +39,14 @@ public class PhoneNumberUtil {
 	}
 
 	public boolean isNaPhoneNumber(String phoneNumber) {
-		return (US_CA_NUMBER_PATTERN
-				.matcher(getCanonicalizedPhoneNumber(phoneNumber)).matches());
+		return (US_CA_NUMBER_PATTERN.matcher(getCanonicalizedPhoneNumber(
+				phoneNumber)).matches());
 	}
 
 	public boolean isInternationalPhoneNumber(String phoneNumber) {
 		return (INTERNATIONAL_NUMBER_PATTERN
-				.matcher(getCanonicalizedPhoneNumber(phoneNumber)).matches());
+				.matcher(getCanonicalizedPhoneNumber(phoneNumber))
+				.matches());
 	}
 
 	public String getCorrectUsCaPhoneNumber(String phoneNumber,

@@ -266,7 +266,7 @@ public class GoogleVoiceServlet extends B2bServlet {
 				b2buaHelper = (B2buaHelperImpl) req.getB2buaHelper();
 			}
 			GvB2buaHelperImpl helper = new GvB2buaHelperImpl(b2buaHelper);
-			session.setB2buaHelper(b2buaHelper);
+			session.setB2buaHelper(helper);
 			return helper;
 		} else {
 			return req.getB2buaHelper();
