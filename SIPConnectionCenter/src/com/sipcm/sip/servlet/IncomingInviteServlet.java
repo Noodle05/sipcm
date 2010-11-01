@@ -37,13 +37,11 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 			logger.trace("Processing incoming invite.");
 		}
 		RequestDispatcher dispatcher = null;
-		SipURI toUri = (SipURI) req.getTo().getURI();
 		SipURI fromUri = (SipURI) req.getFrom().getURI();
-		String toUser = toUri.getUser();
 		String fromUser = fromUri.getUser();
 		if (PHONE_NUMBER.matcher(fromUser).matches()) {
 			String appSessionId = (String) getServletContext().getAttribute(
-					APPLICATION_SESSION_ID + toUser);
+					generateAppSessionKey(req, false));
 			SipApplicationSession appSession = null;
 			if (appSessionId != null) {
 				appSession = sipSessionsUtil

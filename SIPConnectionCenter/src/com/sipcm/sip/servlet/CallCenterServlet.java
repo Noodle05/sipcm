@@ -122,7 +122,6 @@ public class CallCenterServlet extends AbstractSipServlet {
 				return;
 			}
 
-			SipApplicationSession appSession = null;
 			if (getDomain().equalsIgnoreCase(fromHost)) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("From host is the domain we served, check authentication.");
@@ -137,10 +136,6 @@ public class CallCenterServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Authentication pass, set user to request.");
 				}
-				appSession = req.getApplicationSession();
-				getServletContext().setAttribute(
-						APPLICATION_SESSION_ID + user.getUsername(),
-						appSession.getId());
 				req.setAttribute(USER_ATTRIBUTE, user);
 			}
 			String toUser = toSipUri.getUser();
@@ -170,7 +165,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 							logger.debug("Dialplan return {} for {}",
 									voipAccount, req);
 						}
-						appSession.setAttribute(USER_VOIP_ACCOUNT, voipAccount);
+						req.setAttribute(USER_VOIP_ACCOUNT, voipAccount);
 						String servlet = voipVendorToServletMap.get(voipAccount
 								.getVoipVendor().getType());
 						if (logger.isDebugEnabled()) {

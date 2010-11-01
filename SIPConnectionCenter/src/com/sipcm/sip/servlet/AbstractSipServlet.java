@@ -17,6 +17,7 @@ import javax.servlet.sip.SipServlet;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSessionsUtil;
+import javax.servlet.sip.SipURI;
 
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
@@ -104,5 +105,15 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 		SipServletResponse response = req.createResponse(statusCode,
 				reasonPhrase);
 		response.send();
+	}
+
+	protected String generateAppSessionKey(SipServletRequest req, boolean from) {
+		if (req == null) {
+			throw new NullPointerException("Request is null.");
+		}
+		SipURI uri = (SipURI) (from ? req.getFrom().getURI() : req.getTo()
+				.getURI());
+		String user = uri.getUser();
+		return APPLICATION_SESSION_ID + user;
 	}
 }

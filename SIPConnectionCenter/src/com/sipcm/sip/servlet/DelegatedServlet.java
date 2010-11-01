@@ -48,13 +48,15 @@ public class DelegatedServlet extends B2bServlet {
 	@Override
 	protected void doResponse(SipServletResponse resp) throws ServletException,
 			IOException {
+		boolean needProcess = true;
 		if (resp.getStatus() == SipServletResponse.SC_UNAUTHORIZED
 				|| resp.getStatus() == SipServletResponse.SC_PROXY_AUTHENTICATION_REQUIRED) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Get response: {}", resp);
 			}
-			processAuthInfo(resp);
-		} else {
+			needProcess = !processAuthInfo(resp);
+		}
+		if (needProcess) {
 			super.doResponse(resp);
 		}
 	}
@@ -72,8 +74,7 @@ public class DelegatedServlet extends B2bServlet {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Processing to voip delegated invite.");
 		}
-		SipApplicationSession appSession = req.getApplicationSession();
-		UserVoipAccount account = (UserVoipAccount) appSession
+		UserVoipAccount account = (UserVoipAccount) req
 				.getAttribute(USER_VOIP_ACCOUNT);
 		if (account == null) {
 			if (logger.isErrorEnabled()) {
@@ -89,7 +90,15 @@ public class DelegatedServlet extends B2bServlet {
 		SipURI fromURI = sipFactory.createSipURI(account.getPhoneNumber(),
 				account.getVoipVendor().getDomain());
 		Address toAddress = sipFactory.createAddress(toURI);
-		Address fromAddress = sipFactory.createAddress(fromURI, account.getPhoneNumber());
+		String fromDisplayName;
+		if (account.getPhoneNumber() != null) {
+			fromDisplayName = phoneNumberUtil
+					.getCanonicalizedPhoneNumber(account.getPhoneNumber());
+		} else {
+			fromDisplayName = req.getFrom().getDisplayName();
+		}
+		Address fromAddress = sipFactory
+				.createAddress(fromURI, fromDisplayName);
 
 		Map<String, List<String>> headers = new HashMap<String, List<String>>();
 		List<String> address = new ArrayList<String>(1);
@@ -113,11 +122,16 @@ public class DelegatedServlet extends B2bServlet {
 		forkedRequest.send();
 	}
 
-	private void processAuthInfo(javax.servlet.sip.SipServletResponse resp)
+	private boolean processAuthInfo(javax.servlet.sip.SipServletResponse resp)
 			throws javax.servlet.ServletException, java.io.IOException {
 		SipApplicationSession appSession = resp.getApplicationSession();
-		UserVoipAccount account = (UserVoipAccount) appSession
-				.getAttribute(USER_VOIP_ACCOUNT);
+		UserVoipAccount account = null;
+		B2buaHelper helper = resp.getRequest().getB2buaHelper();
+		SipServletRequest origReq = helper.getLinkedSipServletRequest(resp
+				.getRequest());
+		if (origReq != null) {
+			account = (UserVoipAccount) origReq.getAttribute(USER_VOIP_ACCOUNT);
+		}
 		if (account != null) {
 			// Avoid re-sending if the auth repeatedly fails.
 			if (!"true"
@@ -126,12 +140,9 @@ public class DelegatedServlet extends B2bServlet {
 					logger.trace("First try.");
 				}
 				appSession.setAttribute("FirstResponseRecieved", "true");
-				B2buaHelper helper = resp.getRequest().getB2buaHelper();
 				// Need to create request from current session but original
 				// request. Otherwise, linked session in B2buaHelper will
 				// be a mess.
-				SipServletRequest origReq = helper
-						.getLinkedSipServletRequest(resp.getRequest());
 				AuthInfo authInfo = sipFactory.createAuthInfo();
 				authInfo.addAuthInfo(resp.getStatus(), account.getVoipVendor()
 						.getDomain(), account.getAccount(), account
@@ -149,8 +160,9 @@ public class DelegatedServlet extends B2bServlet {
 							challengeRequest);
 				}
 				challengeRequest.send();
-				return;
+				return true;
 			}
 		}
+		return false;
 	}
 }
