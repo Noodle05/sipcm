@@ -32,7 +32,7 @@ import com.sipcm.sip.VoipAccountType;
  */
 @Entity
 @Table(name = "tbl_uservoipaccount", uniqueConstraints = { @UniqueConstraint(columnNames = {
-		"user_id", "voipvendor_id", "deletedate" }) })
+		"user_id", "name", "deletedate" }) })
 @SQLDelete(sql = "UPDATE tbl_uservoipaccount SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
 public class UserVoipAccount extends AbstractTrackableEntity implements
 		TrackableEntity, IdBasedEntity<Long> {
@@ -46,6 +46,10 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, optional = false)
 	@JoinColumn(name = "user_id")
 	private User owner;
+
+	@Basic
+	@Column(name = "name", length = 32, nullable = false)
+	public String name;
 
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "voipvendor_id")
