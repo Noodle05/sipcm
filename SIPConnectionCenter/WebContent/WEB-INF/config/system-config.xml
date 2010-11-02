@@ -8,4 +8,5 @@
 
 	<entry key="sip.expirestime.min">120</entry>
 	<entry key="sip.expirestime.max">600</entry>
+	<entry key="com.sipcm.googlevoice.timeout">60</entry>
 </properties>

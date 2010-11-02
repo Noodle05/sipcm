@@ -8,12 +8,16 @@ import java.security.Principal;
 
 import javax.servlet.ServletException;
 import javax.servlet.sip.B2buaHelper;
+import javax.servlet.sip.ServletTimer;
 import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSession;
+import javax.servlet.sip.SipSession.State;
 import javax.servlet.sip.SipURI;
+import javax.servlet.sip.TimerListener;
 import javax.servlet.sip.URI;
+import javax.servlet.sip.annotation.SipListener;
 import javax.servlet.sip.annotation.SipServlet;
 
 import org.mobicents.servlet.sip.core.session.MobicentsSipSession;
@@ -35,12 +39,14 @@ import com.sipcm.sip.util.GvB2buaHelperImpl;
  */
 @Configurable
 @SipServlet(name = "GoogleVoiceServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
-public class GoogleVoiceServlet extends B2bServlet {
+@SipListener
+public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 	private static final long serialVersionUID = 1812855574907498697L;
 
 	public static final String ORIGINAL_SESSION = "com.sipcm.original.session";
 	public static final String GV_SESSION = "com.sipcm.googlevoice.session";
 	public static final String ORIGINAL_REQUEST = "com.sipcm.originalRequest";
+	public static final String GV_TIMEOUT = "com.sipcm.googlevoice.timeout";
 
 	@Autowired
 	@Qualifier("googleVoiceManager")
@@ -56,9 +62,6 @@ public class GoogleVoiceServlet extends B2bServlet {
 	@Override
 	protected void doInvite(SipServletRequest req) throws ServletException,
 			IOException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Get invite request: {}", req);
-		}
 		SipURI toUri = (SipURI) req.getTo().getURI();
 		String toUser = toUri.getUser();
 		if (PHONE_NUMBER.matcher(toUser).matches()) {
@@ -94,6 +97,9 @@ public class GoogleVoiceServlet extends B2bServlet {
 			}
 			processGoogleVoiceCall(req, appSession, user, account, toUser);
 		} else {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Google voice call back request");
+			}
 			// This is call back.
 			String appSessionIdKey = generateAppSessionKey(req, false);
 			String appSessionId = (String) getServletContext().getAttribute(
@@ -119,8 +125,25 @@ public class GoogleVoiceServlet extends B2bServlet {
 				return;
 			}
 			getServletContext().removeAttribute(appSessionIdKey);
+			if (logger.isTraceEnabled()) {
+				logger.trace("Removing google voice callback number and google voice session from applciation.");
+			}
 			appSession.removeAttribute(GV_WAITING_FOR_CALLBACK);
 			appSession.removeAttribute(GV_SESSION);
+			if (logger.isTraceEnabled()) {
+				logger.trace("Removing google voice timeout timer.");
+			}
+			String timerId = (String) appSession.getAttribute(GV_TIMEOUT);
+			if (timerId != null) {
+				appSession.removeAttribute(GV_TIMEOUT);
+				ServletTimer timer = appSession.getTimer(timerId);
+				if (timer != null) {
+					timer.cancel();
+				}
+			}
+			if (logger.isTraceEnabled()) {
+				logger.trace("Response OK to both side.");
+			}
 			SipSession session = req.getSession();
 			SipSession origSession = (SipSession) appSession
 					.getAttribute(ORIGINAL_SESSION);
@@ -132,11 +155,17 @@ public class GoogleVoiceServlet extends B2bServlet {
 			SipServletResponse origResponse = origReq
 					.createResponse(SipServletResponse.SC_OK);
 			copyContent(req, origResponse);
+			if (logger.isTraceEnabled()) {
+				logger.trace("Sending OK to original request. {}", origResponse);
+			}
 			origResponse.send();
 			// Response OK to this request.
 			SipServletResponse response = req
 					.createResponse(SipServletResponse.SC_OK);
 			copyContent(origReq, response);
+			if (logger.isTraceEnabled()) {
+				logger.trace("Sending OK to callback request. {}", response);
+			}
 			response.send();
 		}
 	}
@@ -165,6 +194,10 @@ public class GoogleVoiceServlet extends B2bServlet {
 				SipSession session = req.getSession();
 				session.setAttribute(ORIGINAL_REQUEST, req);
 				appSession.setAttribute(ORIGINAL_SESSION, session);
+				ServletTimer st = timeService.createTimer(appSession,
+						getGoogleVoiceCallTimeout() * 1000L, false,
+						(SipServletRequestImpl) req);
+				appSession.setAttribute(GV_TIMEOUT, st.getId());
 			} else {
 				if (logger.isInfoEnabled()) {
 					logger.info("Google voice call failed.");
@@ -210,6 +243,33 @@ public class GoogleVoiceServlet extends B2bServlet {
 				SipApplicationSession appSession = sipSessionsUtil
 						.getApplicationSessionById(appSessionId);
 				if (appSession != null) {
+					String timerId = (String) appSession
+							.getAttribute(GV_TIMEOUT);
+					if (timerId != null) {
+						appSession.removeAttribute(GV_TIMEOUT);
+						if (logger.isTraceEnabled()) {
+							logger.trace(
+									"Get google voice timeout timer id: {}",
+									timerId);
+						}
+						ServletTimer timer = appSession.getTimer(timerId);
+						if (timer != null) {
+							if (logger.isTraceEnabled()) {
+								logger.trace("Found google voice timeout timer, cancel it.");
+							}
+							timer.cancel();
+						} else {
+							if (logger.isDebugEnabled()) {
+								logger.debug(
+										"Cannot find timer by timer id: {}",
+										timerId);
+							}
+						}
+					} else {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Cannot find timer id on application session.");
+						}
+					}
 					GoogleVoiceSession gvSession = (GoogleVoiceSession) appSession
 							.getAttribute(GV_SESSION);
 					if (gvSession != null) {
@@ -271,5 +331,49 @@ public class GoogleVoiceServlet extends B2bServlet {
 		} else {
 			return req.getB2buaHelper();
 		}
+	}
+
+	@Override
+	public void timeout(ServletTimer timer) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Timeout, google voice didn't go though in time, cancel it.");
+		}
+		SipServletRequest req = (SipServletRequest) timer.getInfo();
+		SipApplicationSession appSession = timer.getApplicationSession();
+		GoogleVoiceSession gv = (GoogleVoiceSession) appSession
+				.getAttribute(GV_SESSION);
+		if (gv != null) {
+			try {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Cancelling google voice call.");
+				}
+				gv.cancel();
+				if (logger.isTraceEnabled()) {
+					logger.trace("Google voice call canceled.");
+				}
+			} catch (Exception e) {
+				if (logger.isWarnEnabled()) {
+					logger.warn(
+							"Error happened when cancel google voice call.", e);
+				}
+			}
+		}
+		if (State.INITIAL.equals(req.getSession().getState())
+				|| State.EARLY.equals(req.getSession().getState())) {
+			try {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Response timeout to original INVITE request.");
+				}
+				responseError(req, SipServletResponse.SC_REQUEST_TIMEOUT);
+			} catch (Exception e) {
+				if (logger.isWarnEnabled()) {
+					logger.warn("Error happened when sendig timeout response to original request.");
+				}
+			}
+		}
+	}
+
+	private int getGoogleVoiceCallTimeout() {
+		return appConfig.getInt(GV_TIMEOUT, 60);
 	}
 }

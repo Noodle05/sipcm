@@ -161,8 +161,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 									.group(1)));
 					if (voipAccount != null) {
 						if (logger.isDebugEnabled()) {
-							logger.debug("Dialplan return {} for {}",
-									voipAccount, req);
+							logger.debug("Dialplan return {}", voipAccount);
 						}
 						req.setAttribute(USER_VOIP_ACCOUNT, voipAccount);
 						String servlet = voipVendorToServletMap.get(voipAccount

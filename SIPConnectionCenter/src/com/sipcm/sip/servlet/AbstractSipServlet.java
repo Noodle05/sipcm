@@ -18,6 +18,7 @@ import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSessionsUtil;
 import javax.servlet.sip.SipURI;
+import javax.servlet.sip.TimerService;
 
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
@@ -58,6 +59,8 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 
 	protected SipSessionsUtil sipSessionsUtil;
 
+	protected TimerService timeService;
+
 	@Autowired
 	@Qualifier("phoneNumberUtil")
 	protected PhoneNumberUtil phoneNumberUtil;
@@ -81,6 +84,8 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 					.lookup("sip/org.gaofamily.CallCenter/SipFactory");
 			sipSessionsUtil = (SipSessionsUtil) envCtx
 					.lookup("sip/org.gaofamily.CallCenter/SipSessionsUtil");
+			timeService = (TimerService) envCtx
+					.lookup("sip/org.gaofamily.CallCenter/TimerService");
 			if (logger.isInfoEnabled()) {
 				logger.info("Sip Factory ref from JNDI : " + sipFactory
 						+ ", Sip Sessions Util ref from JNDI : "
