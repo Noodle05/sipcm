@@ -4,7 +4,6 @@
 package com.sipcm.sip.model;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -45,7 +44,7 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	@Column(name = "id")
 	private Long id;
 
-	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, optional = false)
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "user_id")
 	private User owner;
 
@@ -53,7 +52,7 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	@Column(name = "name", length = 32, nullable = false)
 	public String name;
 
-	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER, optional = false)
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "voipvendor_id")
 	private VoipVendor voipVendor;
 

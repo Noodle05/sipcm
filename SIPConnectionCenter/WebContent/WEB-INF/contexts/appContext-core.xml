@@ -77,5 +77,7 @@
 		</bean>
 	</util:list>
 
-	<bean id="stringDigester" class="org.jasypt.digest.StandardStringDigester" />
+	<bean id="stringDigester" class="org.jasypt.digest.StandardStringDigester">
+		<property name="stringOutputType" value="hexadecimal" />
+	</bean>
 </beans>

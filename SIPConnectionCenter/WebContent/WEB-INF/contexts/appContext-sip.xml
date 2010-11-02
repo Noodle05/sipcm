@@ -53,9 +53,4 @@
 		<entry key="SIP" value="DelegatedServlet" />
 		<entry key="GOOGLE_VOICE" value="GoogleVoiceServlet" />
 	</util:map>
-
-	<bean id="sipLoginConfig" class="org.mobicents.servlet.sip.startup.loading.SipLoginConfig">
-		<property name="authMethod" value="DIGEST" />
-		<property name="realmName" value="gaofamily.org" />
-	</bean>
 </beans>

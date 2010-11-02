@@ -28,7 +28,8 @@ import com.sipcm.common.model.User;
 @Transactional(readOnly = true)
 public class UserServiceImpl extends AbstractService<User, Long> implements
 		UserService {
-	public static final String DOMAIN_NAME = "sip.server.realm";
+	public static final String REALM_NAME = "sip.server.realm";
+
 	@Resource(name = "stringDigester")
 	private StringDigester stringDigester;
 
@@ -80,7 +81,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	public User setPassword(User entity, String password) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(entity.getUsername()).append(":")
-				.append(appConfig.getString(DOMAIN_NAME)).append(":")
+				.append(appConfig.getString(REALM_NAME)).append(":")
 				.append(password);
 		String passwd = RealmBase.Digest(sb.toString(), "MD5", null);
 		entity.setPassword(stringDigester.digest(passwd));
@@ -97,6 +98,10 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS)
 	public boolean matchPassword(User entity, String password) {
-		return stringDigester.matches(password, entity.getPassword());
+		StringBuilder sb = new StringBuilder();
+		sb.append(entity.getUsername()).append(":")
+				.append(appConfig.getString(REALM_NAME)).append(":")
+				.append(password);
+		return stringDigester.matches(sb.toString(), entity.getPassword());
 	}
 }
