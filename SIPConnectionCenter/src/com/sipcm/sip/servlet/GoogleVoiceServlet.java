@@ -71,7 +71,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				if (logger.isErrorEnabled()) {
 					logger.error("Cannot found login prinipal for outgoing call? this should never happen.");
 				}
-				responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 				return;
 			}
 			// String username = p.getName();
@@ -85,14 +85,14 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				if (logger.isErrorEnabled()) {
 					logger.error("Cannot found user from request? This should never happen.");
 				}
-				responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 				return;
 			}
 			if (account == null) {
 				if (logger.isErrorEnabled()) {
 					logger.error("Cannot found voip account for {}? This should never happen");
 				}
-				responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 				return;
 			}
 			processGoogleVoiceCall(req, appSession, user, account, toUser);
@@ -110,7 +110,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 							"Cannot found appSessionId for {}? This should never happen",
 							appSessionIdKey);
 				}
-				responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 				return;
 			}
 			SipApplicationSession appSession = sipSessionsUtil
@@ -121,7 +121,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 							"Cannot found application session for {}? This should never happen",
 							toUser);
 				}
-				responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 				return;
 			}
 			getServletContext().removeAttribute(appSessionIdKey);
@@ -198,11 +198,13 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 						getGoogleVoiceCallTimeout() * 1000L, false,
 						(SipServletRequestImpl) req);
 				appSession.setAttribute(GV_TIMEOUT, st.getId());
+				response(req, SipServletResponse.SC_SESSION_PROGRESS,
+						"Waiting for callback.");
 			} else {
 				if (logger.isInfoEnabled()) {
 					logger.info("Google voice call failed.");
 				}
-				responseError(req, SipServletResponse.SC_DECLINE,
+				response(req, SipServletResponse.SC_DECLINE,
 						"Google voice call failed.");
 				return;
 			}
@@ -215,7 +217,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 					logger.debug("Exception stack: ", e);
 				}
 			}
-			responseError(req, SipServletResponse.SC_BAD_GATEWAY);
+			response(req, SipServletResponse.SC_BAD_GATEWAY);
 			return;
 		}
 	}
@@ -364,7 +366,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Response timeout to original INVITE request.");
 				}
-				responseError(req, SipServletResponse.SC_REQUEST_TIMEOUT);
+				response(req, SipServletResponse.SC_REQUEST_TIMEOUT);
 			} catch (Exception e) {
 				if (logger.isWarnEnabled()) {
 					logger.warn("Error happened when sendig timeout response to original request.");

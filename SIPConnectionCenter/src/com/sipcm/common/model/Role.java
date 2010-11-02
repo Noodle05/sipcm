@@ -100,7 +100,7 @@ public class Role extends AbstractTrackableEntity implements
 	 */
 	@Override
 	public int hashCode() {
-		return name.hashCode();
+		return name.toUpperCase().hashCode();
 	}
 
 	/*
@@ -118,7 +118,7 @@ public class Role extends AbstractTrackableEntity implements
 		}
 		final Role obj = (Role) other;
 		EqualsBuilder eq = new EqualsBuilder();
-		eq.append(name, obj.name);
+		eq.append(name.toUpperCase(), obj.name.toUpperCase());
 		eq.append(deleteDate, obj.deleteDate);
 		return eq.isEquals();
 	}

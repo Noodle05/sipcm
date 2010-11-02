@@ -100,12 +100,12 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 		return appConfig.getString(DOMAIN_NAME);
 	}
 
-	protected void responseError(SipServletRequest req, int statusCode)
+	protected void response(SipServletRequest req, int statusCode)
 			throws IOException {
-		responseError(req, statusCode, null);
+		response(req, statusCode, null);
 	}
 
-	protected void responseError(SipServletRequest req, int statusCode,
+	protected void response(SipServletRequest req, int statusCode,
 			String reasonPhrase) throws IOException {
 		SipServletResponse response = req.createResponse(statusCode,
 				reasonPhrase);

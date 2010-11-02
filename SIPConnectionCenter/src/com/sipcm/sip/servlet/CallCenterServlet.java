@@ -80,7 +80,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 		if (dispatcher != null) {
 			dispatcher.forward(req, null);
 		} else {
-			responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR,
+			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR,
 					"Cannot found registrar servlet.");
 		}
 	}
@@ -104,7 +104,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 				if (logger.isDebugEnabled()) {
 					logger.debug("We only recognize SIP request. Will response unsupported uri scheme.");
 				}
-				responseError(req, SipServletResponse.SC_UNSUPPORTED_URI_SCHEME);
+				response(req, SipServletResponse.SC_UNSUPPORTED_URI_SCHEME);
 				return;
 			}
 			final SipURI toSipUri = (SipURI) toURI;
@@ -116,7 +116,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Not from host nor to host is domain we served, response as forbidden.");
 				}
-				responseError(req, SipServletResponse.SC_FORBIDDEN,
+				response(req, SipServletResponse.SC_FORBIDDEN,
 						"Do not serve your domain.");
 				return;
 			}
@@ -149,7 +149,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 							logger.debug("Only local user can call phone number. Response \"not acceptable\"");
 						}
 						// Only accept if it's from local user.
-						responseError(req, SipServletResponse.SC_NOT_ACCEPTABLE);
+						response(req, SipServletResponse.SC_NOT_ACCEPTABLE);
 						return;
 					}
 					User user = (User) req.getAttribute(USER_ATTRIBUTE);
@@ -192,7 +192,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 							logger.warn("Dialplan excutor return <NULL>. Response server internal error.");
 						}
 					}
-					responseError(req,
+					response(req,
 							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 					return;
 				} else {
@@ -208,7 +208,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 						if (logger.isWarnEnabled()) {
 							logger.warn("Cannot find incoming invite servlet, response server internal error.");
 						}
-						responseError(req,
+						response(req,
 								SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 						return;
 					}
@@ -227,7 +227,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 				if (logger.isWarnEnabled()) {
 					logger.warn("Cannot find forward servlet, response server internal error.");
 				}
-				responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 				return;
 			}
 		} else {
@@ -264,7 +264,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 			user = userService.getUserByUsername(username);
 		}
 		if (user == null) {
-			responseError(req, SipServletResponse.SC_NOT_FOUND);
+			response(req, SipServletResponse.SC_NOT_FOUND);
 		}
 		return user;
 	}

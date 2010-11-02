@@ -142,7 +142,7 @@ public class B2bServlet extends AbstractSipServlet {
 			}
 			userProfile = locationService.getUserProfile(toURI.toString());
 		} catch (UserNotFoundException e) {
-			responseError(req, SipServletResponse.SC_NOT_FOUND);
+			response(req, SipServletResponse.SC_NOT_FOUND);
 			return;
 		}
 		Collection<Address> addresses = null;
@@ -165,7 +165,7 @@ public class B2bServlet extends AbstractSipServlet {
 			}
 			forkedRequest.send();
 		} else {
-			responseError(req, SipServletResponse.SC_NOT_FOUND);
+			response(req, SipServletResponse.SC_NOT_FOUND);
 			return;
 		}
 	}

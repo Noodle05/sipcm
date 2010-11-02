@@ -17,6 +17,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 
@@ -195,5 +197,43 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	 */
 	public VoipAccountType getType() {
 		return type;
+	}
+
+	@Override
+	public int hashCode() {
+		HashCodeBuilder hcb = new HashCodeBuilder(13, 57);
+		hcb.append(owner);
+		hcb.append(name.toUpperCase());
+		hcb.append(deleteDate);
+		return hcb.toHashCode();
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		if (other == null || !(other instanceof UserVoipAccount)) {
+			return false;
+		}
+		final UserVoipAccount obj = (UserVoipAccount) other;
+		EqualsBuilder eb = new EqualsBuilder();
+		eb.append(owner, obj.owner);
+		eb.append(name.toUpperCase(), obj.name.toUpperCase());
+		eb.append(deleteDate, obj.deleteDate);
+		return eb.isEquals();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("UserVoipAccount[");
+		if (id != null) {
+			sb.append("id=").append(id).append(",");
+		}
+		sb.append("owner=").append(owner).append(",name=").append(name)
+				.append(",account=").append(account).append(",vendor=")
+				.append(voipVendor).append("]");
+		return sb.toString();
 	}
 }

@@ -375,7 +375,7 @@ public class User extends AbstractTrackableEntity implements
 	@Override
 	public int hashCode() {
 		HashCodeBuilder hcb = new HashCodeBuilder(11, 15);
-		hcb.append(email.toUpperCase());
+		hcb.append(username.toUpperCase());
 		hcb.append(deleteDate);
 		return hcb.toHashCode();
 	}
@@ -395,7 +395,7 @@ public class User extends AbstractTrackableEntity implements
 		}
 		final User obj = (User) other;
 		EqualsBuilder eb = new EqualsBuilder();
-		eb.append(email.toUpperCase(), obj.email.toUpperCase());
+		eb.append(username.toUpperCase(), obj.username.toUpperCase());
 		return eb.isEquals();
 	}
 
@@ -411,8 +411,9 @@ public class User extends AbstractTrackableEntity implements
 		if (id != null) {
 			sb.append("id=").append(id).append(",");
 		}
-		sb.append("displayname=").append(getDisplayName()).append(",email=")
-				.append(email).append("]");
+		sb.append("username=").append(username).append(",displayname=")
+				.append(getDisplayName()).append(",email=").append(email)
+				.append("]");
 		return sb.toString();
 	}
 }

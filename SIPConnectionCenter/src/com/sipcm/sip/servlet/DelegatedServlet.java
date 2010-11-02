@@ -80,7 +80,7 @@ public class DelegatedServlet extends B2bServlet {
 			if (logger.isErrorEnabled()) {
 				logger.error("User voip account shouldn't been <null>.");
 			}
-			responseError(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 		}
 		final SipURI toSipURI = (SipURI) req.getTo().getURI();
 		URI toURI = sipFactory
