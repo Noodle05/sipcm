@@ -126,10 +126,12 @@
 			/ -->
 		<dependency org="org.apache.tomcat" name="catalina" rev="6.0.29"
 			conf="provided->default" />
+		<dependency org="jstl" name="jstl" rev="1.2"
+			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="javax.faces" name="jsf-api" rev="2.0.2-FCS"
-			conf="runtime->default" />
+			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="javax.faces" name="jsf-impl" rev="2.0.2-FCS"
-			conf="runtime->default" />
+			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="junit" name="junit" rev="4.8.1"
 			conf="test->default;foride->sources,javadoc" />
 	</dependencies>

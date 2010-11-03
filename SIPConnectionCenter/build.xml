@@ -7,10 +7,11 @@
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy-${ivy.install.version}.jar" />
 	<property file="ivysettings.properties" />
 
-	<property name="src.dir" location="src" />
-	<property name="build.dir" location="build" />
-	<property name="dist.dir" location="dist" />
-	<property name="web.dir" location="WebContent" />
+	<property name="src.dir" location="${basedir}/src" />
+	<property name="jar.metainf" location="${basedir}/metainfo" />
+	<property name="build.dir" location="${basedir}/build" />
+	<property name="dist.dir" location="${basedir}/dist" />
+	<property name="web.dir" location="${basedir}/WebContent" />
 	<property name="jar.filename" value="${ant.project.name}.jar" />
 	<property name="war.filename" value="${ant.project.name}.war" />
 
@@ -63,7 +64,9 @@
 		<echo message="Creating jar file..." />
 		<!-- Create the distribution directory -->
 		<mkdir dir="${dist.dir}" />
-		<jar jarfile="${dist.dir}/${jar.filename}" basedir="${build.dir}" />
+		<jar jarfile="${dist.dir}/${jar.filename}" basedir="${build.dir}">
+			<metainf dir="${jar.metainf}" />
+		</jar>
 	</target>
 
 
@@ -92,6 +95,10 @@
 			<webinf dir="${dist.dir}/webinf" includes="config/*,contexts/*,faces-config.xml" />
 			<metainf file="${web.dir}/META-INF/context.xml" />
 			<classes dir="${web.dir}/WEB-INF/classes" />
+			<fileset dir="${web.dir}">
+				<exclude name="WEB-INF/**" />
+				<exclude name="META-INF/**" />
+			</fileset>
 		</war>
 	</target>
 

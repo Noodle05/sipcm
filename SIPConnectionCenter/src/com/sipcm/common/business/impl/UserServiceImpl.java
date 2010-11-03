@@ -5,7 +5,6 @@ package com.sipcm.common.business.impl;
 
 import javax.annotation.Resource;
 
-import org.apache.catalina.realm.RealmBase;
 import org.apache.commons.configuration.Configuration;
 import org.jasypt.digest.StringDigester;
 import org.springframework.stereotype.Service;
@@ -83,8 +82,8 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 		sb.append(entity.getUsername()).append(":")
 				.append(appConfig.getString(REALM_NAME)).append(":")
 				.append(password);
-		String passwd = RealmBase.Digest(sb.toString(), "MD5", null);
-		entity.setPassword(stringDigester.digest(passwd));
+		String passwd = stringDigester.digest(sb.toString()).toLowerCase();
+		entity.setPassword(passwd);
 		return entity;
 	}
 

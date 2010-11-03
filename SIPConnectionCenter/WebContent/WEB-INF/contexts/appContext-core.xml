@@ -79,5 +79,7 @@
 
 	<bean id="stringDigester" class="org.jasypt.digest.StandardStringDigester">
 		<property name="stringOutputType" value="hexadecimal" />
+		<property name="saltSizeBytes" value="0" />
+		<property name="iterations" value="1" />
 	</bean>
 </beans>

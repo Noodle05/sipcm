@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core">
+<f:loadBundle var="messages" basename="messages.CallerPages" />
+<h:head>
+	<title><h:outputText value="#{messages['register.title']}" /></title>
+</h:head>
+<h:body>
+	<h:form>
+		<fieldset>
+		<table>
+			<thead>
+				<tr>
+					<th rowspan="2"><legend><h:outputText
+						value="#{messages['register.header']}" /></legend></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th><h:outputText value="#{messages['register.username']}" /></th>
+					<th><h:inputText value="#{registrationBean.username}"
+						id="username" maxlength="32" required="true" /></th>
+				</tr>
+				<tr>
+					<th><h:outputText value="#{messages['register.email']}" /></th>
+					<th><h:inputText value="#{registrationBean.email}" id="email"
+						maxlength="255" required="true" /></th>
+				</tr>
+				<tr>
+					<th><h:outputText value="#{messages['register.firstName']}" /></th>
+					<th><h:inputText value="#{registrationBean.firstName}"
+						id="firstName" maxlength="64" required="true" /></th>
+				</tr>
+				<tr>
+					<th><h:outputText value="#{messages['register.middleName']}" /></th>
+					<th><h:inputText value="#{registrationBean.middleName}"
+						id="middleName" maxlength="64" /></th>
+				</tr>
+				<tr>
+					<th><h:outputText value="#{messages['register.lastName']}" /></th>
+					<th><h:inputText value="#{registrationBean.lastName}"
+						id="lastName" maxlength="64" required="true" /></th>
+				</tr>
+				<tr>
+					<th><h:outputText value="#{messages['register.displayName']}" /></th>
+					<th><h:inputText value="#{registrationBean.displayName}"
+						id="displayName" maxlength="64" /></th>
+				</tr>
+				<tr>
+					<th><h:outputText value="#{messages['register.password']}" /></th>
+					<th><h:inputSecret value="#{registrationBean.password}"
+						id="password" maxlength="32" required="true" /></th>
+				</tr>
+				<tr>
+					<th><h:outputText value="#{messages['register.phoneNumber']}" /></th>
+					<th><h:inputText value="#{registrationBean.phoneNumber}"
+						id="phoneNumber" maxlength="32" required="true" /></th>
+				</tr>
+				<tr>
+					<th><h:outputText value="#{messages['register.areaCode']}" /></th>
+					<th><h:inputText value="#{registrationBean.defaultAreaCode}"
+						id="defaultAreaCode" maxlength="10" required="true" /></th>
+				</tr>
+				<tr>
+					<th></th>
+					<th><h:commandButton value="#{messages['register.submit']}"
+						action="#{registrationBean.register}" /></th>
+				</tr>
+			</tbody>
+		</table>
+		</fieldset>
+	</h:form>
+</h:body>
+</html>

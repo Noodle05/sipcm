@@ -179,7 +179,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 		appSession.setAttribute(GV_SESSION, gvSession);
 		try {
 			String pn = phoneNumberUtil.getCorrectUsCaPhoneNumber(phoneNumber,
-					user.getDefaultArea());
+					user.getDefaultAreaCode());
 			gvSession.login();
 			if (gvSession.call(pn, "1")) {
 				if (logger.isInfoEnabled()) {
@@ -190,7 +190,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 						.setAttribute(GV_WAITING_FOR_CALLBACK, phoneNumberUtil
 								.getCorrectUsCaPhoneNumber(
 										account.getPhoneNumber(),
-										user.getDefaultArea()));
+										user.getDefaultAreaCode()));
 				SipSession session = req.getSession();
 				session.setAttribute(ORIGINAL_REQUEST, req);
 				appSession.setAttribute(ORIGINAL_SESSION, session);

@@ -98,8 +98,8 @@ public class User extends AbstractTrackableEntity implements
 	private String phoneNumber;
 
 	@Basic
-	@Column(name = "default_area", length = 10)
-	private String defaultArea;
+	@Column(name = "area_code", length = 10)
+	private String defaultAreaCode;
 
 	@Enumerated
 	@Column(name = "phonenumberstatus")
@@ -308,18 +308,18 @@ public class User extends AbstractTrackableEntity implements
 	}
 
 	/**
-	 * @param defaultArea
-	 *            the defaultArea to set
+	 * @param defaultAreaCode
+	 *            the defaultAreaCode to set
 	 */
-	public void setDefaultArea(String defaultArea) {
-		this.defaultArea = defaultArea;
+	public void setDefaultAreaCode(String defaultAreaCode) {
+		this.defaultAreaCode = defaultAreaCode;
 	}
 
 	/**
-	 * @return the defaultArea
+	 * @return the defaultAreaCode
 	 */
-	public String getDefaultArea() {
-		return defaultArea;
+	public String getDefaultAreaCode() {
+		return defaultAreaCode;
 	}
 
 	/**
