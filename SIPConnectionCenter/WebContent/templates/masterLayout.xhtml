@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<title><ui:insert name="windowTitle">
+        #{msgs.placesWindowTitle}
+      </ui:insert></title>
+</h:head>
+
+<h:body>
+	<h:outputScript library="javascript" name="util.js" target="head" />
+	<h:outputStylesheet library="css" name="styles.css" target="body" />
+
+	<div class="pageHeader"><ui:insert name="header">
+        #{msgs.placesHeading}
+      </ui:insert></div>
+
+	<div class="menuAndContent">
+	<div class="menuLeft"><ui:insert name="menuLeft" /></div>
+
+	<div class="content" style="display:#{places.showContent}"><ui:insert
+		name="content" /></div>
+
+	<div class="menuRight"><ui:insert name="menuRight">
+		<ui:include src="/sections/shared/sourceViewer.xhtml" />
+	</ui:insert></div>
+	</div>
+	<div class="pageFooter"><ui:insert name="footer">#{}</ui:insert></div>
+</h:body>
+</html>

@@ -186,7 +186,8 @@ public class B2bServlet extends AbstractSipServlet {
 		SipSession linkedSession = helper.getLinkedSession(session);
 		if (logger.isDebugEnabled()) {
 			logger.debug("This request session id: {}, linked session id: {}",
-					session.getId(), linkedSession.getId());
+					(session == null ? null : session.getId()),
+					(linkedSession == null ? null : linkedSession.getId()));
 		}
 		if (linkedSession != null) {
 			SipServletRequest forkedRequest = helper.createRequest(

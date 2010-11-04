@@ -13,6 +13,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
+import javax.servlet.sip.SipSession;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
@@ -72,6 +73,19 @@ public class CallCenterServlet extends AbstractSipServlet {
 		}
 		User user = checkAuthentication(req);
 		if (user == null) {
+			SipSession session = req.getSession(false);
+			if (session != null) {
+				if (logger.isTraceEnabled()) {
+					logger.trace(
+							"Authentication failed, response sent, invalidate sip session: ",
+							session.getId());
+				}
+				session.invalidate();
+			} else {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Not session found");
+				}
+			}
 			return;
 		}
 		req.setAttribute(USER_ATTRIBUTE, user);
@@ -192,8 +206,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 							logger.warn("Dialplan excutor return <NULL>. Response server internal error.");
 						}
 					}
-					response(req,
-							SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+					response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 					return;
 				} else {
 					if (logger.isTraceEnabled()) {
@@ -245,15 +258,25 @@ public class CallCenterServlet extends AbstractSipServlet {
 	@Override
 	protected void doOptions(SipServletRequest req) throws ServletException,
 			IOException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got options request: {}", req);
+		try {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Got options request: {}", req);
+			}
+			SipServletResponse response = req
+					.createResponse(SipServletResponse.SC_OK);
+			if (logger.isTraceEnabled()) {
+				logger.trace("Sending response back: {}", response);
+			}
+			response.send();
+		} finally {
+			SipSession session = req.getSession(false);
+			if (session != null) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Invalidate session: {}", session.getId());
+				}
+				session.invalidate();
+			}
 		}
-		SipServletResponse response = req
-				.createResponse(SipServletResponse.SC_OK);
-		if (logger.isTraceEnabled()) {
-			logger.trace("Sending response back: {}", response);
-		}
-		response.send();
 	}
 
 	private User checkAuthentication(SipServletRequest req) throws IOException {

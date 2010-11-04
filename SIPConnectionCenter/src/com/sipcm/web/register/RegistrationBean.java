@@ -1,10 +1,17 @@
 /**
  * 
  */
-package com.sipcm.web;
+package com.sipcm.web.register;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import java.util.ResourceBundle;
+import java.util.regex.Pattern;
+
+import javax.annotation.Resource;
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
+
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -18,18 +25,42 @@ import com.sipcm.common.model.User;
 @Component("registrationBean")
 @Scope("request")
 public class RegistrationBean {
-	@Autowired
-	@Qualifier("userService")
+	@Resource(name = "userService")
 	private UserService userService;
 
+	// @NotNull(message = "{register.error.username.required}")
+	// @Pattern(regexp = "^\\p{Alpha}[\\w|\\.]{5,31}$", message =
+	// "{register.error.username.pattern}")
 	private String username;
+
+	// @NotNull(message = "{register.error.email.required}")
+	// @Pattern(regexp = "^[^@]+@[^@^\\.]+\\.[^@^\\.]+$", message =
+	// "{register.error.email.pattern}")
 	private String email;
+
+	// @NotNull(message = "{register.error.password.required}")
+	// @Size(min = 6, max = 64, message = "{register.error.password.size}")
 	private String password;
+
+	// @NotNull(message = "{register.error.firstName.required}")
 	private String firstName;
+
 	private String middleName;
+
+	// @NotNull(message = "{register.error.lastName.required}")
 	private String lastName;
+
 	private String displayName;
+
+	// @NotNull(message = "{register.error.phoneNumber.required}")
+	// @Pattern(regexp =
+	// "^\\s*((\\+|00|011)?[1-9]\\d*\\s*)?(\\([1-9]\\d*\\))?\\s*[1-9]\\d*(\\s*-?\\d+)+\\s*$",
+	// message = "{register.error.phoneNumber.pattern}")
 	private String phoneNumber;
+
+	// @NotNull(message = "{register.error.defaultAreaCode.required}")
+	// @Pattern(regexp = "^\\d{3,}$", message =
+	// "{register.error.defaultAreaCode.pattern}")
 	private String defaultAreaCode;
 
 	public String register() {
@@ -45,6 +76,24 @@ public class RegistrationBean {
 		userService.setPassword(user, password);
 		userService.saveEntity(user);
 		return "RegisterSuccess";
+	}
+
+	public void validateUsername(FacesContext context,
+			UIComponent componentToValidate, Object value) {
+		ResourceBundle resource = ResourceBundle
+				.getBundle("messages.CallerPages");
+		String username = (String) value;
+		if (!Pattern.matches("^\\p{Alpha}[\\w|\\.]{5,31}$", username)) {
+			FacesMessage message = new FacesMessage(
+					resource.getString("register.error.username.pattern"));
+			throw new ValidatorException(message);
+		}
+		User user = userService.getUserByUsername(username);
+		if (user != null) {
+			FacesMessage message = new FacesMessage(
+					resource.getString("register.error.username.exists"));
+			throw new ValidatorException(message);
+		}
 	}
 
 	/**

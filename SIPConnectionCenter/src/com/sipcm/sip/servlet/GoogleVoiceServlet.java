@@ -66,16 +66,17 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 		String toUser = toUri.getUser();
 		if (PHONE_NUMBER.matcher(toUser).matches()) {
 			// This is initial call
+			SipApplicationSession appSession = req.getApplicationSession();
 			Principal p = req.getUserPrincipal();
 			if (p == null) {
 				if (logger.isErrorEnabled()) {
 					logger.error("Cannot found login prinipal for outgoing call? this should never happen.");
 				}
 				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				appSession.invalidate();
 				return;
 			}
 			// String username = p.getName();
-			SipApplicationSession appSession = req.getApplicationSession();
 			getServletContext().setAttribute(generateAppSessionKey(req, true),
 					appSession.getId());
 			User user = (User) req.getAttribute(USER_ATTRIBUTE);
@@ -86,6 +87,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 					logger.error("Cannot found user from request? This should never happen.");
 				}
 				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				appSession.invalidate();
 				return;
 			}
 			if (account == null) {
@@ -93,6 +95,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 					logger.error("Cannot found voip account for {}? This should never happen");
 				}
 				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				appSession.invalidate();
 				return;
 			}
 			processGoogleVoiceCall(req, appSession, user, account, toUser);
@@ -186,11 +189,11 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 					logger.info("{} is calling {} by google voice",
 							user.getDisplayName(), pn);
 				}
-				appSession
-						.setAttribute(GV_WAITING_FOR_CALLBACK, phoneNumberUtil
-								.getCorrectUsCaPhoneNumber(
-										account.getPhoneNumber(),
-										user.getDefaultAreaCode()));
+				appSession.setAttribute(
+						GV_WAITING_FOR_CALLBACK,
+						phoneNumberUtil.getCorrectUsCaPhoneNumber(
+								account.getPhoneNumber(),
+								user.getDefaultAreaCode()));
 				SipSession session = req.getSession();
 				session.setAttribute(ORIGINAL_REQUEST, req);
 				appSession.setAttribute(ORIGINAL_SESSION, session);
@@ -373,6 +376,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				}
 			}
 		}
+		appSession.invalidate();
 	}
 
 	private int getGoogleVoiceCallTimeout() {

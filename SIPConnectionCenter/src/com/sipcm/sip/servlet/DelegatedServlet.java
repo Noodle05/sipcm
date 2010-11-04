@@ -87,8 +87,10 @@ public class DelegatedServlet extends B2bServlet {
 				.createSipURI(phoneNumberUtil
 						.getCanonicalizedPhoneNumber(toSipURI.getUser()),
 						account.getVoipVendor().getDomain());
-		SipURI fromURI = sipFactory.createSipURI(account.getPhoneNumber(),
-				account.getVoipVendor().getDomain());
+		SipURI fromURI = sipFactory.createSipURI(
+				(account.getPhoneNumber() == null ? account.getAccount()
+						: account.getPhoneNumber()), account.getVoipVendor()
+						.getDomain());
 		Address toAddress = sipFactory.createAddress(toURI);
 		String fromDisplayName;
 		if (account.getPhoneNumber() != null) {

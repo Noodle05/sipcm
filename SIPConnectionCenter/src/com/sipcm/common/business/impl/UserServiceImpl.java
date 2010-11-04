@@ -64,7 +64,8 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	 */
 	@Override
 	public User getUserByUsername(String username) {
-		Filter filter = filterFactory.createSimpleFilter("username", username);
+		Filter filter = filterFactory.createSimpleFilter("username", username,
+				Filter.Operator.IEQ);
 		return dao.getUniqueEntity(filter);
 	}
 
