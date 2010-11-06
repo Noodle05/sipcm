@@ -38,15 +38,18 @@ public class PhoneNumberUtil {
 		return phoneNumber;
 	}
 
+	public boolean isValidPhoneNumber(String phoneNumber) {
+		return (PHONE_NUMBER.matcher(phoneNumber).matches());
+	}
+
 	public boolean isNaPhoneNumber(String phoneNumber) {
-		return (US_CA_NUMBER_PATTERN.matcher(getCanonicalizedPhoneNumber(
-				phoneNumber)).matches());
+		return (US_CA_NUMBER_PATTERN
+				.matcher(getCanonicalizedPhoneNumber(phoneNumber)).matches());
 	}
 
 	public boolean isInternationalPhoneNumber(String phoneNumber) {
 		return (INTERNATIONAL_NUMBER_PATTERN
-				.matcher(getCanonicalizedPhoneNumber(phoneNumber))
-				.matches());
+				.matcher(getCanonicalizedPhoneNumber(phoneNumber)).matches());
 	}
 
 	public String getCorrectUsCaPhoneNumber(String phoneNumber,

@@ -12,7 +12,6 @@ import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
-import javax.servlet.sip.SipSession;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
@@ -66,18 +65,6 @@ public class RegistrarServlet extends AbstractSipServlet {
 			throw e;
 		} catch (Exception e) {
 			throw new ServletException("Error happened during registration.", e);
-		} finally {
-			SipSession session = req.getSession(false);
-			if (session != null) {
-				if (logger.isTraceEnabled()) {
-					logger.trace("Invalidate session: {}", session.getId());
-				}
-				session.invalidate();
-			} else {
-				if (logger.isTraceEnabled()) {
-					logger.trace("No sip session found.");
-				}
-			}
 		}
 	}
 

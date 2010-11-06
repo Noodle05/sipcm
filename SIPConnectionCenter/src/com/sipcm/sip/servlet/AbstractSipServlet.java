@@ -5,7 +5,6 @@ package com.sipcm.sip.servlet;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -43,15 +42,7 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 	public static final String USER_VOIP_ACCOUNT = "com.sipcm.voip.account";
 	public static final String GV_WAITING_FOR_CALLBACK = "com.sipcm.googlevoice.waiting";
 	public static final String APPLICATION_SESSION_ID = "com.sipcm.appsessionid.";
-
-	public static final String US_CA_NUMBER = "\\d{7}|(?:\\+1|1)?\\d{10}";
-	public static final String INTERNATIONAL_NUMBER = "(?:\\+|011)[^1]\\d{7,}";
-
-	public static final Pattern PHONE_NUMBER = Pattern.compile("^(\\+?\\d+)$");
-	public static final Pattern US_CA_NUMBER_PATTERN = Pattern
-			.compile("^(\\d{7}|(?:\\+1|1)?\\d{10})$");
-	public static final Pattern INTERNATIONAL_NUMBER_PATTERN = Pattern
-			.compile("^((?:\\+|011)[^1]\\d{7,})$");
+	public static final String CALLING_PHONE_NUMBER = "com.sipcm.calling.phonenumber";
 
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -109,6 +100,9 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 			String reasonPhrase) throws IOException {
 		SipServletResponse response = req.createResponse(statusCode,
 				reasonPhrase);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Sending response: {}", response);
+		}
 		response.send();
 	}
 

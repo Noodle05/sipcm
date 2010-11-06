@@ -39,7 +39,7 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 		RequestDispatcher dispatcher = null;
 		SipURI fromUri = (SipURI) req.getFrom().getURI();
 		String fromUser = fromUri.getUser();
-		if (PHONE_NUMBER.matcher(fromUser).matches()) {
+		if (phoneNumberUtil.isValidPhoneNumber(fromUser)) {
 			String appSessionId = (String) getServletContext().getAttribute(
 					generateAppSessionKey(req, false));
 			SipApplicationSession appSession = null;

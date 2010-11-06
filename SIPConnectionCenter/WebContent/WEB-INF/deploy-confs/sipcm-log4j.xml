@@ -25,7 +25,12 @@
 		<param name="LocationInfo" value="true" />
 	</appender>
 
-	<logger name="com.sipcm" additivity="false">
+	<logger name="com.sipcm.sip.servlet" additivity="false">
+		<level value="all" />
+		<appender-ref ref="RollingFileAppender" />
+	</logger>
+
+	<logger name="org.mobicents" additivity="false">
 		<level value="all" />
 		<appender-ref ref="RollingFileAppender" />
 	</logger>

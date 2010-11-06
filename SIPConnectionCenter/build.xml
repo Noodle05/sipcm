@@ -86,13 +86,13 @@
 		</copy>
 		<copy todir="${dist.dir}/webinf">
 			<fileset dir="${web.dir}/WEB-INF">
-				<!-- include name="sip.xml" / -->
+				<include name="templates/*" />
 				<include name="faces-config.xml" />
 			</fileset>
 		</copy>
 		<war destfile="${dist.dir}/${war.filename}" webxml="${web.dir}/WEB-INF/web.xml">
 			<lib dir="${dist.dir}/lib" />
-			<webinf dir="${dist.dir}/webinf" includes="config/*,contexts/*,faces-config.xml" />
+			<webinf dir="${dist.dir}/webinf" includes="config/*,contexts/*,templates/*,faces-config.xml" />
 			<metainf file="${web.dir}/META-INF/context.xml" />
 			<classes dir="${web.dir}/WEB-INF/classes" />
 			<fileset dir="${web.dir}">

@@ -9,6 +9,7 @@ import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipApplicationSessionEvent;
 import javax.servlet.sip.SipApplicationSessionListener;
 import javax.servlet.sip.SipSession;
+import javax.servlet.sip.SipSession.State;
 import javax.servlet.sip.annotation.SipListener;
 
 import org.slf4j.Logger;
@@ -79,18 +80,19 @@ public class SipApplicationSessionListenerImpl implements
 			Object o = ite.next();
 			if (o instanceof SipSession) {
 				final SipSession session = (SipSession) o;
-				if (!session.isReadyToInvalidate()) {
+				if (logger.isTraceEnabled()) {
+					logger.trace(
+							"SipSession is read to invalid? {}, session state: {}",
+							session.isReadyToInvalidate(), session.getState());
+				}
+				if (!State.TERMINATED.equals(session.getState())
+						&& !State.INITIAL.equals(session.getState())) {
 					if (logger.isTraceEnabled()) {
 						logger.trace(
-								"SipSession: {} is not ready to invalidate yet, extend appSession",
+								"SipSession: {} state is not TERMINATED and not INITIAL, extend appSession",
 								session.getId());
 					}
 					extendIt = true;
-				} else {
-					if (logger.isTraceEnabled()) {
-						logger.trace("SipSession {} is ready to invalidate.",
-								session.getId());
-					}
 				}
 			}
 		}

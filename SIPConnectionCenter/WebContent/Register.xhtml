@@ -1,95 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core">
-<f:loadBundle var="messages" basename="messages.CallerPages" />
-<f:view>
-	<h:head>
-		<title><h:outputText value="#{messages['register.title']}" /></title>
-	</h:head>
-	<h:body>
-		<h:form>
-			<h:panelGrid columns="3">
-				<f:facet name="header">
+	xmlns:f="http://java.sun.com/jsf/core"
+	template="/WEB-INF/templates/masterLayout.xhtml">
+	<ui:define name="windowTitle">#{messages['register.title']}</ui:define>
+	<ui:define name="content">
+		<f:view>
+			<h:form>
+				<h:panelGrid columns="3">
+					<f:facet name="header">
 					#{messages['register.header']}
 				</f:facet>
 				#{messages['register.username']}:
 				<h:inputText label="#{messages['register.username']}" id="username"
-					value="#{registrationBean.username}" maxlength="32" required="true"
-					requiredMessage="#{messages['register.error.username.required']}"
-					validator="#{registrationBean.validateUsername}">
-					<f:ajax event="blur" render="usernameError" />
-				</h:inputText>
-				<h:message id="usernameError" for="username" styleClass="error" />
+						value="#{registrationBean.username}" maxlength="32"
+						required="true"
+						requiredMessage="#{messages['register.error.username.required']}"
+						validator="#{registrationBean.validateUsername}">
+						<f:ajax event="blur" render="usernameError" />
+					</h:inputText>
+					<h:message id="usernameError" for="username" styleClass="error" />
 				#{messages['register.password']}:
 				<h:inputSecret label="#{messages['register.password']}"
-					value="#{registrationBean.password}" id="password" maxlength="32"
-					required="true"
-					requiredMessage="#{messages['register.error.password.required']}"
-					validatorMessage="#{messages['register.error.password.size']}">
-					<f:validateLength minimum="6" maximum="32" />
-				</h:inputSecret>
-				<h:message id="passwordError" for="password" styleClass="error" />
+						value="#{registrationBean.password}" id="password" maxlength="32"
+						required="true"
+						requiredMessage="#{messages['register.error.password.required']}"
+						validatorMessage="#{messages['register.error.password.size']}">
+						<f:validateLength minimum="6" maximum="32" />
+					</h:inputSecret>
+					<h:message id="passwordError" for="password" styleClass="error" />
 				#{messages['register.email']}:
 				<h:inputText label="#{messages['register.email']}"
-					value="#{registrationBean.email}" id="email" maxlength="255"
-					required="true"
-					requiredMessage="#{messages['register.error.email.required']}"
-					validatorMessage="#{messages['register.error.email.pattern']}">
-					<f:validateRegex pattern="^[^@]+@[^@^\.]+\\.[^@^\.]+$" />
-				</h:inputText>
-				<h:message id="emailError" for="email" styleClass="error" />
+						value="#{registrationBean.email}" id="email" maxlength="255"
+						required="true"
+						requiredMessage="#{messages['register.error.email.required']}"
+						validatorMessage="#{messages['register.error.email.pattern']}">
+						<f:validateRegex pattern="^[^@]+@[^@^\.]+\\.[^@^\.]+$" />
+					</h:inputText>
+					<h:message id="emailError" for="email" styleClass="error" />
 				#{messages['register.firstName']}:
 				<h:inputText label="#{messages['register.firstName']}"
-					value="#{registrationBean.firstName}" id="firstName" maxlength="64"
-					required="true"
-					requiredMessage="#{messages['register.error.firstName.required']}" />
-				<h:message id="firstNameError" for="firstName" styleClass="error" />
+						value="#{registrationBean.firstName}" id="firstName"
+						maxlength="64" required="true"
+						requiredMessage="#{messages['register.error.firstName.required']}" />
+					<h:message id="firstNameError" for="firstName" styleClass="error" />
 				#{messages['register.middleName']}:
 				<h:inputText label="#{messages['register.middleName']}"
-					value="#{registrationBean.middleName}" id="middleName"
-					maxlength="64" />
-				<h:message id="middleNameError" for="middleName" styleClass="error" />
+						value="#{registrationBean.middleName}" id="middleName"
+						maxlength="64" />
+					<h:message id="middleNameError" for="middleName" styleClass="error" />
 				#{messages['register.lastName']}:
 				<h:inputText label="#{messages['register.lastName']}"
-					value="#{registrationBean.lastName}" id="lastName" maxlength="64"
-					required="true"
-					requiredMessage="#{messages['register.error.lastName.required']}" />
-				<h:message id="lastNameError" for="lastName" styleClass="error" />
+						value="#{registrationBean.lastName}" id="lastName" maxlength="64"
+						required="true"
+						requiredMessage="#{messages['register.error.lastName.required']}" />
+					<h:message id="lastNameError" for="lastName" styleClass="error" />
 				#{messages['register.displayName']}:
 				<h:inputText label="#{messages['register.displayName']}"
-					value="#{registrationBean.displayName}" id="displayName"
-					maxlength="64" />
-				<h:message id="displayNameError" for="displayName"
-					styleClass="error" />
+						value="#{registrationBean.displayName}" id="displayName"
+						maxlength="64" />
+					<h:message id="displayNameError" for="displayName"
+						styleClass="error" />
 				#{messages['register.phoneNumber']}:
 				<h:inputText label="#{messages['register.phoneNumber']}"
-					value="#{registrationBean.phoneNumber}" id="phoneNumber"
-					maxlength="32" required="true"
-					requiredMessage="#{messages['register.error.phoneNumber.required']}"
-					validatorMessage="#{messages['register.error.phoneNumber.pattern']}">
-					<f:validateRegex
-						pattern="^\s*((\+|00|011)?[1-9]\d*\s*)?(\([1-9]\d*\))?\s*[1-9]\d*(\s*-?\d+)+\s*$" />
-				</h:inputText>
-				<h:message id="phoneNumberError" for="phoneNumber"
-					styleClass="error" />
+						value="#{registrationBean.phoneNumber}" id="phoneNumber"
+						maxlength="32" required="true"
+						requiredMessage="#{messages['register.error.phoneNumber.required']}"
+						validatorMessage="#{messages['register.error.phoneNumber.pattern']}">
+						<f:validateRegex
+							pattern="^\s*((\+|00|011)?[1-9]\d*\s*)?(\([1-9]\d*\))?\s*[1-9]\d*(\s*-?\d+)+\s*$" />
+					</h:inputText>
+					<h:message id="phoneNumberError" for="phoneNumber"
+						styleClass="error" />
 				#{messages['register.areaCode']}:
 				<h:inputText label="#{messages['register.areaCode']}"
-					value="#{registrationBean.defaultAreaCode}" id="defaultAreaCode"
-					maxlength="10" required="true"
-					requiredMessage="#{messages['register.error.defaultAreaCode.required']}"
-					validatorMessage="#{messages['register.error.defaultAreaCode.pattern']}">
-					<f:validateRegex pattern="^\\d{3,}$" />
-				</h:inputText>
-				<h:message id="defaultAreaCodeError" for="defaultAreaCode"
-					styleClass="error" />
-				<f:facet name="footer">
-					<h:commandButton id="submit" value="#{messages['register.submit']}"
-						action="#{registrationBean.register}" />
-				</f:facet>
-			</h:panelGrid>
-		</h:form>
-	</h:body>
-</f:view>
-</html>
+						value="#{registrationBean.defaultAreaCode}" id="defaultAreaCode"
+						maxlength="10" required="true"
+						requiredMessage="#{messages['register.error.defaultAreaCode.required']}"
+						validatorMessage="#{messages['register.error.defaultAreaCode.pattern']}">
+						<f:validateRegex pattern="^\\d{3,}$" />
+					</h:inputText>
+					<h:message id="defaultAreaCodeError" for="defaultAreaCode"
+						styleClass="error" />
+					<f:facet name="footer">
+						<h:commandButton id="submit"
+							value="#{messages['register.submit']}"
+							action="#{registrationBean.register}" />
+					</f:facet>
+				</h:panelGrid>
+			</h:form>
+		</f:view>
+	</ui:define>
+</ui:composition>

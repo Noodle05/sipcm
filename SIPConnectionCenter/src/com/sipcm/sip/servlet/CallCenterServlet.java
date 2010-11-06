@@ -5,10 +5,7 @@ package com.sipcm.sip.servlet;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Map;
-import java.util.regex.Matcher;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.sip.SipServletRequest;
@@ -24,10 +21,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.User;
-import com.sipcm.sip.VoipVendorType;
-import com.sipcm.sip.dialplan.DialplanExecutor;
-import com.sipcm.sip.model.UserVoipAccount;
-import com.sipcm.sip.util.MapHolderBean;
 import com.sipcm.sip.util.ServerAuthenticationHelper;
 
 /**
@@ -40,27 +33,12 @@ public class CallCenterServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = -4659953196279153841L;
 
 	@Autowired
-	@Qualifier("dialplanExecutor")
-	private DialplanExecutor dialplanExecutor;
-
-	private Map<VoipVendorType, String> voipVendorToServletMap;
-
-	@Autowired
-	@Qualifier("mapHolderBean")
-	private MapHolderBean mapHolderBean;
-
-	@Autowired
 	@Qualifier("serverAuthenticationHelper")
 	private ServerAuthenticationHelper authenticationHelper;
 
 	@Autowired
 	@Qualifier("userService")
 	private UserService userService;
-
-	@PostConstruct
-	public void springInit() {
-		voipVendorToServletMap = mapHolderBean.getVoipVendorToServletMap();
-	}
 
 	/**
 	 * This will just forward request to RegistrarServlet
@@ -73,18 +51,8 @@ public class CallCenterServlet extends AbstractSipServlet {
 		}
 		User user = checkAuthentication(req);
 		if (user == null) {
-			SipSession session = req.getSession(false);
-			if (session != null) {
-				if (logger.isTraceEnabled()) {
-					logger.trace(
-							"Authentication failed, response sent, invalidate sip session: ",
-							session.getId());
-				}
-				session.invalidate();
-			} else {
-				if (logger.isTraceEnabled()) {
-					logger.trace("Not session found");
-				}
+			if (logger.isTraceEnabled()) {
+				logger.trace("Authentication failed, response should sent");
 			}
 			return;
 		}
@@ -94,6 +62,9 @@ public class CallCenterServlet extends AbstractSipServlet {
 		if (dispatcher != null) {
 			dispatcher.forward(req, null);
 		} else {
+			if (logger.isErrorEnabled()) {
+				logger.error("Error! Cannot found registrar servlet.");
+			}
 			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR,
 					"Cannot found registrar servlet.");
 		}
@@ -153,61 +124,22 @@ public class CallCenterServlet extends AbstractSipServlet {
 			}
 			String toUser = toSipUri.getUser();
 			if (getDomain().equalsIgnoreCase(toHost)) {
-				Matcher m = PHONE_NUMBER.matcher(toUser);
-				if (m.matches()) {
-					if (logger.isTraceEnabled()) {
-						logger.trace("This is a request to call a phone.");
-					}
-					if (req.getAttribute(USER_ATTRIBUTE) == null) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Only local user can call phone number. Response \"not acceptable\"");
-						}
-						// Only accept if it's from local user.
-						response(req, SipServletResponse.SC_NOT_ACCEPTABLE);
+				if (phoneNumberUtil.isValidPhoneNumber(toUser)) {
+					req.setAttribute(CALLING_PHONE_NUMBER,
+							phoneNumberUtil.getCanonicalizedPhoneNumber(toUser));
+					RequestDispatcher dispatcher = req
+							.getRequestDispatcher("OutgoingPhoneInviteServlet");
+					if (dispatcher != null) {
+						dispatcher.forward(req, null);
 						return;
-					}
-					User user = (User) req.getAttribute(USER_ATTRIBUTE);
-					if (logger.isTraceEnabled()) {
-						logger.trace("Trying to excute dial plan.");
-					}
-					UserVoipAccount voipAccount = dialplanExecutor.execute(
-							user, phoneNumberUtil.getCanonicalizedPhoneNumber(m
-									.group(1)));
-					if (voipAccount != null) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Dialplan return {}", voipAccount);
-						}
-						req.setAttribute(USER_VOIP_ACCOUNT, voipAccount);
-						String servlet = voipVendorToServletMap.get(voipAccount
-								.getVoipVendor().getType());
-						if (logger.isDebugEnabled()) {
-							logger.debug("Forward to servlet: {}", servlet);
-						}
-						if (servlet != null) {
-							RequestDispatcher dispatcher = req
-									.getRequestDispatcher(servlet);
-							if (dispatcher != null) {
-								dispatcher.forward(req, null);
-								return;
-							} else {
-								if (logger.isWarnEnabled()) {
-									logger.warn("Cannot find request dispatcher based on servlet {}, response server internal error.");
-								}
-							}
-						} else {
-							if (logger.isWarnEnabled()) {
-								logger.warn(
-										"Cannot find servlet based on voip vendor type {}. Response server internal error",
-										voipAccount.getVoipVendor().getType());
-							}
-						}
 					} else {
 						if (logger.isWarnEnabled()) {
-							logger.warn("Dialplan excutor return <NULL>. Response server internal error.");
+							logger.warn("Cannot find outgoing phone invite servlet, response server internal error.");
 						}
+						response(req,
+								SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+						return;
 					}
-					response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-					return;
 				} else {
 					if (logger.isTraceEnabled()) {
 						logger.trace("This is a incoming invite to local user.");
@@ -285,9 +217,9 @@ public class CallCenterServlet extends AbstractSipServlet {
 			Principal principal = req.getUserPrincipal();
 			String username = principal.getName();
 			user = userService.getUserByUsername(username);
-		}
-		if (user == null) {
-			response(req, SipServletResponse.SC_NOT_FOUND);
+			if (user == null) {
+				response(req, SipServletResponse.SC_NOT_FOUND);
+			}
 		}
 		return user;
 	}

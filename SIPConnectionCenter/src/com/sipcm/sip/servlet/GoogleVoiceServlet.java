@@ -64,7 +64,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 			IOException {
 		SipURI toUri = (SipURI) req.getTo().getURI();
 		String toUser = toUri.getUser();
-		if (PHONE_NUMBER.matcher(toUser).matches()) {
+		if (phoneNumberUtil.isValidPhoneNumber(toUser)) {
 			// This is initial call
 			SipApplicationSession appSession = req.getApplicationSession();
 			Principal p = req.getUserPrincipal();

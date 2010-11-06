@@ -16,6 +16,7 @@ import javax.servlet.sip.SipServletMessage;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSession;
+import javax.servlet.sip.SipSession.State;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.UAMode;
 import javax.servlet.sip.URI;
@@ -39,6 +40,8 @@ import com.sipcm.sip.util.SipUtil;
 @SipServlet(name = "B2bServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
 public class B2bServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = -7798141358134636972L;
+
+	public static final String LINKED_SESSION_STATUS = "com.sipcm.linkedSessionStatus";
 
 	@Autowired
 	@Qualifier("sipLocationService")
@@ -91,15 +94,54 @@ public class B2bServlet extends AbstractSipServlet {
 		}
 		if (resp.getStatus() == SipServletResponse.SC_REQUEST_TERMINATED) {
 			if (logger.isTraceEnabled()) {
-				logger.trace("487 already send on Cancel for intial leg UAS");
+				if (resp.getStatus() == SipServletResponse.SC_REQUEST_TERMINATED) {
+					logger.trace("487 already send on Cancel for intial leg UAS");
+				}
 			}
 			SipSession session = resp.getSession(false);
 			if (session != null && session.isValid()) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Invalidate session: {}", session.getId());
+				}
 				session.invalidate();
+			} else {
+				if (logger.isTraceEnabled()) {
+					logger.trace("No session on this 487 response.");
+				}
 			}
 			return;
 		}
 
+		String cancelStatus = (String) resp.getSession().getAttribute(
+				LINKED_SESSION_STATUS);
+		if (cancelStatus != null) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Linked session cancelled already.");
+			}
+			if (cancelStatus.equals("WAITING")) {
+				int status = resp.getStatus();
+				if (status < 200) {
+					if (logger.isTraceEnabled()) {
+						logger.trace("Orginal request already send BYE to end this invite, so we send cancel");
+					}
+					SipServletRequest cancelRequest = resp.getRequest()
+							.createCancel();
+					cancelRequest.send();
+				} else if (status < 300) {
+					if (logger.isTraceEnabled()) {
+						logger.trace("Orginal request already send BYE to end this invite, so we send cancel");
+					}
+					SipServletRequest cancelRequest = resp.getSession()
+							.createRequest(Request.BYE);
+					cancelRequest.send();
+				} else {
+					if (logger.isTraceEnabled()) {
+						logger.trace("Don't forward.");
+					}
+				}
+			}
+			return;
+		}
 		B2buaHelper helper = resp.getRequest().getB2buaHelper();
 		SipSession linked = helper.getLinkedSession(resp.getSession());
 		SipServletResponse forkedResp = null;
@@ -190,12 +232,57 @@ public class B2bServlet extends AbstractSipServlet {
 					(linkedSession == null ? null : linkedSession.getId()));
 		}
 		if (linkedSession != null) {
-			SipServletRequest forkedRequest = helper.createRequest(
-					linkedSession, req, null);
 			if (logger.isTraceEnabled()) {
-				logger.trace("Sending forked bye Request {}", forkedRequest);
+				logger.trace("Linked session {} state: {}",
+						linkedSession.getId(), linkedSession.getState());
 			}
-			forkedRequest.send();
+			switch (linkedSession.getState()) {
+			case INITIAL:
+				if (logger.isTraceEnabled()) {
+					logger.trace("Linked session still in INITIAL state, set waiting and will send cancel when receive 100-199 response.");
+				}
+				linkedSession.setAttribute(LINKED_SESSION_STATUS, "WAITING");
+				response(req, SipServletResponse.SC_OK);
+				break;
+			case EARLY:
+				if (logger.isTraceEnabled()) {
+					logger.trace("Session still in early state, we should send cancel instead of bye.");
+				}
+				SipServletRequest cancel = helper.createCancel(linkedSession);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Sending cancel to linked session. {}", cancel);
+				}
+				cancel.send();
+				if (logger.isTraceEnabled()) {
+					logger.trace("And response bad request response to original request.");
+				}
+				response(req, SipServletResponse.SC_BAD_REQUEST,
+						"Use CANCEL next time.");
+				if (logger.isTraceEnabled()) {
+					logger.trace("Mark forked invite already cancelled.");
+				}
+				linkedSession.setAttribute(LINKED_SESSION_STATUS, "CANCELLED");
+				break;
+			case CONFIRMED:
+				SipServletRequest forkedRequest = helper.createRequest(
+						linkedSession, req, null);
+				if (logger.isTraceEnabled()) {
+					logger.trace("Sending forked bye Request {}", forkedRequest);
+				}
+				forkedRequest.send();
+				break;
+			case TERMINATED:
+				if (logger.isDebugEnabled()) {
+					logger.debug("Linked session already terminated.");
+				}
+				response(req, SipServletResponse.SC_BAD_REQUEST,
+						"Use CANCEL next time.");
+				linkedSession.setAttribute(LINKED_SESSION_STATUS, "TERMINATED");
+				break;
+			}
+			if (State.EARLY.equals(linkedSession.getState())) {
+				return;
+			}
 		} else {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Cannot found linked session, or linked session is not in confirm stage, will not send forked request.");
@@ -208,7 +295,6 @@ public class B2bServlet extends AbstractSipServlet {
 			}
 			response.send();
 		}
-		return;
 	}
 
 	@Override
@@ -222,19 +308,25 @@ public class B2bServlet extends AbstractSipServlet {
 		}
 		B2buaHelper help = req.getB2buaHelper();
 		SipSession origSession = help.getLinkedSession(req.getSession());
-		List<SipServletMessage> msgs = help.getPendingMessages(origSession,
-				UAMode.UAC);
-		for (SipServletMessage msg : msgs) {
-			if (msg instanceof SipServletResponse) {
-				SipServletResponse resp = (SipServletResponse) msg;
-				if (resp.getStatus() == SipServletResponse.SC_OK) {
-					SipServletRequest ack = resp.createAck();
-					copyContent(req, ack);
-					if (logger.isTraceEnabled()) {
-						logger.trace("Sending forked ACK: ", ack);
+		if (origSession != null) {
+			List<SipServletMessage> msgs = help.getPendingMessages(origSession,
+					UAMode.UAC);
+			for (SipServletMessage msg : msgs) {
+				if (msg instanceof SipServletResponse) {
+					SipServletResponse resp = (SipServletResponse) msg;
+					if (resp.getStatus() == SipServletResponse.SC_OK) {
+						SipServletRequest ack = resp.createAck();
+						copyContent(req, ack);
+						if (logger.isTraceEnabled()) {
+							logger.trace("Sending forked ACK: ", ack);
+						}
+						ack.send();
 					}
-					ack.send();
 				}
+			}
+		} else {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Cannot find original session.");
 			}
 		}
 	}
@@ -257,11 +349,61 @@ public class B2bServlet extends AbstractSipServlet {
 		B2buaHelper helper = getB2buaHelper(req);
 		SipSession linkedSession = helper.getLinkedSession(session);
 
-		SipServletRequest cancelRequest = helper.createCancel(linkedSession);
-		if (logger.isDebugEnabled()) {
-			logger.debug("Forwarding cancel request {}", cancelRequest);
+		if (linkedSession != null) {
+			Object alreadyCancelled = linkedSession
+					.getAttribute(LINKED_SESSION_STATUS);
+			if (alreadyCancelled == null) {
+				switch (linkedSession.getState()) {
+				case INITIAL:
+					if (logger.isTraceEnabled()) {
+						logger.trace("Linked session still in INITIAL state, set waiting and will send cancel when receive 100-199 response.");
+					}
+					linkedSession
+							.setAttribute(LINKED_SESSION_STATUS, "WAITING");
+					break;
+				case EARLY:
+					SipServletRequest cancelRequest = helper
+							.createCancel(linkedSession);
+					if (logger.isDebugEnabled()) {
+						logger.debug("Forwarding cancel request {}",
+								cancelRequest);
+					}
+					cancelRequest.send();
+					linkedSession.setAttribute(LINKED_SESSION_STATUS,
+							"CANCELLED");
+					break;
+				case CONFIRMED:
+					if (logger.isTraceEnabled()) {
+						logger.trace("Linked session already confirmed, we need to send BYE.");
+					}
+					SipServletRequest bye = linkedSession
+							.createRequest(Request.BYE);
+					if (logger.isDebugEnabled()) {
+						logger.debug("Sending request {}", bye);
+					}
+					bye.send();
+					break;
+				case TERMINATED:
+					if (logger.isTraceEnabled()) {
+						logger.trace("Linked session already terminated.");
+					}
+					linkedSession.setAttribute(LINKED_SESSION_STATUS,
+							"TERMINATED");
+					break;
+				}
+			} else {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Linked session {} already cancelled.",
+							linkedSession.getId());
+				}
+			}
+		} else {
+			if (logger.isDebugEnabled()) {
+				logger.debug(
+						"No linked session for this cancel request. original session id: {}",
+						session.getId());
+			}
 		}
-		cancelRequest.send();
 	}
 
 	protected B2buaHelper getB2buaHelper(SipServletRequest req) {

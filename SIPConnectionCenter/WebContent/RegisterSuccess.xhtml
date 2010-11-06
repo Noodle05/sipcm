@@ -1,15 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html">
-<h:head>
-	<title>Success</title>
-</h:head>
-<h:body>
-	<table border="5">
-		<tr>
-			<th class="title">Accepted (Version 1)</th>
-		</tr>
-	</table>
-</h:body>
-</html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	template="/WEB-INF/templates/masterLayout.xhtml">
+	<ui:define name="windowTitle">#{messages['register.success']}</ui:define>
+	<ui:define name="content">
+		<h:panelGrid border="5">
+		#{messages['register.success']}
+	</h:panelGrid>
+	</ui:define>
+</ui:composition>
