@@ -54,6 +54,7 @@ middle_name VARCHAR(64),
 password CHAR(32), 
 phonenumber VARCHAR(32), 
 phonenumberstatus INTEGER, 
+allow_local_directly BIT(1) NOT NULL DEFAULT b'1'
 area_code VARCHAR(10), 
 sipstatus INTEGER NOT NULL, 
 status INTEGER NOT NULL, 

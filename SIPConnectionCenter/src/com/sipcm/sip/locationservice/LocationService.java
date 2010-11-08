@@ -25,5 +25,9 @@ public interface LocationService {
 
 	public void checkContactExpires();
 
-	public UserProfile getUserProfile(String key) throws UserNotFoundException;
+	public UserProfile getUserProfileByKey(String key)
+			throws UserNotFoundException;
+
+	public UserProfile getUserProfileByPhoneNumber(String phoneNumber)
+			throws UserNotFoundException;
 }

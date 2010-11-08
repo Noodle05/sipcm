@@ -20,6 +20,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import com.sipcm.common.model.User;
 import com.sipcm.sip.VoipVendorType;
 import com.sipcm.sip.dialplan.DialplanExecutor;
+import com.sipcm.sip.locationservice.LocationService;
+import com.sipcm.sip.locationservice.UserNotFoundException;
+import com.sipcm.sip.locationservice.UserProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.util.MapHolderBean;
 
@@ -35,6 +38,10 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 	@Autowired
 	@Qualifier("dialplanExecutor")
 	private DialplanExecutor dialplanExecutor;
+
+	@Autowired
+	@Qualifier("sipLocationService")
+	private LocationService locationService;
 
 	private Map<VoipVendorType, String> voipVendorToServletMap;
 
@@ -67,6 +74,30 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 				logger.error("No phone number on request?");
 			}
 			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+			return;
+		}
+		UserProfile userProfile;
+		try {
+			userProfile = locationService
+					.getUserProfileByPhoneNumber(phoneNumber);
+		} catch (UserNotFoundException e) {
+			userProfile = null;
+		}
+		if (userProfile != null) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Found local user with this phone number, will forward to local user directly.");
+			}
+			req.setAttribute(TARGET_USERPROFILE, userProfile);
+			RequestDispatcher dispather = req
+					.getRequestDispatcher("B2bServlet");
+			if (dispather == null) {
+				if (logger.isErrorEnabled()) {
+					logger.error("Cannot found target local invite servlet.");
+				}
+				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+			} else {
+				dispather.forward(req, null);
+			}
 			return;
 		}
 		User user = (User) req.getAttribute(USER_ATTRIBUTE);

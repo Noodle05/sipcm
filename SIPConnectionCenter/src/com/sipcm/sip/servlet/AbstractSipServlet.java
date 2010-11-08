@@ -43,6 +43,7 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 	public static final String GV_WAITING_FOR_CALLBACK = "com.sipcm.googlevoice.waiting";
 	public static final String APPLICATION_SESSION_ID = "com.sipcm.appsessionid.";
 	public static final String CALLING_PHONE_NUMBER = "com.sipcm.calling.phonenumber";
+	public static final String TARGET_USERPROFILE = "com.sipcm.target.userProfile";
 
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 

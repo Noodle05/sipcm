@@ -53,6 +53,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 		User user = super.createNewEntity();
 		user.setStatus(AccountStatus.PENDING);
 		user.setSipStatus(OnlineStatus.OFFLINE);
+		user.setAllowLocalDirectly(true);
 		return user;
 	}
 

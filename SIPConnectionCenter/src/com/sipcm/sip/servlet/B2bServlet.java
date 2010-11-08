@@ -5,9 +5,12 @@ package com.sipcm.sip.servlet;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
@@ -19,16 +22,16 @@ import javax.servlet.sip.SipSession;
 import javax.servlet.sip.SipSession.State;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.UAMode;
-import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
+import javax.sip.header.FromHeader;
 import javax.sip.message.Request;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.sipcm.sip.locationservice.LocationService;
-import com.sipcm.sip.locationservice.UserNotFoundException;
+import com.sipcm.common.PhoneNumberStatus;
+import com.sipcm.common.model.User;
 import com.sipcm.sip.locationservice.UserProfile;
 import com.sipcm.sip.util.SipUtil;
 
@@ -42,10 +45,6 @@ public class B2bServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = -7798141358134636972L;
 
 	public static final String LINKED_SESSION_STATUS = "com.sipcm.linkedSessionStatus";
-
-	@Autowired
-	@Qualifier("sipLocationService")
-	private LocationService locationService;
 
 	@Autowired
 	@Qualifier("sipUtil")
@@ -127,13 +126,17 @@ public class B2bServlet extends AbstractSipServlet {
 					SipServletRequest cancelRequest = resp.getRequest()
 							.createCancel();
 					cancelRequest.send();
+					resp.getSession().setAttribute(LINKED_SESSION_STATUS,
+							"TERMINATED");
 				} else if (status < 300) {
 					if (logger.isTraceEnabled()) {
-						logger.trace("Orginal request already send BYE to end this invite, so we send cancel");
+						logger.trace("Orginal request already send BYE to end this invite, so we send bye");
 					}
 					SipServletRequest cancelRequest = resp.getSession()
 							.createRequest(Request.BYE);
 					cancelRequest.send();
+					resp.getSession().setAttribute(LINKED_SESSION_STATUS,
+							"TERMINATED");
 				} else {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Don't forward.");
@@ -174,17 +177,13 @@ public class B2bServlet extends AbstractSipServlet {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Processing to voip back to back invite.");
 		}
-		final SipURI toSipURI = (SipURI) req.getTo().getURI();
-		URI toURI = sipFactory.createSipURI(toSipURI.getUser(),
-				toSipURI.getHost());
-		UserProfile userProfile = null;
-		try {
-			if (logger.isTraceEnabled()) {
-				logger.trace("Lookup address with key: {}", toURI);
+		UserProfile userProfile = (UserProfile) req
+				.getAttribute(TARGET_USERPROFILE);
+		if (userProfile == null) {
+			if (logger.isErrorEnabled()) {
+				logger.error("Cannot found target user profile on request?");
 			}
-			userProfile = locationService.getUserProfile(toURI.toString());
-		} catch (UserNotFoundException e) {
-			response(req, SipServletResponse.SC_NOT_FOUND);
+			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 			return;
 		}
 		Collection<Address> addresses = null;
@@ -198,7 +197,28 @@ public class B2bServlet extends AbstractSipServlet {
 		if (addresses != null && !addresses.isEmpty()) {
 			Address address = addresses.iterator().next();
 			B2buaHelper helper = getB2buaHelper(req);
-			SipServletRequest forkedRequest = helper.createRequest(req);
+			User user = (User) req.getAttribute(USER_ATTRIBUTE);
+			SipServletRequest forkedRequest;
+			if (user != null) {
+				String userName;
+				if (user.getPhoneNumber() == null
+						|| PhoneNumberStatus.UNVERIFIED.equals(user
+								.getPhoneNumberStatus())) {
+					userName = "";
+				} else {
+					userName = user.getPhoneNumber();
+				}
+				SipURI fromUri = sipFactory.createSipURI(userName, getDomain());
+				Address fromAddr = sipFactory.createAddress(fromUri,
+						user.getDisplayName());
+				Map<String, List<String>> headers = new HashMap<String, List<String>>();
+				List<String> froms = new ArrayList<String>(1);
+				froms.add(fromAddr.toString());
+				headers.put(FromHeader.NAME, froms);
+				forkedRequest = helper.createRequest(req, true, headers);
+			} else {
+				forkedRequest = helper.createRequest(req);
+			}
 			forkedRequest.setRequestURI(sipUtil.getCanonicalizedURI(address
 					.getURI()));
 			// forkedRequest.getSession().setAttribute(ORIGINAL_REQUEST, req);
@@ -318,7 +338,7 @@ public class B2bServlet extends AbstractSipServlet {
 						SipServletRequest ack = resp.createAck();
 						copyContent(req, ack);
 						if (logger.isTraceEnabled()) {
-							logger.trace("Sending forked ACK: ", ack);
+							logger.trace("Sending forked ACK: {}", ack);
 						}
 						ack.send();
 					}

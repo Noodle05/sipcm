@@ -105,6 +105,10 @@ public class User extends AbstractTrackableEntity implements
 	@Column(name = "phonenumberstatus")
 	private PhoneNumberStatus phoneNumberStatus;
 
+	@Basic
+	@Column(name = "allow_local_directly", nullable = false)
+	private boolean allowLocalDirectly;
+
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id")
 	@Where(clause = "deletedate is null")
@@ -335,6 +339,21 @@ public class User extends AbstractTrackableEntity implements
 	 */
 	public PhoneNumberStatus getPhoneNumberStatus() {
 		return phoneNumberStatus;
+	}
+
+	/**
+	 * @param allowLocalDirectly
+	 *            the allowLocalDirectly to set
+	 */
+	public void setAllowLocalDirectly(boolean allowLocalDirectly) {
+		this.allowLocalDirectly = allowLocalDirectly;
+	}
+
+	/**
+	 * @return the allowLocalDirectly
+	 */
+	public boolean isAllowLocalDirectly() {
+		return allowLocalDirectly;
 	}
 
 	/**

@@ -9,10 +9,18 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipServletRequest;
+import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipURI;
+import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import com.sipcm.sip.locationservice.LocationService;
+import com.sipcm.sip.locationservice.UserNotFoundException;
+import com.sipcm.sip.locationservice.UserProfile;
 
 /**
  * @author wgao
@@ -22,6 +30,10 @@ import org.springframework.beans.factory.annotation.Configurable;
 @SipServlet(name = "IncomingInviteServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
 public class IncomingInviteServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = 4938128598461987936L;
+
+	@Autowired
+	@Qualifier("sipLocationService")
+	private LocationService locationService;
 
 	/*
 	 * (non-Javadoc)
@@ -51,7 +63,7 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Found application session for this to user, this probably a google voice call back.");
 				}
-				if (phoneNumberUtil.getCorrectUsCaPhoneNumber(fromUser, null)
+				if (phoneNumberUtil.getCanonicalizedPhoneNumber(fromUser)
 						.equals(appSession
 								.getAttribute(GV_WAITING_FOR_CALLBACK))) {
 					if (logger.isTraceEnabled()) {
@@ -71,6 +83,21 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 			}
 		}
 		if (dispatcher == null) {
+			final SipURI toSipURI = (SipURI) req.getTo().getURI();
+			URI toURI = sipFactory.createSipURI(toSipURI.getUser(),
+					toSipURI.getHost());
+			UserProfile userProfile = null;
+			try {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Lookup address with key: {}", toURI);
+				}
+				userProfile = locationService.getUserProfileByKey(toURI
+						.toString());
+			} catch (UserNotFoundException e) {
+				response(req, SipServletResponse.SC_NOT_FOUND);
+				return;
+			}
+			req.setAttribute(TARGET_USERPROFILE, userProfile);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Forward to back-to-back servlet.");
 			}

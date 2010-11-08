@@ -64,7 +64,9 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 			IOException {
 		SipURI toUri = (SipURI) req.getTo().getURI();
 		String toUser = toUri.getUser();
-		if (phoneNumberUtil.isValidPhoneNumber(toUser)) {
+		if (req.getAttribute(CALLING_PHONE_NUMBER) != null) {
+			String phoneNumber = (String) req
+					.getAttribute(CALLING_PHONE_NUMBER);
 			// This is initial call
 			SipApplicationSession appSession = req.getApplicationSession();
 			Principal p = req.getUserPrincipal();
@@ -98,7 +100,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				appSession.invalidate();
 				return;
 			}
-			processGoogleVoiceCall(req, appSession, user, account, toUser);
+			processGoogleVoiceCall(req, appSession, user, account, phoneNumber);
 		} else {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Google voice call back request");
@@ -181,17 +183,15 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 						account.getPassword(), account.getCallBackNumber());
 		appSession.setAttribute(GV_SESSION, gvSession);
 		try {
-			String pn = phoneNumberUtil.getCorrectUsCaPhoneNumber(phoneNumber,
-					user.getDefaultAreaCode());
 			gvSession.login();
-			if (gvSession.call(pn, "1")) {
+			if (gvSession.call(phoneNumber, "1")) {
 				if (logger.isInfoEnabled()) {
 					logger.info("{} is calling {} by google voice",
-							user.getDisplayName(), pn);
+							user.getDisplayName(), phoneNumber);
 				}
 				appSession.setAttribute(
 						GV_WAITING_FOR_CALLBACK,
-						phoneNumberUtil.getCorrectUsCaPhoneNumber(
+						phoneNumberUtil.getCanonicalizedPhoneNumber(
 								account.getPhoneNumber(),
 								user.getDefaultAreaCode()));
 				SipSession session = req.getSession();

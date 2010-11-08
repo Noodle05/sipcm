@@ -125,21 +125,24 @@ public class CallCenterServlet extends AbstractSipServlet {
 			String toUser = toSipUri.getUser();
 			if (getDomain().equalsIgnoreCase(toHost)) {
 				if (phoneNumberUtil.isValidPhoneNumber(toUser)) {
-					req.setAttribute(CALLING_PHONE_NUMBER,
-							phoneNumberUtil.getCanonicalizedPhoneNumber(toUser));
+					User user = (User) req.getAttribute(USER_ATTRIBUTE);
+					req.setAttribute(CALLING_PHONE_NUMBER, phoneNumberUtil
+							.getCanonicalizedPhoneNumber(
+									toUser,
+									user == null ? null : user
+											.getDefaultAreaCode()));
 					RequestDispatcher dispatcher = req
 							.getRequestDispatcher("OutgoingPhoneInviteServlet");
 					if (dispatcher != null) {
 						dispatcher.forward(req, null);
-						return;
 					} else {
 						if (logger.isWarnEnabled()) {
 							logger.warn("Cannot find outgoing phone invite servlet, response server internal error.");
 						}
 						response(req,
 								SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-						return;
 					}
+					return;
 				} else {
 					if (logger.isTraceEnabled()) {
 						logger.trace("This is a incoming invite to local user.");

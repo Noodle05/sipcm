@@ -12,12 +12,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.servlet.sip.Address;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sipcm.common.model.User;
+import com.sipcm.sip.util.PhoneNumberUtil;
 
 /**
  * @author wgao
@@ -30,6 +32,9 @@ public abstract class LocationServiceImpl implements LocationService {
 	private ConcurrentMap<String, UserProfile> userProfiles;
 
 	protected abstract UserProfile createUserProfile();
+
+	@Resource(name = "phoneNumberUtil")
+	private PhoneNumberUtil phoneNumberUtil;
 
 	@PostConstruct
 	public void init() throws NoSuchAlgorithmException {
@@ -76,7 +81,7 @@ public abstract class LocationServiceImpl implements LocationService {
 	@Override
 	public void removeBinding(String key, Address address)
 			throws UserNotFoundException {
-		UserProfile userProfile = getUserProfile(key);
+		UserProfile userProfile = getUserProfileByKey(key);
 		Binding existingBinding = userProfile.getBinding(address);
 		if (existingBinding != null) {
 			userProfile.removeBinding(existingBinding);
@@ -96,7 +101,7 @@ public abstract class LocationServiceImpl implements LocationService {
 	@Override
 	public void updateRegistration(String key, Address address, String callId)
 			throws UserNotFoundException {
-		UserProfile userProfile = getUserProfile(key);
+		UserProfile userProfile = getUserProfileByKey(key);
 		userProfile.updateBinding(address, callId);
 	}
 
@@ -142,16 +147,44 @@ public abstract class LocationServiceImpl implements LocationService {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.sip.locationservice.LocationService#getUserProfile(java.lang
-	 * .String)
+	 * com.sipcm.sip.locationservice.LocationService#getUserProfileByKey(java
+	 * .lang .String)
 	 */
 	@Override
-	public UserProfile getUserProfile(String key) throws UserNotFoundException {
+	public UserProfile getUserProfileByKey(String key)
+			throws UserNotFoundException {
 		UserProfile userProfile = userProfiles.get(key);
 		if (userProfile == null) {
 			throw new UserNotFoundException();
 		}
 		return userProfile;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.locationservice.LocationService#getUserProfileByPhoneNumber
+	 * (java.lang.String)
+	 */
+	@Override
+	public UserProfile getUserProfileByPhoneNumber(String phoneNumber)
+			throws UserNotFoundException {
+		if (phoneNumber == null)
+			throw new NullPointerException("Phone number cannot be null.");
+		String pn = phoneNumberUtil.getCanonicalizedPhoneNumber(phoneNumber);
+		for (UserProfile profile : userProfiles.values()) {
+			String p = profile.getUser().getPhoneNumber() == null ? null
+					: phoneNumberUtil.getCanonicalizedPhoneNumber(profile
+							.getUser().getPhoneNumber());
+			if (pn.equals(p)) {
+				if (profile.getUser().isAllowLocalDirectly()) {
+					return profile;
+				}
+				break;
+			}
+		}
+		throw new UserNotFoundException();
 	}
 
 	/*
