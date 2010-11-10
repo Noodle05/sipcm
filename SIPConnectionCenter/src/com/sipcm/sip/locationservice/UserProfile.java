@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sipcm.common.model.User;
+import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.SipUtil;
 
 /**
@@ -40,7 +40,7 @@ public class UserProfile {
 
 	private String addressOfRecord;
 
-	private User user;
+	private UserSipProfile userSipProfile;
 
 	private List<Binding> bindings;
 
@@ -57,18 +57,18 @@ public class UserProfile {
 	}
 
 	/**
-	 * @param user
-	 *            the user to set
+	 * @param userSipProfile
+	 *            the userSipProfile to set
 	 */
-	public void setUser(User user) {
-		this.user = user;
+	public void setUserSipProfile(UserSipProfile userSipProfile) {
+		this.userSipProfile = userSipProfile;
 	}
 
 	/**
-	 * @return the user
+	 * @return the userSipProfile
 	 */
-	public User getUser() {
-		return user;
+	public UserSipProfile getUserSipProfile() {
+		return userSipProfile;
 	}
 
 	/**

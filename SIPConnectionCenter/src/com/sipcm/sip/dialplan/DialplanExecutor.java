@@ -3,7 +3,7 @@
  */
 package com.sipcm.sip.dialplan;
 
-import com.sipcm.common.model.User;
+import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 
 /**
@@ -11,5 +11,6 @@ import com.sipcm.sip.model.UserVoipAccount;
  * 
  */
 public interface DialplanExecutor {
-	public UserVoipAccount execute(User user, String phoneNumber);
+	public UserVoipAccount execute(UserSipProfile userSipProfile,
+			String phoneNumber);
 }

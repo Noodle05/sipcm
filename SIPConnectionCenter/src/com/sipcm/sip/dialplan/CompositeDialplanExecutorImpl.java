@@ -9,7 +9,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import com.sipcm.common.model.User;
+import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 
 /**
@@ -29,20 +29,21 @@ public class CompositeDialplanExecutorImpl extends AbstractDialplanExecutor {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.sip.dialplan.DialplanExcutor#excute(com.sipcm.common.model.
-	 * User, java.lang.String)
+	 * @see com.sipcm.sip.dialplan.DialplanExecutor#execute(com.sipcm.sip.model.
+	 * UserSipProfile, java.lang.String)
 	 */
 	@Override
-	public UserVoipAccount execute(User user, String phoneNumber) {
-		Set<UserVoipAccount> accounts = user.getVoipAccounts();
+	public UserVoipAccount execute(UserSipProfile userSipProfile,
+			String phoneNumber) {
+		Set<UserVoipAccount> accounts = userSipProfile.getVoipAccounts();
 		if (accounts == null || accounts.isEmpty()) {
 			return null;
 		}
 		if (phoneNumberUtil.isNaPhoneNumber(phoneNumber)) {
-			return naDialplanExecutor.execute(user, phoneNumber);
+			return naDialplanExecutor.execute(userSipProfile, phoneNumber);
 		} else {
-			return internationalDialplanExecutor.execute(user, phoneNumber);
+			return internationalDialplanExecutor.execute(userSipProfile,
+					phoneNumber);
 		}
 	}
 }

@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 
 import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.User;
+import com.sipcm.sip.business.UserSipProfileService;
+import com.sipcm.sip.model.UserSipProfile;
 
 /**
  * @author wgao
@@ -28,39 +30,25 @@ public class RegistrationBean {
 	@Resource(name = "userService")
 	private UserService userService;
 
-	// @NotNull(message = "{register.error.username.required}")
-	// @Pattern(regexp = "^\\p{Alpha}[\\w|\\.]{5,31}$", message =
-	// "{register.error.username.pattern}")
+	@Resource(name = "userSipProfileService")
+	private UserSipProfileService userSipProfileService;
+
 	private String username;
 
-	// @NotNull(message = "{register.error.email.required}")
-	// @Pattern(regexp = "^[^@]+@[^@^\\.]+\\.[^@^\\.]+$", message =
-	// "{register.error.email.pattern}")
 	private String email;
 
-	// @NotNull(message = "{register.error.password.required}")
-	// @Size(min = 6, max = 64, message = "{register.error.password.size}")
 	private String password;
 
-	// @NotNull(message = "{register.error.firstName.required}")
 	private String firstName;
 
 	private String middleName;
 
-	// @NotNull(message = "{register.error.lastName.required}")
 	private String lastName;
 
 	private String displayName;
 
-	// @NotNull(message = "{register.error.phoneNumber.required}")
-	// @Pattern(regexp =
-	// "^\\s*((\\+|00|011)?[1-9]\\d*\\s*)?(\\([1-9]\\d*\\))?\\s*[1-9]\\d*(\\s*-?\\d+)+\\s*$",
-	// message = "{register.error.phoneNumber.pattern}")
 	private String phoneNumber;
 
-	// @NotNull(message = "{register.error.defaultAreaCode.required}")
-	// @Pattern(regexp = "^\\d{3,}$", message =
-	// "{register.error.defaultAreaCode.pattern}")
 	private String defaultAreaCode;
 
 	public String register() {
@@ -71,10 +59,13 @@ public class RegistrationBean {
 		user.setMiddleName(middleName);
 		user.setLastName(lastName);
 		user.setDisplayName(displayName);
-		user.setPhoneNumber(phoneNumber);
-		user.setDefaultAreaCode(defaultAreaCode);
+		UserSipProfile sipProfile = userSipProfileService
+				.createUserSipProfile(user);
+		sipProfile.setPhoneNumber(phoneNumber);
+		sipProfile.setDefaultAreaCode(defaultAreaCode);
 		userService.setPassword(user, password);
 		userService.saveEntity(user);
+		userSipProfileService.saveEntity(sipProfile);
 		return "RegisterSuccess";
 	}
 

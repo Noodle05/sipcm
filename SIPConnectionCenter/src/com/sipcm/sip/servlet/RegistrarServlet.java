@@ -21,10 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.sipcm.common.business.UserService;
-import com.sipcm.common.model.User;
+import com.sipcm.sip.business.UserSipProfileService;
 import com.sipcm.sip.locationservice.Binding;
 import com.sipcm.sip.locationservice.LocationService;
+import com.sipcm.sip.model.UserSipProfile;
 
 /**
  * @author wgao
@@ -43,8 +43,8 @@ public class RegistrarServlet extends AbstractSipServlet {
 	private LocationService locationService;
 
 	@Autowired
-	@Qualifier("userService")
-	private UserService userService;
+	@Qualifier("userSipProfileService")
+	private UserSipProfileService userSipProfileService;
 
 	/*
 	 * (non-Javadoc)
@@ -69,7 +69,8 @@ public class RegistrarServlet extends AbstractSipServlet {
 	}
 
 	private void processRegister(SipServletRequest req) throws Exception {
-		User user = (User) req.getAttribute(USER_ATTRIBUTE);
+		UserSipProfile userSipProfile = (UserSipProfile) req
+				.getAttribute(USER_ATTRIBUTE);
 		URI toURI = req.getTo().getURI();
 		if (toURI.isSipURI()) {
 			final SipURI sipUri = (SipURI) toURI;
@@ -81,12 +82,12 @@ public class RegistrarServlet extends AbstractSipServlet {
 				response.send();
 				return;
 			}
-			if (user == null) {
+			if (userSipProfile == null) {
 				String username = sipUri.getUser();
-				user = userService.getUserByUsername(username);
+				userSipProfile = userSipProfileService
+						.getUserSipProfileByUsername(username);
 			}
-			toURI = sipFactory.createSipURI(user.getUsername(),
-					sipUri.getHost());
+			toURI = sipFactory.createSipURI(sipUri.getUser(), sipUri.getHost());
 		} else {
 			SipServletResponse response = req
 					.createResponse(SipServletResponse.SC_UNSUPPORTED_URI_SCHEME);
@@ -157,7 +158,8 @@ public class RegistrarServlet extends AbstractSipServlet {
 							locationService.removeBinding(key, a);
 							if (logger.isInfoEnabled()) {
 								logger.info("{} deregistered from {}",
-										user.getDisplayName(), a.toString());
+										userSipProfile.getDisplayName(),
+										a.toString());
 							}
 						} else {
 							if (logger.isTraceEnabled()) {
@@ -170,10 +172,12 @@ public class RegistrarServlet extends AbstractSipServlet {
 							if (logger.isTraceEnabled()) {
 								logger.trace("Add address {}", a);
 							}
-							locationService.register(key, user, a, callId);
+							locationService.register(key, userSipProfile, a,
+									callId);
 							if (logger.isInfoEnabled()) {
 								logger.info("{} registered from {}",
-										user.getDisplayName(), a.toString());
+										userSipProfile.getDisplayName(),
+										a.toString());
 							}
 						}
 					}

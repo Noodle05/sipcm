@@ -24,7 +24,6 @@ import org.hibernate.annotations.Type;
 import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
 import com.sipcm.base.model.TrackableEntity;
-import com.sipcm.common.model.User;
 import com.sipcm.sip.VoipAccountType;
 
 /**
@@ -46,7 +45,7 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "user_id")
-	private User owner;
+	private UserSipProfile owner;
 
 	@Basic
 	@Column(name = "name", length = 32, nullable = false)
@@ -97,14 +96,14 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	 * @param owner
 	 *            the ownser to set
 	 */
-	public void setOwnser(User owner) {
+	public void setOwnser(UserSipProfile owner) {
 		this.owner = owner;
 	}
 
 	/**
 	 * @return the ownser
 	 */
-	public User getOwner() {
+	public UserSipProfile getOwner() {
 		return owner;
 	}
 

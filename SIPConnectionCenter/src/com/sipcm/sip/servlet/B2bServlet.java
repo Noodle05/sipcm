@@ -31,8 +31,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.common.PhoneNumberStatus;
-import com.sipcm.common.model.User;
 import com.sipcm.sip.locationservice.UserProfile;
+import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.SipUtil;
 
 /**
@@ -197,20 +197,21 @@ public class B2bServlet extends AbstractSipServlet {
 		if (addresses != null && !addresses.isEmpty()) {
 			Address address = addresses.iterator().next();
 			B2buaHelper helper = getB2buaHelper(req);
-			User user = (User) req.getAttribute(USER_ATTRIBUTE);
+			UserSipProfile userSipProfile = (UserSipProfile) req
+					.getAttribute(USER_ATTRIBUTE);
 			SipServletRequest forkedRequest;
-			if (user != null) {
+			if (userSipProfile != null) {
 				String userName;
-				if (user.getPhoneNumber() == null
-						|| PhoneNumberStatus.UNVERIFIED.equals(user
+				if (userSipProfile.getPhoneNumber() == null
+						|| PhoneNumberStatus.UNVERIFIED.equals(userSipProfile
 								.getPhoneNumberStatus())) {
 					userName = "";
 				} else {
-					userName = user.getPhoneNumber();
+					userName = userSipProfile.getPhoneNumber();
 				}
 				SipURI fromUri = sipFactory.createSipURI(userName, getDomain());
 				Address fromAddr = sipFactory.createAddress(fromUri,
-						user.getDisplayName());
+						userSipProfile.getDisplayName());
 				Map<String, List<String>> headers = new HashMap<String, List<String>>();
 				List<String> froms = new ArrayList<String>(1);
 				froms.add(fromAddr.toString());

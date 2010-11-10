@@ -38,7 +38,7 @@
 						required="true"
 						requiredMessage="#{messages['register.error.email.required']}"
 						validatorMessage="#{messages['register.error.email.pattern']}">
-						<f:validateRegex pattern="^[^@]+@[^@^\.]+\\.[^@^\.]+$" />
+						<f:validateRegex pattern="^[^@]+@[^@^\.]+\.[^@^\.]+$" />
 					</h:inputText>
 					<h:message id="emailError" for="email" styleClass="error" />
 				#{messages['register.firstName']}:
@@ -81,7 +81,7 @@
 						maxlength="10" required="true"
 						requiredMessage="#{messages['register.error.defaultAreaCode.required']}"
 						validatorMessage="#{messages['register.error.defaultAreaCode.pattern']}">
-						<f:validateRegex pattern="^\\d{3,}$" />
+						<f:validateRegex pattern="^\d{3,}$" />
 					</h:inputText>
 					<h:message id="defaultAreaCodeError" for="defaultAreaCode"
 						styleClass="error" />

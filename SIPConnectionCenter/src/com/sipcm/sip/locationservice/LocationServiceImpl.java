@@ -18,7 +18,7 @@ import javax.servlet.sip.Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sipcm.common.model.User;
+import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.PhoneNumberUtil;
 
 /**
@@ -128,13 +128,15 @@ public abstract class LocationServiceImpl implements LocationService {
 	 * 
 	 * @see
 	 * com.sipcm.sip.locationservice.LocationService#register(java.lang.String,
-	 * com.sipcm.common.model.User, javax.servlet.sip.Address, java.lang.String)
+	 * com.sipcm.sip.model.UserSipProfile, javax.servlet.sip.Address,
+	 * java.lang.String)
 	 */
 	@Override
-	public void register(String key, User user, Address address, String callId) {
+	public void register(String key, UserSipProfile userSipProfile,
+			Address address, String callId) {
 		UserProfile userProfile = createUserProfile();
 		userProfile.setAddressOfRecord(key);
-		userProfile.setUser(user);
+		userProfile.setUserSipProfile(userSipProfile);
 		UserProfile up = userProfiles.putIfAbsent(key, userProfile);
 		if (up != null) {
 			userProfile = up;
@@ -174,11 +176,11 @@ public abstract class LocationServiceImpl implements LocationService {
 			throw new NullPointerException("Phone number cannot be null.");
 		String pn = phoneNumberUtil.getCanonicalizedPhoneNumber(phoneNumber);
 		for (UserProfile profile : userProfiles.values()) {
-			String p = profile.getUser().getPhoneNumber() == null ? null
+			String p = profile.getUserSipProfile().getPhoneNumber() == null ? null
 					: phoneNumberUtil.getCanonicalizedPhoneNumber(profile
-							.getUser().getPhoneNumber());
+							.getUserSipProfile().getPhoneNumber());
 			if (pn.equals(p)) {
-				if (profile.getUser().isAllowLocalDirectly()) {
+				if (profile.getUserSipProfile().isAllowLocalDirectly()) {
 					return profile;
 				}
 				break;

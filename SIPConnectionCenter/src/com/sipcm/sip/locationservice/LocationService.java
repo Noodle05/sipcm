@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import javax.servlet.sip.Address;
 
-import com.sipcm.common.model.User;
+import com.sipcm.sip.model.UserSipProfile;
 
 public interface LocationService {
 
@@ -21,7 +21,8 @@ public interface LocationService {
 	public Collection<Address> getAddresses(String key)
 			throws UserNotFoundException;
 
-	public void register(String key, User user, Address address, String callid);
+	public void register(String key, UserSipProfile userSipProfile,
+			Address address, String callid);
 
 	public void checkContactExpires();
 

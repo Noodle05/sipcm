@@ -27,6 +27,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -111,21 +112,24 @@ public class GoogleVoiceSession implements Serializable {
 			logger.trace("Trying to get galx.");
 		}
 		HttpResponse response = httpClient.execute(loginPage);
-		String loginBody = EntityUtils.toString(response.getEntity());
-		Matcher m = galxPattern.matcher(loginBody);
+		String loginBody = response.getEntity() == null ? null : EntityUtils
+				.toString(response.getEntity());
 		String galx = null;
-		if (m.matches()) {
-			galx = m.group(1);
-		} else {
+		if (loginBody != null) {
+			Matcher m = galxPattern.matcher(loginBody);
+			if (m.matches()) {
+				galx = m.group(1);
+				if (logger.isTraceEnabled()) {
+					logger.trace("Get galx: {}", galx);
+				}
+			}
+		}
+		if (galx == null) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("I cannot find galx for this login.");
 			}
 			throw new NoAuthTokenException();
 		}
-		if (logger.isTraceEnabled()) {
-			logger.trace("Get galx: {}", galx);
-		}
-
 		HttpPost login = new HttpPost(loginUrl);
 		List<NameValuePair> ps = new ArrayList<NameValuePair>();
 		ps.add(new BasicNameValuePair("Email", username));
@@ -137,11 +141,22 @@ public class GoogleVoiceSession implements Serializable {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Trying to get rnrse token.");
 		}
-		response = httpClient.execute(login);
-		while (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-			Header lh = response.getFirstHeader("Location");
-			HttpGet redirect = new HttpGet(lh.getValue());
-			response = httpClient.execute(redirect);
+		HttpRequestBase request = login;
+		response = httpClient.execute(request);
+		while (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY
+				|| response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_PERMANENTLY
+				|| response.getStatusLine().getStatusCode() == HttpStatus.SC_TEMPORARY_REDIRECT) {
+			Header locationHeader = response.getFirstHeader("location");
+			if (locationHeader == null) {
+				request.abort();
+				// got a redirect response, but no location header
+				throw new ClientProtocolException("Received redirect response "
+						+ response.getStatusLine() + " but no location header");
+			}
+			String location = locationHeader.getValue();
+			request.abort();
+			request = new HttpGet(location);
+			response = httpClient.execute(request);
 		}
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -149,7 +164,7 @@ public class GoogleVoiceSession implements Serializable {
 			try {
 				String tmp = null;
 				while ((tmp = reader.readLine()) != null) {
-					m = rnr_sePattern.matcher(tmp);
+					Matcher m = rnr_sePattern.matcher(tmp);
 					if (m.matches()) {
 						rnrSe = m.group(1);
 						break;
@@ -168,6 +183,7 @@ public class GoogleVoiceSession implements Serializable {
 				logger.trace("Find rnr: {}", rnrSe);
 			}
 		} else {
+			request.abort();
 			if (logger.isDebugEnabled()) {
 				logger.debug("Login page return error {}", response
 						.getStatusLine().getStatusCode());
@@ -234,11 +250,12 @@ public class GoogleVoiceSession implements Serializable {
 				logger.trace("Request rejected.");
 			}
 			if (retry < maxRetry) {
+				request.abort();
 				if (logger.isTraceEnabled()) {
 					logger.trace("Retry with login first.");
 				}
 				login();
-				callMethod(request, retry++);
+				return callMethod(request, retry++);
 			} else {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Call failed, parsing failed reason.");
@@ -250,6 +267,7 @@ public class GoogleVoiceSession implements Serializable {
 				logger.debug("Call method failed with status code: {}",
 						response.getStatusLine().getStatusCode());
 			}
+			request.abort();
 			throw new HttpResponseException(response.getStatusLine()
 					.getStatusCode(), "Error happened when parse auth tokens");
 		}
@@ -275,35 +293,40 @@ public class GoogleVoiceSession implements Serializable {
 	private void parseError(HttpEntity entity)
 			throws GoogleAuthenticationException, IllegalStateException,
 			IOException, HttpResponseException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				entity.getContent()));
-		String tmp;
-		AuthenticationErrorCode errorCode = null;
-		String captchaToken = null;
-		String captchaUrl = null;
-		while ((tmp = reader.readLine()) != null) {
-			Matcher m = errorPattern.matcher(tmp);
-			if (m.matches()) {
-				errorCode = AuthenticationErrorCode.valueOf(m.group(1));
-			} else {
-				m = captchaTokenPattern.matcher(tmp);
-				if (m.matches()) {
-					captchaToken = m.group(1);
-				} else {
-					m = captchaUrlPattern.matcher(tmp);
+		if (entity != null) {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					entity.getContent()));
+			try {
+				String tmp;
+				AuthenticationErrorCode errorCode = null;
+				String captchaToken = null;
+				String captchaUrl = null;
+				while ((tmp = reader.readLine()) != null) {
+					Matcher m = errorPattern.matcher(tmp);
 					if (m.matches()) {
-						captchaUrl = m.group(1);
+						errorCode = AuthenticationErrorCode.valueOf(m.group(1));
+					} else {
+						m = captchaTokenPattern.matcher(tmp);
+						if (m.matches()) {
+							captchaToken = m.group(1);
+						} else {
+							m = captchaUrlPattern.matcher(tmp);
+							if (m.matches()) {
+								captchaUrl = m.group(1);
+							}
+						}
 					}
 				}
+				if (errorCode != null) {
+					GoogleAuthenticationException.throwProperException(
+							errorCode, captchaToken, captchaUrl);
+				}
+			} finally {
+				reader.close();
 			}
 		}
-		if (errorCode != null) {
-			GoogleAuthenticationException.throwProperException(errorCode,
-					captchaToken, captchaUrl);
-		} else {
-			throw new HttpResponseException(HttpStatus.SC_FORBIDDEN,
-					"Error happened when parse error page. Cannot find error code.");
-		}
+		throw new HttpResponseException(HttpStatus.SC_FORBIDDEN,
+				"Error happened when parse error page. Cannot find error code.");
 	}
 
 	public void setUsername(String username) {

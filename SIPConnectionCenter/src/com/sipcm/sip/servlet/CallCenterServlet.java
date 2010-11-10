@@ -19,8 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.sipcm.common.business.UserService;
-import com.sipcm.common.model.User;
+import com.sipcm.sip.business.UserSipProfileService;
+import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.ServerAuthenticationHelper;
 
 /**
@@ -37,8 +37,8 @@ public class CallCenterServlet extends AbstractSipServlet {
 	private ServerAuthenticationHelper authenticationHelper;
 
 	@Autowired
-	@Qualifier("userService")
-	private UserService userService;
+	@Qualifier("userSipProfileService")
+	private UserSipProfileService userSipProfileService;
 
 	/**
 	 * This will just forward request to RegistrarServlet
@@ -49,14 +49,14 @@ public class CallCenterServlet extends AbstractSipServlet {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Get register request: {}", req);
 		}
-		User user = checkAuthentication(req);
-		if (user == null) {
+		UserSipProfile userSipProfile = checkAuthentication(req);
+		if (userSipProfile == null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Authentication failed, response should sent");
 			}
 			return;
 		}
-		req.setAttribute(USER_ATTRIBUTE, user);
+		req.setAttribute(USER_ATTRIBUTE, userSipProfile);
 		RequestDispatcher dispatcher = req
 				.getRequestDispatcher("RegistrarServlet");
 		if (dispatcher != null) {
@@ -110,8 +110,8 @@ public class CallCenterServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("From host is the domain we served, check authentication.");
 				}
-				User user = checkAuthentication(req);
-				if (user == null) {
+				UserSipProfile userSipProfile = checkAuthentication(req);
+				if (userSipProfile == null) {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Not passing authentication, response should already send, just return.");
 					}
@@ -120,12 +120,13 @@ public class CallCenterServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Authentication pass, set user to request.");
 				}
-				req.setAttribute(USER_ATTRIBUTE, user);
+				req.setAttribute(USER_ATTRIBUTE, userSipProfile);
 			}
 			String toUser = toSipUri.getUser();
 			if (getDomain().equalsIgnoreCase(toHost)) {
 				if (phoneNumberUtil.isValidPhoneNumber(toUser)) {
-					User user = (User) req.getAttribute(USER_ATTRIBUTE);
+					UserSipProfile user = (UserSipProfile) req
+							.getAttribute(USER_ATTRIBUTE);
 					req.setAttribute(CALLING_PHONE_NUMBER, phoneNumberUtil
 							.getCanonicalizedPhoneNumber(
 									toUser,
@@ -214,16 +215,18 @@ public class CallCenterServlet extends AbstractSipServlet {
 		}
 	}
 
-	private User checkAuthentication(SipServletRequest req) throws IOException {
-		User user = null;
+	private UserSipProfile checkAuthentication(SipServletRequest req)
+			throws IOException {
+		UserSipProfile userSipProfile = null;
 		if (authenticationHelper.authenticate(req)) {
 			Principal principal = req.getUserPrincipal();
 			String username = principal.getName();
-			user = userService.getUserByUsername(username);
-			if (user == null) {
+			userSipProfile = userSipProfileService
+					.getUserSipProfileByUsername(username);
+			if (userSipProfile == null) {
 				response(req, SipServletResponse.SC_NOT_FOUND);
 			}
 		}
-		return user;
+		return userSipProfile;
 	}
 }

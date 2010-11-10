@@ -8,7 +8,6 @@ import java.sql.Date;
 import java.util.Set;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -19,21 +18,18 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
 import com.sipcm.common.AccountStatus;
-import com.sipcm.common.OnlineStatus;
-import com.sipcm.common.PhoneNumberStatus;
-import com.sipcm.sip.model.UserVoipAccount;
 
 /**
  * @author wgao
@@ -89,33 +85,9 @@ public class User extends AbstractTrackableEntity implements
 	@Column(name = "status", nullable = false)
 	private AccountStatus status;
 
-	@Enumerated
-	@Column(name = "sipstatus", nullable = false)
-	private OnlineStatus sipStatus;
-
-	@Basic
-	@Column(name = "phonenumber", length = 32)
-	private String phoneNumber;
-
-	@Basic
-	@Column(name = "area_code", length = 10)
-	private String defaultAreaCode;
-
-	@Enumerated
-	@Column(name = "phonenumberstatus")
-	private PhoneNumberStatus phoneNumberStatus;
-
-	@Basic
-	@Column(name = "allow_local_directly", nullable = false)
-	private boolean allowLocalDirectly;
-
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "user_id")
-	@Where(clause = "deletedate is null")
-	private Set<UserVoipAccount> voipAccounts;
-
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "tbl_userrole", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private Set<Role> roles;
 
 	/**
@@ -279,96 +251,6 @@ public class User extends AbstractTrackableEntity implements
 	 */
 	public AccountStatus getStatus() {
 		return status;
-	}
-
-	/**
-	 * @param sipStatus
-	 *            the sipStatus to set
-	 */
-	public void setSipStatus(OnlineStatus sipStatus) {
-		this.sipStatus = sipStatus;
-	}
-
-	/**
-	 * @return the sipStatus
-	 */
-	public OnlineStatus getSipStatus() {
-		return sipStatus;
-	}
-
-	/**
-	 * @param phoneNumber
-	 *            the phoneNumber to set
-	 */
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
-	}
-
-	/**
-	 * @return the phoneNumber
-	 */
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
-
-	/**
-	 * @param defaultAreaCode
-	 *            the defaultAreaCode to set
-	 */
-	public void setDefaultAreaCode(String defaultAreaCode) {
-		this.defaultAreaCode = defaultAreaCode;
-	}
-
-	/**
-	 * @return the defaultAreaCode
-	 */
-	public String getDefaultAreaCode() {
-		return defaultAreaCode;
-	}
-
-	/**
-	 * @param phoneNumberStatus
-	 *            the phoneNumberStatus to set
-	 */
-	public void setPhoneNumberStatus(PhoneNumberStatus phoneNumberStatus) {
-		this.phoneNumberStatus = phoneNumberStatus;
-	}
-
-	/**
-	 * @return the phoneNumberStatus
-	 */
-	public PhoneNumberStatus getPhoneNumberStatus() {
-		return phoneNumberStatus;
-	}
-
-	/**
-	 * @param allowLocalDirectly
-	 *            the allowLocalDirectly to set
-	 */
-	public void setAllowLocalDirectly(boolean allowLocalDirectly) {
-		this.allowLocalDirectly = allowLocalDirectly;
-	}
-
-	/**
-	 * @return the allowLocalDirectly
-	 */
-	public boolean isAllowLocalDirectly() {
-		return allowLocalDirectly;
-	}
-
-	/**
-	 * @param voipAccounts
-	 *            the voipAccounts to set
-	 */
-	public void setSipAccounts(Set<UserVoipAccount> voipAccounts) {
-		this.voipAccounts = voipAccounts;
-	}
-
-	/**
-	 * @return the voipAccounts
-	 */
-	public Set<UserVoipAccount> getVoipAccounts() {
-		return voipAccounts;
 	}
 
 	/**

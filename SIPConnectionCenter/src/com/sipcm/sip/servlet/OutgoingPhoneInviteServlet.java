@@ -17,12 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.sipcm.common.model.User;
 import com.sipcm.sip.VoipVendorType;
 import com.sipcm.sip.dialplan.DialplanExecutor;
 import com.sipcm.sip.locationservice.LocationService;
 import com.sipcm.sip.locationservice.UserNotFoundException;
 import com.sipcm.sip.locationservice.UserProfile;
+import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.util.MapHolderBean;
 
@@ -100,11 +100,12 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 			}
 			return;
 		}
-		User user = (User) req.getAttribute(USER_ATTRIBUTE);
+		UserSipProfile userSipProfile = (UserSipProfile) req
+				.getAttribute(USER_ATTRIBUTE);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Trying to excute dial plan.");
 		}
-		UserVoipAccount voipAccount = dialplanExecutor.execute(user,
+		UserVoipAccount voipAccount = dialplanExecutor.execute(userSipProfile,
 				phoneNumber);
 		if (voipAccount != null) {
 			if (logger.isDebugEnabled()) {

@@ -52,11 +52,6 @@ first_name VARCHAR(64) NOT NULL,
 last_name VARCHAR(64) NOT NULL, 
 middle_name VARCHAR(64), 
 password CHAR(32), 
-phonenumber VARCHAR(32), 
-phonenumberstatus INTEGER, 
-allow_local_directly BIT(1) NOT NULL DEFAULT b'1'
-area_code VARCHAR(10), 
-sipstatus INTEGER NOT NULL, 
 status INTEGER NOT NULL, 
 username VARCHAR(32) NOT NULL, 
 PRIMARY KEY (id), 
@@ -67,6 +62,19 @@ CREATE TABLE tbl_userrole (
 user_id BIGINT NOT NULL, 
 role_id INTEGER NOT NULL, 
 PRIMARY KEY (user_id, role_id)) ENGINE=InnoDB;
+
+CREATE TABLE tbl_usersipprofile (
+id BIGINT NOT NULL UNIQUE,
+createdate DATETIME,
+deletedate DATETIME,
+lastmodify DATETIME,
+allow_local_directly BIT(1) NOT NULL,
+area_code VARCHAR(10),
+phonenumber VARCHAR(32) NOT NULL,
+phonenumberstatus INTEGER,
+sipstatus INTEGER NOT NULL,
+PRIMARY KEY (id),
+UNIQUE (phonenumber, deletedate)) ENGINE=InnoDB;
 
 CREATE TABLE tbl_uservoipaccount (
 id BIGINT NOT NULL AUTO_INCREMENT, 
@@ -109,9 +117,13 @@ ALTER TABLE tbl_userrole
 ADD INDEX FK_USERROLE_USER (user_id),
 ADD CONSTRAINT FK_USERROLE_USER FOREIGN KEY (user_id) REFERENCES tbl_user (id);
 
+ALTER TABLE tbl_usersipprofile
+ADD INDEX FK_USERSIPPROFILE_USER (id),
+ADD CONSTRAINT FK_USERSIPPROFILE_USER FOREIGN KEY (id) REFERENCES tbl_user (id);
+
 ALTER TABLE tbl_uservoipaccount 
-ADD INDEX FK_USERVOIPACCOUNT_USER (user_id), 
-ADD CONSTRAINT FK_USERVOIPACCOUNT_USER FOREIGN KEY (user_id) REFERENCES tbl_user (id);
+ADD INDEX FK_USERVOIPACCOUNT_USERSIPPROFILE (user_id), 
+ADD CONSTRAINT FK_USERVOIPACCOUNT_USER FOREIGN KEY (user_id) REFERENCES tbl_usersipprofile (id);
 
 ALTER TABLE tbl_uservoipaccount
 ADD INDEX FK_USERVOIPACCOUNT_VOIPVENDOR (voipvendor_id), 
@@ -164,17 +176,6 @@ BEGIN
   END IF;
 END;//
 
-CREATE TRIGGER tgr_voipvendor_createdate BEFORE INSERT ON tbl_voipvendor
-FOR EACH ROW
-BEGIN
-  IF NEW.createdate IS NULL THEN
-    SET NEW.createdate = CURRENT_TIMESTAMP;
-  END IF;
-  IF NEW.lastmodify IS NULL THEN
-    SET NEW.lastmodify = CURRENT_TIMESTAMP;
-  END IF;
-END;//
-
 CREATE TRIGGER tgr_user_createdate BEFORE INSERT ON tbl_user
 FOR EACH ROW
 BEGIN
@@ -186,7 +187,29 @@ BEGIN
   END IF;
 END;//
 
+CREATE TRIGGER tgr_usersipprofile_createdate BEFORE INSERT ON tbl_usersipprofile
+FOR EACH ROW
+BEGIN
+  IF NEW.createdate IS NULL THEN
+    SET NEW.createdate = CURRENT_TIMESTAMP;
+  END IF;
+  IF NEW.lastmodify IS NULL THEN
+    SET NEW.lastmodify = CURRENT_TIMESTAMP;
+  END IF;
+END;//
+
 CREATE TRIGGER tgr_uservoiopaccount_createdate BEFORE INSERT ON tbl_uservoipaccount
+FOR EACH ROW
+BEGIN
+  IF NEW.createdate IS NULL THEN
+    SET NEW.createdate = CURRENT_TIMESTAMP;
+  END IF;
+  IF NEW.lastmodify IS NULL THEN
+    SET NEW.lastmodify = CURRENT_TIMESTAMP;
+  END IF;
+END;//
+
+CREATE TRIGGER tgr_voipvendor_createdate BEFORE INSERT ON tbl_voipvendor
 FOR EACH ROW
 BEGIN
   IF NEW.createdate IS NULL THEN

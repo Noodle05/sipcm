@@ -27,9 +27,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.sipcm.common.model.User;
 import com.sipcm.googlevoice.GoogleVoiceManager;
 import com.sipcm.googlevoice.GoogleVoiceSession;
+import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.util.GvB2buaHelperImpl;
 
@@ -75,21 +75,20 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 					logger.error("Cannot found login prinipal for outgoing call? this should never happen.");
 				}
 				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-				appSession.invalidate();
 				return;
 			}
 			// String username = p.getName();
 			getServletContext().setAttribute(generateAppSessionKey(req, true),
 					appSession.getId());
-			User user = (User) req.getAttribute(USER_ATTRIBUTE);
+			UserSipProfile userSipProfile = (UserSipProfile) req
+					.getAttribute(USER_ATTRIBUTE);
 			UserVoipAccount account = (UserVoipAccount) req
 					.getAttribute(USER_VOIP_ACCOUNT);
-			if (user == null) {
+			if (userSipProfile == null) {
 				if (logger.isErrorEnabled()) {
 					logger.error("Cannot found user from request? This should never happen.");
 				}
 				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-				appSession.invalidate();
 				return;
 			}
 			if (account == null) {
@@ -97,10 +96,10 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 					logger.error("Cannot found voip account for {}? This should never happen");
 				}
 				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-				appSession.invalidate();
 				return;
 			}
-			processGoogleVoiceCall(req, appSession, user, account, phoneNumber);
+			processGoogleVoiceCall(req, appSession, userSipProfile, account,
+					phoneNumber);
 		} else {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Google voice call back request");
@@ -176,7 +175,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 	}
 
 	private void processGoogleVoiceCall(SipServletRequest req,
-			SipApplicationSession appSession, User user,
+			SipApplicationSession appSession, UserSipProfile userSipProfile,
 			UserVoipAccount account, String phoneNumber) throws IOException {
 		GoogleVoiceSession gvSession = googleVoiceManager
 				.getGoogleVoiceSession(account.getAccount(),
@@ -187,13 +186,13 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 			if (gvSession.call(phoneNumber, "1")) {
 				if (logger.isInfoEnabled()) {
 					logger.info("{} is calling {} by google voice",
-							user.getDisplayName(), phoneNumber);
+							userSipProfile.getDisplayName(), phoneNumber);
 				}
 				appSession.setAttribute(
 						GV_WAITING_FOR_CALLBACK,
 						phoneNumberUtil.getCanonicalizedPhoneNumber(
 								account.getPhoneNumber(),
-								user.getDefaultAreaCode()));
+								userSipProfile.getDefaultAreaCode()));
 				SipSession session = req.getSession();
 				session.setAttribute(ORIGINAL_REQUEST, req);
 				appSession.setAttribute(ORIGINAL_SESSION, session);
@@ -376,7 +375,6 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				}
 			}
 		}
-		appSession.invalidate();
 	}
 
 	private int getGoogleVoiceCallTimeout() {

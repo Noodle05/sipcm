@@ -5,7 +5,9 @@ package com.sipcm.googlevoice;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.conn.params.ConnPerRouteBean;
@@ -26,16 +28,23 @@ import org.slf4j.LoggerFactory;
 public abstract class GoogleVoiceManager {
 	private Logger logger = LoggerFactory.getLogger(GoogleVoiceManager.class);
 
+	@Resource(name = "applicationConfiguration")
+	private Configuration appConfig;
+
+	public static final String MAX_TOTAL_CONNECTIONS = "com.sip.http.client.maxConnections";
+
 	private ClientConnectionManager connMgr;
 
 	protected abstract GoogleVoiceSession getGoogleVoiceSession();
 
 	@PostConstruct
 	public void init() {
+		int maxConnections = appConfig.getInt(MAX_TOTAL_CONNECTIONS, 50);
 		HttpParams params = new BasicHttpParams();
-		params.setIntParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS, 50);
+		params.setIntParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS,
+				maxConnections);
 		params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE,
-				new ConnPerRouteBean(50));
+				new ConnPerRouteBean(maxConnections));
 		Scheme http = new Scheme("http", PlainSocketFactory.getSocketFactory(),
 				80);
 		Scheme https = new Scheme("https", SSLSocketFactory.getSocketFactory(),

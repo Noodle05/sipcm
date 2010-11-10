@@ -15,7 +15,6 @@ import com.sipcm.base.business.impl.AbstractService;
 import com.sipcm.base.dao.DAO;
 import com.sipcm.base.filter.Filter;
 import com.sipcm.common.AccountStatus;
-import com.sipcm.common.OnlineStatus;
 import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.User;
 
@@ -52,8 +51,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	public User createNewEntity() {
 		User user = super.createNewEntity();
 		user.setStatus(AccountStatus.PENDING);
-		user.setSipStatus(OnlineStatus.OFFLINE);
-		user.setAllowLocalDirectly(true);
 		return user;
 	}
 
