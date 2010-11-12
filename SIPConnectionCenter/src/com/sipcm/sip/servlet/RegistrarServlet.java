@@ -200,6 +200,9 @@ public class RegistrarServlet extends AbstractSipServlet {
 				first = false;
 			}
 		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Sending response {}", response);
+		}
 		response.send();
 	}
 
