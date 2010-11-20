@@ -39,7 +39,7 @@ public class Address extends AbstractTrackableEntity implements
 	@Column(name = "address_line_1", length = 256, nullable = false)
 	private String addressLine1;
 
-	@Column(name = "address_ine_2", length = 256)
+	@Column(name = "address_line_2", length = 256)
 	private String addressLine2;
 
 	@Column(name = "city", length = 256, nullable = false)

@@ -20,8 +20,11 @@ public class Binding implements Serializable, Comparable<Binding> {
 
 	private long lastCheck;
 
-	public Binding(Address address, String callId) {
+	private Address remoteEnd;
+
+	public Binding(Address address, Address remoteEnd, String callId) {
 		this.address = address;
+		this.remoteEnd = remoteEnd;
 		this.callId = callId;
 		lastCheck = System.currentTimeMillis();
 	}
@@ -55,6 +58,10 @@ public class Binding implements Serializable, Comparable<Binding> {
 		return address;
 	}
 
+	public Address getRemoteEnd() {
+		return remoteEnd;
+	}
+
 	public String getCallId() {
 		return callId;
 	}
@@ -62,7 +69,8 @@ public class Binding implements Serializable, Comparable<Binding> {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Binding[").append("Address=").append(address)
-				.append(",CallId=").append(callId).append("]");
+				.append("RemoteEnd=").append(remoteEnd).append(",CallId=")
+				.append(callId).append("]");
 		return sb.toString();
 	}
 

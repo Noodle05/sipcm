@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
@@ -18,20 +19,20 @@ import org.hibernate.annotations.FilterDef;
  */
 @MappedSuperclass
 @FilterDef(name = "defaultFilter")
-@Filter(name = "defaultFilter", condition = "deletedate IS NULL")
+@Filter(name = "defaultFilter", condition = "deletedate = 0")
 public abstract class AbstractTrackableEntity implements TrackableEntity {
 	private static final long serialVersionUID = 1902546028219639721L;
 
 	@Basic
-	@Column(name = "createdate")
+	@Column(name = "createdate", insertable = true, updatable = false)
 	protected Timestamp createDate;
 
-	@Basic
-	@Column(name = "lastmodify")
+	@Version
+	@Column(name = "lastmodify", insertable = false, updatable = false)
 	protected Timestamp lastModify;
 
 	@Basic
-	@Column(name = "deletedate")
+	@Column(name = "deletedate", insertable = false, updatable = false)
 	protected Timestamp deleteDate;
 
 	/*

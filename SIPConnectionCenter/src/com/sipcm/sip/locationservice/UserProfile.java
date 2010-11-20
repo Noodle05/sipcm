@@ -149,9 +149,9 @@ public class UserProfile {
 		}
 	}
 
-	public void updateBinding(Address address, String callId) {
+	public void updateBinding(Address address, Address remoteEnd, String callId) {
 		URI uri = sipUtil.getCanonicalizedURI(address.getURI());
-		Binding binding = new Binding(address, callId);
+		Binding binding = new Binding(address, remoteEnd, callId);
 		bindingsReadLock.lock();
 		try {
 			Binding existingBinding = null;

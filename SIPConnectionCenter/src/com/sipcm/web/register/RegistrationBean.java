@@ -15,7 +15,9 @@ import javax.faces.validator.ValidatorException;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.sipcm.common.business.RoleService;
 import com.sipcm.common.business.UserService;
+import com.sipcm.common.model.Role;
 import com.sipcm.common.model.User;
 import com.sipcm.sip.business.UserSipProfileService;
 import com.sipcm.sip.model.UserSipProfile;
@@ -32,6 +34,9 @@ public class RegistrationBean {
 
 	@Resource(name = "userSipProfileService")
 	private UserSipProfileService userSipProfileService;
+
+	@Resource(name = "roleService")
+	private RoleService roleService;
 
 	private String username;
 
@@ -59,6 +64,8 @@ public class RegistrationBean {
 		user.setMiddleName(middleName);
 		user.setLastName(lastName);
 		user.setDisplayName(displayName);
+		Role callerRole = roleService.getCallerRole();
+		user.addRole(callerRole);
 		UserSipProfile sipProfile = userSipProfileService
 				.createUserSipProfile(user);
 		sipProfile.setPhoneNumber(phoneNumber);

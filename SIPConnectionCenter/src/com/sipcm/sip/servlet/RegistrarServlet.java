@@ -110,6 +110,10 @@ public class RegistrarServlet extends AbstractSipServlet {
 		}
 
 		if (!contacts.isEmpty()) {
+			String rmaddr = req.getInitialRemoteAddr();
+			int rport = req.getInitialRemotePort();
+			String rt = req.getInitialTransport();
+
 			int expiresTime = req.getExpires();
 			if (expiresTime > 0) {
 				expiresTime = correctExpiresTime(expiresTime);
@@ -141,6 +145,15 @@ public class RegistrarServlet extends AbstractSipServlet {
 						logger.trace("Expirestime: {}", contactExpiresTime);
 					}
 					a.setExpires(contactExpiresTime);
+					Address remoteEnd = (Address) a.clone();
+					URI ruri = remoteEnd.getURI();
+					if (ruri.isSipURI()) {
+						final SipURI sruri = (SipURI) ruri;
+						sruri.setHost(rmaddr);
+						sruri.setTransportParam(rt);
+						sruri.setPort(rport);
+						remoteEnd.setURI(sruri);
+					}
 
 					Binding existingBinding = locationService
 							.getBinding(key, a);
@@ -165,7 +178,8 @@ public class RegistrarServlet extends AbstractSipServlet {
 							if (logger.isTraceEnabled()) {
 								logger.trace("Update address addess {}", a);
 							}
-							locationService.updateRegistration(key, a, callId);
+							locationService.updateRegistration(key, a,
+									remoteEnd, callId);
 						}
 					} else {
 						if (a.getExpires() > 0) {
@@ -173,7 +187,7 @@ public class RegistrarServlet extends AbstractSipServlet {
 								logger.trace("Add address {}", a);
 							}
 							locationService.register(key, userSipProfile, a,
-									callId);
+									remoteEnd, callId);
 							if (logger.isInfoEnabled()) {
 								logger.info("{} registered from {}",
 										userSipProfile.getDisplayName(),

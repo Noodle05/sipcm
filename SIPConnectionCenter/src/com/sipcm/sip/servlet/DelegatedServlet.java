@@ -156,6 +156,8 @@ public class DelegatedServlet extends B2bServlet {
 				challengeRequest.removeHeader(AuthorizationHeader.NAME);
 				challengeRequest.removeHeader(PAssertedIdentityHeader.NAME);
 				// Add new authentication headers
+//				SipServletRequest challengeRequest = resp.getSession()
+//						.createRequest(Request.INVITE);
 				challengeRequest.addAuthHeader(resp, authInfo);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Sending challenge request {}",

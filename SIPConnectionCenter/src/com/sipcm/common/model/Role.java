@@ -15,6 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.SQLDelete;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
@@ -100,7 +101,10 @@ public class Role extends AbstractTrackableEntity implements
 	 */
 	@Override
 	public int hashCode() {
-		return name.toUpperCase().hashCode();
+		HashCodeBuilder hcb = new HashCodeBuilder(15, 43);
+		hcb.append(name.toUpperCase());
+		hcb.append(deleteDate);
+		return hcb.toHashCode();
 	}
 
 	/*

@@ -277,7 +277,7 @@ public class User extends AbstractTrackableEntity implements
 	public int hashCode() {
 		HashCodeBuilder hcb = new HashCodeBuilder(11, 15);
 		hcb.append(username.toUpperCase());
-		hcb.append(deleteDate);
+		// hcb.append(deleteDate);
 		return hcb.toHashCode();
 	}
 
@@ -316,5 +316,9 @@ public class User extends AbstractTrackableEntity implements
 				.append(getDisplayName()).append(",email=").append(email)
 				.append("]");
 		return sb.toString();
+	}
+
+	public void addRole(Role role) {
+		roles.add(role);
 	}
 }

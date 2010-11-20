@@ -34,7 +34,8 @@
 		</property>
 	</bean>
 
-	<tx:annotation-driven transaction-manager="txManager" />
+	<tx:annotation-driven transaction-manager="txManager"
+		order="100" />
 
 	<bean id="global.threadPool" class="com.sipcm.process.BackendThreadPool"
 		init-method="prestartAllCoreThreads" destroy-method="shutdown">

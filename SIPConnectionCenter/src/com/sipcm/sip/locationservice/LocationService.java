@@ -15,14 +15,14 @@ public interface LocationService {
 	public void removeBinding(String key, Address address)
 			throws UserNotFoundException;
 
-	public void updateRegistration(String key, Address address, String callId)
-			throws UserNotFoundException;
+	public void updateRegistration(String key, Address address,
+			Address remoteEnd, String callId) throws UserNotFoundException;
 
 	public Collection<Address> getAddresses(String key)
 			throws UserNotFoundException;
 
 	public void register(String key, UserSipProfile userSipProfile,
-			Address address, String callid);
+			Address address, Address remoteEnd, String callid);
 
 	public void checkContactExpires();
 
@@ -31,4 +31,8 @@ public interface LocationService {
 
 	public UserProfile getUserProfileByPhoneNumber(String phoneNumber)
 			throws UserNotFoundException;
+
+	public void onUserChanged(Long... userIds);
+
+	public void onUserDisabled(Long... userIds);
 }

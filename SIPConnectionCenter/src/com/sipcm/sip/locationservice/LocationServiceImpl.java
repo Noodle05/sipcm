@@ -4,9 +4,11 @@
 package com.sipcm.sip.locationservice;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -18,6 +20,7 @@ import javax.servlet.sip.Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sipcm.sip.business.UserSipProfileService;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.PhoneNumberUtil;
 
@@ -35,6 +38,9 @@ public abstract class LocationServiceImpl implements LocationService {
 
 	@Resource(name = "phoneNumberUtil")
 	private PhoneNumberUtil phoneNumberUtil;
+
+	@Resource(name = "userSipProfileService")
+	private UserSipProfileService userSipProfileService;
 
 	@PostConstruct
 	public void init() throws NoSuchAlgorithmException {
@@ -99,10 +105,10 @@ public abstract class LocationServiceImpl implements LocationService {
 	 * .lang.String, javax.servlet.sip.Address, java.lang.String)
 	 */
 	@Override
-	public void updateRegistration(String key, Address address, String callId)
-			throws UserNotFoundException {
+	public void updateRegistration(String key, Address address,
+			Address remoteEnd, String callId) throws UserNotFoundException {
 		UserProfile userProfile = getUserProfileByKey(key);
-		userProfile.updateBinding(address, callId);
+		userProfile.updateBinding(address, remoteEnd, callId);
 	}
 
 	/*
@@ -133,7 +139,7 @@ public abstract class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public void register(String key, UserSipProfile userSipProfile,
-			Address address, String callId) {
+			Address address, Address remoteEnd, String callId) {
 		UserProfile userProfile = createUserProfile();
 		userProfile.setAddressOfRecord(key);
 		userProfile.setUserSipProfile(userSipProfile);
@@ -141,7 +147,7 @@ public abstract class LocationServiceImpl implements LocationService {
 		if (up != null) {
 			userProfile = up;
 		}
-		Binding binding = new Binding(address, callId);
+		Binding binding = new Binding(address, remoteEnd, callId);
 		userProfile.addBinding(binding);
 	}
 
@@ -212,6 +218,70 @@ public abstract class LocationServiceImpl implements LocationService {
 					logger.trace("{} has no contact remaining, remove it.",
 							userProfile.getAddressOfRecord());
 				}
+				ite.remove();
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.locationservice.LocationService#onUserChanged(java.lang
+	 * .Long[])
+	 */
+	@Override
+	public void onUserChanged(Long... userIds) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("User changed! ids: " + Arrays.toString(userIds));
+		}
+		List<Long> ids = Arrays.asList(userIds);
+		Collections.sort(ids);
+		Iterator<Entry<String, UserProfile>> ite = userProfiles.entrySet()
+				.iterator();
+		while (ite.hasNext() && !ids.isEmpty()) {
+			Entry<String, UserProfile> entry = ite.next();
+			UserProfile userProfile = entry.getValue();
+			int index = Collections.binarySearch(ids, userProfile
+					.getUserSipProfile().getId());
+			if (index >= 0) {
+				ids.remove(index);
+				UserSipProfile userSipProfile = userSipProfileService
+						.getEntityById(userProfile.getUserSipProfile().getId());
+				if (userSipProfile == null
+						|| !userSipProfile.getOwner().getStatus().isActive()) {
+					ite.remove();
+				} else {
+					userProfile.setUserSipProfile(userSipProfile);
+				}
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.locationservice.LocationService#onUserDisabled(java.lang
+	 * .Long[])
+	 */
+	@Override
+	public void onUserDisabled(Long... userIds) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("User deleted/disabled. ids: "
+					+ Arrays.toString(userIds));
+		}
+		List<Long> ids = Arrays.asList(userIds);
+		Collections.sort(ids);
+		Iterator<Entry<String, UserProfile>> ite = userProfiles.entrySet()
+				.iterator();
+		while (ite.hasNext() && !ids.isEmpty()) {
+			Entry<String, UserProfile> entry = ite.next();
+			UserProfile userProfile = entry.getValue();
+			int index = Collections.binarySearch(ids, userProfile
+					.getUserSipProfile().getId());
+			if (index >= 0) {
+				ids.remove(index);
 				ite.remove();
 			}
 		}

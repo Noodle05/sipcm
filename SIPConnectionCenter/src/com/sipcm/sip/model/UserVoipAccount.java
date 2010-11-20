@@ -3,6 +3,8 @@
  */
 package com.sipcm.sip.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,7 +25,6 @@ import org.hibernate.annotations.Type;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
-import com.sipcm.base.model.TrackableEntity;
 import com.sipcm.sip.VoipAccountType;
 
 /**
@@ -32,10 +33,10 @@ import com.sipcm.sip.VoipAccountType;
  */
 @Entity
 @Table(name = "tbl_uservoipaccount", uniqueConstraints = { @UniqueConstraint(columnNames = {
-		"user_id", "name", "deletedate" }) })
+		"user_id", "name" }) })
 @SQLDelete(sql = "UPDATE tbl_uservoipaccount SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
 public class UserVoipAccount extends AbstractTrackableEntity implements
-		TrackableEntity, IdBasedEntity<Long> {
+		IdBasedEntity<Long>, Serializable {
 	private static final long serialVersionUID = 5445967647166910516L;
 
 	@Id
@@ -202,7 +203,7 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 		HashCodeBuilder hcb = new HashCodeBuilder(13, 57);
 		hcb.append(owner);
 		hcb.append(name.toUpperCase());
-		hcb.append(deleteDate);
+		// hcb.append(deleteDate);
 		return hcb.toHashCode();
 	}
 
@@ -218,7 +219,7 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 		EqualsBuilder eb = new EqualsBuilder();
 		eb.append(owner, obj.owner);
 		eb.append(name.toUpperCase(), obj.name.toUpperCase());
-		eb.append(deleteDate, obj.deleteDate);
+		// eb.append(deleteDate, obj.deleteDate);
 		return eb.isEquals();
 	}
 

@@ -2,7 +2,7 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="SIPConnectionCenter" default="dist">
 	<property file="build.properties" />
 
-	<property name="ivy.install.version" value="2.2.0-rc1" />
+	<property name="ivy.install.version" value="2.2.0" />
 	<property name="ivy.jar.dir" value="${basedir}/ivy" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy-${ivy.install.version}.jar" />
 	<property file="ivysettings.properties" />
