@@ -37,7 +37,7 @@
 			rev="1.0.0.GA" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="javax.sip" name="jain-sip-api" rev="1.2"
 			conf="provided->default;foride->sources,javadoc" />
-		<dependency org="javax.sip" name="jain-sip-ri" rev="1.2.158"
+		<dependency org="javax.sip" name="jain-sip-ri" rev="1.2.159"
 			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.dnsjava" name="dnsjava" rev="2.0.6"
 			conf="provided->default;foride->sources,javadoc" />
@@ -142,6 +142,10 @@
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="javax.faces" name="jsf-impl" rev="2.0.2-FCS"
 			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.gatein.captcha" name="simplecaptcha"
+			rev="1.1.1-GA-Patch01" conf="compile->default;foride->sources,javadoc">
+			<exclude module="servlet-api" />
+		</dependency>
 		<dependency org="junit" name="junit" rev="4.8.1"
 			conf="test->default;foride->sources,javadoc" />
 	</dependencies>

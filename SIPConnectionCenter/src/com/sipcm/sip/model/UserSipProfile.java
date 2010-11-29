@@ -76,7 +76,7 @@ public class UserSipProfile extends AbstractTrackableEntity implements
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id")
-	@Where(clause = "deletedate is null")
+	@Where(clause = "deletedate  = 0")
 	private Set<UserVoipAccount> voipAccounts;
 
 	/**

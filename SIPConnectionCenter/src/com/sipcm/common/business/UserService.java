@@ -16,4 +16,6 @@ public interface UserService extends Service<User, Long> {
 	public User setPassword(User entity, String password);
 
 	public boolean matchPassword(User entity, String password);
+
+	public User getUserByEmail(String email);
 }

@@ -71,6 +71,13 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 		return dao.getUniqueEntity(filter);
 	}
 
+	@Override
+	public User getUserByEmail(String email) {
+		Filter filter = filterFactory.createSimpleFilter("email", email,
+				Filter.Operator.IEQ);
+		return dao.getUniqueEntity(filter);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -79,7 +79,21 @@ public class UserSipProfileServiceImpl extends
 	@Override
 	public UserSipProfile getUserSipProfileByUsername(String username) {
 		Filter filter = filterFactory.createSimpleFilter("owner.username",
-				username);
+				username, Filter.Operator.IEQ);
+		return dao.getUniqueEntity(filter);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.business.UserSipProfileService#getUserSipProfileByPhoneNumber
+	 * (java.lang.String)
+	 */
+	@Override
+	public UserSipProfile getUserSipProfileByPhoneNumber(String phoneNumber) {
+		Filter filter = filterFactory.createSimpleFilter("phoneNumber",
+				phoneNumber);
 		return dao.getUniqueEntity(filter);
 	}
 }

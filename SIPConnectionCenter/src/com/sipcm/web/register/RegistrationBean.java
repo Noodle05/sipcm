@@ -6,11 +6,14 @@ package com.sipcm.web.register;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
+
+import nl.captcha.Captcha;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,8 +22,6 @@ import com.sipcm.common.business.RoleService;
 import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.Role;
 import com.sipcm.common.model.User;
-import com.sipcm.sip.business.UserSipProfileService;
-import com.sipcm.sip.model.UserSipProfile;
 
 /**
  * @author wgao
@@ -32,9 +33,6 @@ public class RegistrationBean {
 	@Resource(name = "userService")
 	private UserService userService;
 
-	@Resource(name = "userSipProfileService")
-	private UserSipProfileService userSipProfileService;
-
 	@Resource(name = "roleService")
 	private RoleService roleService;
 
@@ -44,6 +42,8 @@ public class RegistrationBean {
 
 	private String password;
 
+	private String confirmPassword;
+
 	private String firstName;
 
 	private String middleName;
@@ -52,11 +52,33 @@ public class RegistrationBean {
 
 	private String displayName;
 
-	private String phoneNumber;
+	private String captchaCode;
 
-	private String defaultAreaCode;
+	private ResourceBundle resource;
+
+	@PostConstruct
+	public void init() {
+		resource = ResourceBundle.getBundle("messages.CallerPages");
+	}
 
 	public String register() {
+		String result = "Register";
+		FacesContext context = FacesContext.getCurrentInstance();
+		Captcha captcha = (Captcha) context.getExternalContext()
+				.getSessionMap().get(Captcha.NAME);
+		if (captcha == null || !captcha.isCorrect(captchaCode)) {
+			FacesMessage message = new FacesMessage(
+					resource.getString("register.error.captcha.notmatch"));
+			context.addMessage("registrationForm:captchaCode", message);
+			return result;
+		}
+		context.getExternalContext().getSessionMap().remove(Captcha.NAME);
+		if (!password.equals(confirmPassword)) {
+			FacesMessage message = new FacesMessage(
+					resource.getString("register.error.password.notmatch"));
+			context.addMessage("registrationForm:confirmPassword", message);
+			return result;
+		}
 		User user = userService.createNewEntity();
 		user.setUsername(username);
 		user.setEmail(email);
@@ -66,20 +88,14 @@ public class RegistrationBean {
 		user.setDisplayName(displayName);
 		Role callerRole = roleService.getCallerRole();
 		user.addRole(callerRole);
-		UserSipProfile sipProfile = userSipProfileService
-				.createUserSipProfile(user);
-		sipProfile.setPhoneNumber(phoneNumber);
-		sipProfile.setDefaultAreaCode(defaultAreaCode);
 		userService.setPassword(user, password);
 		userService.saveEntity(user);
-		userSipProfileService.saveEntity(sipProfile);
-		return "RegisterSuccess";
+		result = "RegisterSuccess";
+		return result;
 	}
 
 	public void validateUsername(FacesContext context,
 			UIComponent componentToValidate, Object value) {
-		ResourceBundle resource = ResourceBundle
-				.getBundle("messages.CallerPages");
 		String username = (String) value;
 		if (!Pattern.matches("^\\p{Alpha}[\\w|\\.]{5,31}$", username)) {
 			FacesMessage message = new FacesMessage(
@@ -90,6 +106,22 @@ public class RegistrationBean {
 		if (user != null) {
 			FacesMessage message = new FacesMessage(
 					resource.getString("register.error.username.exists"));
+			throw new ValidatorException(message);
+		}
+	}
+
+	public void validateEmail(FacesContext context,
+			UIComponent componentToValidate, Object value) {
+		String email = (String) value;
+		if (!Pattern.matches("^[^@]+@[^@^\\.]+\\.[^@^\\.]+$", email)) {
+			FacesMessage message = new FacesMessage(
+					resource.getString("register.error.email.pattern"));
+			throw new ValidatorException(message);
+		}
+		User user = userService.getUserByEmail(email);
+		if (user != null) {
+			FacesMessage message = new FacesMessage(
+					resource.getString("register.error.email.exists"));
 			throw new ValidatorException(message);
 		}
 	}
@@ -140,6 +172,21 @@ public class RegistrationBean {
 	}
 
 	/**
+	 * @param confirmPassword
+	 *            the confirmPassword to set
+	 */
+	public void setConfirmPassword(String confirmPassword) {
+		this.confirmPassword = confirmPassword;
+	}
+
+	/**
+	 * @return the confirmPassword
+	 */
+	public String getConfirmPassword() {
+		return confirmPassword;
+	}
+
+	/**
 	 * @param firstName
 	 *            the firstName to set
 	 */
@@ -159,7 +206,8 @@ public class RegistrationBean {
 	 *            the middleName to set
 	 */
 	public void setMiddleName(String middleName) {
-		this.middleName = middleName;
+		this.middleName = (middleName == null || middleName.trim().isEmpty()) ? null
+				: middleName.trim();
 	}
 
 	/**
@@ -189,7 +237,8 @@ public class RegistrationBean {
 	 *            the displayName to set
 	 */
 	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
+		this.displayName = (displayName == null || displayName.trim().isEmpty()) ? null
+				: displayName.trim();
 	}
 
 	/**
@@ -200,32 +249,17 @@ public class RegistrationBean {
 	}
 
 	/**
-	 * @param phoneNumber
-	 *            the phoneNumber to set
+	 * @param captchaCode
+	 *            the captchaCode to set
 	 */
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
+	public void setCaptchaCode(String captchaCode) {
+		this.captchaCode = captchaCode;
 	}
 
 	/**
-	 * @return the phoneNumber
+	 * @return the captchaCode
 	 */
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
-
-	/**
-	 * @param defaultAreaCode
-	 *            the defaultAreaCode to set
-	 */
-	public void setDefaultAreaCode(String defaultAreaCode) {
-		this.defaultAreaCode = defaultAreaCode;
-	}
-
-	/**
-	 * @return the defaultAreaCode
-	 */
-	public String getDefaultAreaCode() {
-		return defaultAreaCode;
+	public String getCaptchaCode() {
+		return captchaCode;
 	}
 }
