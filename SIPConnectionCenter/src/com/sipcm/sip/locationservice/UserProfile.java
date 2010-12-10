@@ -188,8 +188,8 @@ public class UserProfile {
 				Binding binding = ite.next();
 				binding.onContactExpire();
 				if (binding.getAddress().getExpires() < 0) {
-					if (logger.isTraceEnabled()) {
-						logger.trace("Contact {} expired, remove it.",
+					if (logger.isInfoEnabled()) {
+						logger.info("Contact {} expired, remove it.",
 								binding.getAddress());
 					}
 					ite.remove();

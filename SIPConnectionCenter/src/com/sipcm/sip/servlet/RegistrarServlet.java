@@ -145,7 +145,7 @@ public class RegistrarServlet extends AbstractSipServlet {
 						logger.trace("Expirestime: {}", contactExpiresTime);
 					}
 					a.setExpires(contactExpiresTime);
-					Address remoteEnd = (Address) a.clone();
+					Address remoteEnd = sipFactory.createAddress(a.getURI());
 					URI ruri = remoteEnd.getURI();
 					if (ruri.isSipURI()) {
 						final SipURI sruri = (SipURI) ruri;

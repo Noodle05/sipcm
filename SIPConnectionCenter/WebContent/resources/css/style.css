@@ -1,0 +1,12 @@
+@CHARSET "UTF-8";
+
+body {
+	border: 0px;
+	text-align: center;
+}
+
+div#bodyContainer {
+	text-align: left;
+	margin: 0 auto;
+	width: 800px;
+}

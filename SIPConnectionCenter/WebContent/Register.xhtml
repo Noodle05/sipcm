@@ -11,6 +11,8 @@
 		<f:view>
 			<h:form id="registrationForm">
 				<h:panelGrid columns="3">
+					<f:event listener="#{registrationBean.validatePassword}"
+						type="postValidate" />
 					<f:facet name="header">
 						#{messages['register.header']}
 					</f:facet>
@@ -39,8 +41,7 @@
 					<h:message id="passwordError" for="password" styleClass="error" />
 					#{messages['register.confirmPassword']}:
 					<h:inputSecret label="#{messages['register.confirmPassword']}"
-						value="#{registrationBean.confirmPassword}" id="confirmPassword"
-						maxlength="32" required="true"
+						id="confirmPassword" maxlength="32" required="true"
 						requiredMessage="#{messages['register.error.password.required']}"
 						validatorMessage="#{messages['register.error.password.size']}">
 						<f:validateLength minimum="6" maximum="32" />
@@ -73,9 +74,9 @@
 					<h:graphicImage id="captcha" url="/captchaImg" alt="Captcha"
 						width="250" height="75" />
 					<h:inputText label="#{messages['register.captcha']}"
-						value="#{registrationBean.captchaCode}" id="captchaCode"
-						maxlength="10" required="true"
-						requiredMessage="#{messages['register.error.captcha.required']}" />
+						id="captchaCode" maxlength="10" required="true"
+						requiredMessage="#{messages['register.error.captcha.required']}"
+						validator="#{registrationBean.validateCaptcha}" />
 					<h:message id="captchaError" for="captchaCode" styleClass="error" />
 					<f:facet name="footer">
 						<h:commandButton id="submit"

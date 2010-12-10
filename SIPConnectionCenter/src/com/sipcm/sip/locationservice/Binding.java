@@ -69,7 +69,7 @@ public class Binding implements Serializable, Comparable<Binding> {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Binding[").append("Address=").append(address)
-				.append("RemoteEnd=").append(remoteEnd).append(",CallId=")
+				.append(",RemoteEnd=").append(remoteEnd).append(",CallId=")
 				.append(callId).append("]");
 		return sb.toString();
 	}

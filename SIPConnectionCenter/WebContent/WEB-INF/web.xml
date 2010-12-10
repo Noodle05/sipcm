@@ -15,7 +15,7 @@
 	</context-param>
 	<context-param>
 		<param-name>log4jRefreshInterval</param-name>
-		<param-value>86400000</param-value>
+		<param-value>300000</param-value>
 	</context-param>
 	<filter>
 		<filter-name>hibernateFilter</filter-name>

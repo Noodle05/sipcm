@@ -15,6 +15,8 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
 import javax.servlet.sip.B2buaHelper;
+import javax.servlet.sip.SipErrorEvent;
+import javax.servlet.sip.SipErrorListener;
 import javax.servlet.sip.SipServletMessage;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
@@ -22,6 +24,7 @@ import javax.servlet.sip.SipSession;
 import javax.servlet.sip.SipSession.State;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.UAMode;
+import javax.servlet.sip.annotation.SipListener;
 import javax.servlet.sip.annotation.SipServlet;
 import javax.sip.header.FromHeader;
 import javax.sip.message.Request;
@@ -41,7 +44,8 @@ import com.sipcm.sip.util.SipUtil;
  */
 @Configurable
 @SipServlet(name = "B2bServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
-public class B2bServlet extends AbstractSipServlet {
+@SipListener(applicationName = "org.gaofamily.CallCenter")
+public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 	private static final long serialVersionUID = -7798141358134636972L;
 
 	public static final String LINKED_SESSION_STATUS = "com.sipcm.linkedSessionStatus";
@@ -327,11 +331,11 @@ public class B2bServlet extends AbstractSipServlet {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Getting all pending message (UAC mode)");
 		}
-		B2buaHelper help = req.getB2buaHelper();
-		SipSession origSession = help.getLinkedSession(req.getSession());
+		B2buaHelper helper = getB2buaHelper(req);
+		SipSession origSession = helper.getLinkedSession(req.getSession());
 		if (origSession != null) {
-			List<SipServletMessage> msgs = help.getPendingMessages(origSession,
-					UAMode.UAC);
+			List<SipServletMessage> msgs = helper.getPendingMessages(
+					origSession, UAMode.UAC);
 			for (SipServletMessage msg : msgs) {
 				if (msg instanceof SipServletResponse) {
 					SipServletResponse resp = (SipServletResponse) msg;
@@ -424,6 +428,75 @@ public class B2bServlet extends AbstractSipServlet {
 						"No linked session for this cancel request. original session id: {}",
 						session.getId());
 			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.servlet.sip.SipErrorListener#noAckReceived(javax.servlet.sip.
+	 * SipErrorEvent)
+	 */
+	@Override
+	public void noAckReceived(SipErrorEvent ee) {
+		if (logger.isErrorEnabled()) {
+			logger.error("ACK is not received.");
+		}
+		SipServletRequest req = ee.getRequest();
+		SipSession session = req.getSession(false);
+		if (session != null) {
+			B2buaHelper helper = getB2buaHelper(req);
+			SipSession origSession = helper.getLinkedSession(session);
+			if (origSession != null) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Find original session {} for session {}.",
+							origSession.getId(), session.getId());
+				}
+				if (logger.isDebugEnabled()) {
+					logger.debug("Invalidate original session {}.",
+							origSession.getId());
+				}
+				origSession.invalidate();
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("Invalidate session {}.", session.getId());
+			}
+			session.invalidate();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * javax.servlet.sip.SipErrorListener#noPrackReceived(javax.servlet.sip.
+	 * SipErrorEvent)
+	 */
+	@Override
+	public void noPrackReceived(SipErrorEvent ee) {
+		if (logger.isErrorEnabled()) {
+			logger.error("PRACK is not received.");
+		}
+		SipServletRequest req = ee.getRequest();
+		SipSession session = req.getSession(false);
+		if (session != null) {
+			B2buaHelper helper = getB2buaHelper(req);
+			SipSession origSession = helper.getLinkedSession(session);
+			if (origSession != null) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Find original session {} for session {}.",
+							origSession.getId(), session.getId());
+				}
+				if (logger.isDebugEnabled()) {
+					logger.debug("Invalidate original session {}.",
+							origSession.getId());
+				}
+				origSession.invalidate();
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("Invalidate session {}.", session.getId());
+			}
+			session.invalidate();
 		}
 	}
 

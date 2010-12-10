@@ -10,7 +10,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ComponentSystemEvent;
 import javax.faces.validator.ValidatorException;
 
 import nl.captcha.Captcha;
@@ -42,8 +44,6 @@ public class RegistrationBean {
 
 	private String password;
 
-	private String confirmPassword;
-
 	private String firstName;
 
 	private String middleName;
@@ -51,8 +51,6 @@ public class RegistrationBean {
 	private String lastName;
 
 	private String displayName;
-
-	private String captchaCode;
 
 	private ResourceBundle resource;
 
@@ -62,23 +60,9 @@ public class RegistrationBean {
 	}
 
 	public String register() {
-		String result = "Register";
+		String result;
 		FacesContext context = FacesContext.getCurrentInstance();
-		Captcha captcha = (Captcha) context.getExternalContext()
-				.getSessionMap().get(Captcha.NAME);
-		if (captcha == null || !captcha.isCorrect(captchaCode)) {
-			FacesMessage message = new FacesMessage(
-					resource.getString("register.error.captcha.notmatch"));
-			context.addMessage("registrationForm:captchaCode", message);
-			return result;
-		}
 		context.getExternalContext().getSessionMap().remove(Captcha.NAME);
-		if (!password.equals(confirmPassword)) {
-			FacesMessage message = new FacesMessage(
-					resource.getString("register.error.password.notmatch"));
-			context.addMessage("registrationForm:confirmPassword", message);
-			return result;
-		}
 		User user = userService.createNewEntity();
 		user.setUsername(username);
 		user.setEmail(email);
@@ -126,6 +110,38 @@ public class RegistrationBean {
 		}
 	}
 
+	public void validateCaptcha(FacesContext context,
+			UIComponent componentToValidate, Object value) {
+		String text = (String) value;
+		Captcha captcha = (Captcha) context.getExternalContext()
+				.getSessionMap().get(Captcha.NAME);
+		if (captcha == null || !captcha.isCorrect(text)) {
+			FacesMessage message = new FacesMessage(
+					resource.getString("register.error.captcha.notmatch"));
+			throw new ValidatorException(message);
+		}
+	}
+
+	public void validatePassword(ComponentSystemEvent event) {
+		FacesContext fc = FacesContext.getCurrentInstance();
+		UIComponent components = event.getComponent();
+		UIInput passwordTxt = (UIInput) components.findComponent("password");
+		UIInput confirmPasswdTxt = (UIInput) components
+				.findComponent("confirmPassword");
+		if (passwordTxt.isValid() && confirmPasswdTxt.isValid()) {
+			String password = passwordTxt.getLocalValue().toString();
+			String confirmPasswd = confirmPasswdTxt.getLocalValue().toString();
+			if (password != null && confirmPasswd != null) {
+				if (!password.equals(confirmPasswd)) {
+					FacesMessage message = new FacesMessage(
+							resource.getString("register.error.password.notmatch"));
+					fc.addMessage("registrationForm:confirmPassword", message);
+					fc.renderResponse();
+				}
+			}
+		}
+	}
+
 	/**
 	 * @param username
 	 *            the username to set
@@ -169,21 +185,6 @@ public class RegistrationBean {
 	 */
 	public String getPassword() {
 		return password;
-	}
-
-	/**
-	 * @param confirmPassword
-	 *            the confirmPassword to set
-	 */
-	public void setConfirmPassword(String confirmPassword) {
-		this.confirmPassword = confirmPassword;
-	}
-
-	/**
-	 * @return the confirmPassword
-	 */
-	public String getConfirmPassword() {
-		return confirmPassword;
 	}
 
 	/**
@@ -246,20 +247,5 @@ public class RegistrationBean {
 	 */
 	public String getDisplayName() {
 		return displayName;
-	}
-
-	/**
-	 * @param captchaCode
-	 *            the captchaCode to set
-	 */
-	public void setCaptchaCode(String captchaCode) {
-		this.captchaCode = captchaCode;
-	}
-
-	/**
-	 * @return the captchaCode
-	 */
-	public String getCaptchaCode() {
-		return captchaCode;
 	}
 }

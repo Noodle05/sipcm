@@ -214,9 +214,9 @@ public abstract class LocationServiceImpl implements LocationService {
 			}
 			userProfile.checkContactExpires();
 			if (userProfile.isEmpty()) {
-				if (logger.isTraceEnabled()) {
-					logger.trace("{} has no contact remaining, remove it.",
-							userProfile.getAddressOfRecord());
+				if (logger.isInfoEnabled()) {
+					logger.info("{} has no contact remaining, remove it.",
+							entry.getKey());
 				}
 				ite.remove();
 			}

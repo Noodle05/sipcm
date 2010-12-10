@@ -122,6 +122,16 @@ public class DelegatedServlet extends B2bServlet {
 			logger.trace("Sending forked request: {}", forkedRequest);
 		}
 		forkedRequest.send();
+		if (logger.isInfoEnabled()) {
+			logger.info(
+					"{} is calling {} by {}.",
+					new Object[] {
+							account.getOwner().getDisplayName(),
+							phoneNumberUtil
+									.getCanonicalizedPhoneNumber(toSipURI
+											.getUser()),
+							account.getVoipVendor().getName() });
+		}
 	}
 
 	private boolean processAuthInfo(javax.servlet.sip.SipServletResponse resp)
@@ -156,8 +166,8 @@ public class DelegatedServlet extends B2bServlet {
 				challengeRequest.removeHeader(AuthorizationHeader.NAME);
 				challengeRequest.removeHeader(PAssertedIdentityHeader.NAME);
 				// Add new authentication headers
-//				SipServletRequest challengeRequest = resp.getSession()
-//						.createRequest(Request.INVITE);
+				// SipServletRequest challengeRequest = resp.getSession()
+				// .createRequest(Request.INVITE);
 				challengeRequest.addAuthHeader(resp, authInfo);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Sending challenge request {}",

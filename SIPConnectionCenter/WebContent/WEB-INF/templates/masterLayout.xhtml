@@ -8,19 +8,21 @@
 <f:loadBundle var="messages" basename="messages.CallerPages" />
 <h:head>
 	<title><ui:insert name="windowTitle">
-        #{messages['default.windowsTitle']}
-      </ui:insert></title>
+		#{messages['default.windowsTitle']}
+		</ui:insert></title>
+	<h:outputStylesheet library="css" name="style.css" />
 </h:head>
 
 <h:body>
+	<div id="bodyContainer">
 	<div id="header"><ui:insert name="header">
 		<ui:include src="masterHeader.xhtml" />
 	</ui:insert></div>
 
-	<div id="content"><ui:insert name="content">
-	</ui:insert></div>
+	<div id="content"><ui:insert name="content" /></div>
 	<div id="footer"><ui:insert name="footer">
 		<ui:include src="masterFooter.xhtml" />
 	</ui:insert></div>
+	</div>
 </h:body>
 </html>
