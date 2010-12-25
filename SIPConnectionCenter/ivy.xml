@@ -26,18 +26,18 @@
 		<dependency org="commons-cli" name="commons-cli" rev="1.2"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.apache.httpcomponents" name="httpclient"
-			rev="4.0.1" conf="compile->default;foride->sources,javadoc">
+			rev="4.0.3" conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
 		</dependency>
 		<dependency org="org.hibernate" name="hibernate-c3p0" rev="3.5.6-Final"
 			conf="runtime->default;foride->sources,javadoc" />
-		<dependency org="mysql" name="mysql-connector-java" rev="5.1.13"
+		<dependency org="mysql" name="mysql-connector-java" rev="5.1.14"
 			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="javax.validation" name="validation-api"
 			rev="1.0.0.GA" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="javax.sip" name="jain-sip-api" rev="1.2"
 			conf="provided->default;foride->sources,javadoc" />
-		<dependency org="javax.sip" name="jain-sip-ri" rev="1.2.159"
+		<dependency org="javax.sip" name="jain-sip-ri" rev="1.2.161"
 			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.dnsjava" name="dnsjava" rev="2.0.6"
 			conf="provided->default;foride->sources,javadoc" />
@@ -57,6 +57,8 @@
 		</dependency>
 		<dependency org="commons-lang" name="commons-lang" rev="2.4"
 			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="commons-logging" name="commons-logging" rev="1.1.1"
+			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="javassist" name="javassist" rev="3.8.0.GA"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="log4j" name="log4j" rev="1.2.16"
@@ -77,9 +79,9 @@
 			conf="runtime->default;foride->sources,javadoc" />
 		<!-- dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.6.1" / -->
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1"
-			conf="compile->default;foride->sources,javadoc" />
+			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1"
-			conf="runtime->default;foride->sources,javadoc">
+			conf="provided->default;foride->sources,javadoc">
 			<exclude module="log4j" />
 		</dependency>
 		<dependency org="org.springframework" name="spring-aop"
@@ -113,17 +115,17 @@
 		<dependency org="org.quartz-scheduler" name="quartz" rev="1.8.4"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.servlet.sip" name="sip-servlets-impl"
-			rev="1.4.0.FINAL" conf="provided->default;foride->sources,javadoc" />
+			rev="1.5.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="javax.servlet" name="servlet-api" rev="2.5"
 			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.ha.javax.sip" name="mobicents-jain-sip-ha-core"
-			rev="0.13" conf="provided->default;foride->sources,javadoc" />
+			rev="1.0.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.servlet.sip" name="sip-servlets-tomcat-jboss4"
-			rev="1.4.0.FINAL" conf="provided->default;foride->sources,javadoc" />
+			rev="1.5.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.servlet.sip" name="sip-servlets-application-router"
-			rev="1.4.0.FINAL" conf="provided->default;foride->sources,javadoc" />
+			rev="1.5.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.servlet.sip" name="sip-servlets-jruby"
-			rev="1.4.0.FINAL" conf="provided->default;foride->sources,javadoc" />
+			rev="1.5.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="net.java.stun4j" name="stun4j" rev="1.0.MOBICENTS"
 			conf="provided->default" />
 		<dependency org="org.mobicents.javax.sip" name="mobicents-jain-sip-ext"

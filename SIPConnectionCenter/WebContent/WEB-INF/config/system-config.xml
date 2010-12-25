@@ -7,7 +7,7 @@
 	<entry key="sip.server.interval.min">900</entry>
 
 	<entry key="sip.expirestime.min">120</entry>
-	<entry key="sip.expirestime.max">600</entry>
+	<entry key="sip.expirestime.max">900</entry>
 	<entry key="com.sipcm.googlevoice.timeout">30</entry>
 	<entry key="com.sip.http.client.maxConnections">100</entry>
 </properties>

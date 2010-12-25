@@ -25,7 +25,6 @@ import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.ToHeader;
 
-import org.mobicents.servlet.sip.message.SipServletRequestImpl;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import com.sipcm.sip.model.UserVoipAccount;
@@ -159,7 +158,6 @@ public class DelegatedServlet extends B2bServlet {
 				authInfo.addAuthInfo(resp.getStatus(), account.getVoipVendor()
 						.getDomain(), account.getAccount(), account
 						.getPassword());
-				((SipServletRequestImpl) origReq).cleanUpLastResponses();
 				SipServletRequest challengeRequest = helper.createRequest(
 						resp.getSession(), origReq, null);
 				// Remove original authentication headers.
