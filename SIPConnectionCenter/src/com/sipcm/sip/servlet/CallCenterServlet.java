@@ -96,7 +96,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 			final SipURI fromSipUri = (SipURI) fromURI;
 			String toHost = toSipUri.getHost();
 			String fromHost = fromSipUri.getHost();
-			if (!getDomain().equalsIgnoreCase(toHost)
+			if (!toHost.toUpperCase().contains(getDomain().toUpperCase())
 					&& !getDomain().equalsIgnoreCase(fromHost)) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Not from host nor to host is domain we served, response as forbidden.");
@@ -123,7 +123,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 				req.setAttribute(USER_ATTRIBUTE, userSipProfile);
 			}
 			String toUser = toSipUri.getUser();
-			if (getDomain().equalsIgnoreCase(toHost)) {
+			if (toHost.toUpperCase().contains(getDomain().toUpperCase())) {
 				if (phoneNumberUtil.isValidPhoneNumber(toUser)) {
 					UserSipProfile user = (UserSipProfile) req
 							.getAttribute(USER_ATTRIBUTE);

@@ -3,6 +3,7 @@
  */
 package com.sipcm.sip.locationservice;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -103,6 +104,15 @@ public class UserProfile {
 		}
 	}
 
+	public Collection<Binding> getBindings() {
+		bindingsReadLock.lock();
+		try {
+			return new ArrayList<Binding>(bindings);
+		} finally {
+			bindingsReadLock.unlock();
+		}
+	}
+
 	public Binding removeBinding(Binding binding) {
 		bindingsWriteLock.lock();
 		try {
@@ -149,9 +159,10 @@ public class UserProfile {
 		}
 	}
 
-	public void updateBinding(Address address, Address remoteEnd, String callId) {
+	public void updateBinding(Address address, Address remoteEnd,
+			SocketAddress laddr, String callId) {
 		URI uri = sipUtil.getCanonicalizedURI(address.getURI());
-		Binding binding = new Binding(address, remoteEnd, callId);
+		Binding binding = new Binding(address, remoteEnd, laddr, callId);
 		bindingsReadLock.lock();
 		try {
 			Binding existingBinding = null;

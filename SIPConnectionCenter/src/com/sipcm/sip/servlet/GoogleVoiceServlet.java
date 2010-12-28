@@ -5,9 +5,14 @@ package com.sipcm.sip.servlet;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.servlet.ServletException;
+import javax.servlet.sip.Address;
 import javax.servlet.sip.B2buaHelper;
+import javax.servlet.sip.ServletParseException;
 import javax.servlet.sip.ServletTimer;
 import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipServletRequest;
@@ -19,6 +24,7 @@ import javax.servlet.sip.TimerListener;
 import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipListener;
 import javax.servlet.sip.annotation.SipServlet;
+import javax.sip.header.ContactHeader;
 
 import org.mobicents.servlet.sip.core.session.MobicentsSipSession;
 import org.mobicents.servlet.sip.message.B2buaHelperImpl;
@@ -159,6 +165,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 			SipServletResponse origResponse = origReq
 					.createResponse(SipServletResponse.SC_OK);
 			copyContent(req, origResponse);
+			sipUtil.processingAddressInSDP(origResponse, req);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Sending OK to original request. {}", origResponse);
 			}
@@ -167,6 +174,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 			SipServletResponse response = req
 					.createResponse(SipServletResponse.SC_OK);
 			copyContent(origReq, response);
+			sipUtil.processingAddressInSDP(response, origReq);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Sending OK to callback request. {}", response);
 			}
@@ -202,6 +210,10 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				appSession.setAttribute(GV_TIMEOUT, st.getId());
 				response(req, SipServletResponse.SC_SESSION_PROGRESS,
 						"Waiting for callback.");
+				URI remoteEnd = getRemoteEndURI(req);
+				if (remoteEnd != null) {
+					req.getSession().setAttribute(REMOTE_URI, remoteEnd);
+				}
 			} else {
 				if (logger.isInfoEnabled()) {
 					logger.info("Google voice call failed.");
@@ -222,6 +234,54 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 			response(req, SipServletResponse.SC_BAD_GATEWAY);
 			return;
 		}
+	}
+
+	private URI getRemoteEndURI(SipServletRequest req) {
+		try {
+			Iterator<Address> ite = req.getAddressHeaders(ContactHeader.NAME);
+			Collection<Address> contacts = new ArrayList<Address>();
+			boolean wildChar = false;
+			while (ite.hasNext()) {
+				Address a = ite.next();
+				contacts.add(a);
+				if (a.isWildcard()) {
+					wildChar = true;
+				}
+			}
+
+			if (!contacts.isEmpty()) {
+				if (wildChar) {
+					if (logger.isWarnEnabled()) {
+						logger.warn("INVITE with contact \"*\"?");
+					}
+					return null;
+				}
+				String rmaddr = req.getInitialRemoteAddr();
+				int rport = req.getInitialRemotePort();
+				String rt = req.getInitialTransport();
+
+				Address a = contacts.iterator().next();
+				Address remoteEnd = sipFactory
+						.createAddress(a.getURI().clone());
+				URI ruri = remoteEnd.getURI();
+				if (ruri.isSipURI()) {
+					final SipURI sruri = (SipURI) ruri;
+					sruri.setHost(rmaddr);
+					sruri.setTransportParam(rt);
+					sruri.setPort(rport);
+					remoteEnd.setURI(sruri);
+				}
+				return remoteEnd.getURI();
+			}
+		} catch (ServletParseException e) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Error happened when parsing contact header. Turn on debug to see detail exception stack.");
+				if (logger.isDebugEnabled()) {
+					logger.debug("Detail exception stack:", e);
+				}
+			}
+		}
+		return null;
 	}
 
 	/*

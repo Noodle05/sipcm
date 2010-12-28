@@ -10,4 +10,8 @@
 	<entry key="sip.expirestime.max">900</entry>
 	<entry key="com.sipcm.googlevoice.timeout">30</entry>
 	<entry key="com.sip.http.client.maxConnections">100</entry>
+
+	<entry key="sip.useStun">true</entry>
+	<entry key="sip.stun.server">stun.counterpath.com</entry>
+	<entry key="sip.stun.port">3478</entry>
 </properties>

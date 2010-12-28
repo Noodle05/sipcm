@@ -1,5 +1,6 @@
 package com.sipcm.sip.locationservice;
 
+import java.net.SocketAddress;
 import java.util.Collection;
 
 import javax.servlet.sip.Address;
@@ -16,13 +17,15 @@ public interface LocationService {
 			throws UserNotFoundException;
 
 	public void updateRegistration(String key, Address address,
-			Address remoteEnd, String callId) throws UserNotFoundException;
+			Address remoteEnd, SocketAddress laddr, String callId)
+			throws UserNotFoundException;
 
 	public Collection<Address> getAddresses(String key)
 			throws UserNotFoundException;
 
 	public void register(String key, UserSipProfile userSipProfile,
-			Address address, Address remoteEnd, String callid);
+			Address address, Address remoteEnd, SocketAddress laddr,
+			String callid);
 
 	public void checkContactExpires();
 
@@ -32,7 +35,24 @@ public interface LocationService {
 	public UserProfile getUserProfileByPhoneNumber(String phoneNumber)
 			throws UserNotFoundException;
 
+	/**
+	 * Get all remote end bindings for NAT keep alive ping.
+	 * 
+	 * @return
+	 */
+	public Collection<Binding> getAllRemoteEnd();
+
+	/**
+	 * Callback function when user(s) been changed.
+	 * 
+	 * @param userIds
+	 */
 	public void onUserChanged(Long... userIds);
 
+	/**
+	 * Callback function when user been disabled.
+	 * 
+	 * @param userIds
+	 */
 	public void onUserDisabled(Long... userIds);
 }

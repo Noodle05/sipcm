@@ -120,6 +120,7 @@ public class DelegatedServlet extends B2bServlet {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Sending forked request: {}", forkedRequest);
 		}
+		sipUtil.processingAddressInSDP(forkedRequest, req);
 		forkedRequest.send();
 		if (logger.isInfoEnabled()) {
 			logger.info(
@@ -167,6 +168,7 @@ public class DelegatedServlet extends B2bServlet {
 				// SipServletRequest challengeRequest = resp.getSession()
 				// .createRequest(Request.INVITE);
 				challengeRequest.addAuthHeader(resp, authInfo);
+				sipUtil.processingAddressInSDP(challengeRequest, origReq);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Sending challenge request {}",
 							challengeRequest);

@@ -27,7 +27,8 @@
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
-				<ref bean="contactExpiresTrigger" />
+				<ref local="contactExpiresTrigger" />
+				<!-- ref local="natKeepAliveTrigger" / -->
 			</list>
 		</property>
 	</bean>
@@ -45,6 +46,22 @@
 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 		<property name="targetObject" ref="contactExpiresTask" />
 		<property name="targetMethod" value="onCheckExpire" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="natKeepAliveTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<!-- see the example of method invoking job above -->
+		<property name="jobDetail" ref="natKeepAliveJob" />
+		<!-- 30 seconds -->
+		<property name="startDelay" value="30000" />
+		<!-- repeat every 30 seconds -->
+		<property name="repeatInterval" value="30000" />
+	</bean>
+
+	<bean id="natKeepAliveJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="natKeepAliveTask" />
+		<property name="targetMethod" value="ping" />
 		<property name="concurrent" value="false" />
 	</bean>
 

@@ -3,7 +3,9 @@
  */
 package com.sipcm.sip.locationservice;
 
+import java.net.SocketAddress;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -106,9 +108,10 @@ public abstract class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public void updateRegistration(String key, Address address,
-			Address remoteEnd, String callId) throws UserNotFoundException {
+			Address remoteEnd, SocketAddress laddr, String callId)
+			throws UserNotFoundException {
 		UserProfile userProfile = getUserProfileByKey(key);
-		userProfile.updateBinding(address, remoteEnd, callId);
+		userProfile.updateBinding(address, remoteEnd, laddr, callId);
 	}
 
 	/*
@@ -139,7 +142,8 @@ public abstract class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public void register(String key, UserSipProfile userSipProfile,
-			Address address, Address remoteEnd, String callId) {
+			Address address, Address remoteEnd, SocketAddress laddr,
+			String callId) {
 		UserProfile userProfile = createUserProfile();
 		userProfile.setAddressOfRecord(key);
 		userProfile.setUserSipProfile(userSipProfile);
@@ -147,7 +151,7 @@ public abstract class LocationServiceImpl implements LocationService {
 		if (up != null) {
 			userProfile = up;
 		}
-		Binding binding = new Binding(address, remoteEnd, callId);
+		Binding binding = new Binding(address, remoteEnd, laddr, callId);
 		userProfile.addBinding(binding);
 	}
 
@@ -221,6 +225,21 @@ public abstract class LocationServiceImpl implements LocationService {
 				ite.remove();
 			}
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.locationservice.LocationService#getAllRemoteEnd()
+	 */
+	@Override
+	public Collection<Binding> getAllRemoteEnd() {
+		Collection<Binding> remoteEnds = new ArrayList<Binding>(
+				userProfiles.size());
+		for (UserProfile userProfile : userProfiles.values()) {
+			remoteEnds.addAll(userProfile.getBindings());
+		}
+		return remoteEnds;
 	}
 
 	/*

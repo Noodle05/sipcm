@@ -84,8 +84,7 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 		}
 		if (dispatcher == null) {
 			final SipURI toSipURI = (SipURI) req.getTo().getURI();
-			URI toURI = sipFactory.createSipURI(toSipURI.getUser(),
-					toSipURI.getHost());
+			URI toURI = sipFactory.createSipURI(toSipURI.getUser(), getDomain());
 			UserProfile userProfile = null;
 			try {
 				if (logger.isTraceEnabled()) {

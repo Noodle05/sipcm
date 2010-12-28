@@ -24,6 +24,7 @@ import javax.servlet.sip.SipSession;
 import javax.servlet.sip.SipSession.State;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.UAMode;
+import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipListener;
 import javax.servlet.sip.annotation.SipServlet;
 import javax.sip.header.FromHeader;
@@ -34,6 +35,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.common.PhoneNumberStatus;
+import com.sipcm.sip.locationservice.Binding;
 import com.sipcm.sip.locationservice.UserProfile;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.SipUtil;
@@ -49,10 +51,11 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 	private static final long serialVersionUID = -7798141358134636972L;
 
 	public static final String LINKED_SESSION_STATUS = "com.sipcm.linkedSessionStatus";
+	public static final String REMOTE_URI = "com.sipcm.remote.uri";
 
 	@Autowired
 	@Qualifier("sipUtil")
-	private SipUtil sipUtil;
+	protected SipUtil sipUtil;
 
 	private static final String[] specialHandleRequest = new String[] {
 			Request.ACK, Request.CANCEL, Request.BYE };
@@ -74,6 +77,10 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 			}
 			super.doRequest(req);
 		} else {
+			if ("INVITE".equals(req.getMethod())) {
+				processReInvite(req);
+				return;
+			}
 			if (logger.isTraceEnabled()) {
 				logger.trace("Simply forward to another leg.");
 			}
@@ -162,6 +169,10 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 					resp.getReasonPhrase());
 		}
 		copyContent(resp, forkedResp);
+		if ("INVITE".equals(resp.getRequest().getMethod())
+				&& (resp.getStatus() >= 200 && resp.getStatus() < 300)) {
+			sipUtil.processingAddressInSDP(forkedResp, resp);
+		}
 		if (logger.isTraceEnabled()) {
 			logger.trace("Sending forked response: {}", forkedResp);
 		}
@@ -190,16 +201,16 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 			return;
 		}
-		Collection<Address> addresses = null;
-		addresses = userProfile.getAddresses();
+		Collection<Binding> bindings = null;
+		bindings = userProfile.getBindings();
 		if (logger.isTraceEnabled()) {
 			logger.trace("Lookup result: ");
-			for (Address a : addresses) {
-				logger.trace("\t{}", a);
+			for (Binding b : bindings) {
+				logger.trace("\t{}", b);
 			}
 		}
-		if (addresses != null && !addresses.isEmpty()) {
-			Address address = addresses.iterator().next();
+		if (bindings != null && !bindings.isEmpty()) {
+			Binding binding = bindings.iterator().next();
 			B2buaHelper helper = getB2buaHelper(req);
 			UserSipProfile userSipProfile = (UserSipProfile) req
 					.getAttribute(USER_ATTRIBUTE);
@@ -224,9 +235,14 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 			} else {
 				forkedRequest = helper.createRequest(req);
 			}
-			forkedRequest.setRequestURI(sipUtil.getCanonicalizedURI(address
-					.getURI()));
-			// forkedRequest.getSession().setAttribute(ORIGINAL_REQUEST, req);
+			forkedRequest.getSession()
+					.setAttribute(
+							REMOTE_URI,
+							sipUtil.getCanonicalizedURI(binding.getRemoteEnd()
+									.getURI()));
+			forkedRequest.setRequestURI(sipUtil.getCanonicalizedURI(binding
+					.getRemoteEnd().getURI()));
+			sipUtil.processingAddressInSDP(forkedRequest, req);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Sending forked request {}", forkedRequest);
 			}
@@ -291,6 +307,10 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 			case CONFIRMED:
 				SipServletRequest forkedRequest = helper.createRequest(
 						linkedSession, req, null);
+				if (linkedSession.getAttribute(REMOTE_URI) != null) {
+					forkedRequest.setRequestURI((URI) linkedSession
+							.getAttribute(REMOTE_URI));
+				}
 				if (logger.isTraceEnabled()) {
 					logger.trace("Sending forked bye Request {}", forkedRequest);
 				}
@@ -341,7 +361,12 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 					SipServletResponse resp = (SipServletResponse) msg;
 					if (resp.getStatus() == SipServletResponse.SC_OK) {
 						SipServletRequest ack = resp.createAck();
+						if (origSession.getAttribute(REMOTE_URI) != null) {
+							ack.setRequestURI((URI) origSession
+									.getAttribute(REMOTE_URI));
+						}
 						copyContent(req, ack);
+						sipUtil.processingAddressInSDP(ack, req);
 						if (logger.isTraceEnabled()) {
 							logger.trace("Sending forked ACK: {}", ack);
 						}
@@ -393,6 +418,10 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 						logger.debug("Forwarding cancel request {}",
 								cancelRequest);
 					}
+					if (linkedSession.getAttribute(REMOTE_URI) != null) {
+						cancelRequest.setRequestURI((URI) linkedSession
+								.getAttribute(REMOTE_URI));
+					}
 					cancelRequest.send();
 					linkedSession.setAttribute(LINKED_SESSION_STATUS,
 							"CANCELLED");
@@ -403,6 +432,10 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 					}
 					SipServletRequest bye = linkedSession
 							.createRequest(Request.BYE);
+					if (linkedSession.getAttribute(REMOTE_URI) != null) {
+						bye.setRequestURI((URI) linkedSession
+								.getAttribute(REMOTE_URI));
+					}
 					if (logger.isDebugEnabled()) {
 						logger.debug("Sending request {}", bye);
 					}
@@ -498,6 +531,24 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 			}
 			session.invalidate();
 		}
+	}
+
+	protected void processReInvite(SipServletRequest req)
+			throws ServletException, IOException {
+		if (logger.isTraceEnabled()) {
+			logger.trace("Simply forward re-invite to another leg.");
+		}
+		B2buaHelper helper = req.getB2buaHelper();
+		SipSession linked = helper.getLinkedSession(req.getSession());
+		SipServletRequest forkedReq = helper.createRequest(linked, req, null);
+		copyContent(req, forkedReq);
+		if ("INVITE".equals(req.getMethod())) {
+			sipUtil.processingAddressInSDP(forkedReq, req);
+		}
+		if (logger.isTraceEnabled()) {
+			logger.trace("Sending forked request: {}", forkedReq);
+		}
+		forkedReq.send();
 	}
 
 	protected B2buaHelper getB2buaHelper(SipServletRequest req) {

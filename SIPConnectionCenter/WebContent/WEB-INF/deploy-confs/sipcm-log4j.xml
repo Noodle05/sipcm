@@ -31,7 +31,7 @@
 	</logger>
 
 	<logger name="org.mobicents" additivity="false">
-		<level value="all" />
+		<level value="info" />
 		<appender-ref ref="RollingFileAppender" />
 	</logger>
 
