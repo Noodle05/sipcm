@@ -123,15 +123,13 @@ public class CallCenterServlet extends AbstractSipServlet {
 				req.setAttribute(USER_ATTRIBUTE, userSipProfile);
 			}
 			String toUser = toSipUri.getUser();
-			if (toHost.toUpperCase().contains(getDomain().toUpperCase())) {
-				if (phoneNumberUtil.isValidPhoneNumber(toUser)) {
-					UserSipProfile user = (UserSipProfile) req
-							.getAttribute(USER_ATTRIBUTE);
+			if (phoneNumberUtil.isValidPhoneNumber(toUser)) {
+				UserSipProfile user = (UserSipProfile) req
+						.getAttribute(USER_ATTRIBUTE);
+				if (user != null) {
 					req.setAttribute(CALLING_PHONE_NUMBER, phoneNumberUtil
-							.getCanonicalizedPhoneNumber(
-									toUser,
-									user == null ? null : user
-											.getDefaultAreaCode()));
+							.getCanonicalizedPhoneNumber(toUser,
+									user.getDefaultAreaCode()));
 					RequestDispatcher dispatcher = req
 							.getRequestDispatcher("OutgoingPhoneInviteServlet");
 					if (dispatcher != null) {
@@ -145,6 +143,14 @@ public class CallCenterServlet extends AbstractSipServlet {
 					}
 					return;
 				} else {
+					if (logger.isWarnEnabled()) {
+						logger.warn("Only authenticated user can call phone number.");
+					}
+					response(req, SipServletResponse.SC_BAD_REQUEST);
+					return;
+				}
+			} else {
+				if (toHost.toUpperCase().contains(getDomain().toUpperCase())) {
 					if (logger.isTraceEnabled()) {
 						logger.trace("This is a incoming invite to local user.");
 					}
@@ -161,24 +167,26 @@ public class CallCenterServlet extends AbstractSipServlet {
 								SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 						return;
 					}
+				} else {
+					if (logger.isWarnEnabled()) {
+						logger.warn("Not calling local user?");
+					}
+					response(req, SipServletResponse.SC_BAD_REQUEST);
+					return;
 				}
 			}
-
-			if (logger.isTraceEnabled()) {
-				logger.trace("Calling other voip user, forward to proxy servlet.");
-			}
-
-			RequestDispatcher dispatcher = req
-					.getRequestDispatcher("ProxyServlet");
-			if (dispatcher != null) {
-				dispatcher.forward(req, null);
-			} else {
-				if (logger.isWarnEnabled()) {
-					logger.warn("Cannot find forward servlet, response server internal error.");
-				}
-				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-				return;
-			}
+			/**
+			 * if (logger.isTraceEnabled()) { logger.trace(
+			 * "Calling other voip user, forward to proxy servlet."); }
+			 * 
+			 * RequestDispatcher dispatcher = req
+			 * .getRequestDispatcher("ProxyServlet"); if (dispatcher != null) {
+			 * dispatcher.forward(req, null); } else { if
+			 * (logger.isWarnEnabled()) { logger.warn(
+			 * "Cannot find forward servlet, response server internal error.");
+			 * } response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+			 * return; }
+			 */
 		} else {
 			super.doInvite(req);
 		}
