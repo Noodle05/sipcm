@@ -3,16 +3,19 @@
  */
 package com.sipcm.sip.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import com.sipcm.sip.CallStatus;
 import com.sipcm.sip.CallType;
@@ -21,9 +24,11 @@ import com.sipcm.sip.CallType;
  * @author wgao
  * 
  */
-// @Entity
-// @Table(name = "tbl_calllog")
-public class CallLog {
+@Entity
+@Table(name = "tbl_calllog")
+public class CallLog implements Serializable {
+	private static final long serialVersionUID = -7776158599758180354L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")

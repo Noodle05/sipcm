@@ -11,6 +11,19 @@ zipcode VARCHAR(16) NOT NULL,
 country_id INTEGER,
 PRIMARY KEY (id)) ENGINE=InnoDB;
 
+CREATE TABLE tbl_calllog (
+id BIGINT NOT NULL AUTO_INCREMENT,
+user_id BIGINT NOT NULL,
+voipaccount_id BIGINT NOT NULL,
+type INTEGER NOT NULL,
+target VARCHAR(255) NOT NULL,
+starttime DATETIME NOT NULL,
+status INTEGER NOT NULL,
+endtime DATETIME,
+errorcode INTEGER,
+errorMessage VARCHAR(255),
+PRIMARY KEY (id)) ENGINE=InnoDB;
+
 CREATE TABLE tbl_config (
 id INTEGER NOT NULL AUTO_INCREMENT,
 propertykey VARCHAR(255) NOT NULL UNIQUE,
@@ -108,6 +121,14 @@ UNIQUE (name, deletedate)) ENGINE=InnoDB;
 ALTER TABLE tbl_address
 ADD INDEX FK_ADDRESS_COUNTRY (country_id),
 ADD CONSTRAINT FK_ADDRESS_COUNTRY FOREIGN KEY (country_id) REFERENCES tbl_country (id);
+
+ALTER TABLE tbl_calllog
+ADD INDEX FK_CALLLOG_USER (user_id),
+ADD CONSTRAINT FK_CALLLOG_USER FOREIGN KEY (user_id) REFERENCES tbl_usersipprofile (id);
+
+ALTER TABLE tbl_calllog
+ADD INDEX FK_CALLLOG_VOIPACCOUNT (voipaccount_id),
+ADD CONSTRAINT FK_CALLLOG_VOIPACCOUNT FOREIGN KEY (voipaccount_id) REFERENCES tbl_uservoipaccount (id);
 
 ALTER TABLE tbl_userrole
 ADD INDEX FK_USERROLE_ROLE (role_id),

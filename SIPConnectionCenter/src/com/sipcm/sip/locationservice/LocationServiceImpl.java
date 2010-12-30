@@ -3,7 +3,6 @@
  */
 package com.sipcm.sip.locationservice;
 
-import java.net.SocketAddress;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,10 +107,9 @@ public abstract class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public void updateRegistration(String key, Address address,
-			Address remoteEnd, SocketAddress laddr, String callId)
-			throws UserNotFoundException {
+			Address remoteEnd, String callId) throws UserNotFoundException {
 		UserProfile userProfile = getUserProfileByKey(key);
-		userProfile.updateBinding(address, remoteEnd, laddr, callId);
+		userProfile.updateBinding(address, remoteEnd, callId);
 	}
 
 	/*
@@ -142,8 +140,7 @@ public abstract class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public void register(String key, UserSipProfile userSipProfile,
-			Address address, Address remoteEnd, SocketAddress laddr,
-			String callId) {
+			Address address, Address remoteEnd, String callId) {
 		UserProfile userProfile = createUserProfile();
 		userProfile.setAddressOfRecord(key);
 		userProfile.setUserSipProfile(userSipProfile);
@@ -151,7 +148,7 @@ public abstract class LocationServiceImpl implements LocationService {
 		if (up != null) {
 			userProfile = up;
 		}
-		Binding binding = new Binding(address, remoteEnd, laddr, callId);
+		Binding binding = new Binding(address, remoteEnd, callId);
 		userProfile.addBinding(binding);
 	}
 

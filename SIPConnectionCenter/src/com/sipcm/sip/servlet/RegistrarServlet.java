@@ -4,8 +4,6 @@
 package com.sipcm.sip.servlet;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -115,9 +113,6 @@ public class RegistrarServlet extends AbstractSipServlet {
 			String rmaddr = req.getInitialRemoteAddr();
 			int rport = req.getInitialRemotePort();
 			String rt = req.getInitialTransport();
-			String lmaddr = req.getLocalAddr();
-			int lport = req.getLocalPort();
-			SocketAddress laddr = new InetSocketAddress(lmaddr, lport);
 
 			int expiresTime = req.getExpires();
 			if (expiresTime > 0) {
@@ -150,7 +145,8 @@ public class RegistrarServlet extends AbstractSipServlet {
 						logger.trace("Expirestime: {}", contactExpiresTime);
 					}
 					a.setExpires(contactExpiresTime);
-					Address remoteEnd = sipFactory.createAddress(a.getURI().clone());
+					Address remoteEnd = sipFactory.createAddress(a.getURI()
+							.clone());
 					URI ruri = remoteEnd.getURI();
 					if (ruri.isSipURI()) {
 						final SipURI sruri = (SipURI) ruri;
@@ -184,7 +180,7 @@ public class RegistrarServlet extends AbstractSipServlet {
 								logger.trace("Update address addess {}", a);
 							}
 							locationService.updateRegistration(key, a,
-									remoteEnd, laddr, callId);
+									remoteEnd, callId);
 						}
 					} else {
 						if (a.getExpires() > 0) {
@@ -192,7 +188,7 @@ public class RegistrarServlet extends AbstractSipServlet {
 								logger.trace("Add address {}", a);
 							}
 							locationService.register(key, userSipProfile, a,
-									remoteEnd, laddr, callId);
+									remoteEnd, callId);
 							if (logger.isInfoEnabled()) {
 								logger.info("{} registered from {}",
 										userSipProfile.getDisplayName(),

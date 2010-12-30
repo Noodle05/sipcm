@@ -4,7 +4,6 @@
 package com.sipcm.sip.locationservice;
 
 import java.io.Serializable;
-import java.net.SocketAddress;
 
 import javax.servlet.sip.Address;
 
@@ -23,13 +22,9 @@ public class Binding implements Serializable, Comparable<Binding> {
 
 	private Address remoteEnd;
 
-	private SocketAddress laddr;
-
-	public Binding(Address address, Address remoteEnd, SocketAddress laddr,
-			String callId) {
+	public Binding(Address address, Address remoteEnd, String callId) {
 		this.address = address;
 		this.remoteEnd = remoteEnd;
-		this.laddr = laddr;
 		this.callId = callId;
 		lastCheck = System.currentTimeMillis();
 	}
@@ -65,10 +60,6 @@ public class Binding implements Serializable, Comparable<Binding> {
 
 	public Address getRemoteEnd() {
 		return remoteEnd;
-	}
-
-	public SocketAddress getLaddr() {
-		return laddr;
 	}
 
 	public String getCallId() {
