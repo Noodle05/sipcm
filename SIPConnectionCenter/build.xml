@@ -77,7 +77,7 @@
 		<ivy:retrieve pattern="${dist.dir}/lib/[artifact]-[revision].[ext]" conf="runtime" />
 		<!-- Stupid ivy cannot exclude commons-logging, so we need to delete it manually. -->
 		<delete file="${dist.dir}/lib/${commons-logging.filename}" />
-		<copy todir="${dist.dir}/lib" file="${dist.dir}/${jar.filename}" />
+		<move todir="${dist.dir}/lib" file="${dist.dir}/${jar.filename}" />
 		<mkdir dir="${dist.dir}/webinf/contexts" />
 		<copy todir="${dist.dir}/webinf/contexts">
 			<fileset dir="${web.dir}/WEB-INF/contexts" excludes="appContext-datasource.xml,appContext-mailer.xml" />
