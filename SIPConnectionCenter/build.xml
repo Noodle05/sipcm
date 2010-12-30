@@ -15,6 +15,8 @@
 	<property name="jar.filename" value="${ant.project.name}.jar" />
 	<property name="war.filename" value="${ant.project.name}.war" />
 
+	<property name="commons-logging.filename" value="commons-logging-1.1.1.jar" />
+
 	<target name="init">
 		<!-- Create the time stamp -->
 		<tstamp />
@@ -73,6 +75,8 @@
 	<target name="war" depends="jar" description="--> build war deploy file">
 		<echo message="Create WAR file..." />
 		<ivy:retrieve pattern="${dist.dir}/lib/[artifact]-[revision].[ext]" conf="runtime" />
+		<!-- Stupid ivy cannot exclude commons-logging, so we need to delete it manually. -->
+		<delete file="${dist.dir}/lib/${commons-logging.filename}" />
 		<copy todir="${dist.dir}/lib" file="${dist.dir}/${jar.filename}" />
 		<mkdir dir="${dist.dir}/webinf/contexts" />
 		<copy todir="${dist.dir}/webinf/contexts">

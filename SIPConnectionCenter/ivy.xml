@@ -28,6 +28,7 @@
 		<dependency org="org.apache.httpcomponents" name="httpclient"
 			rev="4.0.3" conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
+			<exclude module="commons-codec" />
 		</dependency>
 		<dependency org="org.hibernate" name="hibernate-c3p0" rev="3.5.6-Final"
 			conf="runtime->default;foride->sources,javadoc">
@@ -43,12 +44,17 @@
 			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.dnsjava" name="dnsjava" rev="2.0.6"
 			conf="provided->default;foride->sources,javadoc" />
+		<dependency org="commons-beanutils" name="commons-beanutils-core"
+			rev="1.8.3" conf="runtime->default;foride->sources,javadoc">
+			<exclude module="commons-logging" />
+		</dependency>
 		<dependency org="commons-codec" name="commons-codec" rev="1.4"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="commons-collections" name="commons-collections"
 			rev="3.2.1" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="commons-configuration" name="commons-configuration"
 			rev="1.6" conf="compile->default;foride->sources,javadoc">
+			<exclude module="commons-beanutils-core" />
 			<exclude module="commons-digester" />
 			<exclude module="commons-logging" />
 		</dependency>
@@ -57,10 +63,8 @@
 			<exclude module="commons-beanutils" />
 			<exclude module="commons-logging" />
 		</dependency>
-		<dependency org="commons-lang" name="commons-lang" rev="2.4"
+		<dependency org="commons-lang" name="commons-lang" rev="2.5"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="commons-logging" name="commons-logging" rev="1.1.1"
-			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="javassist" name="javassist" rev="3.8.0.GA"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="log4j" name="log4j" rev="1.2.16"
@@ -68,7 +72,9 @@
 		<dependency org="cglib" name="cglib-nodep" rev="2.2"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.jasypt" name="jasypt" rev="1.6"
-			conf="compile->default;foride->sources,javadoc" />
+			conf="compile->default;foride->sources,javadoc">
+			<exclude module="commons-codec" />
+		</dependency>
 		<dependency org="org.hibernate" name="hibernate-core" rev="3.5.6-Final"
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />

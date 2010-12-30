@@ -38,8 +38,8 @@
 		<property name="jobDetail" ref="contactExpiresJob" />
 		<!-- 10 seconds -->
 		<property name="startDelay" value="10000" />
-		<!-- repeat every 10 seconds -->
-		<property name="repeatInterval" value="10000" />
+		<!-- repeat every 60 seconds -->
+		<property name="repeatInterval" value="60000" />
 	</bean>
 
 	<bean id="contactExpiresJob"
