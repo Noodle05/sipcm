@@ -120,11 +120,11 @@
 		<dependency org="org.springframework" name="spring-web"
 			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework.security" name="spring-security-core"
-			rev="3.0.3.RELEASE" conf="runtime->default;foride->sources,javadoc">
+			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc">
 			<exclude org="org.aspectj" />
 		</dependency>
 		<dependency org="org.springframework.security" name="spring-security-web"
-			rev="3.0.3.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-test"
 			rev="3.0.5.RELEASE" conf="test->default;foride->sources,javadoc" />
 		<dependency org="org.quartz-scheduler" name="quartz" rev="1.8.4"
