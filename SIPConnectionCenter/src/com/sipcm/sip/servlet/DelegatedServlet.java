@@ -117,10 +117,10 @@ public class DelegatedServlet extends B2bServlet {
 		// Remove original authentication headers.
 		forkedRequest.removeHeader(AuthorizationHeader.NAME);
 		forkedRequest.removeHeader(PAssertedIdentityHeader.NAME);
+		sipUtil.processingAddressInSDP(forkedRequest, req);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Sending forked request: {}", forkedRequest);
 		}
-		sipUtil.processingAddressInSDP(forkedRequest, req);
 		forkedRequest.send();
 		if (logger.isInfoEnabled()) {
 			logger.info(
