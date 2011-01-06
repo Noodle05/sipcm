@@ -3,7 +3,7 @@
  */
 package com.sipcm.sip.dialplan;
 
-import java.util.Set;
+import java.util.Collection;
 
 import org.springframework.stereotype.Component;
 
@@ -24,9 +24,8 @@ public class InternationalDialplanExecutor extends AbstractDialplanExecutor {
 	 * UserSipProfile, java.lang.String)
 	 */
 	@Override
-	public UserVoipAccount execute(UserSipProfile userSipProfile,
-			String phoneNumber) {
-		Set<UserVoipAccount> accounts = userSipProfile.getVoipAccounts();
+	public UserVoipAccount internalExecute(UserSipProfile userSipProfile,
+			String phoneNumber, Collection<UserVoipAccount> accounts) {
 		if (accounts.size() == 1) {
 			return accounts.iterator().next();
 		} else {

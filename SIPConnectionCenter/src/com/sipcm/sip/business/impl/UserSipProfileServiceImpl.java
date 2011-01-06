@@ -16,6 +16,7 @@ import com.sipcm.common.OnlineStatus;
 import com.sipcm.common.PhoneNumberStatus;
 import com.sipcm.common.model.User;
 import com.sipcm.sip.business.UserSipProfileService;
+import com.sipcm.sip.dao.UserSipProfileDAO;
 import com.sipcm.sip.model.UserSipProfile;
 
 /**
@@ -95,5 +96,20 @@ public class UserSipProfileServiceImpl extends
 		Filter filter = filterFactory.createSimpleFilter("phoneNumber",
 				phoneNumber);
 		return dao.getUniqueEntity(filter);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.business.UserSipProfileService#updateOnlineStatus(com.sipcm
+	 * .common.OnlineStatus, com.sipcm.sip.model.UserSipProfile[])
+	 */
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS)
+	public void updateOnlineStatus(OnlineStatus onlineStatus,
+			UserSipProfile... userSipProfiles) {
+		((UserSipProfileDAO) dao).updateOnlineStatus(onlineStatus,
+				userSipProfiles);
 	}
 }

@@ -7,6 +7,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Random;
+import java.util.concurrent.Executor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -16,7 +17,6 @@ import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.commons.configuration.Configuration;
-import org.mobicents.servlet.sip.JainSipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -34,6 +34,9 @@ public class PublicIpAddressHolder {
 	public static final String STUN_SERVER = "sip.stun.server";
 	public static final String STUN_PORT = "sip.stun.port";
 
+	private static final int MAX_PORT_NUMBER = 65535;
+	private static final int MIN_PORT_NUMBER = 1024;
+
 	private static Random portNumberGenerator = new Random();
 
 	private InetAddress publicIp;
@@ -41,47 +44,57 @@ public class PublicIpAddressHolder {
 	@Resource(name = "applicationConfiguration")
 	private Configuration appConfig;
 
+	@Resource(name = "global.threadPool")
+	private Executor threadPool;
+
 	@PostConstruct
 	public void init() {
+		if (isUseStun()) {
+			threadPool.execute(new Runnable() {
+				@Override
+				public void run() {
+					probePublicIp();
+				}
+			});
+		}
+	}
+
+	private void probePublicIp() {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Getting public IP address.");
 		}
 		try {
-			boolean useStun = isUseStun();
-			if (useStun) {
-				InetAddress ipAddress = InetAddress.getLocalHost();
-				if (ipAddress.isLoopbackAddress()) {
-					logger.warn("The Ip address provided is the loopback address, stun won't be enabled for it");
+			InetAddress ipAddress = InetAddress.getLocalHost();
+			if (ipAddress.isLoopbackAddress()) {
+				logger.warn("The Ip address provided is the loopback address, stun won't be enabled for it");
+			} else {
+				// chooses stun port randomly
+				DatagramSocket randomSocket = initRandomPortSocket();
+				int randomPort = randomSocket.getLocalPort();
+				randomSocket.disconnect();
+				randomSocket.close();
+				randomSocket = null;
+				StunAddress localStunAddress = new StunAddress(ipAddress,
+						randomPort);
+
+				StunAddress serverStunAddress = new StunAddress(
+						getStunServerAddress(), getStunServerPort());
+
+				NetworkConfigurationDiscoveryProcess addressDiscovery = new NetworkConfigurationDiscoveryProcess(
+						localStunAddress, serverStunAddress);
+				addressDiscovery.start();
+				StunDiscoveryReport report = addressDiscovery
+						.determineAddress();
+				if (report.getPublicAddress() != null) {
+					publicIp = report.getPublicAddress().getSocketAddress()
+							.getAddress();
 				} else {
-					// chooses stun port randomly
-					DatagramSocket randomSocket = initRandomPortSocket();
-					int randomPort = randomSocket.getLocalPort();
-					randomSocket.disconnect();
-					randomSocket.close();
-					randomSocket = null;
-					StunAddress localStunAddress = new StunAddress(ipAddress,
-							randomPort);
-
-					StunAddress serverStunAddress = new StunAddress(
-							getStunServerAddress(), getStunServerPort());
-
-					NetworkConfigurationDiscoveryProcess addressDiscovery = new NetworkConfigurationDiscoveryProcess(
-							localStunAddress, serverStunAddress);
-					addressDiscovery.start();
-					StunDiscoveryReport report = addressDiscovery
-							.determineAddress();
-					if (report.getPublicAddress() != null) {
-						publicIp = report.getPublicAddress().getSocketAddress()
-								.getAddress();
-					} else {
-						useStun = false;
-						logger.error("Stun discovery failed to find a valid public ip address, disabling stun !");
-					}
-					if (logger.isInfoEnabled()) {
-						logger.info("Stun report = " + report);
-					}
-					addressDiscovery.shutDown();
+					logger.error("Stun discovery failed to find a valid public ip address, disabling stun !");
 				}
+				if (logger.isInfoEnabled()) {
+					logger.info("Stun report = " + report);
+				}
+				addressDiscovery.shutDown();
 			}
 		} catch (Exception ex) {
 			if (logger.isErrorEnabled()) {
@@ -113,8 +126,8 @@ public class PublicIpAddressHolder {
 	 */
 	private DatagramSocket initRandomPortSocket() {
 		int bindRetries = 5;
-		int currentlyTriedPort = getRandomPortNumber(
-				JainSipUtils.MIN_PORT_NUMBER, JainSipUtils.MAX_PORT_NUMBER);
+		int currentlyTriedPort = getRandomPortNumber(MIN_PORT_NUMBER,
+				MAX_PORT_NUMBER);
 
 		DatagramSocket resultSocket = null;
 		// we'll first try to bind to a random port. if this fails we'll try
@@ -132,9 +145,8 @@ public class PublicIpAddressHolder {
 				}
 				// port seems to be taken. try another one.
 				logger.debug("Port " + currentlyTriedPort + " seems in use.");
-				currentlyTriedPort = getRandomPortNumber(
-						JainSipUtils.MIN_PORT_NUMBER,
-						JainSipUtils.MAX_PORT_NUMBER);
+				currentlyTriedPort = getRandomPortNumber(MIN_PORT_NUMBER,
+						MAX_PORT_NUMBER);
 				logger.debug("Retrying bind on port " + currentlyTriedPort);
 			}
 		}

@@ -70,4 +70,8 @@
 		<entry key="SIP" value="DelegatedServlet" />
 		<entry key="GOOGLE_VOICE" value="GoogleVoiceServlet" />
 	</util:map>
+
+	<util:list id="sip.registrationEventListeners">
+		<ref bean="userSipProfileOnlineStatusUpdater" />
+	</util:list>
 </beans>

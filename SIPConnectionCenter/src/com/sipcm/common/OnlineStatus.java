@@ -8,5 +8,5 @@ package com.sipcm.common;
  * 
  */
 public enum OnlineStatus {
-	ONLINE, OFFLINE
+	OFFLINE, ONLINE
 }

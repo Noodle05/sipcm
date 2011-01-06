@@ -4,18 +4,13 @@
 package com.sipcm.sip.model;
 
 import java.io.Serializable;
-import java.util.Set;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -24,7 +19,6 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
@@ -73,11 +67,6 @@ public class UserSipProfile extends AbstractTrackableEntity implements
 	@Basic
 	@Column(name = "allow_local_directly", nullable = false)
 	private boolean allowLocalDirectly;
-
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "user_id")
-	@Where(clause = "deletedate  = 0")
-	private Set<UserVoipAccount> voipAccounts;
 
 	/**
 	 * @param id
@@ -185,21 +174,6 @@ public class UserSipProfile extends AbstractTrackableEntity implements
 	 */
 	public boolean isAllowLocalDirectly() {
 		return allowLocalDirectly;
-	}
-
-	/**
-	 * @param voipAccounts
-	 *            the voipAccounts to set
-	 */
-	public void setSipAccounts(Set<UserVoipAccount> voipAccounts) {
-		this.voipAccounts = voipAccounts;
-	}
-
-	/**
-	 * @return the voipAccounts
-	 */
-	public Set<UserVoipAccount> getVoipAccounts() {
-		return voipAccounts;
 	}
 
 	public String getDisplayName() {

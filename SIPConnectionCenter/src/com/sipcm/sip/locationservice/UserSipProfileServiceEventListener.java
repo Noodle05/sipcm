@@ -44,23 +44,15 @@ public class UserSipProfileServiceEventListener implements
 	public void entityModified(EntityEventObject<UserSipProfile, Long> event) {
 		UserSipProfile[] users = event.getSource();
 		Collection<Long> changedIds = new ArrayList<Long>(users.length);
-		Collection<Long> disabledIds = new ArrayList<Long>(users.length);
 		for (UserSipProfile user : users) {
 			if (user.getOwner().getStatus().isActive()) {
 				changedIds.add(user.getId());
-			} else {
-				disabledIds.add(user.getId());
 			}
 		}
 		if (!changedIds.isEmpty()) {
 			Long[] ids = new Long[changedIds.size()];
 			ids = changedIds.toArray(ids);
 			locationService.onUserChanged(ids);
-		}
-		if (!disabledIds.isEmpty()) {
-			Long[] ids = new Long[disabledIds.size()];
-			ids = disabledIds.toArray(ids);
-			locationService.onUserDisabled(ids);
 		}
 	}
 
@@ -77,7 +69,7 @@ public class UserSipProfileServiceEventListener implements
 		for (int i = 0; i < users.length; i++) {
 			ids[i] = users[i].getId();
 		}
-		locationService.onUserDisabled(ids);
+		locationService.onUserDeleted(ids);
 	}
 
 }

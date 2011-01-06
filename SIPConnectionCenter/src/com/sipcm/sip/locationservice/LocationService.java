@@ -51,5 +51,5 @@ public interface LocationService {
 	 * 
 	 * @param userIds
 	 */
-	public void onUserDisabled(Long... userIds);
+	public void onUserDeleted(Long... userIds);
 }

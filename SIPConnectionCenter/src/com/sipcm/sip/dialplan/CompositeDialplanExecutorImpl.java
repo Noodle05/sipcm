@@ -3,7 +3,7 @@
  */
 package com.sipcm.sip.dialplan;
 
-import java.util.Set;
+import java.util.Collection;
 
 import javax.annotation.Resource;
 
@@ -21,29 +21,30 @@ import com.sipcm.sip.model.UserVoipAccount;
 @Component("dialplanExecutor")
 public class CompositeDialplanExecutorImpl extends AbstractDialplanExecutor {
 	@Resource(name = "internationalDialplanExecutor")
-	private DialplanExecutor internationalDialplanExecutor;
+	private AbstractDialplanExecutor internationalDialplanExecutor;
 
 	@Resource(name = "naDialplanExecutor")
-	private DialplanExecutor naDialplanExecutor;
+	private AbstractDialplanExecutor naDialplanExecutor;
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.sipcm.sip.dialplan.DialplanExecutor#execute(com.sipcm.sip.model.
-	 * UserSipProfile, java.lang.String)
+	 * @see
+	 * com.sipcm.sip.dialplan.AbstractDialplanExecutor#internalExecute(com.sipcm
+	 * .sip.model.UserSipProfile, java.lang.String, java.util.Collection)
 	 */
 	@Override
-	public UserVoipAccount execute(UserSipProfile userSipProfile,
-			String phoneNumber) {
-		Set<UserVoipAccount> accounts = userSipProfile.getVoipAccounts();
+	public UserVoipAccount internalExecute(UserSipProfile userSipProfile,
+			String phoneNumber, Collection<UserVoipAccount> accounts) {
 		if (accounts == null || accounts.isEmpty()) {
 			return null;
 		}
 		if (phoneNumberUtil.isNaPhoneNumber(phoneNumber)) {
-			return naDialplanExecutor.execute(userSipProfile, phoneNumber);
+			return naDialplanExecutor.internalExecute(userSipProfile,
+					phoneNumber, accounts);
 		} else {
-			return internationalDialplanExecutor.execute(userSipProfile,
-					phoneNumber);
+			return internationalDialplanExecutor.internalExecute(
+					userSipProfile, phoneNumber, accounts);
 		}
 	}
 }

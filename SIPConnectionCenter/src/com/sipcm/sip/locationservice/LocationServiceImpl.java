@@ -43,6 +43,9 @@ public abstract class LocationServiceImpl implements LocationService {
 	@Resource(name = "userSipProfileService")
 	private UserSipProfileService userSipProfileService;
 
+	@Resource(name = "Sip.RegistrationEventListener")
+	private RegistrationEventListener listener;
+
 	@PostConstruct
 	public void init() throws NoSuchAlgorithmException {
 		userProfiles = new ConcurrentHashMap<String, UserProfile>();
@@ -57,9 +60,12 @@ public abstract class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public void removeAllBinding(String key) throws UserNotFoundException {
-		if (userProfiles.remove(key) == null) {
+		UserProfile up = userProfiles.remove(key);
+		if (up == null) {
 			throw new UserNotFoundException();
 		}
+		listener.userUnregistered(new RegistrationEventObject(up
+				.getUserSipProfile()));
 	}
 
 	/*
@@ -95,6 +101,8 @@ public abstract class LocationServiceImpl implements LocationService {
 		}
 		if (userProfile.hasNoBinding()) {
 			userProfiles.remove(key);
+			listener.userUnregistered(new RegistrationEventObject(userProfile
+					.getUserSipProfile()));
 		}
 	}
 
@@ -150,6 +158,10 @@ public abstract class LocationServiceImpl implements LocationService {
 		}
 		Binding binding = new Binding(address, remoteEnd, callId);
 		userProfile.addBinding(binding);
+		if (up == null) {
+			listener.userRegistered(new RegistrationEventObject(userProfile
+					.getUserSipProfile()));
+		}
 	}
 
 	/*
@@ -206,6 +218,7 @@ public abstract class LocationServiceImpl implements LocationService {
 	public void checkContactExpires() {
 		Iterator<Entry<String, UserProfile>> ite = userProfiles.entrySet()
 				.iterator();
+		Collection<UserSipProfile> unregisteredUsers = new ArrayList<UserSipProfile>();
 		while (ite.hasNext()) {
 			Entry<String, UserProfile> entry = ite.next();
 			UserProfile userProfile = entry.getValue();
@@ -220,7 +233,13 @@ public abstract class LocationServiceImpl implements LocationService {
 							entry.getKey());
 				}
 				ite.remove();
+				unregisteredUsers.add(userProfile.getUserSipProfile());
 			}
+		}
+		if (!unregisteredUsers.isEmpty()) {
+			UserSipProfile[] us = new UserSipProfile[unregisteredUsers.size()];
+			us = unregisteredUsers.toArray(us);
+			listener.userUnregistered(new RegistrationEventObject(us));
 		}
 	}
 
@@ -255,6 +274,7 @@ public abstract class LocationServiceImpl implements LocationService {
 		Collections.sort(ids);
 		Iterator<Entry<String, UserProfile>> ite = userProfiles.entrySet()
 				.iterator();
+		Collection<UserSipProfile> userSipProfiles = new ArrayList<UserSipProfile>();
 		while (ite.hasNext() && !ids.isEmpty()) {
 			Entry<String, UserProfile> entry = ite.next();
 			UserProfile userProfile = entry.getValue();
@@ -267,10 +287,16 @@ public abstract class LocationServiceImpl implements LocationService {
 				if (userSipProfile == null
 						|| !userSipProfile.getOwner().getStatus().isActive()) {
 					ite.remove();
+					userSipProfiles.add(userSipProfile);
 				} else {
 					userProfile.setUserSipProfile(userSipProfile);
 				}
 			}
+		}
+		if (!userSipProfiles.isEmpty()) {
+			UserSipProfile[] us = new UserSipProfile[userSipProfiles.size()];
+			us = userSipProfiles.toArray(us);
+			listener.userUnregistered(new RegistrationEventObject(us));
 		}
 	}
 
@@ -282,7 +308,7 @@ public abstract class LocationServiceImpl implements LocationService {
 	 * .Long[])
 	 */
 	@Override
-	public void onUserDisabled(Long... userIds) {
+	public void onUserDeleted(Long... userIds) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("User deleted/disabled. ids: "
 					+ Arrays.toString(userIds));

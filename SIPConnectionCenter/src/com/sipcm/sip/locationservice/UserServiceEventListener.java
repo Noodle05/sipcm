@@ -44,23 +44,13 @@ public class UserServiceEventListener implements
 	public void entityModified(EntityEventObject<User, Long> event) {
 		User[] users = event.getSource();
 		Collection<Long> changedIds = new ArrayList<Long>(users.length);
-		Collection<Long> disabledIds = new ArrayList<Long>(users.length);
 		for (User user : users) {
-			if (user.getStatus().isActive()) {
-				changedIds.add(user.getId());
-			} else {
-				disabledIds.add(user.getId());
-			}
+			changedIds.add(user.getId());
 		}
 		if (!changedIds.isEmpty()) {
 			Long[] ids = new Long[changedIds.size()];
 			ids = changedIds.toArray(ids);
 			locationService.onUserChanged(ids);
-		}
-		if (!disabledIds.isEmpty()) {
-			Long[] ids = new Long[disabledIds.size()];
-			ids = disabledIds.toArray(ids);
-			locationService.onUserDisabled(ids);
 		}
 	}
 
@@ -77,7 +67,7 @@ public class UserServiceEventListener implements
 		for (int i = 0; i < users.length; i++) {
 			ids[i] = users[i].getId();
 		}
-		locationService.onUserDisabled(ids);
+		locationService.onUserDeleted(ids);
 	}
 
 }

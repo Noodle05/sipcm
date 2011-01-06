@@ -3,7 +3,7 @@
  */
 package com.sipcm.sip.dialplan;
 
-import java.util.Set;
+import java.util.Collection;
 
 import org.springframework.stereotype.Component;
 
@@ -18,15 +18,15 @@ import com.sipcm.sip.model.UserVoipAccount;
 @Component("naDialplanExecutor")
 public class NaDialplanExecutor extends AbstractDialplanExecutor {
 	/*
-	 * s(non-Javadoc)
+	 * (non-Javadoc)
 	 * 
-	 * @see com.sipcm.sip.dialplan.DialplanExecutor#execute(com.sipcm.sip.model.
-	 * UserSipProfile, java.lang.String)
+	 * @see
+	 * com.sipcm.sip.dialplan.AbstractDialplanExecutor#internalExecute(com.sipcm
+	 * .sip.model.UserSipProfile, java.lang.String, java.util.Collection)
 	 */
 	@Override
-	public UserVoipAccount execute(UserSipProfile userSipProfile,
-			String phoneNumber) {
-		Set<UserVoipAccount> accounts = userSipProfile.getVoipAccounts();
+	public UserVoipAccount internalExecute(UserSipProfile userSipProfile,
+			String phoneNumber, Collection<UserVoipAccount> accounts) {
 		if (accounts.size() == 1) {
 			return accounts.iterator().next();
 		} else {
