@@ -91,8 +91,15 @@ public class PublicIpAddressHolder {
 				} else {
 					logger.error("Stun discovery failed to find a valid public ip address, disabling stun !");
 				}
-				if (logger.isInfoEnabled()) {
-					logger.info("Stun report = " + report);
+				if (publicIp != null) {
+					if (logger.isInfoEnabled()) {
+						logger.info("Using public IP address: \"{}\".",
+								publicIp.getHostAddress());
+					}
+				} else {
+					if (logger.isWarnEnabled()) {
+						logger.warn("Cannot detect public IP address.");
+					}
 				}
 				addressDiscovery.shutDown();
 			}
@@ -147,7 +154,7 @@ public class PublicIpAddressHolder {
 				logger.debug("Port " + currentlyTriedPort + " seems in use.");
 				currentlyTriedPort = getRandomPortNumber(MIN_PORT_NUMBER,
 						MAX_PORT_NUMBER);
-				logger.debug("Retrying bind on port " + currentlyTriedPort);
+				logger.debug("Retrying bind on port {}", currentlyTriedPort);
 			}
 		}
 

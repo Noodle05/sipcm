@@ -10,8 +10,8 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import com.sipcm.base.AbstractServiceEventListener;
 import com.sipcm.base.EntityEventObject;
-import com.sipcm.base.ServiceEventListener;
 import com.sipcm.sip.model.UserSipProfile;
 
 /**
@@ -19,20 +19,10 @@ import com.sipcm.sip.model.UserSipProfile;
  * 
  */
 @Component("userSipProfileServiceEventListener")
-public class UserSipProfileServiceEventListener implements
-		ServiceEventListener<UserSipProfile, Long> {
+public class UserSipProfileServiceEventListener extends
+		AbstractServiceEventListener<UserSipProfile, Long> {
 	@Resource(name = "sipLocationService")
 	private LocationService locationService;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.base.ServiceEventListener#entityCreated(com.sipcm.base.
-	 * EntityEventObject)
-	 */
-	@Override
-	public void entityCreated(EntityEventObject<UserSipProfile, Long> event) {
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -55,21 +45,4 @@ public class UserSipProfileServiceEventListener implements
 			locationService.onUserChanged(ids);
 		}
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.base.ServiceEventListener#entityDeleted(com.sipcm.base.
-	 * EntityEventObject)
-	 */
-	@Override
-	public void entityDeleted(EntityEventObject<UserSipProfile, Long> event) {
-		UserSipProfile[] users = event.getSource();
-		Long[] ids = new Long[users.length];
-		for (int i = 0; i < users.length; i++) {
-			ids[i] = users[i].getId();
-		}
-		locationService.onUserDeleted(ids);
-	}
-
 }

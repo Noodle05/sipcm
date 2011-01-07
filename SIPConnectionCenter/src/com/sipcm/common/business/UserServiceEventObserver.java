@@ -42,21 +42,21 @@ public class UserServiceEventObserver extends
 	@Around("target(com.sipcm.common.business.UserService) && execution(public * saveEntities(..)) && args(users)")
 	public final Object entitiesSaved(ProceedingJoinPoint pjp,
 			Collection<User> users) throws Throwable {
-		return super.aroundSaveEntities(pjp, users);
+		return aroundSaveEntities(pjp, users);
 	}
 
 	@AfterReturning(pointcut = "target(com.sipcm.common.business.UserService) && execution(public * removeEntity*(..))", returning = "user")
 	public final void entityDeleted(User user) {
-		super.afterDeleteEntity(user);
+		afterDeleteEntity(user);
 	}
 
 	@AfterReturning(pointcut = "target(com.sipcm.common.business.UserService) && execution(public * removeEntityById*(..))", returning = "user")
 	public final void entityDeletedById(User user) {
-		super.afterDeleteEntity(user);
+		afterDeleteEntity(user);
 	}
 
 	@AfterReturning(pointcut = "target(com.sipcm.common.business.UserService) && execution(public * removeEntities(..))", returning = "users")
 	public final void entitiesDeleted(Collection<User> users) {
-		super.afterDeleteEntities(users);
+		afterDeleteEntities(users);
 	}
 }

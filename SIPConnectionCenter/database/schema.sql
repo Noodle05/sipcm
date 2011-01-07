@@ -22,6 +22,7 @@ status INTEGER NOT NULL,
 endtime DATETIME,
 errorcode INTEGER,
 errorMessage VARCHAR(255),
+KEY (user_id, starttime),
 PRIMARY KEY (id)) ENGINE=InnoDB;
 
 CREATE TABLE tbl_config (
@@ -103,7 +104,8 @@ type INTEGER NOT NULL,
 user_id BIGINT NOT NULL,
 voipvendor_id INTEGER NOT NULL,
 PRIMARY KEY (id),
-UNIQUE (user_id, name)) ENGINE=InnoDB;
+KEY (voipvendor_id, account, deletedate),
+UNIQUE (user_id, name, deletedate)) ENGINE=InnoDB;
 
 CREATE TABLE tbl_voipvendor (
 id INTEGER NOT NULL AUTO_INCREMENT,
@@ -165,104 +167,13 @@ AND u.status = 0
 AND u.deletedate = 0
 AND r.deletedate = 0;
 
-/**
 DELIMITER //
-CREATE TRIGGER tgr_address_createdate BEFORE INSERT ON tbl_address
-FOR EACH ROW
-BEGIN
-  IF NEW.createdate IS NULL THEN
-    SET NEW.createdate = CURRENT_DATE;
-  END IF;
-  IF NEW.deletedate IS NULL THEN
-  	SET NEW.deletedate = '0000-00-00 00:00:00';
-  END IF;
-  IF NEW.lastmodify IS NULL THEN
-    SET NEW.lastmodify = CURRENT_DATE;
-  END IF;
-END;//
-
-CREATE TRIGGER tgr_country_createdate BEFORE INSERT ON tbl_country
-FOR EACH ROW
-BEGIN
-  IF NEW.createdate IS NULL THEN
-    SET NEW.createdate = CURRENT_DATE;
-  END IF;
-  IF NEW.deletedate IS NULL THEN
-  	SET NEW.deletedate = '0000-00-00 00:00:00';
-  END IF;
-  IF NEW.lastmodify IS NULL THEN
-    SET NEW.lastmodify = CURRENT_DATE;
-  END IF;
-END;//
-
-CREATE TRIGGER tgr_role_createdate BEFORE INSERT ON tbl_role
-FOR EACH ROW
-BEGIN
-  IF NEW.createdate IS NULL THEN
-    SET NEW.createdate = CURRENT_DATE;
-  END IF;
-  IF NEW.deletedate IS NULL THEN
-  	SET NEW.deletedate = '0000-00-00 00:00:00';
-  END IF;
-  IF NEW.lastmodify IS NULL THEN
-    SET NEW.lastmodify = CURRENT_DATE;
-  END IF;
-END;//
-
-CREATE TRIGGER tgr_user_createdate BEFORE INSERT ON tbl_user
-FOR EACH ROW
-BEGIN
-  IF NEW.createdate IS NULL THEN
-    SET NEW.createdate = CURRENT_DATE;
-  END IF;
-  IF NEW.deletedate IS NULL THEN
-  	SET NEW.deletedate = '0000-00-00 00:00:00';
-  END IF;
-  IF NEW.lastmodify IS NULL THEN
-    SET NEW.lastmodify = CURRENT_DATE;
-  END IF;
-END;//
-
-CREATE TRIGGER tgr_usersipprofile_createdate BEFORE INSERT ON tbl_usersipprofile
-FOR EACH ROW
-BEGIN
-  IF NEW.createdate IS NULL THEN
-    SET NEW.createdate = CURRENT_DATE;
-  END IF;
-  IF NEW.deletedate IS NULL THEN
-  	SET NEW.deletedate = '0000-00-00 00:00:00';
-  END IF;
-  IF NEW.lastmodify IS NULL THEN
-    SET NEW.lastmodify = CURRENT_DATE;
-  END IF;
-END;//
-
-CREATE TRIGGER tgr_uservoiopaccount_createdate BEFORE INSERT ON tbl_uservoipaccount
-FOR EACH ROW
-BEGIN
-  IF NEW.createdate IS NULL THEN
-    SET NEW.createdate = CURRENT_DATE;
-  END IF;
-  IF NEW.deletedate IS NULL THEN
-   SET NEW.deletedate = '0000-00-00 00:00:00';
-  END IF;
-  IF NEW.lastmodify IS NULL THEN
-    SET NEW.lastmodify = CURRENT_DATE;
-  END IF;
-END;//
-
-CREATE TRIGGER tgr_voipvendor_createdate BEFORE INSERT ON tbl_voipvendor
-FOR EACH ROW
-BEGIN
-  IF NEW.createdate IS NULL THEN
-    SET NEW.createdate = CURRENT_DATE;
-  END IF;
-  IF NEW.lastmodify IS NULL THEN
-    SET NEW.lastmodify = CURRENT_DATE;
-  END IF;
-  IF NEW.deletedate IS NULL THEN
-  	SET NEW.deletedate = '0000-00-00 00:00:00';
+DROP TRIGGER tgr_user_delete IF EXISTS //
+CREATE TRIGGER tgr_user BEFORE UPDATE ON tbl_user
+FOR EACH ROW BEGIN
+  IF NEW.deletedate <> 0 THEN
+    UPDATE tbl_usersipprofile SET deletedate = NEW.deletedate WHERE id = NEW.id;
+    UPDATE tbl_uservoipaccount SET deletedate = NEW.deletedate WHERE user_id = NEW.id;
   END IF;
 END;//
 DELIMITER ;
-**/

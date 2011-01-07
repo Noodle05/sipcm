@@ -10,29 +10,19 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import com.sipcm.base.AbstractServiceEventListener;
 import com.sipcm.base.EntityEventObject;
-import com.sipcm.base.ServiceEventListener;
 import com.sipcm.common.model.User;
 
 /**
  * @author wgao
  * 
  */
-@Component("userServiceEventListener")
-public class UserServiceEventListener implements
-		ServiceEventListener<User, Long> {
+@Component("locationServiceUserEventListener")
+public class UserServiceEventListener extends
+		AbstractServiceEventListener<User, Long> {
 	@Resource(name = "sipLocationService")
 	private LocationService locationService;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.base.ServiceEventListener#entityCreated(com.sipcm.base.
-	 * EntityEventObject)
-	 */
-	@Override
-	public void entityCreated(EntityEventObject<User, Long> event) {
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -69,5 +59,4 @@ public class UserServiceEventListener implements
 		}
 		locationService.onUserDeleted(ids);
 	}
-
 }

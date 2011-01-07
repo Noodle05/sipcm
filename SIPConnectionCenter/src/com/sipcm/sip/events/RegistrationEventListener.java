@@ -1,7 +1,8 @@
 /**
  * 
  */
-package com.sipcm.sip.locationservice;
+package com.sipcm.sip.events;
+
 
 
 /**

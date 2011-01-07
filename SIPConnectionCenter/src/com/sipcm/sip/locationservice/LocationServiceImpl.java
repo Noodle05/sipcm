@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sipcm.sip.business.UserSipProfileService;
+import com.sipcm.sip.events.RegistrationEventListener;
+import com.sipcm.sip.events.RegistrationEventObject;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.PhoneNumberUtil;
 

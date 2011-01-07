@@ -31,20 +31,15 @@ public abstract class VoipVendorManager {
 
 	protected abstract VoipVendorContext createSipVoipVendorContext();
 
-	protected abstract VoipVendorContext createGoogleVoiceVoipVendorContext();
-
 	private VoipVendorContext createVoipVendorContext(VoipVendor voipVendor) {
 		VoipVendorContext ctx = null;
 		try {
 			switch (voipVendor.getType()) {
 			case SIP:
 				ctx = createSipVoipVendorContext();
-			case GOOGLE_VOICE:
-				ctx = createGoogleVoiceVoipVendorContext();
 			}
 			if (ctx != null) {
 				ctx.setVoipVendor(voipVendor);
-				ctx.init();
 			}
 		} catch (Exception e) {
 			if (logger.isErrorEnabled()) {
@@ -60,16 +55,18 @@ public abstract class VoipVendorManager {
 	@PostConstruct
 	public void init() {
 		voipVendors = new ConcurrentHashMap<VoipVendor, VoipVendorContext>();
-	}
-
-	public void start() {
 		List<VoipVendor> venders = voipVendorService.getEntities();
 		for (VoipVendor vender : venders) {
 			VoipVendorContext ctx = createVoipVendorContext(vender);
 			if (ctx != null) {
 				voipVendors.put(vender, ctx);
 			}
-			// voipVenders.put(vender, )
+		}
+	}
+
+	public void onUserDeleted(Long... userIds) {
+		for (VoipVendorContext ctx : voipVendors.values()) {
+			ctx.onUserDeleted(userIds);
 		}
 	}
 }

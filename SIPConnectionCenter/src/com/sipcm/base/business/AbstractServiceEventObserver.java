@@ -32,6 +32,9 @@ public abstract class AbstractServiceEventObserver<Entity extends IdBasedEntity<
 
 	protected final Object aroundSaveEntity(ProceedingJoinPoint pjp,
 			Entity entity) throws Throwable {
+		if (listener == null) {
+			return pjp.proceed(new Object[] { entity });
+		}
 		boolean isNew = true;
 		if (entity != null) {
 			if (entity.getId() != null) {
@@ -61,6 +64,9 @@ public abstract class AbstractServiceEventObserver<Entity extends IdBasedEntity<
 
 	protected final Object aroundSaveEntities(ProceedingJoinPoint pjp,
 			Collection<Entity> entities) throws Throwable {
+		if (listener == null) {
+			return pjp.proceed(new Object[] { entities });
+		}
 		Collection<Entity> newEntities;
 		Collection<Entity> existingEntities;
 		if (entities != null && !entities.isEmpty()) {
@@ -115,6 +121,9 @@ public abstract class AbstractServiceEventObserver<Entity extends IdBasedEntity<
 	}
 
 	protected final void afterDeleteEntity(Entity entity) {
+		if (listener == null) {
+			return;
+		}
 		if (entity != null) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Entity \"{}\" been deleted, notify listener.",
@@ -134,6 +143,9 @@ public abstract class AbstractServiceEventObserver<Entity extends IdBasedEntity<
 	}
 
 	protected final void afterDeleteEntities(Collection<Entity> entities) {
+		if (listener == null) {
+			return;
+		}
 		if (entities != null && !entities.isEmpty()) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Collection of entities been deleted, notify listener.");

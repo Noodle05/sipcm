@@ -37,27 +37,27 @@ public class UserSipProfileServiceEventObserver extends
 	@Around("target(com.sipcm.sip.business.UserSipProfileService) && execution(* saveEntity(..)) && args(userSipProfile)")
 	public final Object entitySaved(ProceedingJoinPoint pjp,
 			UserSipProfile userSipProfile) throws Throwable {
-		return super.aroundSaveEntity(pjp, userSipProfile);
+		return aroundSaveEntity(pjp, userSipProfile);
 	}
 
 	@Around("target(com.sipcm.sip.business.UserSipProfileService) && execution(* saveEntity(..)) && args(userSipProfiles)")
 	public final Object entitiesSaved(ProceedingJoinPoint pjp,
 			Collection<UserSipProfile> userSipProfiles) throws Throwable {
-		return super.aroundSaveEntities(pjp, userSipProfiles);
+		return aroundSaveEntities(pjp, userSipProfiles);
 	}
 
 	@AfterReturning(pointcut = "target(com.sipcm.sip.business.UserSipProfileService) && execution(* removeEntity*(..))", returning = "userSipProfile")
 	public final void entityDeleted(UserSipProfile userSipProfile) {
-		super.afterDeleteEntity(userSipProfile);
+		afterDeleteEntity(userSipProfile);
 	}
 
 	@AfterReturning(pointcut = "target(com.sipcm.sip.business.UserSipProfileService) && execution(public * removeEntityById*(..))", returning = "userSipProfile")
 	public final void entityDeletedById(UserSipProfile userSipProfile) {
-		super.afterDeleteEntity(userSipProfile);
+		afterDeleteEntity(userSipProfile);
 	}
 
 	@AfterReturning(pointcut = "target(com.sipcm.sip.business.UserSipProfileService) && execution(* removeEntities(..))", returning = "userSipProfiles")
 	public final void entitiesDeleted(Collection<UserSipProfile> userSipProfiles) {
-		super.afterDeleteEntities(userSipProfiles);
+		afterDeleteEntities(userSipProfiles);
 	}
 }

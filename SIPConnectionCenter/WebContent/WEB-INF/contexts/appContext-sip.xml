@@ -11,8 +11,6 @@
 	</bean>
 
 	<bean id="voipVendorManager" class="com.sipcm.sip.vendor.VoipVendorManager">
-		<lookup-method name="createGoogleVoiceVoipVendorContext"
-			bean="googleVoiceVoipVendorContext" />
 		<lookup-method name="createSipVoipVendorContext" bean="sipVoipVendorContext" />
 	</bean>
 
@@ -74,4 +72,13 @@
 	<util:list id="sip.registrationEventListeners">
 		<ref bean="userSipProfileOnlineStatusUpdater" />
 	</util:list>
+
+	<bean id="userServiceEventListener" class="com.sipcm.base.CompositeServiceEventListener">
+		<property name="listeners">
+			<util:list>
+				<ref bean="locationServiceUserEventListener" />
+				<ref bean="vendorManagerUserEventListener" />
+			</util:list>
+		</property>
+	</bean>
 </beans>

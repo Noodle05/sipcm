@@ -5,9 +5,9 @@ package com.sipcm.sip.locationservice;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -42,18 +42,21 @@ public class UserProfile {
 
 	private UserSipProfile userSipProfile;
 
-	private List<Binding> bindings;
+	private Queue<Binding> bindings;
 
-	private Lock bindingsReadLock;
+	private transient final Lock bindingsReadLock;
 
-	private Lock bindingsWriteLock;
+	private transient final Lock bindingsWriteLock;
 
-	@PostConstruct
-	public void init() {
-		bindings = new ArrayList<Binding>();
+	public UserProfile() {
 		ReadWriteLock rwl = new ReentrantReadWriteLock();
 		bindingsReadLock = rwl.readLock();
 		bindingsWriteLock = rwl.writeLock();
+	}
+
+	@PostConstruct
+	public void init() {
+		bindings = new PriorityQueue<Binding>();
 	}
 
 	/**
@@ -129,7 +132,6 @@ public class UserProfile {
 		bindingsWriteLock.lock();
 		try {
 			bindings.add(binding);
-			Collections.sort(bindings);
 		} finally {
 			bindingsWriteLock.unlock();
 		}
@@ -179,7 +181,6 @@ public class UserProfile {
 					bindings.remove(existingBinding);
 				}
 				bindings.add(binding);
-				Collections.sort(bindings);
 			} finally {
 				bindingsReadLock.lock();
 				bindingsWriteLock.unlock();

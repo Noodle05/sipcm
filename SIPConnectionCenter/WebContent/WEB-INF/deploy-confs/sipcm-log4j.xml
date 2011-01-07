@@ -3,11 +3,11 @@
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
-	<appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
+	<!-- appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d [%t] %-5p %c - %m%n" />
 		</layout>
-	</appender>
+	</appender -->
 
 	<appender name="RollingFileAppender" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${catalina.base}/logs/sipcm.log" />
@@ -19,18 +19,13 @@
 		</layout>
 	</appender>
 
-	<appender name="ChainsawAppender" class="org.apache.log4j.net.SocketAppender">
+	<!-- appender name="ChainsawAppender" class="org.apache.log4j.net.SocketAppender">
 		<param name="RemoteHost" value="localhost" />
 		<param name="Port" value="4445" />
 		<param name="LocationInfo" value="true" />
-	</appender>
+	</appender -->
 
-	<logger name="com.sipcm.sip.servlet" additivity="false">
-		<level value="all" />
-		<appender-ref ref="RollingFileAppender" />
-	</logger>
-
-	<logger name="org.mobicents" additivity="false">
+	<logger name="com.sipcm.sip" additivity="false">
 		<level value="info" />
 		<appender-ref ref="RollingFileAppender" />
 	</logger>

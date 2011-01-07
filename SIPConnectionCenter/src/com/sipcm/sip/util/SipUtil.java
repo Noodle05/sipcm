@@ -77,7 +77,8 @@ public class SipUtil {
 			if (ip.isSiteLocalAddress()) {
 				InetAddress oip = InetAddress.getByName(originalMessage
 						.getInitialRemoteAddr());
-				if (oip.isSiteLocalAddress() || oip.isLoopbackAddress()) {
+				if (publicIpAddressHolder.getPublicIp() != null
+						&& (oip.isSiteLocalAddress() || oip.isLoopbackAddress())) {
 					oip = publicIpAddressHolder.getPublicIp();
 				}
 				c.setAddress(oip.getHostAddress());
