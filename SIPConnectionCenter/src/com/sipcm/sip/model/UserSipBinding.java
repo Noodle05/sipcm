@@ -15,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
@@ -48,7 +49,7 @@ public class UserSipBinding implements Serializable, IdBasedEntity<Long> {
 	private String addressOfRecord;
 
 	@OneToMany(mappedBy = "userSipBinding", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-//	@Sort(type = SortType.NATURAL)
+	@OrderBy
 	@Fetch(FetchMode.SUBSELECT)
 	private Set<AddressBinding> bindings;
 

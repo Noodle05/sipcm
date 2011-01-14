@@ -11,6 +11,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +42,7 @@ public class UserSipBindingDAOImpl extends AbstractDAO<UserSipBinding, Long>
 			public Long doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Criteria criterial = session.createCriteria(getEntityName())
+						.addOrder(Order.asc("id"))
 						.setCacheMode(CacheMode.IGNORE);
 				ScrollableResults userSipBindings = criterial
 						.scroll(ScrollMode.FORWARD_ONLY);
