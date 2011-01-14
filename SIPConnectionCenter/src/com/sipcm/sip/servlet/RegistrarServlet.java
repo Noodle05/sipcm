@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.sip.business.UserSipProfileService;
-import com.sipcm.sip.locationservice.Binding;
 import com.sipcm.sip.locationservice.LocationService;
 import com.sipcm.sip.model.UserSipProfile;
 
@@ -155,47 +154,9 @@ public class RegistrarServlet extends AbstractSipServlet {
 						sruri.setPort(rport);
 						remoteEnd.setURI(sruri);
 					}
-
-					Binding existingBinding = locationService
-							.getBinding(key, a);
+					
 					String callId = req.getCallId();
-					if (existingBinding != null) {
-						if (logger.isTraceEnabled()) {
-							logger.trace(
-									"Find existing binding, will update it. Bind: {}",
-									existingBinding);
-						}
-						if (a.getExpires() == 0) {
-							if (logger.isTraceEnabled()) {
-								logger.trace("Remove addess {}", a);
-							}
-							locationService.removeBinding(key, a);
-							if (logger.isInfoEnabled()) {
-								logger.info("{} deregistered from {}",
-										userSipProfile.getDisplayName(),
-										a.toString());
-							}
-						} else {
-							if (logger.isTraceEnabled()) {
-								logger.trace("Update address addess {}", a);
-							}
-							locationService.updateRegistration(key, a,
-									remoteEnd, callId);
-						}
-					} else {
-						if (a.getExpires() > 0) {
-							if (logger.isTraceEnabled()) {
-								logger.trace("Add address {}", a);
-							}
-							locationService.register(key, userSipProfile, a,
-									remoteEnd, callId);
-							if (logger.isInfoEnabled()) {
-								logger.info("{} registered from {}",
-										userSipProfile.getDisplayName(),
-										a.toString());
-							}
-						}
-					}
+					locationService.updateRegistration(key, userSipProfile, a, remoteEnd, callId);
 				}
 			}
 		}

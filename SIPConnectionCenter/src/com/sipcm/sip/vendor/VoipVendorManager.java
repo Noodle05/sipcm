@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sipcm.sip.business.VoipVendorService;
+import com.sipcm.sip.model.UserSipProfile;
+import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.model.VoipVendor;
 
 /**
@@ -62,6 +64,36 @@ public abstract class VoipVendorManager {
 				voipVendors.put(vender, ctx);
 			}
 		}
+	}
+
+	public void registerForIncomingRequest(UserSipProfile userSipProfile,
+			UserVoipAccount account) {
+		VoipVendorContext ctx = getVoipVendorContext(account);
+		if (ctx != null) {
+			ctx.registerForIncomingRequest(userSipProfile, account);
+		} else {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Cannot find vendor context for vendor \"{}\"",
+						account.getVoipVendor());
+			}
+		}
+	}
+
+	public void unregisterForIncomingRequest(UserSipProfile userSipProfile,
+			UserVoipAccount account) {
+		VoipVendorContext ctx = getVoipVendorContext(account);
+		if (ctx != null) {
+			ctx.unregisterForIncomingRequest(userSipProfile, account);
+		} else {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Cannot find vendor context for vendor \"{}\"",
+						account.getVoipVendor());
+			}
+		}
+	}
+
+	private VoipVendorContext getVoipVendorContext(UserVoipAccount account) {
+		return voipVendors.get(account.getVoipVendor());
 	}
 
 	public void onUserDeleted(Long... userIds) {

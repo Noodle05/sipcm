@@ -17,7 +17,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.hibernate.annotations.TypeDefs;
-import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 
 /**
@@ -45,7 +45,7 @@ public class SchemaCreator {
 
 	private static String[] generateSchemaScript(String basePackage,
 			String dialectClassName, int operation) {
-		AnnotationConfiguration config = new AnnotationConfiguration();
+		Configuration config = new Configuration();
 		Collection<Class<?>> clazzes = ClassUtils.findClasses(basePackage,
 				Entity.class);
 

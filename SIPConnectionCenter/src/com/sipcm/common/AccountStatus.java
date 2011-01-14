@@ -8,7 +8,7 @@ package com.sipcm.common;
  * 
  */
 public enum AccountStatus {
-	ACTIVE, PENDING, DISABLED;
+	PENDING, ACTIVE, DISABLED;
 
 	public boolean isActive() {
 		switch (this) {

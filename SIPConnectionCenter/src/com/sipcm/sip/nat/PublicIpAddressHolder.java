@@ -7,7 +7,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Random;
-import java.util.concurrent.Executor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -44,18 +43,10 @@ public class PublicIpAddressHolder {
 	@Resource(name = "applicationConfiguration")
 	private Configuration appConfig;
 
-	@Resource(name = "global.threadPool")
-	private Executor threadPool;
-
 	@PostConstruct
 	public void init() {
 		if (isUseStun()) {
-			threadPool.execute(new Runnable() {
-				@Override
-				public void run() {
-					probePublicIp();
-				}
-			});
+			probePublicIp();
 		}
 	}
 

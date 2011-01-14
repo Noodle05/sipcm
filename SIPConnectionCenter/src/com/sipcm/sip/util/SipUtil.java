@@ -15,6 +15,7 @@ import javax.sdp.SessionDescription;
 import javax.servlet.sip.SipServletMessage;
 import javax.servlet.sip.URI;
 
+import org.apache.commons.configuration.Configuration;
 import org.mobicents.servlet.sip.address.SipURIImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +31,13 @@ import com.sipcm.sip.nat.PublicIpAddressHolder;
 public class SipUtil {
 	private static final Logger logger = LoggerFactory.getLogger(SipUtil.class);
 
+	public static final String PROCESS_PUBLIC_IP = "sip.publicIp.process";
+
 	@Resource(name = "publicIpAddressHolder")
 	private PublicIpAddressHolder publicIpAddressHolder;
+
+	@Resource(name = "applicationConfiguration")
+	private Configuration appConfig;
 
 	public URI getCanonicalizedURI(URI uri) {
 		if (uri instanceof SipURIImpl) {
@@ -47,8 +53,27 @@ public class SipUtil {
 	}
 
 	public void processingAddressInSDP(SipServletMessage forkedMessage,
-			SipServletMessage originalMessage) {
+			SipServletMessage originalMessage, String targetHost) {
+		if (!isProcessPublicIp() || publicIpAddressHolder.getPublicIp() == null) {
+			return;
+		}
 		try {
+//			try {
+//				InetAddress iip = InetAddress.getByName(originalMessage
+//						.getInitialRemoteAddr());
+//				InetAddress oip = InetAddress.getByName(targetHost);
+//				if (!((iip.isSiteLocalAddress() || iip.isLoopbackAddress()) ^ (oip
+//						.isSiteLocalAddress() || oip.isLoopbackAddress()))) {
+//					if (logger.isTraceEnabled()) {
+//						logger.trace("Both income and outgoing message from same side, will not process public ip.");
+//					}
+//					return;
+//				}
+//			} catch (Exception e) {
+//				if (logger.isWarnEnabled()) {
+//					logger.warn("Cannot process incoming/outgoing IP.", e);
+//				}
+//			}
 			byte[] bc = forkedMessage.getRawContent();
 			if (bc == null || bc.length <= 0) {
 				return;
@@ -77,8 +102,7 @@ public class SipUtil {
 			if (ip.isSiteLocalAddress()) {
 				InetAddress oip = InetAddress.getByName(originalMessage
 						.getInitialRemoteAddr());
-				if (publicIpAddressHolder.getPublicIp() != null
-						&& (oip.isSiteLocalAddress() || oip.isLoopbackAddress())) {
+				if (oip.isSiteLocalAddress() || oip.isLoopbackAddress()) {
 					oip = publicIpAddressHolder.getPublicIp();
 				}
 				c.setAddress(oip.getHostAddress());
@@ -94,5 +118,9 @@ public class SipUtil {
 				}
 			}
 		}
+	}
+
+	private boolean isProcessPublicIp() {
+		return appConfig.getBoolean(PROCESS_PUBLIC_IP, true);
 	}
 }

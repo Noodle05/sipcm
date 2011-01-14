@@ -57,6 +57,6 @@ public class UserServiceEventListener extends
 		for (int i = 0; i < users.length; i++) {
 			ids[i] = users[i].getId();
 		}
-		locationService.onUserDeleted(ids);
+		locationService.onUserChanged(ids);
 	}
 }

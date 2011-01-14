@@ -17,6 +17,7 @@ import org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBea
  * @author jack
  * 
  */
+@SuppressWarnings("deprecation")
 public class LocalAnnotationSessionFactoryBean extends
 		AnnotationSessionFactoryBean {
 	private String basePackage;

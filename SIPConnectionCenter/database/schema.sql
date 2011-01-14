@@ -54,6 +54,15 @@ name VARCHAR(64) NOT NULL,
 PRIMARY KEY (id),
 UNIQUE (name, deletedate)) ENGINE=InnoDB;
 
+CREATE TABLE tbl_sipaddressbinding (
+id BIGINT NOT NULL AUTO_INCREMENT,
+address VARCHAR(255) NOT NULL,
+call_id VARCHAR(255),
+last_check BIGINT NOT NULL,
+remote_end VARCHAR(255),
+user_id BIGINT NOT NULL,
+PRIMARY KEY (id)) ENGINE=InnoDB;
+
 CREATE TABLE tbl_user (
 id BIGINT NOT NULL AUTO_INCREMENT,
 createdate TIMESTAMP DEFAULT 0,
@@ -77,18 +86,25 @@ user_id BIGINT NOT NULL,
 role_id INTEGER NOT NULL,
 PRIMARY KEY (user_id, role_id)) ENGINE=InnoDB;
 
-CREATE TABLE tbl_usersipprofile (
+CREATE TABLE tbl_usersipbinding (
 id BIGINT NOT NULL UNIQUE,
+address VARCHAR(255) NOT NULL UNIQUE,
+PRIMARY KEY (id)) ENGINE=InnoDB;
+
+CREATE TABLE tbl_usersipprofile (
+id BIGINT NOT NULL AUTO_INCREMENT,
 createdate TIMESTAMP DEFAULT 0,
 lastmodify TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 deletedate DATETIME DEFAULT 0,
+user_id BIGINT NOT NULL,
 allow_local_directly BIT(1) NOT NULL,
 area_code VARCHAR(10),
 phonenumber VARCHAR(32) NOT NULL,
-phonenumberstatus INTEGER,
+phonenumberstatus INTEGER NOT NULL DEFAULT 0,
 sipstatus INTEGER NOT NULL,
 PRIMARY KEY (id),
-UNIQUE (phonenumber, deletedate)) ENGINE=InnoDB;
+UNIQUE (phonenumber, deletedate),
+UNIQUE (user_id, deletedate)) ENGINE=InnoDB;
 
 CREATE TABLE tbl_uservoipaccount (
 id BIGINT NOT NULL AUTO_INCREMENT,
@@ -132,6 +148,10 @@ ALTER TABLE tbl_calllog
 ADD INDEX FK_CALLLOG_VOIPACCOUNT (voipaccount_id),
 ADD CONSTRAINT FK_CALLLOG_VOIPACCOUNT FOREIGN KEY (voipaccount_id) REFERENCES tbl_uservoipaccount (id);
 
+ALTER TABLE tbl_sipaddressbinding
+ADD INDEX FK_SIPADDRESSBINDING_USERSIPBINDING (user_id),
+ADD CONSTRAINT FK_SIPADDRESSBINDING_USERSIPBINDING FOREIGN KEY (user_id) REFERENCES tbl_usersipbinding (id);
+
 ALTER TABLE tbl_userrole
 ADD INDEX FK_USERROLE_ROLE (role_id),
 ADD CONSTRAINT FK_USERROLE_ROLE FOREIGN KEY (role_id) REFERENCES tbl_role (id);
@@ -140,9 +160,13 @@ ALTER TABLE tbl_userrole
 ADD INDEX FK_USERROLE_USER (user_id),
 ADD CONSTRAINT FK_USERROLE_USER FOREIGN KEY (user_id) REFERENCES tbl_user (id);
 
+ALTER TABLE tbl_usersipbinding
+ADD INDEX FK_USERSIPBINDING_USERSIPPROFILE (id),
+ADD CONSTRAINT FK_USERSIPBINDING_USERSIPPROFILE FOREIGN KEY (id) REFERENCES tbl_usersipprofile (id);
+
 ALTER TABLE tbl_usersipprofile
-ADD INDEX FK_USERSIPPROFILE_USER (id),
-ADD CONSTRAINT FK_USERSIPPROFILE_USER FOREIGN KEY (id) REFERENCES tbl_user (id);
+ADD INDEX FK_USERSIPPROFILE_USER (user_id),
+ADD CONSTRAINT FK_USERSIPPROFILE_USER FOREIGN KEY (user_id) REFERENCES tbl_user (id);
 
 ALTER TABLE tbl_uservoipaccount
 ADD INDEX FK_USERVOIPACCOUNT_USERSIPPROFILE (user_id),
@@ -155,7 +179,7 @@ ADD CONSTRAINT FK_USERVOIPACCOUNT_VOIPVENDOR FOREIGN KEY (voipvendor_id) REFEREN
 CREATE OR REPLACE VIEW vw_user AS
 SELECT username AS username, password AS password
 FROM tbl_user
-WHERE status = 0
+WHERE status = 1
 AND deletedate = 0;
 
 CREATE OR REPLACE VIEW vw_userrole AS
@@ -163,17 +187,43 @@ SELECT u.username AS username, r.name AS roles
 FROM tbl_user u, tbl_userrole ur, tbl_role r
 WHERE u.id = ur.user_id
 AND r.id = ur.role_id
-AND u.status = 0
+AND u.status = 1
 AND u.deletedate = 0
 AND r.deletedate = 0;
 
 DELIMITER //
-DROP TRIGGER tgr_user_delete IF EXISTS //
-CREATE TRIGGER tgr_user BEFORE UPDATE ON tbl_user
+DROP TRIGGER IF EXISTS tgr_user_update //
+CREATE TRIGGER tgr_user_update BEFORE UPDATE ON tbl_user
 FOR EACH ROW BEGIN
   IF NEW.deletedate <> 0 THEN
-    UPDATE tbl_usersipprofile SET deletedate = NEW.deletedate WHERE id = NEW.id;
     UPDATE tbl_uservoipaccount SET deletedate = NEW.deletedate WHERE user_id = NEW.id;
+    UPDATE tbl_usersipprofile SET deletedate = NEW.deletedate, sipstatus = 0 WHERE user_id = NEW.id;
+  ELSEIF NEW.status <> 1 THEN
+    UPDATE tbl_usersipprofile SET sipstatus = 0 WHERE user_id = NEW.id;
   END IF;
 END;//
+
+DROP TRIGGER IF EXISTS tgr_user_delete//
+CREATE TRIGGER tgr_user_delete BEFORE DELETE ON tbl_user
+FOR EACH ROW BEGIN
+  DELETE FROM tbl_usersipprofile WHERE user_id = OLD.id;
+  DELETE FROM tbl_uservoipaccount WHERE user_id = OLD.id;
+END;//
+
+DROP TRIGGER IF EXISTS tgr_usersipprofile_update //
+CREATE TRIGGER tgr_usersipprofile_update BEFORE UPDATE ON tbl_usersipprofile
+FOR EACH ROW BEGIN
+  IF NEW.deletedate <> 0 OR NEW.sipstatus = 0 THEN
+    DELETE FROM tbl_sipaddressbinding WHERE user_id = NEW.id;
+    DELETE FROM tbl_usersipbinding WHERE id = NEW.id;
+  END IF;
+END;//
+
+DROP TRIGGER IF EXISTS tgr_usersipprofile_delete//
+CREATE TRIGGER tgr_usersipprofile_delete BEFORE DELETE ON tbl_usersipprofile
+FOR EACH ROW BEGIN
+  DELETE FROM tbl_sipaddressbinding WHERE user_id = OLD.id;
+  DELETE FROM tbl_usersipbinding WHERE id = OLD.id;
+END;//
+
 DELIMITER ;

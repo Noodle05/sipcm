@@ -13,8 +13,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import com.sipcm.base.model.IdBasedEntity;
 
 /**
@@ -93,9 +91,10 @@ public class ConfigValue implements IdBasedEntity<Integer>, Serializable {
 	 */
 	@Override
 	public int hashCode() {
-		HashCodeBuilder hcb = new HashCodeBuilder(11, 33);
-		hcb.append(key);
-		return hcb.toHashCode();
+		final int prime = 11;
+		int result = 31;
+		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		return result;
 	}
 
 	/*
@@ -112,9 +111,14 @@ public class ConfigValue implements IdBasedEntity<Integer>, Serializable {
 			return false;
 		}
 		final ConfigValue obj = (ConfigValue) other;
-		EqualsBuilder eb = new EqualsBuilder();
-		eb.append(key, obj.getKey());
-		return eb.isEquals();
+		if (key == null) {
+			if (obj.key != null) {
+				return false;
+			}
+		} else if (!key.equals(obj.key)) {
+			return false;
+		}
+		return true;
 	}
 
 	/*

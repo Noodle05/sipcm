@@ -15,6 +15,7 @@ import com.sipcm.base.dao.DAO;
 import com.sipcm.base.filter.Filter;
 import com.sipcm.common.OnlineStatus;
 import com.sipcm.sip.VoipAccountType;
+import com.sipcm.sip.VoipVendorType;
 import com.sipcm.sip.business.UserVoipAccountService;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
@@ -68,9 +69,11 @@ public class UserVoipAccountServiceImpl extends
 	@Override
 	public UserVoipAccount getIncomingAccount(UserSipProfile user) {
 		Filter f1 = filterFactory.createSimpleFilter("owner", user);
-		Filter f2 = filterFactory.createInFilter("type",
+		Filter f2 = filterFactory.createSimpleFilter("voipVendor.type",
+				VoipVendorType.SIP);
+		Filter f3 = filterFactory.createInFilter("type",
 				VoipAccountType.INCOME, VoipAccountType.BOTH);
-		Filter filter = f1.appendAnd(f2);
+		Filter filter = f1.appendAnd(f2).appendAnd(f3);
 		Collection<UserVoipAccount> accounts = dao.getEntities(filter, null,
 				null);
 		if (accounts != null && !accounts.isEmpty()) {

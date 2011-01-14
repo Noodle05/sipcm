@@ -36,7 +36,7 @@ public class UserSipProfileServiceEventListener extends
 		Collection<Long> changedIds = new ArrayList<Long>(users.length);
 		for (UserSipProfile user : users) {
 			if (user.getOwner().getStatus().isActive()) {
-				changedIds.add(user.getId());
+				changedIds.add(user.getOwner().getId());
 			}
 		}
 		if (!changedIds.isEmpty()) {
@@ -44,5 +44,22 @@ public class UserSipProfileServiceEventListener extends
 			ids = changedIds.toArray(ids);
 			locationService.onUserChanged(ids);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.base.AbstractServiceEventListener#entityDeleted(com.sipcm.base
+	 * .EntityEventObject)
+	 */
+	@Override
+	public void entityDeleted(EntityEventObject<UserSipProfile, Long> event) {
+		UserSipProfile[] users = event.getSource();
+		Long[] ids = new Long[users.length];
+		for (int i = 0; i < users.length; i++) {
+			ids[i] = users[i].getOwner().getId();
+		}
+		locationService.onUserChanged(ids);
 	}
 }

@@ -4,7 +4,7 @@
 	<comment>Calling Center configuration file</comment>
 	<entry key="domainname">gaofamily.org</entry>
 	<entry key="sip.server.realm">gaofamily.org</entry>
-	<entry key="sip.server.interval.min">900</entry>
+	<entry key="sip.publicIp.process">true</entry>
 
 	<entry key="sip.expirestime.min">120</entry>
 	<entry key="sip.expirestime.max">900</entry>

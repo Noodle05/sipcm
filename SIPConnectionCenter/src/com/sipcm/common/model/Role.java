@@ -14,8 +14,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.SQLDelete;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
@@ -101,10 +99,13 @@ public class Role extends AbstractTrackableEntity implements
 	 */
 	@Override
 	public int hashCode() {
-		HashCodeBuilder hcb = new HashCodeBuilder(15, 43);
-		hcb.append(name.toUpperCase());
-		hcb.append(deleteDate);
-		return hcb.toHashCode();
+		final int prime = 15;
+		int result = 43;
+		result = prime * result
+				+ ((name == null) ? 0 : name.toUpperCase().hashCode());
+		result = prime * result
+				+ ((deleteDate == null) ? 0 : deleteDate.hashCode());
+		return result;
 	}
 
 	/*
@@ -121,10 +122,21 @@ public class Role extends AbstractTrackableEntity implements
 			return false;
 		}
 		final Role obj = (Role) other;
-		EqualsBuilder eq = new EqualsBuilder();
-		eq.append(name.toUpperCase(), obj.name.toUpperCase());
-		eq.append(deleteDate, obj.deleteDate);
-		return eq.isEquals();
+		if (name == null) {
+			if (obj.name != null) {
+				return false;
+			}
+		} else if (!name.equalsIgnoreCase(obj.name)) {
+			return false;
+		}
+		if (deleteDate == null) {
+			if (obj.deleteDate != null) {
+				return false;
+			}
+		} else if (!deleteDate.equals(obj.deleteDate)) {
+			return false;
+		}
+		return true;
 	}
 
 	/*

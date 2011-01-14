@@ -30,7 +30,7 @@
 			<exclude module="commons-logging" />
 			<exclude module="commons-codec" />
 		</dependency>
-		<dependency org="org.hibernate" name="hibernate-c3p0" rev="3.5.6-Final"
+		<dependency org="org.hibernate" name="hibernate-c3p0" rev="3.6.0.Final"
 			conf="runtime->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
@@ -71,16 +71,12 @@
 			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="cglib" name="cglib-nodep" rev="2.2"
 			conf="runtime->default;foride->sources,javadoc" />
-		<dependency org="org.jasypt" name="jasypt" rev="1.6"
+		<dependency org="org.jasypt" name="jasypt" rev="1.7"
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-codec" />
 		</dependency>
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.5.6-Final"
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.0.Final"
 			conf="compile->default;foride->sources,javadoc">
-			<exclude module="slf4j-api" />
-		</dependency>
-		<dependency org="org.hibernate" name="hibernate-annotations"
-			rev="3.5.6-Final" conf="compile->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
 		<dependency org="org.hibernate" name="hibernate-validator"

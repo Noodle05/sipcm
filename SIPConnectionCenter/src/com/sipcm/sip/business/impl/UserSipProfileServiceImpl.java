@@ -93,8 +93,11 @@ public class UserSipProfileServiceImpl extends
 	 */
 	@Override
 	public UserSipProfile getUserSipProfileByPhoneNumber(String phoneNumber) {
-		Filter filter = filterFactory.createSimpleFilter("phoneNumber",
-				phoneNumber);
+		Filter f1 = filterFactory
+				.createSimpleFilter("phoneNumber", phoneNumber);
+		Filter f2 = filterFactory.createSimpleFilter("phoneNumberStatus",
+				PhoneNumberStatus.UNVERIFIED, Filter.Operator.NOT_EQ);
+		Filter filter = f1.appendAnd(f2);
 		return dao.getUniqueEntity(filter);
 	}
 

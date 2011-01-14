@@ -8,6 +8,7 @@ import java.sql.Date;
 import java.util.Set;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -21,10 +22,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.SQLDelete;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
@@ -85,9 +84,10 @@ public class User extends AbstractTrackableEntity implements
 	@Column(name = "status", nullable = false)
 	private AccountStatus status;
 
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST,
+			CascadeType.MERGE })
+	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_userrole", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-	@Cascade(CascadeType.SAVE_UPDATE)
 	private Set<Role> roles;
 
 	/**
@@ -275,10 +275,13 @@ public class User extends AbstractTrackableEntity implements
 	 */
 	@Override
 	public int hashCode() {
-		HashCodeBuilder hcb = new HashCodeBuilder(11, 15);
-		hcb.append(username.toUpperCase());
-		// hcb.append(deleteDate);
-		return hcb.toHashCode();
+		final int prime = 11;
+		int result = 15;
+		result = prime * result
+				+ ((username == null) ? 0 : username.toUpperCase().hashCode());
+		result = prime * result
+				+ ((deleteDate == null) ? 0 : deleteDate.hashCode());
+		return result;
 	}
 
 	/*
@@ -295,9 +298,21 @@ public class User extends AbstractTrackableEntity implements
 			return false;
 		}
 		final User obj = (User) other;
-		EqualsBuilder eb = new EqualsBuilder();
-		eb.append(username.toUpperCase(), obj.username.toUpperCase());
-		return eb.isEquals();
+		if (username == null) {
+			if (obj.username != null) {
+				return false;
+			}
+		} else if (!username.equalsIgnoreCase(obj.username)) {
+			return false;
+		}
+		if (deleteDate == null) {
+			if (obj.deleteDate != null) {
+				return false;
+			}
+		} else if (!deleteDate.equals(obj.deleteDate)) {
+			return false;
+		}
+		return true;
 	}
 
 	/*

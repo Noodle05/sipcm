@@ -10,14 +10,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.SQLDelete;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
@@ -31,21 +30,21 @@ import com.sipcm.common.model.User;
  * 
  */
 @Entity
-@Table(name = "tbl_usersipprofile", uniqueConstraints = { @UniqueConstraint(columnNames = {
-		"phonenumber", "deletedate" }) })
+@Table(name = "tbl_usersipprofile", uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "phonenumber", "deletedate" }),
+		@UniqueConstraint(columnNames = { "user_id", "deletedate" }) })
 @SQLDelete(sql = "UPDATE tbl_usersipprofile SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
 public class UserSipProfile extends AbstractTrackableEntity implements
 		IdBasedEntity<Long>, Serializable {
 	private static final long serialVersionUID = 6413404008060974272L;
 
-	@GenericGenerator(name = "generator", strategy = "foreign", parameters = @Parameter(name = "property", value = "owner"))
 	@Id
-	@GeneratedValue(generator = "generator")
-	@Column(name = "id", unique = true, nullable = false)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "id")
 	private Long id;
 
-	@OneToOne
-	@PrimaryKeyJoinColumn
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "user_id", insertable = false, updatable = false)
 	private User owner;
 
 	@Enumerated
@@ -182,5 +181,38 @@ public class UserSipProfile extends AbstractTrackableEntity implements
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 43;
+		int result = 9;
+		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		if (other == null || !(other instanceof UserSipProfile)) {
+			return false;
+		}
+		final UserSipProfile obj = (UserSipProfile) other;
+		if (owner == null) {
+			if (owner != null) {
+				return false;
+			}
+		} else if (!owner.equals(obj)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "UserSipProfile[" + (owner == null ? "" : owner.toString())
+				+ "]";
 	}
 }

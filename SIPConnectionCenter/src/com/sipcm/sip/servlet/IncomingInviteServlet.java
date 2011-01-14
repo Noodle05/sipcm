@@ -19,8 +19,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.sip.locationservice.LocationService;
-import com.sipcm.sip.locationservice.UserNotFoundException;
-import com.sipcm.sip.locationservice.UserProfile;
+import com.sipcm.sip.model.UserSipBinding;
 
 /**
  * @author wgao
@@ -84,19 +83,19 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 		}
 		if (dispatcher == null) {
 			final SipURI toSipURI = (SipURI) req.getTo().getURI();
-			URI toURI = sipFactory.createSipURI(toSipURI.getUser(), getDomain());
-			UserProfile userProfile = null;
-			try {
-				if (logger.isTraceEnabled()) {
-					logger.trace("Lookup address with key: {}", toURI);
-				}
-				userProfile = locationService.getUserProfileByKey(toURI
-						.toString());
-			} catch (UserNotFoundException e) {
+			URI toURI = sipFactory
+					.createSipURI(toSipURI.getUser(), getDomain());
+			UserSipBinding userSipBinding = null;
+			if (logger.isTraceEnabled()) {
+				logger.trace("Lookup address with key: {}", toURI);
+			}
+			userSipBinding = locationService.getUserSipBindingByKey(toURI
+					.toString());
+			if (userSipBinding == null) {
 				response(req, SipServletResponse.SC_NOT_FOUND);
 				return;
 			}
-			req.setAttribute(TARGET_USERPROFILE, userProfile);
+			req.setAttribute(TARGET_USERSIPBINDING, userSipBinding);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Forward to back-to-back servlet.");
 			}

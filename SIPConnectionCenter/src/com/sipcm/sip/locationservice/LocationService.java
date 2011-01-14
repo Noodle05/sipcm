@@ -4,40 +4,23 @@ import java.util.Collection;
 
 import javax.servlet.sip.Address;
 
+import com.sipcm.sip.model.UserSipBinding;
 import com.sipcm.sip.model.UserSipProfile;
 
 public interface LocationService {
 
-	public void removeAllBinding(String key) throws UserNotFoundException;
+	public void removeAllBinding(String key);
 
-	public Binding getBinding(String key, Address address);
+	public void updateRegistration(String key, UserSipProfile userSipProfile,
+			Address address, Address remoteEnd, String callId);
 
-	public void removeBinding(String key, Address address)
-			throws UserNotFoundException;
-
-	public void updateRegistration(String key, Address address,
-			Address remoteEnd, String callId) throws UserNotFoundException;
-
-	public Collection<Address> getAddresses(String key)
-			throws UserNotFoundException;
-
-	public void register(String key, UserSipProfile userSipProfile,
-			Address address, Address remoteEnd, String callid);
+	public Collection<Address> getAddresses(String key);
 
 	public void checkContactExpires();
 
-	public UserProfile getUserProfileByKey(String key)
-			throws UserNotFoundException;
+	public UserSipBinding getUserSipBindingByKey(String key);
 
-	public UserProfile getUserProfileByPhoneNumber(String phoneNumber)
-			throws UserNotFoundException;
-
-	/**
-	 * Get all remote end bindings for NAT keep alive ping.
-	 * 
-	 * @return
-	 */
-	public Collection<Binding> getAllRemoteEnd();
+	public UserSipBinding getUserSipBindingByPhoneNumber(String phoneNumber);
 
 	/**
 	 * Callback function when user(s) been changed.
@@ -45,11 +28,4 @@ public interface LocationService {
 	 * @param userIds
 	 */
 	public void onUserChanged(Long... userIds);
-
-	/**
-	 * Callback function when user been disabled.
-	 * 
-	 * @param userIds
-	 */
-	public void onUserDeleted(Long... userIds);
 }

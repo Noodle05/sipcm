@@ -11,46 +11,55 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.sip.Address;
+import javax.servlet.sip.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-import com.sipcm.sip.business.UserSipProfileService;
+import com.google.common.collect.MapMaker;
+import com.sipcm.sip.business.UserSipBindingService;
 import com.sipcm.sip.events.RegistrationEventListener;
 import com.sipcm.sip.events.RegistrationEventObject;
+import com.sipcm.sip.model.AddressBinding;
+import com.sipcm.sip.model.UserSipBinding;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.PhoneNumberUtil;
+import com.sipcm.sip.util.SipUtil;
 
 /**
  * @author wgao
  * 
  */
-public abstract class LocationServiceImpl implements LocationService {
+@Component("sipLocationService")
+public class LocationServiceImpl implements LocationService {
 	public static final Logger logger = LoggerFactory
 			.getLogger(LocationServiceImpl.class);
 
-	private ConcurrentMap<String, UserProfile> userProfiles;
+	private ConcurrentMap<String, UserSipBinding> cache;
 
-	protected abstract UserProfile createUserProfile();
+	@Resource(name = "sipUtil")
+	private transient SipUtil sipUtil;
 
 	@Resource(name = "phoneNumberUtil")
 	private PhoneNumberUtil phoneNumberUtil;
 
-	@Resource(name = "userSipProfileService")
-	private UserSipProfileService userSipProfileService;
+	@Resource(name = "userSipBindingService")
+	private UserSipBindingService userSipBindingService;
 
 	@Resource(name = "Sip.RegistrationEventListener")
 	private RegistrationEventListener listener;
 
 	@PostConstruct
 	public void init() throws NoSuchAlgorithmException {
-		userProfiles = new ConcurrentHashMap<String, UserProfile>();
+		cache = new MapMaker().concurrencyLevel(32)
+				.expiration(30, TimeUnit.MINUTES).softKeys().makeMap();
 	}
 
 	/*
@@ -61,49 +70,11 @@ public abstract class LocationServiceImpl implements LocationService {
 	 * .String)
 	 */
 	@Override
-	public void removeAllBinding(String key) throws UserNotFoundException {
-		UserProfile up = userProfiles.remove(key);
-		if (up == null) {
-			throw new UserNotFoundException();
-		}
-		listener.userUnregistered(new RegistrationEventObject(up
-				.getUserSipProfile()));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.sip.locationservice.LocationService#getBinding(java.lang.String
-	 * , javax.servlet.sip.Address)
-	 */
-	@Override
-	public Binding getBinding(String key, Address address) {
-		UserProfile userProfile = userProfiles.get(key);
-		if (userProfile != null) {
-			return userProfile.getBinding(address);
-		}
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.sip.locationservice.LocationService#removeBinding(java.lang
-	 * .String, javax.servlet.sip.Address)
-	 */
-	@Override
-	public void removeBinding(String key, Address address)
-			throws UserNotFoundException {
-		UserProfile userProfile = getUserProfileByKey(key);
-		Binding existingBinding = userProfile.getBinding(address);
-		if (existingBinding != null) {
-			userProfile.removeBinding(existingBinding);
-		}
-		if (userProfile.hasNoBinding()) {
-			userProfiles.remove(key);
-			listener.userUnregistered(new RegistrationEventObject(userProfile
+	public void removeAllBinding(String key) {
+		UserSipBinding up = userSipBindingService.removeByAddress(key);
+		cache.remove(key);
+		if (up != null) {
+			listener.userUnregistered(new RegistrationEventObject(up
 					.getUserSipProfile()));
 		}
 	}
@@ -116,10 +87,74 @@ public abstract class LocationServiceImpl implements LocationService {
 	 * .lang.String, javax.servlet.sip.Address, java.lang.String)
 	 */
 	@Override
-	public void updateRegistration(String key, Address address,
-			Address remoteEnd, String callId) throws UserNotFoundException {
-		UserProfile userProfile = getUserProfileByKey(key);
-		userProfile.updateBinding(address, remoteEnd, callId);
+	public void updateRegistration(String key, UserSipProfile userSipProfile,
+			Address address, Address remoteEnd, String callId) {
+		UserSipBinding userSipBinding = null;
+		AddressBinding addressBinding = null;
+		userSipBinding = getUserSipBindingByKey(key);
+		if (userSipBinding != null) {
+			addressBinding = getAddressBinding(userSipBinding, address);
+		}
+		int expires = address.getExpires();
+
+		if (addressBinding != null) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Find existing binding, will update it. Bind: {}",
+						addressBinding);
+			}
+			if (expires == 0) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Remove addess {}", address);
+				}
+				userSipBinding.getBindings().remove(addressBinding);
+				if (userSipBinding.getBindings().isEmpty()) {
+					userSipBindingService.removeEntity(userSipBinding);
+					cache.remove(key);
+					listener.userUnregistered(new RegistrationEventObject(
+							userSipBinding.getUserSipProfile()));
+				} else {
+					userSipBindingService.saveEntity(userSipBinding);
+				}
+				if (logger.isInfoEnabled()) {
+					logger.info("{} deregistered from {}", userSipBinding
+							.getUserSipProfile().getDisplayName(), address);
+				}
+			} else {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Update address addess {}", address);
+				}
+				addressBinding.setAddress(address);
+				addressBinding.setRemoteEnd(remoteEnd);
+				addressBinding.setCallId(callId);
+				userSipBindingService.saveEntity(userSipBinding);
+			}
+		} else {
+			if (expires > 0) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Add address {}", address);
+				}
+				boolean exists = true;
+				if (userSipBinding == null) {
+					exists = false;
+					userSipBinding = userSipBindingService.createNewEntity();
+				}
+				userSipBinding.setAddressOfRecord(key);
+				userSipBinding.setUserSipProfile(userSipProfile);
+				userSipBindingService.createAddressBindingEntity(
+						userSipBinding, address, remoteEnd, callId);
+				userSipBindingService.saveEntity(userSipBinding);
+				cache.putIfAbsent(key, userSipBinding);
+
+				if (!exists) {
+					listener.userRegistered(new RegistrationEventObject(
+							userSipBinding.getUserSipProfile()));
+				}
+				if (logger.isInfoEnabled()) {
+					logger.info("{} registered from {}",
+							userSipProfile.getDisplayName(), address);
+				}
+			}
+		}
 	}
 
 	/*
@@ -130,39 +165,17 @@ public abstract class LocationServiceImpl implements LocationService {
 	 * String)
 	 */
 	@Override
-	public Collection<Address> getAddresses(String key)
-			throws UserNotFoundException {
-		UserProfile userProfile = userProfiles.get(key);
-		if (userProfile != null) {
-			return userProfile.getAddresses();
+	public Collection<Address> getAddresses(String key) {
+		UserSipBinding userSipBinding = getUserSipBindingByKey(key);
+		if (userSipBinding != null) {
+			Collection<Address> contactHeaders = new ArrayList<Address>(
+					userSipBinding.getBindings().size());
+			for (AddressBinding binding : userSipBinding.getBindings()) {
+				contactHeaders.add(binding.getAddress());
+			}
+			return contactHeaders;
 		} else {
 			return Collections.emptyList();
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.sip.locationservice.LocationService#register(java.lang.String,
-	 * com.sipcm.sip.model.UserSipProfile, javax.servlet.sip.Address,
-	 * java.lang.String)
-	 */
-	@Override
-	public void register(String key, UserSipProfile userSipProfile,
-			Address address, Address remoteEnd, String callId) {
-		UserProfile userProfile = createUserProfile();
-		userProfile.setAddressOfRecord(key);
-		userProfile.setUserSipProfile(userSipProfile);
-		UserProfile up = userProfiles.putIfAbsent(key, userProfile);
-		if (up != null) {
-			userProfile = up;
-		}
-		Binding binding = new Binding(address, remoteEnd, callId);
-		userProfile.addBinding(binding);
-		if (up == null) {
-			listener.userRegistered(new RegistrationEventObject(userProfile
-					.getUserSipProfile()));
 		}
 	}
 
@@ -174,40 +187,54 @@ public abstract class LocationServiceImpl implements LocationService {
 	 * .lang .String)
 	 */
 	@Override
-	public UserProfile getUserProfileByKey(String key)
-			throws UserNotFoundException {
-		UserProfile userProfile = userProfiles.get(key);
-		if (userProfile == null) {
-			throw new UserNotFoundException();
+	public UserSipBinding getUserSipBindingByKey(String key) {
+		UserSipBinding userSipBinding = cache.get(key);
+		if (userSipBinding == null) {
+			userSipBinding = userSipBindingService
+					.getUserSipBindingByAddress(key);
+			if (userSipBinding != null) {
+				UserSipBinding up = cache.putIfAbsent(key, userSipBinding);
+				if (up != null) {
+					userSipBinding = up;
+				}
+			}
 		}
-		return userProfile;
+		return userSipBinding;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.sip.locationservice.LocationService#getUserProfileByPhoneNumber
+	 * com.sipcm.sip.locationservice.LocationService#getUserSipBindingByPhoneNumber
 	 * (java.lang.String)
 	 */
 	@Override
-	public UserProfile getUserProfileByPhoneNumber(String phoneNumber)
-			throws UserNotFoundException {
+	public UserSipBinding getUserSipBindingByPhoneNumber(String phoneNumber) {
 		if (phoneNumber == null)
 			throw new NullPointerException("Phone number cannot be null.");
 		String pn = phoneNumberUtil.getCanonicalizedPhoneNumber(phoneNumber);
-		for (UserProfile profile : userProfiles.values()) {
-			String p = profile.getUserSipProfile().getPhoneNumber() == null ? null
-					: phoneNumberUtil.getCanonicalizedPhoneNumber(profile
-							.getUserSipProfile().getPhoneNumber());
+		UserSipBinding userSipBinding = null;
+		for (UserSipBinding usb : cache.values()) {
+			String p = usb.getUserSipProfile().getPhoneNumber() == null ? null
+					: usb.getUserSipProfile().getPhoneNumber();
 			if (pn.equals(p)) {
-				if (profile.getUserSipProfile().isAllowLocalDirectly()) {
-					return profile;
-				}
+				userSipBinding = usb;
 				break;
 			}
 		}
-		throw new UserNotFoundException();
+		if (userSipBinding == null) {
+			userSipBinding = userSipBindingService
+					.getUserSipBindingByAddress(pn);
+			if (userSipBinding != null) {
+				UserSipBinding usb = cache.putIfAbsent(
+						userSipBinding.getAddressOfRecord(), userSipBinding);
+				if (usb != null) {
+					userSipBinding = usb;
+				}
+			}
+		}
+		return userSipBinding;
 	}
 
 	/*
@@ -218,46 +245,27 @@ public abstract class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public void checkContactExpires() {
-		Iterator<Entry<String, UserProfile>> ite = userProfiles.entrySet()
-				.iterator();
-		Collection<UserSipProfile> unregisteredUsers = new ArrayList<UserSipProfile>();
-		while (ite.hasNext()) {
-			Entry<String, UserProfile> entry = ite.next();
-			UserProfile userProfile = entry.getValue();
-			if (logger.isTraceEnabled()) {
-				logger.trace("Checking contacts expirestime for: {}",
-						userProfile.getAddressOfRecord());
+		try {
+			Collection<UserSipBinding> usbs = userSipBindingService
+					.checkContactExpires();
+			for (UserSipBinding userSipBinding : usbs) {
+				cache.remove(userSipBinding.getAddressOfRecord());
 			}
-			userProfile.checkContactExpires();
-			if (userProfile.isEmpty()) {
-				if (logger.isInfoEnabled()) {
-					logger.info("{} has no contact remaining, remove it.",
-							entry.getKey());
+			if (!usbs.isEmpty()) {
+				Collection<UserSipProfile> usps = new ArrayList<UserSipProfile>(
+						usbs.size());
+				UserSipProfile[] us = new UserSipProfile[usbs.size()];
+				for (UserSipBinding usb : usbs) {
+					usps.add(usb.getUserSipProfile());
 				}
-				ite.remove();
-				unregisteredUsers.add(userProfile.getUserSipProfile());
+				us = usps.toArray(us);
+				listener.userUnregistered(new RegistrationEventObject(us));
+			}
+		} catch (Exception e) {
+			if (logger.isErrorEnabled()) {
+				logger.error("Error happened when process binding expires.", e);
 			}
 		}
-		if (!unregisteredUsers.isEmpty()) {
-			UserSipProfile[] us = new UserSipProfile[unregisteredUsers.size()];
-			us = unregisteredUsers.toArray(us);
-			listener.userUnregistered(new RegistrationEventObject(us));
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.sip.locationservice.LocationService#getAllRemoteEnd()
-	 */
-	@Override
-	public Collection<Binding> getAllRemoteEnd() {
-		Collection<Binding> remoteEnds = new ArrayList<Binding>(
-				userProfiles.size());
-		for (UserProfile userProfile : userProfiles.values()) {
-			remoteEnds.addAll(userProfile.getBindings());
-		}
-		return remoteEnds;
 	}
 
 	/*
@@ -274,60 +282,32 @@ public abstract class LocationServiceImpl implements LocationService {
 		}
 		List<Long> ids = Arrays.asList(userIds);
 		Collections.sort(ids);
-		Iterator<Entry<String, UserProfile>> ite = userProfiles.entrySet()
+		Iterator<Entry<String, UserSipBinding>> ite = cache.entrySet()
 				.iterator();
-		Collection<UserSipProfile> userSipProfiles = new ArrayList<UserSipProfile>();
 		while (ite.hasNext() && !ids.isEmpty()) {
-			Entry<String, UserProfile> entry = ite.next();
-			UserProfile userProfile = entry.getValue();
-			int index = Collections.binarySearch(ids, userProfile
-					.getUserSipProfile().getId());
-			if (index >= 0) {
-				ids.remove(index);
-				UserSipProfile userSipProfile = userSipProfileService
-						.getEntityById(userProfile.getUserSipProfile().getId());
-				if (userSipProfile == null
-						|| !userSipProfile.getOwner().getStatus().isActive()) {
+			Entry<String, UserSipBinding> entry = ite.next();
+			if (entry != null) {
+				UserSipBinding usb = entry.getValue();
+				Long uid = usb.getUserSipProfile().getOwner().getId();
+				int index = Collections.binarySearch(ids, uid);
+				if (index >= 0) {
+					ids.remove(index);
 					ite.remove();
-					userSipProfiles.add(userSipProfile);
-				} else {
-					userProfile.setUserSipProfile(userSipProfile);
 				}
 			}
 		}
-		if (!userSipProfiles.isEmpty()) {
-			UserSipProfile[] us = new UserSipProfile[userSipProfiles.size()];
-			us = userSipProfiles.toArray(us);
-			listener.userUnregistered(new RegistrationEventObject(us));
-		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.sip.locationservice.LocationService#onUserDisabled(java.lang
-	 * .Long[])
-	 */
-	@Override
-	public void onUserDeleted(Long... userIds) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("User deleted/disabled. ids: "
-					+ Arrays.toString(userIds));
-		}
-		List<Long> ids = Arrays.asList(userIds);
-		Collections.sort(ids);
-		Iterator<Entry<String, UserProfile>> ite = userProfiles.entrySet()
-				.iterator();
-		while (ite.hasNext() && !ids.isEmpty()) {
-			Entry<String, UserProfile> entry = ite.next();
-			UserProfile userProfile = entry.getValue();
-			int index = Collections.binarySearch(ids, userProfile
-					.getUserSipProfile().getId());
-			if (index >= 0) {
-				ids.remove(index);
-				ite.remove();
+	private AddressBinding getAddressBinding(UserSipBinding userSipBinding,
+			Address address) {
+		URI uri = sipUtil.getCanonicalizedURI(address.getURI());
+		for (AddressBinding binding : userSipBinding.getBindings()) {
+			Address a = binding.getAddress();
+			URI u = sipUtil.getCanonicalizedURI(a.getURI());
+			if (uri.equals(u)) {
+				return binding;
 			}
 		}
+		return null;
 	}
 }

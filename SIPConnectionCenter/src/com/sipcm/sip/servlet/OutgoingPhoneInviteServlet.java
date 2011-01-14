@@ -20,8 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import com.sipcm.sip.VoipVendorType;
 import com.sipcm.sip.dialplan.DialplanExecutor;
 import com.sipcm.sip.locationservice.LocationService;
-import com.sipcm.sip.locationservice.UserNotFoundException;
-import com.sipcm.sip.locationservice.UserProfile;
+import com.sipcm.sip.model.UserSipBinding;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.util.MapHolderBean;
@@ -76,18 +75,14 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 			return;
 		}
-		UserProfile userProfile;
-		try {
-			userProfile = locationService
-					.getUserProfileByPhoneNumber(phoneNumber);
-		} catch (UserNotFoundException e) {
-			userProfile = null;
-		}
-		if (userProfile != null) {
+		UserSipBinding userSipBinding;
+		userSipBinding = locationService
+				.getUserSipBindingByPhoneNumber(phoneNumber);
+		if (userSipBinding != null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Found local user with this phone number, will forward to local user directly.");
 			}
-			req.setAttribute(TARGET_USERPROFILE, userProfile);
+			req.setAttribute(TARGET_USERSIPBINDING, userSipBinding);
 			RequestDispatcher dispather = req
 					.getRequestDispatcher("B2bServlet");
 			if (dispather == null) {

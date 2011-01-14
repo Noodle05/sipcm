@@ -303,7 +303,7 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 		if (entity != null) {
 			if (!getHibernateTemplate().contains(entity)) {
 				try {
-					getHibernateTemplate().merge(entity);
+					entity = getHibernateTemplate().merge(entity);
 				} catch (Exception e) {
 					if (logger.isErrorEnabled()) {
 						logger.error(
