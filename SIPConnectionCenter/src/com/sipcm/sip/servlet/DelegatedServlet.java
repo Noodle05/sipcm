@@ -117,7 +117,7 @@ public class DelegatedServlet extends B2bServlet {
 		// Remove original authentication headers.
 		forkedRequest.removeHeader(AuthorizationHeader.NAME);
 		forkedRequest.removeHeader(PAssertedIdentityHeader.NAME);
-		sipUtil.processingAddressInSDP(forkedRequest, req, req.getRemoteAddr());
+		sipUtil.processingAddressInSDP(forkedRequest, req);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Sending forked request: {}", forkedRequest);
 		}
@@ -168,8 +168,7 @@ public class DelegatedServlet extends B2bServlet {
 				// SipServletRequest challengeRequest = resp.getSession()
 				// .createRequest(Request.INVITE);
 				challengeRequest.addAuthHeader(resp, authInfo);
-				sipUtil.processingAddressInSDP(challengeRequest, origReq,
-						origReq.getInitialRemoteAddr());
+				sipUtil.processingAddressInSDP(challengeRequest, origReq);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Sending challenge request {}",
 							challengeRequest);

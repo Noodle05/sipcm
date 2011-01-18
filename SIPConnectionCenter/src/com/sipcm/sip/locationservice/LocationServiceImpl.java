@@ -126,6 +126,7 @@ public class LocationServiceImpl implements LocationService {
 				addressBinding.setAddress(address);
 				addressBinding.setRemoteEnd(remoteEnd);
 				addressBinding.setCallId(callId);
+				addressBinding.setLastCheck(System.currentTimeMillis());
 				userSipBindingService.saveEntity(userSipBinding);
 			}
 		} else {
@@ -232,6 +233,11 @@ public class LocationServiceImpl implements LocationService {
 				if (usb != null) {
 					userSipBinding = usb;
 				}
+			}
+		}
+		if (userSipBinding != null) {
+			if (!userSipBinding.getUserSipProfile().isAllowLocalDirectly()) {
+				userSipBinding = null;
 			}
 		}
 		return userSipBinding;

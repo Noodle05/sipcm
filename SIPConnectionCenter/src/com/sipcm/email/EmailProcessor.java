@@ -4,13 +4,14 @@
 package com.sipcm.email;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import com.sipcm.process.SingleThreadProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,10 +19,9 @@ import org.springframework.stereotype.Component;
  * 
  */
 @Component("emailProcessor")
-public class EmailProcessor extends SingleThreadProcessor<Long> {
-	private static enum Status {
-		PROCESSING, NOT_PROCESSING;
-	}
+public class EmailProcessor {
+	private static final Logger logger = LoggerFactory
+			.getLogger(EmailProcessor.class);
 
 	@Resource(name = "email.queue")
 	private BlockingQueue<EmailBean> emailList;
@@ -29,58 +29,54 @@ public class EmailProcessor extends SingleThreadProcessor<Long> {
 	@Resource(name = "emailService")
 	private EmailService emailService;
 
-	private AtomicReference<Status> status;
+	private final AtomicBoolean working;
 
-	private AtomicLong totalProceed;
+	private final AtomicBoolean running;
 
-	private AtomicLong totalSucceed;
+	private final AtomicLong totalProceed;
 
-	private AtomicLong totalFailed;
+	private final AtomicLong totalSucceed;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.process.SingleThreadProcessor#init()
-	 */
-	@PostConstruct
-	@Override
-	public void init() {
-		super.init();
+	private final AtomicLong totalFailed;
+
+	public EmailProcessor() {
 		totalProceed = new AtomicLong(0L);
 		totalSucceed = new AtomicLong(0L);
 		totalFailed = new AtomicLong(0L);
-		status = new AtomicReference<Status>(Status.PROCESSING);
+		working = new AtomicBoolean(true);
+		running = new AtomicBoolean(false);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.process.SingleThreadProcessor#internalRun()
-	 */
-	@Override
-	protected Long internalRun() {
-		EmailBean emailBean = null;
-		while ((emailBean = emailList.poll()) != null) {
+	@Async
+	public void process() {
+		if (running.compareAndSet(false, true)) {
 			try {
-				emailService.sendEmail(emailBean);
-				totalSucceed.incrementAndGet();
-			} catch (Exception e) {
-				totalFailed.incrementAndGet();
-				if (logger.isErrorEnabled()) {
-					logger.error("Error happened when sending email: \""
-							+ emailBean + "\"", e);
+				EmailBean emailBean = null;
+				while ((emailBean = emailList.poll()) != null) {
+					try {
+						emailService.sendEmail(emailBean);
+						totalSucceed.incrementAndGet();
+					} catch (Exception e) {
+						totalFailed.incrementAndGet();
+						if (logger.isErrorEnabled()) {
+							logger.error(
+									"Error happened when sending email: \""
+											+ emailBean + "\"", e);
+						}
+					} finally {
+						totalProceed.incrementAndGet();
+					}
 				}
 			} finally {
-				totalProceed.incrementAndGet();
+				running.set(false);
 			}
 		}
-		return totalProceed.get();
 	}
 
 	void addEmail(EmailBean _email) {
-		if (Status.PROCESSING.equals(status.get())) {
+		if (working.get()) {
 			if (emailList.offer(_email)) {
-				start();
+				process();
 			} else {
 				if (logger.isWarnEnabled()) {
 					logger.warn("Queue is full, dropping email \"{}\"", _email);
@@ -90,11 +86,11 @@ public class EmailProcessor extends SingleThreadProcessor<Long> {
 	}
 
 	public void startup() {
-		status.compareAndSet(Status.NOT_PROCESSING, Status.PROCESSING);
+		working.compareAndSet(false, true);
 	}
 
 	void shutdown() {
-		status.compareAndSet(Status.PROCESSING, Status.NOT_PROCESSING);
+		working.compareAndSet(true, false);
 	}
 
 	/**

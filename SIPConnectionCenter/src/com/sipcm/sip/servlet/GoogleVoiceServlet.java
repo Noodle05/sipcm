@@ -165,8 +165,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 			SipServletResponse origResponse = origReq
 					.createResponse(SipServletResponse.SC_OK);
 			copyContent(req, origResponse);
-			sipUtil.processingAddressInSDP(origResponse, req,
-					req.getInitialRemoteAddr());
+			sipUtil.processingAddressInSDP(origResponse, req);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Sending OK to original request. {}", origResponse);
 			}
@@ -175,8 +174,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 			SipServletResponse response = req
 					.createResponse(SipServletResponse.SC_OK);
 			copyContent(origReq, response);
-			sipUtil.processingAddressInSDP(response, origReq,
-					origReq.getInitialRemoteAddr());
+			sipUtil.processingAddressInSDP(response, origReq);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Sending OK to callback request. {}", response);
 			}

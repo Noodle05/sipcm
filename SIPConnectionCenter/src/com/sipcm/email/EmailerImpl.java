@@ -3,6 +3,8 @@
  */
 package com.sipcm.email;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
@@ -18,7 +20,7 @@ public class EmailerImpl implements Emailer {
 	private static final Logger logger = LoggerFactory
 			.getLogger(EmailerImpl.class);
 
-	private boolean emailSendEnabled = true;
+	private final AtomicBoolean emailSendEnabled = new AtomicBoolean(true);
 
 	@Resource(name = "emailProcessor")
 	private EmailProcessor processor;
@@ -30,15 +32,16 @@ public class EmailerImpl implements Emailer {
 	 */
 	@Override
 	public boolean postEmail(EmailBean emailBean) {
-		if (!emailSendEnabled) {
+		if (emailSendEnabled.get()) {
+			processor.addEmail(emailBean);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Email bean \"{}\" added into send list",
+						emailBean);
+			}
+			return true;
+		} else {
 			return false;
 		}
-
-		processor.addEmail(emailBean);
-		if (logger.isDebugEnabled()) {
-			logger.debug("Email bean \"{}\" added into send list", emailBean);
-		}
-		return true;
 	}
 
 	/*
@@ -48,11 +51,10 @@ public class EmailerImpl implements Emailer {
 	 */
 	@Override
 	public void enableEmailService() {
-		if (!emailSendEnabled) {
+		if (emailSendEnabled.compareAndSet(false, true)) {
 			if (logger.isInfoEnabled()) {
 				logger.info("Email Service enabled");
 			}
-			emailSendEnabled = true;
 		}
 	}
 
@@ -63,11 +65,10 @@ public class EmailerImpl implements Emailer {
 	 */
 	@Override
 	public void disableEmailService() {
-		if (emailSendEnabled) {
+		if (emailSendEnabled.compareAndSet(true, false)) {
 			if (logger.isInfoEnabled()) {
 				logger.info("Email Service disabled");
 			}
-			emailSendEnabled = false;
 		}
 	}
 

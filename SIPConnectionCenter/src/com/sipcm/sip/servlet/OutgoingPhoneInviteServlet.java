@@ -75,8 +75,7 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 			return;
 		}
-		UserSipBinding userSipBinding;
-		userSipBinding = locationService
+		UserSipBinding userSipBinding = locationService
 				.getUserSipBindingByPhoneNumber(phoneNumber);
 		if (userSipBinding != null) {
 			if (logger.isTraceEnabled()) {

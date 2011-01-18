@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.sip.business.UserSipProfileService;
 import com.sipcm.sip.model.UserSipProfile;
+import com.sipcm.sip.util.DosProtector;
 import com.sipcm.sip.util.ServerAuthenticationHelper;
 
 /**
@@ -39,6 +40,19 @@ public class CallCenterServlet extends AbstractSipServlet {
 	@Autowired
 	@Qualifier("userSipProfileService")
 	private UserSipProfileService userSipProfileService;
+
+	@Autowired
+	@Qualifier("sip.DosProtector")
+	private DosProtector dosProtector;
+
+	@Override
+	protected void doRequest(javax.servlet.sip.SipServletRequest req)
+			throws javax.servlet.ServletException, java.io.IOException {
+		if (req.isInitial() && !dosProtector.checkDos(req)) {
+			return;
+		}
+		super.doRequest(req);
+	}
 
 	/**
 	 * This will just forward request to RegistrarServlet
@@ -234,6 +248,9 @@ public class CallCenterServlet extends AbstractSipServlet {
 			if (userSipProfile == null) {
 				response(req, SipServletResponse.SC_NOT_FOUND);
 			}
+			dosProtector.resetCounter(req);
+		} else {
+			dosProtector.countAuthFailure(req);
 		}
 		return userSipProfile;
 	}

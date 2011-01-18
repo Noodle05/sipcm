@@ -53,27 +53,28 @@ public class SipUtil {
 	}
 
 	public void processingAddressInSDP(SipServletMessage forkedMessage,
-			SipServletMessage originalMessage, String targetHost) {
+			SipServletMessage originalMessage) {
 		if (!isProcessPublicIp() || publicIpAddressHolder.getPublicIp() == null) {
 			return;
 		}
 		try {
-//			try {
-//				InetAddress iip = InetAddress.getByName(originalMessage
-//						.getInitialRemoteAddr());
-//				InetAddress oip = InetAddress.getByName(targetHost);
-//				if (!((iip.isSiteLocalAddress() || iip.isLoopbackAddress()) ^ (oip
-//						.isSiteLocalAddress() || oip.isLoopbackAddress()))) {
-//					if (logger.isTraceEnabled()) {
-//						logger.trace("Both income and outgoing message from same side, will not process public ip.");
-//					}
-//					return;
-//				}
-//			} catch (Exception e) {
-//				if (logger.isWarnEnabled()) {
-//					logger.warn("Cannot process incoming/outgoing IP.", e);
-//				}
-//			}
+			// try {
+			// InetAddress iip = InetAddress.getByName(originalMessage
+			// .getInitialRemoteAddr());
+			// InetAddress oip = InetAddress.getByName(targetHost);
+			// if (!((iip.isSiteLocalAddress() || iip.isLoopbackAddress()) ^
+			// (oip
+			// .isSiteLocalAddress() || oip.isLoopbackAddress()))) {
+			// if (logger.isTraceEnabled()) {
+			// logger.trace("Both income and outgoing message from same side, will not process public ip.");
+			// }
+			// return;
+			// }
+			// } catch (Exception e) {
+			// if (logger.isWarnEnabled()) {
+			// logger.warn("Cannot process incoming/outgoing IP.", e);
+			// }
+			// }
 			byte[] bc = forkedMessage.getRawContent();
 			if (bc == null || bc.length <= 0) {
 				return;

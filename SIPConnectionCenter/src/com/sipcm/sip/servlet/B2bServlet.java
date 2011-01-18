@@ -16,8 +16,6 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
 import javax.servlet.sip.B2buaHelper;
-import javax.servlet.sip.SipErrorEvent;
-import javax.servlet.sip.SipErrorListener;
 import javax.servlet.sip.SipServletMessage;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
@@ -26,7 +24,6 @@ import javax.servlet.sip.SipSession.State;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.UAMode;
 import javax.servlet.sip.URI;
-import javax.servlet.sip.annotation.SipListener;
 import javax.servlet.sip.annotation.SipServlet;
 import javax.sip.header.FromHeader;
 import javax.sip.message.Request;
@@ -47,8 +44,7 @@ import com.sipcm.sip.util.SipUtil;
  */
 @Configurable
 @SipServlet(name = "B2bServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
-@SipListener(applicationName = "org.gaofamily.CallCenter")
-public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
+public class B2bServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = -7798141358134636972L;
 
 	public static final String LINKED_SESSION_STATUS = "com.sipcm.linkedSessionStatus";
@@ -160,22 +156,19 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 		B2buaHelper helper = resp.getRequest().getB2buaHelper();
 		SipSession linked = helper.getLinkedSession(resp.getSession());
 		SipServletResponse forkedResp = null;
-		String remoteHost = null;
 		if (resp.getRequest().isInitial()) {
 			forkedResp = helper.createResponseToOriginalRequest(linked,
 					resp.getStatus(), resp.getReasonPhrase());
-			remoteHost = resp.getRequest().getInitialRemoteAddr();
 		} else {
 			SipServletRequest forkedReq = helper
 					.getLinkedSipServletRequest(resp.getRequest());
 			forkedResp = forkedReq.createResponse(resp.getStatus(),
 					resp.getReasonPhrase());
-			remoteHost = forkedReq.getRemoteAddr();
 		}
 		copyContent(resp, forkedResp);
 		if ("INVITE".equals(resp.getRequest().getMethod())
 				&& (resp.getStatus() >= 200 && resp.getStatus() < 300)) {
-			sipUtil.processingAddressInSDP(forkedResp, resp, remoteHost);
+			sipUtil.processingAddressInSDP(forkedResp, resp);
 		}
 		if (logger.isTraceEnabled()) {
 			logger.trace("Sending forked response: {}", forkedResp);
@@ -256,8 +249,7 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 							.getURI());
 			forkedRequest.getSession().setAttribute(REMOTE_URI, remoteUri);
 			forkedRequest.setRequestURI(remoteUri);
-			sipUtil.processingAddressInSDP(forkedRequest, req,
-					req.getInitialRemoteAddr());
+			sipUtil.processingAddressInSDP(forkedRequest, req);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Sending forked request {}", forkedRequest);
 			}
@@ -381,8 +373,7 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 									.getAttribute(REMOTE_URI));
 						}
 						copyContent(req, ack);
-						sipUtil.processingAddressInSDP(ack, req,
-								req.getInitialRemoteAddr());
+						sipUtil.processingAddressInSDP(ack, req);
 						if (logger.isTraceEnabled()) {
 							logger.trace("Sending forked ACK: {}", ack);
 						}
@@ -480,75 +471,6 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.servlet.sip.SipErrorListener#noAckReceived(javax.servlet.sip.
-	 * SipErrorEvent)
-	 */
-	@Override
-	public void noAckReceived(SipErrorEvent ee) {
-		if (logger.isErrorEnabled()) {
-			logger.error("ACK is not received.");
-		}
-		SipServletRequest req = ee.getRequest();
-		SipSession session = req.getSession(false);
-		if (session != null) {
-			B2buaHelper helper = getB2buaHelper(req);
-			SipSession origSession = helper.getLinkedSession(session);
-			if (origSession != null) {
-				if (logger.isTraceEnabled()) {
-					logger.trace("Find original session {} for session {}.",
-							origSession.getId(), session.getId());
-				}
-				if (logger.isDebugEnabled()) {
-					logger.debug("Invalidate original session {}.",
-							origSession.getId());
-				}
-				origSession.invalidate();
-			}
-			if (logger.isDebugEnabled()) {
-				logger.debug("Invalidate session {}.", session.getId());
-			}
-			session.invalidate();
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.servlet.sip.SipErrorListener#noPrackReceived(javax.servlet.sip.
-	 * SipErrorEvent)
-	 */
-	@Override
-	public void noPrackReceived(SipErrorEvent ee) {
-		if (logger.isErrorEnabled()) {
-			logger.error("PRACK is not received.");
-		}
-		SipServletRequest req = ee.getRequest();
-		SipSession session = req.getSession(false);
-		if (session != null) {
-			B2buaHelper helper = getB2buaHelper(req);
-			SipSession origSession = helper.getLinkedSession(session);
-			if (origSession != null) {
-				if (logger.isTraceEnabled()) {
-					logger.trace("Find original session {} for session {}.",
-							origSession.getId(), session.getId());
-				}
-				if (logger.isDebugEnabled()) {
-					logger.debug("Invalidate original session {}.",
-							origSession.getId());
-				}
-				origSession.invalidate();
-			}
-			if (logger.isDebugEnabled()) {
-				logger.debug("Invalidate session {}.", session.getId());
-			}
-			session.invalidate();
-		}
-	}
-
 	protected void processReInvite(SipServletRequest req)
 			throws ServletException, IOException {
 		if (logger.isTraceEnabled()) {
@@ -559,8 +481,7 @@ public class B2bServlet extends AbstractSipServlet implements SipErrorListener {
 		SipServletRequest forkedReq = helper.createRequest(linked, req, null);
 		copyContent(req, forkedReq);
 		if ("INVITE".equals(req.getMethod())) {
-			sipUtil.processingAddressInSDP(forkedReq, req,
-					req.getInitialRemoteAddr());
+			sipUtil.processingAddressInSDP(forkedReq, req);
 		}
 		if (logger.isTraceEnabled()) {
 			logger.trace("Sending forked request: {}", forkedReq);
