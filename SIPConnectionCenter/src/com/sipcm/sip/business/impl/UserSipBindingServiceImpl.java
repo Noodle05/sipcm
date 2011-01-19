@@ -109,7 +109,7 @@ public class UserSipBindingServiceImpl extends
 						while (i.hasNext()) {
 							AddressBinding ab = i.next();
 							int time = (int) ((now - ab.getLastCheck()) / 1000L);
-							if ((ab.getAddress().getExpires() - time) <= 0) {
+							if ((ab.getAddress().getExpires() - time) <= -60) {
 								i.remove();
 							} else {
 								ab.getAddress().setExpires(

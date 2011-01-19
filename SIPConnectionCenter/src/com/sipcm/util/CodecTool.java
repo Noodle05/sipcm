@@ -15,8 +15,6 @@ import org.jasypt.util.text.StrongTextEncryptor;
  * @author Jack
  */
 public class CodecTool {
-	public static final String DefaultProviderClassName = "org.bouncycastle.jce.provider.BouncyCastleProvider";
-
 	public static final String PASSWORD = "P@ssw0rd@S1PCw";
 
 	public static final String OPTION_HELP = "h";

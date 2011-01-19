@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-	<comment>Calling Center configuration file</comment>
+	<comment>Calling Center configuration file. This is just a template,
+		default location of this file should be: /usr/local/etc/sip-config.xml</comment>
 	<entry key="domainname">gaofamily.org</entry>
 	<entry key="sip.server.realm">gaofamily.org</entry>
 	<entry key="sip.publicIp.process">true</entry>
@@ -18,4 +19,11 @@
 	<entry key="sip.useStun">true</entry>
 	<entry key="sip.stun.server">stun.counterpath.com</entry>
 	<entry key="sip.stun.port">3478</entry>
+
+	<entry key="firewall.host">localhost</entry>
+	<entry key="firewall.user">root</entry>
+	<entry key="firewall.known_hosts">/usr/local/etc/ssh/known_hosts</entry>
+	<entry key="firewall.private_key">/usr/local/etc/ssh/id_rsa</entry>
+	<entry key="firewall.password_phrase" />
+	<entry key="firewall.ssh.disconnect.delay">60</entry>
 </properties>

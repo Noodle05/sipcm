@@ -49,21 +49,6 @@
 		<constructor-arg index="0" value="500" />
 	</bean>
 
-	<bean id="applicationConfiguration" class="org.apache.commons.configuration.CompositeConfiguration">
-		<constructor-arg index="0" ref="dataConfiguration" />
-		<constructor-arg index="1" ref="configurations" />
-	</bean>
-	<bean id="dataConfiguration" class="org.apache.commons.configuration.DataConfiguration">
-		<constructor-arg index="0"
-			ref="abstractApplicationConfiguration" />
-	</bean>
-	<util:list id="configurations">
-		<bean class="org.apache.commons.configuration.XMLPropertiesConfiguration">
-			<constructor-arg index="0"
-				value="${webapp.root}/WEB-INF/config/system-config.xml" />
-		</bean>
-	</util:list>
-
 	<bean id="stringDigester" class="org.jasypt.digest.StandardStringDigester">
 		<property name="stringOutputType" value="hexadecimal" />
 		<property name="saltSizeBytes" value="0" />

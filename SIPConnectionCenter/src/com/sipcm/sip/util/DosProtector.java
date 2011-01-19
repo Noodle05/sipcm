@@ -35,6 +35,7 @@ public class DosProtector implements MapEvictionListener<String, Boolean> {
 	public static final String SIP_DOS_PROTECT_MAX_REQUESTS = "sip.dos.protect.max.requests";
 	public static final String SIP_DOS_PROTECT_BLOCK_TIME = "sip.dos.protect.block.time";
 
+	@Resource(name = "sip.dosBlockEventListener")
 	private BlockIpEventListener blockEventListener;
 
 	private ConcurrentMap<String, AtomicInteger> counter;
@@ -69,6 +70,9 @@ public class DosProtector implements MapEvictionListener<String, Boolean> {
 
 	public void countAuthFailure(SipServletRequest request) {
 		String ip = request.getInitialRemoteAddr();
+		if (blockList.containsKey(ip)) {
+			return;
+		}
 		AtomicInteger count = counter.get(ip);
 		if (count == null) {
 			count = new AtomicInteger(0);
