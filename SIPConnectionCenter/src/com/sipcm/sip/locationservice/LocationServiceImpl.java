@@ -59,7 +59,7 @@ public class LocationServiceImpl implements LocationService {
 	@PostConstruct
 	public void init() throws NoSuchAlgorithmException {
 		cache = new MapMaker().concurrencyLevel(32)
-				.expiration(30, TimeUnit.MINUTES).softKeys().makeMap();
+				.expiration(30, TimeUnit.MINUTES).softValues().makeMap();
 	}
 
 	/*

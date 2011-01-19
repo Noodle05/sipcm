@@ -28,7 +28,7 @@ public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 
 	public void init() {
 		super.init();
-		cache = new MapMaker().concurrencyLevel(16).softKeys()
+		cache = new MapMaker().concurrencyLevel(2).softValues()
 				.initialCapacity(1).expiration(8, TimeUnit.HOURS).makeMap();
 	}
 

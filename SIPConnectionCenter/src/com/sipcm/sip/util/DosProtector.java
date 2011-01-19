@@ -4,6 +4,8 @@
 package com.sipcm.sip.util;
 
 import java.net.InetAddress;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,9 +17,9 @@ import javax.servlet.sip.SipServletRequest;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.MapEvictionListener;
 import com.google.common.collect.MapMaker;
 import com.sipcm.sip.events.BlockIpEventListener;
 import com.sipcm.sip.events.BlockIpEventObject;
@@ -27,7 +29,7 @@ import com.sipcm.sip.events.BlockIpEventObject;
  * 
  */
 @Component("sip.DosProtector")
-public class DosProtector implements MapEvictionListener<String, Boolean> {
+public class DosProtector {
 	private static final Logger logger = LoggerFactory
 			.getLogger(DosProtector.class);
 
@@ -39,19 +41,17 @@ public class DosProtector implements MapEvictionListener<String, Boolean> {
 	private BlockIpEventListener blockEventListener;
 
 	private ConcurrentMap<String, AtomicInteger> counter;
-	private ConcurrentMap<String, Boolean> blockList;
+	private ConcurrentMap<String, Long> blockList;
 
 	@Resource(name = "applicationConfiguration")
 	private Configuration appConfig;
 
 	@PostConstruct
 	public void init() {
-		counter = new MapMaker().concurrencyLevel(64)
+		counter = new MapMaker().concurrencyLevel(32)
 				.expiration(getDosProtectInterval(), TimeUnit.SECONDS)
 				.makeMap();
-		blockList = new MapMaker().concurrencyLevel(64)
-				.expiration(getDosProtectBlockTime(), TimeUnit.SECONDS)
-				.evictionListener(this).makeMap();
+		blockList = new MapMaker().concurrencyLevel(4).makeMap();
 		if (logger.isInfoEnabled()) {
 			logger.info(
 					"DosProtector enabled. Block remote IP that failed authentication more than \"{}\" times in \"{}\" seconds for \"{}\" seconds.",
@@ -89,7 +89,10 @@ public class DosProtector implements MapEvictionListener<String, Boolean> {
 						new Object[] { ip, c, getDosProtectInterval(),
 								getDosProtectBlockTime() });
 			}
-			if (blockList.put(ip, true) == null) {
+			if (blockList
+					.putIfAbsent(
+							ip,
+							(System.currentTimeMillis() + getDosProtectBlockTime() * 1000L)) == null) {
 				if (blockEventListener != null) {
 					try {
 						InetAddress i = InetAddress.getByName(ip);
@@ -138,27 +141,33 @@ public class DosProtector implements MapEvictionListener<String, Boolean> {
 		return appConfig.getLong(SIP_DOS_PROTECT_BLOCK_TIME, 3600L);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.google.common.collect.MapEvictionListener#onEviction(java.lang.Object
-	 * , java.lang.Object)
-	 */
-	@Override
-	public void onEviction(String key, Boolean value) {
-		if (logger.isInfoEnabled()) {
-			logger.info("Remote address blocking expired.");
+	@Scheduled(fixedRate = 60000L)
+	public void checkBlockExpire() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Check block list expire.");
 		}
-		if (blockEventListener != null) {
-			try {
-				InetAddress i = InetAddress.getByName(key);
-				blockEventListener.unblockIp(new BlockIpEventObject(i));
-			} catch (Exception e) {
-				if (logger.isWarnEnabled()) {
-					logger.warn(
-							"Error happened when notify listener on block ip: "
-									+ key, e);
+		Iterator<Entry<String, Long>> ite = blockList.entrySet().iterator();
+		long now = System.currentTimeMillis();
+		while (ite.hasNext()) {
+			Entry<String, Long> entry = ite.next();
+			String ip = entry.getKey();
+			long expire = entry.getValue();
+			if (now >= expire) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Blocking ip \"{}\" expired, remove it.", ip);
+				}
+				ite.remove();
+				if (blockEventListener != null) {
+					try {
+						InetAddress i = InetAddress.getByName(ip);
+						blockEventListener.unblockIp(new BlockIpEventObject(i));
+					} catch (Exception e) {
+						if (logger.isWarnEnabled()) {
+							logger.warn(
+									"Error happened when notify listener on block ip: "
+											+ ip, e);
+						}
+					}
 				}
 			}
 		}
