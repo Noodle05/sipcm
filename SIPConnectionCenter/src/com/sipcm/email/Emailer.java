@@ -19,7 +19,7 @@ public interface Emailer {
 	 * @param emailBean
 	 * @return if sent email success.
 	 */
-	public boolean postEmail(EmailBean emailBean);
+	public boolean sendMail(EmailBean emailBean);
 
 	/**
 	 * Enable email notification service.
@@ -30,18 +30,6 @@ public interface Emailer {
 	 * Disable email notification service.
 	 */
 	public void disableEmailService();
-
-	/**
-	 * Launch email notification service. Don't call it, should be called by
-	 * InitialFilter.
-	 */
-	public void startup();
-
-	/**
-	 * Shut down email notification service. Don't call it, should be called by
-	 * InitialFilter.
-	 */
-	public void shutdown();
 
 	/**
 	 * Get how many email bean been proceed.

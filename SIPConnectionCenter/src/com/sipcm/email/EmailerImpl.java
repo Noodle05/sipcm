@@ -31,17 +31,18 @@ public class EmailerImpl implements Emailer {
 	 * @see com.sipcm.email.Emailer#postEmail(com.sipcm.email.EmailBean)
 	 */
 	@Override
-	public boolean postEmail(EmailBean emailBean) {
+	public boolean sendMail(EmailBean emailBean) {
 		if (emailSendEnabled.get()) {
-			processor.addEmail(emailBean);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Email bean \"{}\" added into send list",
-						emailBean);
+			if (processor.addEmail(emailBean)) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Email bean \"{}\" added into send list",
+							emailBean);
+				}
+				processor.process();
+				return true;
 			}
-			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	/*
@@ -69,39 +70,6 @@ public class EmailerImpl implements Emailer {
 			if (logger.isInfoEnabled()) {
 				logger.info("Email Service disabled");
 			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.email.Emailer#startup()
-	 */
-	@Override
-	public void startup() {
-		try {
-			processor.startup();
-			if (logger.isInfoEnabled()) {
-				logger.info("Email service started");
-			}
-		} catch (Exception e) {
-			if (logger.isErrorEnabled()) {
-				logger.error("Email service cannot start", e);
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sipcm.email.Emailer#shutdown()
-	 */
-	@Override
-	public void shutdown() {
-		processor.shutdown();
-
-		if (logger.isInfoEnabled()) {
-			logger.info("Email service stopped");
 		}
 	}
 
