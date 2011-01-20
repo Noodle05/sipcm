@@ -48,7 +48,8 @@ public class CallCenterServlet extends AbstractSipServlet {
 	@Override
 	protected void doRequest(javax.servlet.sip.SipServletRequest req)
 			throws javax.servlet.ServletException, java.io.IOException {
-		if (req.isInitial() && !dosProtector.checkDos(req)) {
+		if (req.isInitial() && !specialHandleRequest(req)
+				&& dosProtector.isDosAttach(req)) {
 			return;
 		}
 		super.doRequest(req);

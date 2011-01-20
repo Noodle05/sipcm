@@ -6,7 +6,6 @@ package com.sipcm.sip.servlet;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,21 +53,13 @@ public class B2bServlet extends AbstractSipServlet {
 	@Qualifier("sipUtil")
 	protected SipUtil sipUtil;
 
-	private static final String[] specialHandleRequest = new String[] {
-			Request.ACK, Request.CANCEL, Request.BYE };
-
-	static {
-		Arrays.sort(specialHandleRequest);
-	}
-
 	@Override
 	protected void doRequest(SipServletRequest req) throws ServletException,
 			IOException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Get request: {}", req);
 		}
-		if (req.isInitial()
-				|| (Arrays.binarySearch(specialHandleRequest, req.getMethod()) >= 0)) {
+		if (req.isInitial() || specialHandleRequest(req)) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("This is a initial request or ACK or CANCEL, process with original logic.");
 			}

@@ -43,9 +43,10 @@ public class LocationServiceImpl implements LocationService {
 			.getLogger(LocationServiceImpl.class);
 
 	private ConcurrentMap<String, UserSipBinding> cache;
+	private volatile boolean cacheBusy = true;
 
 	@Resource(name = "sipUtil")
-	private transient SipUtil sipUtil;
+	private SipUtil sipUtil;
 
 	@Resource(name = "phoneNumberUtil")
 	private PhoneNumberUtil phoneNumberUtil;
@@ -60,6 +61,7 @@ public class LocationServiceImpl implements LocationService {
 	public void init() throws NoSuchAlgorithmException {
 		cache = new MapMaker().concurrencyLevel(32)
 				.expiration(30, TimeUnit.MINUTES).softValues().makeMap();
+		cacheBusy = false;
 	}
 
 	/*
@@ -71,8 +73,8 @@ public class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public void removeAllBinding(String key) {
-		UserSipBinding up = userSipBindingService.removeByAddress(key);
 		cache.remove(key);
+		UserSipBinding up = userSipBindingService.removeByAddress(key);
 		if (up != null) {
 			listener.userUnregistered(new RegistrationEventObject(up
 					.getUserSipProfile()));
@@ -108,8 +110,8 @@ public class LocationServiceImpl implements LocationService {
 				}
 				userSipBinding.getBindings().remove(addressBinding);
 				if (userSipBinding.getBindings().isEmpty()) {
-					userSipBindingService.removeEntity(userSipBinding);
 					cache.remove(key);
+					userSipBindingService.removeEntity(userSipBinding);
 					listener.userUnregistered(new RegistrationEventObject(
 							userSipBinding.getUserSipProfile()));
 				} else {
@@ -189,11 +191,14 @@ public class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public UserSipBinding getUserSipBindingByKey(String key) {
-		UserSipBinding userSipBinding = cache.get(key);
+		UserSipBinding userSipBinding = null;
+		if (!cacheBusy) {
+			userSipBinding = cache.get(key);
+		}
 		if (userSipBinding == null) {
 			userSipBinding = userSipBindingService
 					.getUserSipBindingByAddress(key);
-			if (userSipBinding != null) {
+			if (userSipBinding != null && !cacheBusy) {
 				UserSipBinding up = cache.putIfAbsent(key, userSipBinding);
 				if (up != null) {
 					userSipBinding = up;
@@ -216,18 +221,20 @@ public class LocationServiceImpl implements LocationService {
 			throw new NullPointerException("Phone number cannot be null.");
 		String pn = phoneNumberUtil.getCanonicalizedPhoneNumber(phoneNumber);
 		UserSipBinding userSipBinding = null;
-		for (UserSipBinding usb : cache.values()) {
-			String p = usb.getUserSipProfile().getPhoneNumber() == null ? null
-					: usb.getUserSipProfile().getPhoneNumber();
-			if (pn.equals(p)) {
-				userSipBinding = usb;
-				break;
+		if (!cacheBusy) {
+			for (UserSipBinding usb : cache.values()) {
+				String p = usb.getUserSipProfile().getPhoneNumber() == null ? null
+						: usb.getUserSipProfile().getPhoneNumber();
+				if (pn.equals(p)) {
+					userSipBinding = usb;
+					break;
+				}
 			}
 		}
 		if (userSipBinding == null) {
 			userSipBinding = userSipBindingService
 					.getUserSipBindingByAddress(pn);
-			if (userSipBinding != null) {
+			if (userSipBinding != null && !cacheBusy) {
 				UserSipBinding usb = cache.putIfAbsent(
 						userSipBinding.getAddressOfRecord(), userSipBinding);
 				if (usb != null) {
@@ -252,12 +259,17 @@ public class LocationServiceImpl implements LocationService {
 	@Override
 	public void checkContactExpires() {
 		try {
-			Collection<UserSipBinding> usbs = userSipBindingService
-					.checkContactExpires();
-			for (UserSipBinding userSipBinding : usbs) {
-				cache.remove(userSipBinding.getAddressOfRecord());
+			Collection<UserSipBinding> usbs = null;
+			cacheBusy = true;
+			try {
+				usbs = userSipBindingService.checkContactExpires();
+				for (UserSipBinding userSipBinding : usbs) {
+					cache.remove(userSipBinding.getAddressOfRecord());
+				}
+			} finally {
+				cacheBusy = false;
 			}
-			if (!usbs.isEmpty()) {
+			if (usbs != null && !usbs.isEmpty()) {
 				Collection<UserSipProfile> usps = new ArrayList<UserSipProfile>(
 						usbs.size());
 				UserSipProfile[] us = new UserSipProfile[usbs.size()];

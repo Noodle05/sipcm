@@ -36,7 +36,7 @@ public class PublicIpAddressHolder {
 	private static final int MAX_PORT_NUMBER = 65535;
 	private static final int MIN_PORT_NUMBER = 1024;
 
-	private static Random portNumberGenerator = new Random();
+	private static final Random portNumberGenerator = new Random();
 
 	private InetAddress publicIp;
 

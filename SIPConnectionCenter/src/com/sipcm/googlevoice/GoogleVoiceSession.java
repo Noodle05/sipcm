@@ -83,7 +83,7 @@ public class GoogleVoiceSession implements Serializable {
 	private HttpClient httpClient;
 	private String rnrSe;
 	private int maxRetry = 1;
-	private boolean cancelCall;
+	private volatile boolean cancelCall;
 
 	@Resource(name = "googleVoiceManager")
 	private GoogleVoiceManager manager;

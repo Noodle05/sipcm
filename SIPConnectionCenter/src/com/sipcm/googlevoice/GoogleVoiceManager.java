@@ -28,10 +28,10 @@ import org.slf4j.LoggerFactory;
 public abstract class GoogleVoiceManager {
 	private Logger logger = LoggerFactory.getLogger(GoogleVoiceManager.class);
 
+	public static final String MAX_TOTAL_CONNECTIONS = "com.sip.http.client.maxConnections";
+
 	@Resource(name = "applicationConfiguration")
 	private Configuration appConfig;
-
-	public static final String MAX_TOTAL_CONNECTIONS = "com.sip.http.client.maxConnections";
 
 	private ClientConnectionManager connMgr;
 

@@ -4,6 +4,7 @@
 package com.sipcm.sip.servlet;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Properties;
 
 import javax.naming.Context;
@@ -18,6 +19,7 @@ import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSessionsUtil;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.TimerService;
+import javax.sip.message.Request;
 
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
@@ -45,7 +47,13 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 	public static final String CALLING_PHONE_NUMBER = "com.sipcm.calling.phonenumber";
 	public static final String TARGET_USERSIPBINDING = "com.sipcm.target.userSipBinding";
 
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	private static final String[] specialHandleRequest = new String[] {
+			Request.ACK, Request.CANCEL, Request.BYE };
+	static {
+		Arrays.sort(specialHandleRequest);
+	}
+
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected SipFactory sipFactory;
 
@@ -115,5 +123,9 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 				.getURI());
 		String user = uri.getUser();
 		return APPLICATION_SESSION_ID + user;
+	}
+
+	protected boolean specialHandleRequest(SipServletRequest req) {
+		return Arrays.binarySearch(specialHandleRequest, req.getMethod()) >= 0;
 	}
 }

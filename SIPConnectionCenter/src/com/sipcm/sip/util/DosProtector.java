@@ -60,12 +60,12 @@ public class DosProtector {
 		}
 	}
 
-	public boolean checkDos(SipServletRequest request) {
+	public boolean isDosAttach(SipServletRequest request) {
 		String ip = request.getInitialRemoteAddr();
 		if (blockList.containsKey(ip)) {
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public void countAuthFailure(SipServletRequest request) {
