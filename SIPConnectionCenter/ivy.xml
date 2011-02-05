@@ -22,7 +22,7 @@
 	</configurations>
 	<dependencies>
 		<dependency org="c3p0" name="c3p0" rev="0.9.1.2"
-			conf="runtime->default;foride->sources,javadoc" />
+			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="commons-cli" name="commons-cli" rev="1.2"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.apache.httpcomponents" name="httpclient"
