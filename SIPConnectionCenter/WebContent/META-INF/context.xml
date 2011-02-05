@@ -4,22 +4,7 @@
 	<Loader
 		loaderClass="org.springframework.instrument.classloading.tomcat.TomcatInstrumentableClassLoader"
 		useSystemClassLoaderAsParent="false" />
-	<Resource name="mail/Session" auth="Container" type="javax.mail.Session"
-		mail.smtp.host="localhost" />
-	<!-- <Resource name="jdbc/sipcmDS" auth="Container" type="javax.sql.DataSource" 
-		username="sa" password="sasa" driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost:3306/sipcm?autoReconnect=true" 
-		maxActive="50" maxIdle="10" maxWait="10000" /> -->
-	<Resource auth="Container" description="DB Connection"
-		driverClass="com.mysql.jdbc.Driver" maxPoolSize="25" minPoolSize="5"
-		acquireIncrement="1" name="jdbc/sipcmDS" user="sa" password="sasa"
-		factory="org.apache.naming.factory.BeanFactory" type="com.mchange.v2.c3p0.ComboPooledDataSource"
-		idleConnectionTestPeriod="14400" preferredTestQuery="select now()"
-		jdbcUrl="jdbc:mysql://localhost:3306/sipcm?autoReconnect=true&amp;zeroDateTimeBehavior=convertToNull" />
-	<Realm className="org.apache.catalina.realm.DataSourceRealm"
-		debug="99" dataSourceName="jdbc/sipcmDS" userTable="vw_user"
-		userNameCol="username" userCredCol="password" userRoleTable="vw_userrole"
-		roleNameCol="roles" localDataSource="true" digest="MD5" />
-	<!-- ResourceLink name="jdbc/sipcmDS" global="jdbc/sipcmDS" type="javax.sql.DataSource" 
-		/ -->
+	<ResourceLink name="mail/Session" global="mail/Session" type="javax.mail.Session" />
+	<ResourceLink name="jdbc/sipcmDS" global="jdbc/sipcmDS" type="javax.sql.DataSource" />
 	<Manager className="org.mobicents.servlet.sip.core.session.SipStandardManager" />
 </Context>

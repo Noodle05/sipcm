@@ -93,7 +93,7 @@ public class LocationServiceImpl implements LocationService {
 			Address address, Address remoteEnd, String callId) {
 		UserSipBinding userSipBinding = null;
 		AddressBinding addressBinding = null;
-		userSipBinding = getUserSipBindingByKey(key);
+		userSipBinding = getUserSipBindingByKey(key, false);
 		if (userSipBinding != null) {
 			addressBinding = getAddressBinding(userSipBinding, address);
 		}
@@ -191,14 +191,18 @@ public class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public UserSipBinding getUserSipBindingByKey(String key) {
+		return getUserSipBindingByKey(key, true);
+	}
+
+	private UserSipBinding getUserSipBindingByKey(String key, boolean useCache) {
 		UserSipBinding userSipBinding = null;
-		if (!cacheBusy) {
+		if (useCache && !cacheBusy) {
 			userSipBinding = cache.get(key);
 		}
 		if (userSipBinding == null) {
 			userSipBinding = userSipBindingService
 					.getUserSipBindingByAddress(key);
-			if (userSipBinding != null && !cacheBusy) {
+			if (userSipBinding != null && useCache && !cacheBusy) {
 				UserSipBinding up = cache.putIfAbsent(key, userSipBinding);
 				if (up != null) {
 					userSipBinding = up;
