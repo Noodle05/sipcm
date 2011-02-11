@@ -33,6 +33,7 @@
 		<dependency org="org.hibernate" name="hibernate-c3p0" rev="3.6.0.Final"
 			conf="runtime->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
+			<exclude module="c3p0" />
 		</dependency>
 		<dependency org="mysql" name="mysql-connector-java" rev="5.1.14"
 			conf="provided->default;foride->sources,javadoc" />
