@@ -8,5 +8,5 @@ package com.sipcm.sip;
  * 
  */
 public enum VoipVendorType {
-	SIP, GOOGLE_VOICE
+	LOCAL, SIP, GOOGLE_VOICE
 }
