@@ -28,6 +28,7 @@ import javax.sip.header.ToHeader;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import com.sipcm.sip.model.UserVoipAccount;
+import com.sipcm.sip.model.VoipVendor;
 
 /**
  * @author wgao
@@ -82,14 +83,14 @@ public class DelegatedServlet extends B2bServlet {
 			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 		}
 		final SipURI toSipURI = (SipURI) req.getTo().getURI();
+		VoipVendor vendor = account.getVoipVendor();
 		URI toURI = sipFactory
 				.createSipURI(phoneNumberUtil
 						.getCanonicalizedPhoneNumber(toSipURI.getUser()),
-						account.getVoipVendor().getDomain());
+						vendor.getDomain());
 		SipURI fromURI = sipFactory.createSipURI(
 				(account.getPhoneNumber() == null ? account.getAccount()
-						: account.getPhoneNumber()), account.getVoipVendor()
-						.getDomain());
+						: account.getPhoneNumber()), vendor.getDomain());
 		Address toAddress = sipFactory.createAddress(toURI);
 		String fromDisplayName;
 		if (account.getPhoneNumber() != null) {
@@ -113,6 +114,11 @@ public class DelegatedServlet extends B2bServlet {
 		B2buaHelper helper = getB2buaHelper(req);
 		SipServletRequest forkedRequest = helper.createRequest(req, true,
 				headers);
+		if (vendor.getProxy() != null) {
+			Address routeAddress = sipFactory.createAddress("sip:"
+					+ vendor.getProxy());
+			forkedRequest.pushRoute(routeAddress);
+		}
 		forkedRequest.setRequestURI(toURI);
 		// Remove original authentication headers.
 		forkedRequest.removeHeader(AuthorizationHeader.NAME);

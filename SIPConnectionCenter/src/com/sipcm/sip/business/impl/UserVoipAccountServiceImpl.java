@@ -63,30 +63,18 @@ public class UserVoipAccountServiceImpl extends
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.sip.business.UserVoipAccountService#getIncomingAccount(com.
-	 * sipcm.sip.model.UserSipProfile)
+	 * com.sipcm.sip.business.UserVoipAccountService#getIncomingAccounts(com
+	 * .sipcm.sip.model.UserSipProfile)
 	 */
 	@Override
-	public UserVoipAccount getIncomingAccount(UserSipProfile user) {
+	public Collection<UserVoipAccount> getIncomingAccounts(UserSipProfile user) {
 		Filter f1 = filterFactory.createSimpleFilter("owner", user);
 		Filter f2 = filterFactory.createSimpleFilter("voipVendor.type",
 				VoipVendorType.SIP);
 		Filter f3 = filterFactory.createInFilter("type",
 				VoipAccountType.INCOME, VoipAccountType.BOTH);
 		Filter filter = f1.appendAnd(f2).appendAnd(f3);
-		Collection<UserVoipAccount> accounts = dao.getEntities(filter, null,
-				null);
-		if (accounts != null && !accounts.isEmpty()) {
-			if (accounts.size() > 1) {
-				if (logger.isWarnEnabled()) {
-					logger.warn(
-							"User \"{}\" have more than one incoming account, return first one.",
-							user.getDisplayName());
-				}
-			}
-			return accounts.iterator().next();
-		}
-		return null;
+		return dao.getEntities(filter, null, null);
 	}
 
 	/*

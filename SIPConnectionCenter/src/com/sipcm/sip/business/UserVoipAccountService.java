@@ -17,7 +17,7 @@ import com.sipcm.sip.model.VoipVendor;
 public interface UserVoipAccountService extends Service<UserVoipAccount, Long> {
 	public Collection<UserVoipAccount> getOutgoingAccounts(UserSipProfile user);
 
-	public UserVoipAccount getIncomingAccount(UserSipProfile user);
+	public Collection<UserVoipAccount> getIncomingAccounts(UserSipProfile user);
 
 	public UserVoipAccount getUserVoipAccountByVendorAndAccount(
 			VoipVendor voipVender, String account);

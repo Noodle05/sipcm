@@ -3,6 +3,8 @@
  */
 package com.sipcm.sip.vendor;
 
+import java.util.Collection;
+
 import javax.annotation.Resource;
 
 import com.sipcm.sip.business.UserVoipAccountService;
@@ -33,11 +35,11 @@ public class UserRegistrationEventListener implements RegistrationEventListener 
 	public void userRegistered(RegistrationEventObject event) {
 		UserSipProfile[] userSipProfiles = event.getSource();
 		for (UserSipProfile userSipProfile : userSipProfiles) {
-			UserVoipAccount incomingAccount = userVoipAccountService
-					.getIncomingAccount(userSipProfile);
-			if (incomingAccount == null) {
+			Collection<UserVoipAccount> incomingAccounts = userVoipAccountService
+					.getIncomingAccounts(userSipProfile);
+			if (incomingAccounts != null && !incomingAccounts.isEmpty()) {
 				voipVendorManager.registerForIncomingRequest(userSipProfile,
-						incomingAccount);
+						incomingAccounts);
 			}
 		}
 	}
@@ -53,11 +55,11 @@ public class UserRegistrationEventListener implements RegistrationEventListener 
 	public void userUnregistered(RegistrationEventObject event) {
 		UserSipProfile[] userSipProfiles = event.getSource();
 		for (UserSipProfile userSipProfile : userSipProfiles) {
-			UserVoipAccount incomingAccount = userVoipAccountService
-					.getIncomingAccount(userSipProfile);
-			if (incomingAccount == null) {
+			Collection<UserVoipAccount> incomingAccounts = userVoipAccountService
+					.getIncomingAccounts(userSipProfile);
+			if (incomingAccounts != null && !incomingAccounts.isEmpty()) {
 				voipVendorManager.unregisterForIncomingRequest(userSipProfile,
-						incomingAccount);
+						incomingAccounts);
 			}
 		}
 	}

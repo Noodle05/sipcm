@@ -3,6 +3,7 @@
  */
 package com.sipcm.sip.vendor;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -67,27 +68,31 @@ public abstract class VoipVendorManager {
 	}
 
 	public void registerForIncomingRequest(UserSipProfile userSipProfile,
-			UserVoipAccount account) {
-		VoipVendorContext ctx = getVoipVendorContext(account);
-		if (ctx != null) {
-			ctx.registerForIncomingRequest(userSipProfile, account);
-		} else {
-			if (logger.isWarnEnabled()) {
-				logger.warn("Cannot find vendor context for vendor \"{}\"",
-						account.getVoipVendor());
+			Collection<UserVoipAccount> accounts) {
+		for (UserVoipAccount account : accounts) {
+			VoipVendorContext ctx = getVoipVendorContext(account);
+			if (ctx != null) {
+				ctx.registerForIncomingRequest(userSipProfile, account);
+			} else {
+				if (logger.isWarnEnabled()) {
+					logger.warn("Cannot find vendor context for vendor \"{}\"",
+							account.getVoipVendor());
+				}
 			}
 		}
 	}
 
 	public void unregisterForIncomingRequest(UserSipProfile userSipProfile,
-			UserVoipAccount account) {
-		VoipVendorContext ctx = getVoipVendorContext(account);
-		if (ctx != null) {
-			ctx.unregisterForIncomingRequest(userSipProfile, account);
-		} else {
-			if (logger.isWarnEnabled()) {
-				logger.warn("Cannot find vendor context for vendor \"{}\"",
-						account.getVoipVendor());
+			Collection<UserVoipAccount> accounts) {
+		for (UserVoipAccount account : accounts) {
+			VoipVendorContext ctx = getVoipVendorContext(account);
+			if (ctx != null) {
+				ctx.unregisterForIncomingRequest(userSipProfile, account);
+			} else {
+				if (logger.isWarnEnabled()) {
+					logger.warn("Cannot find vendor context for vendor \"{}\"",
+							account.getVoipVendor());
+				}
 			}
 		}
 	}
