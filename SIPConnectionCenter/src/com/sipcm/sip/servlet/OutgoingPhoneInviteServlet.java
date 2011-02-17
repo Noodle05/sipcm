@@ -4,6 +4,7 @@
 package com.sipcm.sip.servlet;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -20,7 +21,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import com.sipcm.sip.VoipVendorType;
 import com.sipcm.sip.dialplan.DialplanExecutor;
 import com.sipcm.sip.locationservice.LocationService;
-import com.sipcm.sip.model.UserSipBinding;
+import com.sipcm.sip.model.AddressBinding;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.util.MapHolderBean;
@@ -75,13 +76,13 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 			return;
 		}
-		UserSipBinding userSipBinding = locationService
+		Collection<AddressBinding> addresses = locationService
 				.getUserSipBindingByPhoneNumber(phoneNumber);
-		if (userSipBinding != null) {
+		if (addresses != null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Found local user with this phone number, will forward to local user directly.");
 			}
-			req.setAttribute(TARGET_USERSIPBINDING, userSipBinding);
+			req.setAttribute(TARGET_USERSIPBINDING, addresses);
 			RequestDispatcher dispather = req
 					.getRequestDispatcher("B2bServlet");
 			if (dispather == null) {

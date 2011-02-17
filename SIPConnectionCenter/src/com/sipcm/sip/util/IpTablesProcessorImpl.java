@@ -45,6 +45,7 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	private static final Logger logger = LoggerFactory
 			.getLogger(IpTablesProcessorImpl.class);
 
+	public static final String FIREWALL_ENABLED = "firewall.enable";
 	public static final String FIREWALL_HOST = "firewall.host";
 	public static final String FIREWALL_USER = "firewall.user";
 	public static final String KNOWN_HOSTS = "firewall.known_hosts";
@@ -96,9 +97,11 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 
 	@PostConstruct
 	public void init() {
-		sshExecutor.init(getFirewallHost(), getFirewallUser(),
-				getKnownHostsFile(), getPrivateKeyFile(), getPasswordPhrase(),
-				getSshDisconnectDelay());
+		if (isFirewallEnabled()) {
+			sshExecutor.init(getFirewallHost(), getFirewallUser(),
+					getKnownHostsFile(), getPrivateKeyFile(),
+					getPasswordPhrase(), getSshDisconnectDelay());
+		}
 	}
 
 	/*
@@ -109,24 +112,26 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	 */
 	@Override
 	public boolean postBlockRequest(InetAddress ip) {
-		if (ip != null) {
-			requestsLock.lock();
-			try {
-				Iterator<Request> ite = requests.iterator();
-				while (ite.hasNext()) {
-					Request r = ite.next();
-					if (ip.equals(r.ip)) {
-						if (logger.isTraceEnabled()) {
-							logger.trace(
-									"Find existing request for ip \"{}\", remove it.",
-									ip);
+		if (isFirewallEnabled()) {
+			if (ip != null) {
+				requestsLock.lock();
+				try {
+					Iterator<Request> ite = requests.iterator();
+					while (ite.hasNext()) {
+						Request r = ite.next();
+						if (ip.equals(r.ip)) {
+							if (logger.isTraceEnabled()) {
+								logger.trace(
+										"Find existing request for ip \"{}\", remove it.",
+										ip);
+							}
+							ite.remove();
 						}
-						ite.remove();
 					}
+					return requests.offer(new Request(RequestType.BLOCK, ip));
+				} finally {
+					requestsLock.unlock();
 				}
-				return requests.offer(new Request(RequestType.BLOCK, ip));
-			} finally {
-				requestsLock.unlock();
 			}
 		}
 		return false;
@@ -140,24 +145,26 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	 */
 	@Override
 	public boolean postUnblockIp(InetAddress ip) {
-		if (ip != null) {
-			requestsLock.lock();
-			try {
-				Iterator<Request> ite = requests.iterator();
-				while (ite.hasNext()) {
-					Request r = ite.next();
-					if (ip.equals(r.ip)) {
-						if (logger.isTraceEnabled()) {
-							logger.trace(
-									"Find existing request for ip \"{}\", remove it.",
-									ip);
+		if (isFirewallEnabled()) {
+			if (ip != null) {
+				requestsLock.lock();
+				try {
+					Iterator<Request> ite = requests.iterator();
+					while (ite.hasNext()) {
+						Request r = ite.next();
+						if (ip.equals(r.ip)) {
+							if (logger.isTraceEnabled()) {
+								logger.trace(
+										"Find existing request for ip \"{}\", remove it.",
+										ip);
+							}
+							ite.remove();
 						}
-						ite.remove();
 					}
+					return requests.offer(new Request(RequestType.UNBLOCK, ip));
+				} finally {
+					requestsLock.unlock();
 				}
-				return requests.offer(new Request(RequestType.UNBLOCK, ip));
-			} finally {
-				requestsLock.unlock();
 			}
 		}
 		return false;
@@ -170,16 +177,19 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	 */
 	@Override
 	public boolean postRemoveAll() {
-		requestsLock.lock();
-		try {
-			if (logger.isTraceEnabled()) {
-				logger.trace("Remove all existing requests.");
+		if (isFirewallEnabled()) {
+			requestsLock.lock();
+			try {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Remove all existing requests.");
+				}
+				requests.clear();
+				return requests.offer(new Request(RequestType.REMOVEALL, null));
+			} finally {
+				requestsLock.unlock();
 			}
-			requests.clear();
-			return requests.offer(new Request(RequestType.REMOVEALL, null));
-		} finally {
-			requestsLock.unlock();
 		}
+		return false;
 	}
 
 	/*
@@ -190,22 +200,24 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	@Override
 	@Async
 	public void process() {
-		if (running.compareAndSet(false, true)) {
-			try {
-				Request request;
-				while ((request = getNextRequest()) != null) {
-					try {
-						processRequest(request);
-					} catch (Exception e) {
-						if (logger.isErrorEnabled()) {
-							logger.error(
-									"Error happened when process request: "
-											+ request, e);
+		if (isFirewallEnabled()) {
+			if (running.compareAndSet(false, true)) {
+				try {
+					Request request;
+					while ((request = getNextRequest()) != null) {
+						try {
+							processRequest(request);
+						} catch (Exception e) {
+							if (logger.isErrorEnabled()) {
+								logger.error(
+										"Error happened when process request: "
+												+ request, e);
+							}
 						}
 					}
+				} finally {
+					running.set(false);
 				}
-			} finally {
-				running.set(false);
 			}
 		}
 	}
@@ -377,6 +389,10 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 
 	private String getPrivateKeyFile() {
 		return appConfig.getString(PRIVATE_KEY);
+	}
+
+	private boolean isFirewallEnabled() {
+		return appConfig.getBoolean(FIREWALL_ENABLED);
 	}
 
 	private String getPasswordPhrase() {

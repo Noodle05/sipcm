@@ -87,11 +87,12 @@ public class UserVoipAccountServiceImpl extends
 	@Override
 	public UserVoipAccount getUserVoipAccountByVendorAndAccount(
 			VoipVendor voipVender, String account) {
-		Filter f1 = filterFactory.createSimpleFilter("", voipVender);
-		Filter f2 = filterFactory.createSimpleFilter("", account);
-		Filter f3 = filterFactory.createSimpleFilter("", OnlineStatus.ONLINE);
-		Filter f4 = filterFactory.createInFilter("", VoipAccountType.INCOME,
-				VoipAccountType.BOTH);
+		Filter f1 = filterFactory.createSimpleFilter("voipVendor", voipVender);
+		Filter f2 = filterFactory.createSimpleFilter("account", account);
+		Filter f3 = filterFactory.createSimpleFilter("owner.sipStatus",
+				OnlineStatus.ONLINE);
+		Filter f4 = filterFactory.createInFilter("type",
+				VoipAccountType.INCOME, VoipAccountType.BOTH);
 		Filter filter = f1.appendAnd(f2).appendAnd(f3).appendAnd(f4);
 		Collection<UserVoipAccount> accounts = dao.getEntities(filter, null,
 				null);

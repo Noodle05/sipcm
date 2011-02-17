@@ -58,7 +58,7 @@ CREATE TABLE tbl_sipaddressbinding (
 id BIGINT NOT NULL AUTO_INCREMENT,
 address VARCHAR(255) NOT NULL,
 call_id VARCHAR(255),
-last_check BIGINT NOT NULL,
+last_check INT,
 remote_end VARCHAR(255),
 user_id BIGINT NOT NULL,
 PRIMARY KEY (id)) ENGINE=InnoDB;
@@ -85,11 +85,6 @@ CREATE TABLE tbl_userrole (
 user_id BIGINT NOT NULL,
 role_id INTEGER NOT NULL,
 PRIMARY KEY (user_id, role_id)) ENGINE=InnoDB;
-
-CREATE TABLE tbl_usersipbinding (
-id BIGINT NOT NULL UNIQUE,
-address VARCHAR(255) NOT NULL UNIQUE,
-PRIMARY KEY (id)) ENGINE=InnoDB;
 
 CREATE TABLE tbl_usersipprofile (
 id BIGINT NOT NULL AUTO_INCREMENT,
@@ -149,8 +144,8 @@ ADD INDEX FK_CALLLOG_VOIPACCOUNT (voipaccount_id),
 ADD CONSTRAINT FK_CALLLOG_VOIPACCOUNT FOREIGN KEY (voipaccount_id) REFERENCES tbl_uservoipaccount (id);
 
 ALTER TABLE tbl_sipaddressbinding
-ADD INDEX FK_SIPADDRESSBINDING_USERSIPBINDING (user_id),
-ADD CONSTRAINT FK_SIPADDRESSBINDING_USERSIPBINDING FOREIGN KEY (user_id) REFERENCES tbl_usersipbinding (id);
+ADD INDEX FK_SIPADDRESSBINDING_USERSIPPROFILE (user_id),
+ADD CONSTRAINT FK_SIPADDRESSBINDING_USERSIPPROFILE FOREIGN KEY (user_id) REFERENCES tbl_usersipprofile (id);
 
 ALTER TABLE tbl_userrole
 ADD INDEX FK_USERROLE_ROLE (role_id),
@@ -159,10 +154,6 @@ ADD CONSTRAINT FK_USERROLE_ROLE FOREIGN KEY (role_id) REFERENCES tbl_role (id);
 ALTER TABLE tbl_userrole
 ADD INDEX FK_USERROLE_USER (user_id),
 ADD CONSTRAINT FK_USERROLE_USER FOREIGN KEY (user_id) REFERENCES tbl_user (id);
-
-ALTER TABLE tbl_usersipbinding
-ADD INDEX FK_USERSIPBINDING_USERSIPPROFILE (id),
-ADD CONSTRAINT FK_USERSIPBINDING_USERSIPPROFILE FOREIGN KEY (id) REFERENCES tbl_usersipprofile (id);
 
 ALTER TABLE tbl_usersipprofile
 ADD INDEX FK_USERSIPPROFILE_USER (user_id),
@@ -192,6 +183,14 @@ AND u.deletedate = 0
 AND r.deletedate = 0;
 
 DELIMITER //
+DROP TRIGGER IF EXISTS tgr_addressbinding_lastcheck //
+CREATE TRIGGER tgr_addressbinding_lastcheck BEFORE INSERT ON tbl_sipaddressbinding
+FOR EACH ROW BEGIN
+  IF NEW.last_check IS NULL THEN
+    SET NEW.last_check = UNIX_TIMESTAMP();
+  END IF;
+END;//
+
 DROP TRIGGER IF EXISTS tgr_user_update //
 CREATE TRIGGER tgr_user_update BEFORE UPDATE ON tbl_user
 FOR EACH ROW BEGIN
@@ -215,7 +214,6 @@ CREATE TRIGGER tgr_usersipprofile_update BEFORE UPDATE ON tbl_usersipprofile
 FOR EACH ROW BEGIN
   IF NEW.deletedate <> 0 OR NEW.sipstatus = 0 THEN
     DELETE FROM tbl_sipaddressbinding WHERE user_id = NEW.id;
-    DELETE FROM tbl_usersipbinding WHERE id = NEW.id;
   END IF;
 END;//
 
@@ -223,7 +221,41 @@ DROP TRIGGER IF EXISTS tgr_usersipprofile_delete//
 CREATE TRIGGER tgr_usersipprofile_delete BEFORE DELETE ON tbl_usersipprofile
 FOR EACH ROW BEGIN
   DELETE FROM tbl_sipaddressbinding WHERE user_id = OLD.id;
-  DELETE FROM tbl_usersipbinding WHERE id = OLD.id;
 END;//
+
+DROP PROCEDURE IF EXISTS AddressBindingExpires//
+
+CREATE PROCEDURE AddressBindingExpires()
+  LANGUAGE SQL
+  NOT DETERMINISTIC
+  SQL SECURITY DEFINER
+  COMMENT ''
+BEGIN
+  DECLARE unix_now INT;
+  SELECT UNIX_TIMESTAMP() INTO unix_now;
+
+  UPDATE tbl_sipaddressbinding SET expires = expires - (unix_now - last_check), last_check = unix_now;
+  DELETE FROM tbl_sipaddressbinding WHERE expires < 0;
+
+  DROP TEMPORARY TABLE IF EXISTS uspid;
+  CREATE TEMPORARY TABLE uspid (id BIGINT NOT NULL);
+
+  INSERT INTO uspid (id)
+    SELECT u.id
+      FROM tbl_usersipprofile u
+      LEFT JOIN tbl_sipaddressbinding a
+        ON a.user_id = u.id
+      WHERE u.sipstatus = 1
+      GROUP BY u.id HAVING count(a.id) = 0;
+
+  UPDATE tbl_usersipprofile u, uspid t
+    SET u.sipstatus = 0
+    WHERE u.id = t.id;
+
+  SELECT id FROM uspid;
+
+  DROP TEMPORARY TABLE uspid;
+
+END//
 
 DELIMITER ;

@@ -144,8 +144,9 @@ public class VoipVendor extends AbstractTrackableEntity implements
 		int result = 35;
 		result = prime * result
 				+ ((name == null) ? 0 : name.toUpperCase().hashCode());
-		result = prime * result
-				+ ((deleteDate == null) ? 0 : deleteDate.hashCode());
+		if (deleteDate != null) {
+			result = prime * result + deleteDate.hashCode();
+		}
 		return result;
 	}
 

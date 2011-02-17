@@ -4,6 +4,7 @@
 package com.sipcm.sip.vendor;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -17,26 +18,20 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import com.sipcm.sip.business.UserVoipAccountService;
+import com.sipcm.sip.model.AddressBinding;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
-import com.sipcm.sip.model.VoipVendor;
 
 /**
  * @author wgao
  * 
  */
 @Component("sipVoipVendorContext")
-public class VoipVendorContext {
+public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	@Resource(name = "userVoidAccountService")
 	private UserVoipAccountService userVoipAccountService;
 
-	private VoipVendor voipVender;
-
 	private ConcurrentMap<String, ClientRegisterHolder> cache;
-
-	public void setVoipVendor(VoipVendor voipVendor) {
-		this.voipVender = voipVendor;
-	}
 
 	@PostConstruct
 	public void init() {
@@ -45,25 +40,12 @@ public class VoipVendorContext {
 		cache = new ConcurrentHashMap<String, ClientRegisterHolder>();
 	}
 
-	public UserSipProfile getUserSipProfileByAccount(String account) {
-		ClientRegisterHolder holder = cache.get(account);
-		UserSipProfile ret = holder.getUserSipProfile();
-		// if (ret == null) {
-		// UserVoipAccount uva = userVoipAccountService
-		// .getUserVoipAccountByVendorAndAccount(voipVender, account);
-		// if (uva != null) {
-		// ret = uva.getOwner();
-		// if (ret != null) {
-		// UserSipProfile tmp = cache.putIfAbsent(account, ret);
-		// if (tmp != null) {
-		// ret = tmp;
-		// }
-		// }
-		// }
-		// }
-		return ret;
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.vendor.VoipVendorContext#onUserDeleted(java.lang.Long)
+	 */
+	@Override
 	public void onUserDeleted(Long... userIds) {
 		List<Long> ids = Arrays.asList(userIds);
 		Collections.sort(ids);
@@ -81,14 +63,45 @@ public class VoipVendorContext {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.vendor.VoipVendorContext#registerForIncomingRequest(com
+	 * .sipcm.sip.model.UserSipProfile, com.sipcm.sip.model.UserVoipAccount)
+	 */
+	@Override
 	public void registerForIncomingRequest(UserSipProfile userSipProfile,
 			UserVoipAccount account) {
-		  
+		// TODO Auto-generated method stub
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.vendor.VoipVendorContext#unregisterForIncomingRequest(com
+	 * .sipcm.sip.model.UserSipProfile, com.sipcm.sip.model.UserVoipAccount)
+	 */
+	@Override
 	public void unregisterForIncomingRequest(UserSipProfile userSipProfile,
 			UserVoipAccount account) {
 		// TODO Auto-generated method stub
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.vendor.VoipVendorContext#isLocalUser(java.lang.String)
+	 */
+	@Override
+	public Collection<AddressBinding> isLocalUser(String toUser) {
+		UserVoipAccount account = userVoipAccountService
+				.getUserVoipAccountByVendorAndAccount(voipVender, toUser);
+		if (account != null) {
+			UserSipProfile profile = account.getOwner();
+			return locationService.getUserSipBindingBySipProfile(profile);
+		}
+		return null;
 	}
 }

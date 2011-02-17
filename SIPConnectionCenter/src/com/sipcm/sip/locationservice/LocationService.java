@@ -4,23 +4,27 @@ import java.util.Collection;
 
 import javax.servlet.sip.Address;
 
-import com.sipcm.sip.model.UserSipBinding;
+import com.sipcm.sip.model.AddressBinding;
 import com.sipcm.sip.model.UserSipProfile;
 
 public interface LocationService {
 
-	public void removeAllBinding(String key);
+	public void removeAllBinding(UserSipProfile userSipProfile);
 
-	public void updateRegistration(String key, UserSipProfile userSipProfile,
-			Address address, Address remoteEnd, String callId);
+	public void updateRegistration(UserSipProfile userSipProfile,
+			Address address, int expires, Address remoteEnd, String callId);
 
-	public Collection<Address> getAddresses(String key);
+	public Collection<Address> getAddresses(UserSipProfile userSipProfile);
 
 	public void checkContactExpires();
 
-	public UserSipBinding getUserSipBindingByKey(String key);
+	// public UserSipBinding getUserSipBindingByKey(String key);
 
-	public UserSipBinding getUserSipBindingByPhoneNumber(String phoneNumber);
+	public Collection<AddressBinding> getUserSipBindingByPhoneNumber(
+			String phoneNumber);
+
+	public Collection<AddressBinding> getUserSipBindingBySipProfile(
+			UserSipProfile userSipProfile);
 
 	/**
 	 * Callback function when user(s) been changed.

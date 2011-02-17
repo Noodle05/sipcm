@@ -3,8 +3,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
-	<bean id="voipVendorManager" class="com.sipcm.sip.vendor.VoipVendorManager">
+	<bean id="voipVendorManager" class="com.sipcm.sip.vendor.VoipVendorManagerImpl">
 		<lookup-method name="createSipVoipVendorContext" bean="sipVoipVendorContext" />
+		<lookup-method name="createLocalVoipVendorContext" bean="sipVoipLocalVendorContext" />
 	</bean>
 
 	<bean id="googleVoiceManager" class="com.sipcm.googlevoice.GoogleVoiceManager">
@@ -18,7 +19,7 @@
 	</util:map>
 
 	<util:list id="sip.registrationEventListeners">
-		<ref bean="userSipProfileOnlineStatusUpdater" />
+		<!-- ref bean="userSipProfileOnlineStatusUpdater" / -->
 	</util:list>
 
 	<bean id="userServiceEventListener" class="com.sipcm.base.CompositeServiceEventListener">

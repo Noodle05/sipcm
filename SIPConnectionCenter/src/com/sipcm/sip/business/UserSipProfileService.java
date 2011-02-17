@@ -3,6 +3,8 @@
  */
 package com.sipcm.sip.business;
 
+import java.util.Collection;
+
 import com.sipcm.base.business.Service;
 import com.sipcm.common.OnlineStatus;
 import com.sipcm.common.model.User;
@@ -21,4 +23,6 @@ public interface UserSipProfileService extends Service<UserSipProfile, Long> {
 
 	public void updateOnlineStatus(OnlineStatus onlineStatusm,
 			UserSipProfile... userSipProfiles);
+
+	public Collection<Long> checkAddressBindingExpires();
 }

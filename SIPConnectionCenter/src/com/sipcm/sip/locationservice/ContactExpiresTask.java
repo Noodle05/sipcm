@@ -30,7 +30,7 @@ public class ContactExpiresTask {
 	@Resource(name = "sipLocationService")
 	private LocationService locationService;
 
-	@Scheduled(fixedRate = 60000L)
+	@Scheduled(fixedRate = 300000L)
 	public void onCheckExpire() {
 		if (running.compareAndSet(false, true)) {
 			try {

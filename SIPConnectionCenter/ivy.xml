@@ -30,7 +30,7 @@
 			<exclude module="commons-logging" />
 			<exclude module="commons-codec" />
 		</dependency>
-		<dependency org="org.hibernate" name="hibernate-c3p0" rev="3.6.0.Final"
+		<dependency org="org.hibernate" name="hibernate-c3p0" rev="3.6.1.Final"
 			conf="runtime->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 			<exclude module="c3p0" />
@@ -76,7 +76,7 @@
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-codec" />
 		</dependency>
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.0.Final"
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.1.Final"
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
@@ -148,7 +148,7 @@
 			conf="provided->default" />
 		<dependency org="javax.activation" name="activation" rev="1.1"
 			conf="provided->default" />
-		<dependency org="com.google.guava" name="guava" rev="r07"
+		<dependency org="com.google.guava" name="guava" rev="r08"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.apache.tomcat" name="catalina" rev="6.0.29"
 			conf="provided->default" />

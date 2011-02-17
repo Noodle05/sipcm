@@ -5,6 +5,7 @@ package com.sipcm.sip.servlet;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Collection;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -20,9 +21,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.sip.business.UserSipProfileService;
+import com.sipcm.sip.model.AddressBinding;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.DosProtector;
 import com.sipcm.sip.util.ServerAuthenticationHelper;
+import com.sipcm.sip.vendor.VoipVendorManager;
 
 /**
  * @author wgao
@@ -45,6 +48,13 @@ public class CallCenterServlet extends AbstractSipServlet {
 	@Qualifier("sip.DosProtector")
 	private DosProtector dosProtector;
 
+	@Autowired
+	@Qualifier("voipVendorManager")
+	private VoipVendorManager vendorManager;
+
+	/**
+	 * DOS protector check.
+	 */
 	@Override
 	protected void doRequest(javax.servlet.sip.SipServletRequest req)
 			throws javax.servlet.ServletException, java.io.IOException {
@@ -86,7 +96,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 	}
 
 	/**
-	 * Main logic on dispatch to different servlet.
+	 * Main logic to dispatch to different servlet.
 	 */
 	@Override
 	protected void doInvite(SipServletRequest req) throws ServletException,
@@ -111,17 +121,18 @@ public class CallCenterServlet extends AbstractSipServlet {
 			final SipURI fromSipUri = (SipURI) fromURI;
 			String toHost = toSipUri.getHost();
 			String fromHost = fromSipUri.getHost();
-			if (!toHost.toUpperCase().contains(getDomain().toUpperCase())
-					&& !getDomain().equalsIgnoreCase(fromHost)) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Not from host nor to host is domain we served, response as forbidden.");
-				}
-				response(req, SipServletResponse.SC_FORBIDDEN,
-						"Do not serve your domain.");
-				return;
-			}
+			String toUser = toSipUri.getUser();
+			// if (!toHost.toUpperCase().endsWith(getDomain().toUpperCase())
+			// && !getDomain().equalsIgnoreCase(fromHost)) {
+			// if (logger.isDebugEnabled()) {
+			// logger.debug("Not from host nor to host is domain we served, response as forbidden.");
+			// }
+			// response(req, SipServletResponse.SC_FORBIDDEN,
+			// "Do not serve your domain.");
+			// return;
+			// }
 
-			if (getDomain().equalsIgnoreCase(fromHost)) {
+			if (fromHost.toUpperCase().endsWith(getDomain().toUpperCase())) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("From host is the domain we served, check authentication.");
 				}
@@ -137,8 +148,25 @@ public class CallCenterServlet extends AbstractSipServlet {
 				}
 				req.setAttribute(USER_ATTRIBUTE, userSipProfile);
 			}
-			String toUser = toSipUri.getUser();
-			if (phoneNumberUtil.isValidPhoneNumber(toUser)) {
+			Collection<AddressBinding> bindings = null;
+			if ((bindings = vendorManager.isLocalUsr(toHost, toUser)) != null) {
+				req.setAttribute(TARGET_USERSIPBINDING, bindings);
+				if (logger.isTraceEnabled()) {
+					logger.trace("This is a incoming invite to local user.");
+				}
+				RequestDispatcher dispatcher = req
+						.getRequestDispatcher("IncomingInviteServlet");
+				if (dispatcher != null) {
+					dispatcher.forward(req, null);
+					return;
+				} else {
+					if (logger.isWarnEnabled()) {
+						logger.warn("Cannot find incoming invite servlet, response server internal error.");
+					}
+					response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+					return;
+				}
+			} else if (phoneNumberUtil.isValidPhoneNumber(toUser)) {
 				UserSipProfile user = (UserSipProfile) req
 						.getAttribute(USER_ATTRIBUTE);
 				if (user != null) {
@@ -165,43 +193,12 @@ public class CallCenterServlet extends AbstractSipServlet {
 					return;
 				}
 			} else {
-				if (toHost.toUpperCase().contains(getDomain().toUpperCase())) {
-					if (logger.isTraceEnabled()) {
-						logger.trace("This is a incoming invite to local user.");
-					}
-					RequestDispatcher dispatcher = req
-							.getRequestDispatcher("IncomingInviteServlet");
-					if (dispatcher != null) {
-						dispatcher.forward(req, null);
-						return;
-					} else {
-						if (logger.isWarnEnabled()) {
-							logger.warn("Cannot find incoming invite servlet, response server internal error.");
-						}
-						response(req,
-								SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-						return;
-					}
-				} else {
-					if (logger.isWarnEnabled()) {
-						logger.warn("Not calling local user?");
-					}
-					response(req, SipServletResponse.SC_BAD_REQUEST);
-					return;
+				if (logger.isWarnEnabled()) {
+					logger.warn("Cannot accept this INVITE");
 				}
+				response(req, SipServletResponse.SC_BAD_REQUEST);
+				return;
 			}
-			/**
-			 * if (logger.isTraceEnabled()) { logger.trace(
-			 * "Calling other voip user, forward to proxy servlet."); }
-			 * 
-			 * RequestDispatcher dispatcher = req
-			 * .getRequestDispatcher("ProxyServlet"); if (dispatcher != null) {
-			 * dispatcher.forward(req, null); } else { if
-			 * (logger.isWarnEnabled()) { logger.warn(
-			 * "Cannot find forward servlet, response server internal error.");
-			 * } response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-			 * return; }
-			 */
 		} else {
 			super.doInvite(req);
 		}

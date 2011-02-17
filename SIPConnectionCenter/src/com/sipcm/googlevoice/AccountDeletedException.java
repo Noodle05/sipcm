@@ -13,4 +13,9 @@ public class AccountDeletedException extends GoogleAuthenticationException {
 	AccountDeletedException() {
 		super(AuthenticationErrorCode.AccountDeleted);
 	}
+
+	@Override
+	public String getMessage() {
+		return null;
+	}
 }

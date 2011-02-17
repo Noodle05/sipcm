@@ -47,4 +47,9 @@ public class GoogleAuthenticationException extends AuthenticationException {
 	public AuthenticationErrorCode getError() {
 		return errorCode;
 	}
+
+	@Override
+	public String getMessage() {
+		return errorCode.getMessage();
+	}
 }

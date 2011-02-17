@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.sipcm.sip.business.UserSipProfileService;
 import com.sipcm.sip.locationservice.LocationService;
 import com.sipcm.sip.model.UserSipProfile;
 
@@ -40,10 +39,6 @@ public class RegistrarServlet extends AbstractSipServlet {
 	@Autowired
 	@Qualifier("sipLocationService")
 	private LocationService locationService;
-
-	@Autowired
-	@Qualifier("userSipProfileService")
-	private UserSipProfileService userSipProfileService;
 
 	/*
 	 * (non-Javadoc)
@@ -74,7 +69,7 @@ public class RegistrarServlet extends AbstractSipServlet {
 		if (toURI.isSipURI()) {
 			final SipURI sipUri = (SipURI) toURI;
 			String host = sipUri.getHost();
-			if (!getDomain().equalsIgnoreCase(host)) {
+			if (!host.toUpperCase().endsWith(getDomain().toUpperCase())) {
 				SipServletResponse response = req.createResponse(
 						SipServletResponse.SC_FORBIDDEN,
 						"Do not serve your domain.");
@@ -82,21 +77,29 @@ public class RegistrarServlet extends AbstractSipServlet {
 				return;
 			}
 			if (userSipProfile == null) {
-				String username = sipUri.getUser();
-				userSipProfile = userSipProfileService
-						.getUserSipProfileByUsername(username);
+				if (logger.isWarnEnabled()) {
+					logger.warn("This shouldn't happen. How come no user sip profile found during registeration?");
+				}
+				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+				return;
 			}
-			toURI = sipFactory.createSipURI(sipUri.getUser(), sipUri.getHost());
+			if (!userSipProfile.getOwner().getUsername()
+					.equalsIgnoreCase(sipUri.getUser())) {
+				if (logger.isInfoEnabled()) {
+					logger.info(
+							"Attack detected, \"{}\" is trying to register as \"{}\"",
+							userSipProfile.getDisplayName(), sipUri.getUser());
+				}
+				response(req, SipServletResponse.SC_BAD_REQUEST);
+				return;
+			}
 		} else {
-			SipServletResponse response = req
-					.createResponse(SipServletResponse.SC_UNSUPPORTED_URI_SCHEME);
-			response.send();
+			response(req, SipServletResponse.SC_UNSUPPORTED_URI_SCHEME);
 			return;
 		}
-		String key = toURI.toString();
-		if (logger.isTraceEnabled()) {
-			logger.trace("Lookup based on key: {}", key);
-		}
+		// if (logger.isTraceEnabled()) {
+		// logger.trace("Lookup based on key: {}", key);
+		// }
 		Iterator<Address> ite = req.getAddressHeaders(ContactHeader.NAME);
 		Collection<Address> contacts = new ArrayList<Address>();
 		boolean wildChar = false;
@@ -119,12 +122,10 @@ public class RegistrarServlet extends AbstractSipServlet {
 			}
 			if (wildChar) {
 				if (contacts.size() > 1 || expiresTime != 0) {
-					SipServletResponse response = req
-							.createResponse(SipServletResponse.SC_BAD_REQUEST);
-					response.send();
+					response(req, SipServletResponse.SC_BAD_REQUEST);
 					return;
 				}
-				locationService.removeAllBinding(key);
+				locationService.removeAllBinding(userSipProfile);
 			} else {
 				if (expiresTime < 0) {
 					expiresTime = appConfig.getInt(SIP_MAX_EXPIRESTIME);
@@ -132,6 +133,11 @@ public class RegistrarServlet extends AbstractSipServlet {
 				for (Address a : contacts) {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Processing address: {}", a);
+					}
+					Address b = (Address) a.clone();
+					Iterator<String> pns = a.getParameterNames();
+					while (pns.hasNext()) {
+						b.removeParameter(pns.next());
 					}
 					int contactExpiresTime = a.getExpires();
 					if (contactExpiresTime < 0) {
@@ -143,8 +149,7 @@ public class RegistrarServlet extends AbstractSipServlet {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Expirestime: {}", contactExpiresTime);
 					}
-					a.setExpires(contactExpiresTime);
-					Address remoteEnd = sipFactory.createAddress(a.getURI()
+					Address remoteEnd = sipFactory.createAddress(b.getURI()
 							.clone());
 					URI ruri = remoteEnd.getURI();
 					if (ruri.isSipURI()) {
@@ -154,13 +159,14 @@ public class RegistrarServlet extends AbstractSipServlet {
 						sruri.setPort(rport);
 						remoteEnd.setURI(sruri);
 					}
-					
+
 					String callId = req.getCallId();
-					locationService.updateRegistration(key, userSipProfile, a, remoteEnd, callId);
+					locationService.updateRegistration(userSipProfile, b,
+							contactExpiresTime, remoteEnd, callId);
 				}
 			}
 		}
-		contacts = locationService.getAddresses(key);
+		contacts = locationService.getAddresses(userSipProfile);
 		if (logger.isTraceEnabled()) {
 			logger.trace("After register, contacts still contains:");
 			for (Address a : contacts) {

@@ -4,6 +4,9 @@
 package com.sipcm.sip.dao.hibernate;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -34,13 +37,6 @@ public class UserSipProfileDAOImpl extends AbstractDAO<UserSipProfile, Long>
 	public void updateOnlineStatus(final OnlineStatus onlineStatus,
 			final UserSipProfile... userSipProfiles) {
 		getHibernateTemplate().execute(new HibernateCallback<Integer>() {
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see
-			 * org.springframework.orm.hibernate3.HibernateCallback#doInHibernate
-			 * (org.hibernate.Session)
-			 */
 			@Override
 			public Integer doInHibernate(Session session)
 					throws HibernateException, SQLException {
@@ -51,10 +47,34 @@ public class UserSipProfileDAOImpl extends AbstractDAO<UserSipProfile, Long>
 					query.setLong("id", userSipProfile.getId());
 					query.setParameter("sipStatus", onlineStatus);
 					ret += query.executeUpdate();
-					userSipProfile.setSipStatus(onlineStatus);
 				}
 				return ret;
 			}
 		});
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.dao.UserSipProfileDAO#checkAddressBindingExpires()
+	 */
+	@Override
+	public Collection<Long> checkAddressBindingExpires() {
+		return getHibernateTemplate().execute(
+				new HibernateCallback<List<Long>>() {
+					@Override
+					public List<Long> doInHibernate(Session session)
+							throws HibernateException, SQLException {
+						Query query = session
+								.getNamedQuery("checkAddressBindingExpires");
+						@SuppressWarnings("unchecked")
+						List<Number> l = query.list();
+						List<Long> result = new ArrayList<Long>(l.size());
+						for (Number n : l) {
+							result.add(n.longValue());
+						}
+						return result;
+					}
+				});
 	}
 }

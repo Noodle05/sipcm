@@ -16,7 +16,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.servlet.sip.Address;
 
+import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.Type;
+
+import com.sipcm.base.model.IdBasedEntity;
 
 /**
  * @author wgao
@@ -24,7 +27,9 @@ import org.hibernate.annotations.Type;
  */
 @Entity
 @Table(name = "tbl_sipaddressbinding")
-public class AddressBinding implements Serializable, Comparable<AddressBinding> {
+@FilterDef(name = "defaultFilter")
+public class AddressBinding implements IdBasedEntity<Long>, Serializable,
+		Comparable<AddressBinding> {
 	private static final long serialVersionUID = 6769447997175661766L;
 
 	@Id
@@ -34,19 +39,23 @@ public class AddressBinding implements Serializable, Comparable<AddressBinding> 
 
 	@ManyToOne
 	@JoinColumn(name = "user_id")
-	private UserSipBinding userSipBinding;
+	private UserSipProfile userSipProfile;
 
 	@Type(type = "sipAddress")
 	@Column(name = "address", length = 255, nullable = false)
 	private Address address;
 
 	@Basic
+	@Column(name = "expires", nullable = false)
+	private int expires;
+
+	@Basic
 	@Column(name = "call_id", length = 255)
 	private String callId;
 
 	@Basic
-	@Column(name = "last_check", nullable = false)
-	private long lastCheck;
+	@Column(name = "last_check", insertable = false)
+	private Integer lastCheck;
 
 	@Type(type = "sipAddress")
 	@Column(name = "remote_end", length = 255)
@@ -68,18 +77,18 @@ public class AddressBinding implements Serializable, Comparable<AddressBinding> 
 	}
 
 	/**
-	 * @param userSipBinding
-	 *            the userSipBinding to set
+	 * @param userSipProfile
+	 *            the userSipProfile to set
 	 */
-	public void setUserSipBinding(UserSipBinding userSipBinding) {
-		this.userSipBinding = userSipBinding;
+	public void setUserSipProfile(UserSipProfile userSipProfile) {
+		this.userSipProfile = userSipProfile;
 	}
 
 	/**
-	 * @return the userSipBinding
+	 * @return the userSipProfile
 	 */
-	public UserSipBinding getUserSipBinding() {
-		return userSipBinding;
+	public UserSipProfile getUserSipProfile() {
+		return userSipProfile;
 	}
 
 	/**
@@ -95,6 +104,21 @@ public class AddressBinding implements Serializable, Comparable<AddressBinding> 
 	 */
 	public Address getAddress() {
 		return address;
+	}
+
+	/**
+	 * @param expires
+	 *            the expires to set
+	 */
+	public void setExpires(int expires) {
+		this.expires = expires;
+	}
+
+	/**
+	 * @return the expires
+	 */
+	public int getExpires() {
+		return expires;
 	}
 
 	/**
@@ -116,14 +140,14 @@ public class AddressBinding implements Serializable, Comparable<AddressBinding> 
 	 * @param lastCheck
 	 *            the lastCheck to set
 	 */
-	public void setLastCheck(long lastCheck) {
+	public void setLastCheck(Integer lastCheck) {
 		this.lastCheck = lastCheck;
 	}
 
 	/**
 	 * @return the lastCheck
 	 */
-	public long getLastCheck() {
+	public Integer getLastCheck() {
 		return lastCheck;
 	}
 

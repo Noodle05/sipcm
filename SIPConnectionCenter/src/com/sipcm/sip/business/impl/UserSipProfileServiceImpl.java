@@ -3,6 +3,8 @@
  */
 package com.sipcm.sip.business.impl;
 
+import java.util.Collection;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
@@ -114,5 +116,17 @@ public class UserSipProfileServiceImpl extends
 			UserSipProfile... userSipProfiles) {
 		((UserSipProfileDAO) dao).updateOnlineStatus(onlineStatus,
 				userSipProfiles);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.business.UserSipProfileService#checkAddressBindingExpires()
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public Collection<Long> checkAddressBindingExpires() {
+		return ((UserSipProfileDAO) dao).checkAddressBindingExpires();
 	}
 }

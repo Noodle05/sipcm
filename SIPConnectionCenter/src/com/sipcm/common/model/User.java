@@ -5,25 +5,17 @@ package com.sipcm.common.model;
 
 import java.io.Serializable;
 import java.sql.Date;
-import java.util.Set;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.SQLDelete;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
@@ -83,12 +75,6 @@ public class User extends AbstractTrackableEntity implements
 	@Enumerated
 	@Column(name = "status", nullable = false)
 	private AccountStatus status;
-
-	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST,
-			CascadeType.MERGE })
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_userrole", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-	private Set<Role> roles;
 
 	/**
 	 * @param id
@@ -253,21 +239,6 @@ public class User extends AbstractTrackableEntity implements
 		return status;
 	}
 
-	/**
-	 * @param roles
-	 *            the roles to set
-	 */
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
-	}
-
-	/**
-	 * @return the roles
-	 */
-	public Set<Role> getRoles() {
-		return roles;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -331,9 +302,5 @@ public class User extends AbstractTrackableEntity implements
 				.append(getDisplayName()).append(",email=").append(email)
 				.append("]");
 		return sb.toString();
-	}
-
-	public void addRole(Role role) {
-		roles.add(role);
 	}
 }

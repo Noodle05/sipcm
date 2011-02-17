@@ -4,6 +4,7 @@
 package com.sipcm.sip.servlet;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -11,15 +12,11 @@ import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipURI;
-import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.sipcm.sip.locationservice.LocationService;
-import com.sipcm.sip.model.UserSipBinding;
+import com.sipcm.sip.model.AddressBinding;
 
 /**
  * @author wgao
@@ -29,10 +26,6 @@ import com.sipcm.sip.model.UserSipBinding;
 @SipServlet(name = "IncomingInviteServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
 public class IncomingInviteServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = 4938128598461987936L;
-
-	@Autowired
-	@Qualifier("sipLocationService")
-	private LocationService locationService;
 
 	/*
 	 * (non-Javadoc)
@@ -82,20 +75,13 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 			}
 		}
 		if (dispatcher == null) {
-			final SipURI toSipURI = (SipURI) req.getTo().getURI();
-			URI toURI = sipFactory
-					.createSipURI(toSipURI.getUser(), getDomain());
-			UserSipBinding userSipBinding = null;
-			if (logger.isTraceEnabled()) {
-				logger.trace("Lookup address with key: {}", toURI);
-			}
-			userSipBinding = locationService.getUserSipBindingByKey(toURI
-					.toString());
-			if (userSipBinding == null) {
+			@SuppressWarnings("unchecked")
+			Collection<AddressBinding> bindings = (Collection<AddressBinding>) req
+					.getAttribute(TARGET_USERSIPBINDING);
+			if (bindings == null || bindings.isEmpty()) {
 				response(req, SipServletResponse.SC_NOT_FOUND);
 				return;
 			}
-			req.setAttribute(TARGET_USERSIPBINDING, userSipBinding);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Forward to back-to-back servlet.");
 			}

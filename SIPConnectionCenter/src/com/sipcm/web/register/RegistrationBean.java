@@ -70,8 +70,8 @@ public class RegistrationBean {
 		user.setMiddleName(middleName);
 		user.setLastName(lastName);
 		user.setDisplayName(displayName);
-		Role callerRole = roleService.getCallerRole();
-		user.addRole(callerRole);
+//		Role callerRole = roleService.getCallerRole();
+//		user.addRole(callerRole);
 		userService.setPassword(user, password);
 		userService.saveEntity(user);
 		result = "RegisterSuccess";

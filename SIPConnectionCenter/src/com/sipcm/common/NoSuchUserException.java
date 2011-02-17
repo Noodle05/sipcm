@@ -3,7 +3,6 @@
  */
 package com.sipcm.common;
 
-
 /**
  * @author wgao
  * 
@@ -14,7 +13,7 @@ public class NoSuchUserException extends AuthenticationException {
 	private String username;
 
 	public NoSuchUserException(String username) {
-		super();
+		super("No such user. User name: " + username);
 		this.username = username;
 	}
 

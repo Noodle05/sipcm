@@ -7,6 +7,9 @@ import java.util.Collection;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sipcm.sip.business.UserVoipAccountService;
 import com.sipcm.sip.events.RegistrationEventListener;
 import com.sipcm.sip.events.RegistrationEventObject;
@@ -18,6 +21,9 @@ import com.sipcm.sip.model.UserVoipAccount;
  * 
  */
 public class UserRegistrationEventListener implements RegistrationEventListener {
+	private static final Logger logger = LoggerFactory
+			.getLogger(UserRegistrationEventListener.class);
+
 	@Resource(name = "voipVendorManager")
 	private VoipVendorManager voipVendorManager;
 
@@ -37,6 +43,9 @@ public class UserRegistrationEventListener implements RegistrationEventListener 
 		for (UserSipProfile userSipProfile : userSipProfiles) {
 			Collection<UserVoipAccount> incomingAccounts = userVoipAccountService
 					.getIncomingAccounts(userSipProfile);
+			if (logger.isInfoEnabled()) {
+				logger.info("User: \"{}\" logged in.", userSipProfile);
+			}
 			if (incomingAccounts != null && !incomingAccounts.isEmpty()) {
 				voipVendorManager.registerForIncomingRequest(userSipProfile,
 						incomingAccounts);
@@ -55,6 +64,9 @@ public class UserRegistrationEventListener implements RegistrationEventListener 
 	public void userUnregistered(RegistrationEventObject event) {
 		UserSipProfile[] userSipProfiles = event.getSource();
 		for (UserSipProfile userSipProfile : userSipProfiles) {
+			if (logger.isInfoEnabled()) {
+				logger.info("User: \"{}\" logged out.", userSipProfile);
+			}
 			Collection<UserVoipAccount> incomingAccounts = userVoipAccountService
 					.getIncomingAccounts(userSipProfile);
 			if (incomingAccounts != null && !incomingAccounts.isEmpty()) {

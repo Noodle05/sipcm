@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.common.PhoneNumberStatus;
 import com.sipcm.sip.model.AddressBinding;
-import com.sipcm.sip.model.UserSipBinding;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.SipUtil;
 
@@ -180,75 +178,61 @@ public class B2bServlet extends AbstractSipServlet {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Processing to voip back to back invite.");
 		}
-		UserSipBinding userSipBinding = (UserSipBinding) req
+		@SuppressWarnings("unchecked")
+		Collection<AddressBinding> bindings = (Collection<AddressBinding>) req
 				.getAttribute(TARGET_USERSIPBINDING);
-		if (userSipBinding == null) {
+		if (bindings == null || bindings.isEmpty()) {
 			if (logger.isErrorEnabled()) {
 				logger.error("Cannot found target user profile on request?");
 			}
-			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+			response(req, SipServletResponse.SC_NOT_FOUND);
 			return;
 		}
-		Collection<AddressBinding> bindings = null;
-		bindings = userSipBinding.getBindings();
 		if (logger.isTraceEnabled()) {
 			logger.trace("Lookup result: ");
 			for (AddressBinding b : bindings) {
 				logger.trace("\t{}", b);
 			}
 		}
-		if (bindings != null && !bindings.isEmpty()) {
-			AddressBinding binding;
-			if (bindings.size() > 1) {
-				List<AddressBinding> bs = new ArrayList<AddressBinding>(
-						bindings);
-				Collections.sort(bs);
-				binding = bs.iterator().next();
-			} else {
-				binding = bindings.iterator().next();
-			}
-			if (logger.isTraceEnabled()) {
-				logger.trace("Use address: \"{}\"", binding);
-			}
-			B2buaHelper helper = getB2buaHelper(req);
-			UserSipProfile userSipProfile = (UserSipProfile) req
-					.getAttribute(USER_ATTRIBUTE);
-			SipServletRequest forkedRequest;
-			if (userSipProfile != null) {
-				String userName;
-				if (userSipProfile.getPhoneNumber() == null
-						|| PhoneNumberStatus.UNVERIFIED.equals(userSipProfile
-								.getPhoneNumberStatus())) {
-					userName = "";
-				} else {
-					userName = userSipProfile.getPhoneNumber();
-				}
-				SipURI fromUri = sipFactory.createSipURI(userName, getDomain());
-				Address fromAddr = sipFactory.createAddress(fromUri,
-						userSipProfile.getDisplayName());
-				Map<String, List<String>> headers = new HashMap<String, List<String>>();
-				List<String> froms = new ArrayList<String>(1);
-				froms.add(fromAddr.toString());
-				headers.put(FromHeader.NAME, froms);
-				forkedRequest = helper.createRequest(req, true, headers);
-			} else {
-				forkedRequest = helper.createRequest(req);
-			}
-			URI remoteUri = sipUtil
-					.getCanonicalizedURI(binding.getRemoteEnd() == null ? binding
-							.getAddress().getURI() : binding.getRemoteEnd()
-							.getURI());
-			forkedRequest.getSession().setAttribute(REMOTE_URI, remoteUri);
-			forkedRequest.setRequestURI(remoteUri);
-			sipUtil.processingAddressInSDP(forkedRequest, req);
-			if (logger.isTraceEnabled()) {
-				logger.trace("Sending forked request {}", forkedRequest);
-			}
-			forkedRequest.send();
-		} else {
-			response(req, SipServletResponse.SC_NOT_FOUND);
-			return;
+		AddressBinding binding = bindings.iterator().next();
+		if (logger.isTraceEnabled()) {
+			logger.trace("Use address: \"{}\"", binding);
 		}
+		B2buaHelper helper = getB2buaHelper(req);
+		UserSipProfile userSipProfile = (UserSipProfile) req
+				.getAttribute(USER_ATTRIBUTE);
+		SipServletRequest forkedRequest;
+		if (userSipProfile != null) {
+			String userName;
+			if (userSipProfile.getPhoneNumber() == null
+					|| PhoneNumberStatus.UNVERIFIED.equals(userSipProfile
+							.getPhoneNumberStatus())) {
+				userName = "";
+			} else {
+				userName = userSipProfile.getPhoneNumber();
+			}
+			SipURI fromUri = sipFactory.createSipURI(userName, getDomain());
+			Address fromAddr = sipFactory.createAddress(fromUri,
+					userSipProfile.getDisplayName());
+			Map<String, List<String>> headers = new HashMap<String, List<String>>();
+			List<String> froms = new ArrayList<String>(1);
+			froms.add(fromAddr.toString());
+			headers.put(FromHeader.NAME, froms);
+			forkedRequest = helper.createRequest(req, true, headers);
+		} else {
+			forkedRequest = helper.createRequest(req);
+		}
+		URI remoteUri = sipUtil
+				.getCanonicalizedURI(binding.getRemoteEnd() == null ? binding
+						.getAddress().getURI() : binding.getRemoteEnd()
+						.getURI());
+		forkedRequest.getSession().setAttribute(REMOTE_URI, remoteUri);
+		forkedRequest.setRequestURI(remoteUri);
+		sipUtil.processingAddressInSDP(forkedRequest, req);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Sending forked request {}", forkedRequest);
+		}
+		forkedRequest.send();
 	}
 
 	/**

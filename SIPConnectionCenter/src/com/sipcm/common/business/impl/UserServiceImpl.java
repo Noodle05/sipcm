@@ -3,8 +3,6 @@
  */
 package com.sipcm.common.business.impl;
 
-import java.util.HashSet;
-
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.Configuration;
@@ -18,7 +16,6 @@ import com.sipcm.base.dao.DAO;
 import com.sipcm.base.filter.Filter;
 import com.sipcm.common.AccountStatus;
 import com.sipcm.common.business.UserService;
-import com.sipcm.common.model.Role;
 import com.sipcm.common.model.User;
 
 /**
@@ -54,7 +51,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	public User createNewEntity() {
 		User user = super.createNewEntity();
 		user.setStatus(AccountStatus.PENDING);
-		user.setRoles(new HashSet<Role>());
 		return user;
 	}
 
