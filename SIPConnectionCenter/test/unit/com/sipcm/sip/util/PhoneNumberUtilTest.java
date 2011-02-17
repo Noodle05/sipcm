@@ -22,6 +22,7 @@ public class PhoneNumberUtilTest {
 	public void testIsValidPhoneNumber() {
 		assertTrue(phoneNumberUtil.isValidPhoneNumber("+14084763933"));
 		assertTrue(phoneNumberUtil.isValidPhoneNumber("14084763933"));
+		assertTrue(phoneNumberUtil.isValidPhoneNumber("4085487389"));
 		assertTrue(phoneNumberUtil.isValidPhoneNumber("4763933"));
 		assertTrue(phoneNumberUtil.isValidPhoneNumber("+861083942283"));
 		assertTrue(phoneNumberUtil.isValidPhoneNumber("011861083942283"));

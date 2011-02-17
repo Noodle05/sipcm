@@ -3,6 +3,8 @@
  */
 package com.sipcm.sip.vendor;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
@@ -11,21 +13,32 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.sip.SipApplicationSession;
+import javax.servlet.sip.SipFactory;
+import javax.servlet.sip.SipServlet;
+import javax.servlet.sip.SipServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.ServletContextAware;
 
+import com.sipcm.sip.business.UserVoipAccountService;
 import com.sipcm.sip.business.VoipVendorService;
 import com.sipcm.sip.model.AddressBinding;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.model.VoipVendor;
+import com.sipcm.sip.nat.PublicIpAddressHolder;
+import com.sipcm.sip.servlet.AbstractSipServlet;
 
 /**
  * @author wgao
  * 
  */
-public abstract class VoipVendorManagerImpl implements VoipVendorManager {
+public abstract class VoipVendorManagerImpl implements VoipVendorManager,
+		ServletContextAware {
 	private static final Logger logger = LoggerFactory
 			.getLogger(VoipVendorManagerImpl.class);
 
@@ -33,6 +46,16 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager {
 
 	@Resource(name = "voipVendorService")
 	private VoipVendorService voipVendorService;
+
+	@Resource(name = "userVoidAccountService")
+	private UserVoipAccountService userVoipAccountService;
+
+	@Resource(name = "publicIpAddressHolder")
+	private PublicIpAddressHolder publicIpAddressHolder;
+
+	private SipFactory sipFactory;
+	private List<String> supportedMethods;
+	private String contactHost;
 
 	public VoipVendorManagerImpl() {
 		voipVendors = new ConcurrentHashMap<VoipVendor, VoipVendorContext>();
@@ -48,11 +71,16 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager {
 			switch (voipVendor.getType()) {
 			case SIP:
 				ctx = createSipVoipVendorContext();
+				break;
 			case LOCAL:
 				ctx = createLocalVoipVendorContext();
+				break;
+			default:
+				ctx = null;
+				break;
 			}
 			if (ctx != null) {
-				ctx.setVoipVendor(voipVendor);
+				ctx.initialize(voipVendor);
 			}
 		} catch (Exception e) {
 			if (logger.isErrorEnabled()) {
@@ -67,6 +95,7 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager {
 
 	@PostConstruct
 	public void init() {
+
 		List<VoipVendor> venders = voipVendorService.getEntities();
 		for (VoipVendor vender : venders) {
 			VoipVendorContext ctx = createVoipVendorContext(vender);
@@ -81,19 +110,23 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager {
 	 * 
 	 * @see
 	 * com.sipcm.sip.vendor.VoipVendorManager#registerForIncomingRequest(com
-	 * .sipcm.sip.model.UserSipProfile, java.util.Collection)
+	 * .sipcm.sip.model.UserSipProfile)
 	 */
 	@Override
-	public void registerForIncomingRequest(UserSipProfile userSipProfile,
-			Collection<UserVoipAccount> accounts) {
-		for (UserVoipAccount account : accounts) {
-			VoipVendorContext ctx = getVoipVendorContext(account);
-			if (ctx != null) {
-				ctx.registerForIncomingRequest(userSipProfile, account);
-			} else {
-				if (logger.isWarnEnabled()) {
-					logger.warn("Cannot find vendor context for vendor \"{}\"",
-							account.getVoipVendor());
+	public void registerForIncomingRequest(UserSipProfile userSipProfile) {
+		Collection<UserVoipAccount> accounts = userVoipAccountService
+				.getIncomingAccounts(userSipProfile);
+		if (accounts != null && !accounts.isEmpty()) {
+			for (UserVoipAccount account : accounts) {
+				VoipVendorContext ctx = getVoipVendorContext(account);
+				if (ctx != null) {
+					ctx.registerForIncomingRequest(account);
+				} else {
+					if (logger.isWarnEnabled()) {
+						logger.warn(
+								"Cannot find vendor context for vendor \"{}\"",
+								account.getVoipVendor());
+					}
 				}
 			}
 		}
@@ -104,19 +137,23 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager {
 	 * 
 	 * @see
 	 * com.sipcm.sip.vendor.VoipVendorManager#unregisterForIncomingRequest(com
-	 * .sipcm.sip.model.UserSipProfile, java.util.Collection)
+	 * .sipcm.sip.model.UserSipProfile)
 	 */
 	@Override
-	public void unregisterForIncomingRequest(UserSipProfile userSipProfile,
-			Collection<UserVoipAccount> accounts) {
-		for (UserVoipAccount account : accounts) {
-			VoipVendorContext ctx = getVoipVendorContext(account);
-			if (ctx != null) {
-				ctx.unregisterForIncomingRequest(userSipProfile, account);
-			} else {
-				if (logger.isWarnEnabled()) {
-					logger.warn("Cannot find vendor context for vendor \"{}\"",
-							account.getVoipVendor());
+	public void unregisterForIncomingRequest(UserSipProfile userSipProfile) {
+		Collection<UserVoipAccount> accounts = userVoipAccountService
+				.getIncomingAccounts(userSipProfile);
+		if (accounts != null && !accounts.isEmpty()) {
+			for (UserVoipAccount account : accounts) {
+				VoipVendorContext ctx = getVoipVendorContext(account);
+				if (ctx != null) {
+					ctx.unregisterForIncomingRequest(account);
+				} else {
+					if (logger.isWarnEnabled()) {
+						logger.warn(
+								"Cannot find vendor context for vendor \"{}\"",
+								account.getVoipVendor());
+					}
 				}
 			}
 		}
@@ -155,5 +192,66 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager {
 			}
 		}
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setServletContext(ServletContext servletContext) {
+		sipFactory = (SipFactory) servletContext
+				.getAttribute(SipServlet.SIP_FACTORY);
+		supportedMethods = (List<String>) servletContext
+				.getAttribute(SipServlet.SUPPORTED);
+		if (logger.isInfoEnabled()) {
+			if (supportedMethods != null) {
+				logger.info("Supported methods: {}", supportedMethods);
+			} else {
+				logger.info("Didn't found supported methods.");
+			}
+		}
+	}
+
+	@Override
+	public void setListeningAddress(InetAddress listeningIp, int listeningPort) {
+		if (publicIpAddressHolder.getPublicIp() != null) {
+			contactHost = publicIpAddressHolder.getPublicIp().getHostAddress()
+					+ ":" + listeningPort;
+		} else if (listeningIp != null) {
+			contactHost = listeningIp.getHostAddress() + ":" + listeningPort;
+		}
+		if (logger.isInfoEnabled()) {
+			logger.info(
+					"Outgoing register request will use \"{}\" as contact host.",
+					contactHost);
+		}
+	}
+
+	@Override
+	public SipFactory getSipFactory() {
+		return sipFactory;
+	}
+
+	@Override
+	public List<String> getSupportedMethods() {
+		return supportedMethods;
+	}
+
+	@Override
+	public String getContactHost() {
+		return contactHost;
+	}
+
+	public void handleRegisterResponse(SipServletResponse resp)
+			throws ServletException, IOException {
+		SipApplicationSession appSession = resp.getApplicationSession(false);
+		if (appSession != null) {
+			UserVoipAccount account = (UserVoipAccount) appSession
+					.getAttribute(AbstractSipServlet.USER_VOIP_ACCOUNT);
+			if (account != null) {
+				VoipVendorContext ctx = getVoipVendorContext(account);
+				if (ctx != null) {
+					ctx.handleRegisterResponse(resp, account);
+				}
+			}
+		}
 	}
 }

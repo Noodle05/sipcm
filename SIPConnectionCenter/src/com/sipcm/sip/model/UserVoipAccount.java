@@ -74,6 +74,10 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	@Column(name = "type", nullable = false)
 	private VoipAccountType type;
 
+	@Basic
+	@Column(name = "online", nullable = false)
+	private boolean online;
+
 	/**
 	 * @param id
 	 *            the id to set
@@ -194,6 +198,21 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	 */
 	public VoipAccountType getType() {
 		return type;
+	}
+
+	/**
+	 * @param online
+	 *            the online to set
+	 */
+	public void setOnline(boolean online) {
+		this.online = online;
+	}
+
+	/**
+	 * @return the online
+	 */
+	public boolean isOnline() {
+		return online;
 	}
 
 	@Override

@@ -11,5 +11,5 @@ import com.sipcm.sip.model.UserVoipAccount;
  * 
  */
 public interface UserVoipAccountDAO extends DAO<UserVoipAccount, Long> {
-
+	public void updateOnlineStatus(UserVoipAccount account);
 }

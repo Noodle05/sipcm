@@ -115,7 +115,7 @@
 		<dependency org="org.springframework" name="spring-orm"
 			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-web"
-			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework.security" name="spring-security-core"
 			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc">
 			<exclude org="org.aspectj" />

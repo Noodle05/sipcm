@@ -9,9 +9,8 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-
-import com.sun.corba.se.impl.resolver.CompositeResolverImpl;
 
 /**
  * @author wgao
@@ -21,10 +20,10 @@ import com.sun.corba.se.impl.resolver.CompositeResolverImpl;
 public class CompoisteRegistrationEventListener implements
 		RegistrationEventListener {
 	private static final Logger logger = LoggerFactory
-			.getLogger(CompositeResolverImpl.class);
+			.getLogger(CompoisteRegistrationEventListener.class);
 
 	@Resource(name = "sip.registrationEventListeners")
-	public Collection<RegistrationEventListener> listeners;
+	private Collection<RegistrationEventListener> listeners;
 
 	/*
 	 * (non-Javadoc)
@@ -34,6 +33,7 @@ public class CompoisteRegistrationEventListener implements
 	 * (com.sipcm.sip.locationservice.RegistrationEventObject)
 	 */
 	@Override
+	@Async
 	public void userRegistered(RegistrationEventObject event) {
 		if (listeners != null && !listeners.isEmpty()) {
 			for (RegistrationEventListener listener : listeners) {
@@ -61,6 +61,7 @@ public class CompoisteRegistrationEventListener implements
 	 * (com.sipcm.sip.locationservice.RegistrationEventObject)
 	 */
 	@Override
+	@Async
 	public void userUnregistered(RegistrationEventObject event) {
 		if (listeners != null && !listeners.isEmpty()) {
 			for (RegistrationEventListener listener : listeners) {

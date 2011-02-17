@@ -19,7 +19,7 @@
 	</util:map>
 
 	<util:list id="sip.registrationEventListeners">
-		<!-- ref bean="userSipProfileOnlineStatusUpdater" / -->
+		<ref bean="sipUserRegistrationForIncomingListener" />
 	</util:list>
 
 	<bean id="userServiceEventListener" class="com.sipcm.base.CompositeServiceEventListener">

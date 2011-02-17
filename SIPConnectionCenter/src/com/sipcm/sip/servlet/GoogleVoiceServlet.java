@@ -84,8 +84,6 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				return;
 			}
 			// String username = p.getName();
-			getServletContext().setAttribute(generateAppSessionKey(req, true),
-					appSession.getId());
 			UserSipProfile userSipProfile = (UserSipProfile) req
 					.getAttribute(USER_ATTRIBUTE);
 			UserVoipAccount account = (UserVoipAccount) req
@@ -111,7 +109,9 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				logger.trace("Google voice call back request");
 			}
 			// This is call back.
-			String appSessionIdKey = generateAppSessionKey(req, false);
+			UserSipProfile userSipProfile = (UserSipProfile) req
+					.getAttribute(USER_ATTRIBUTE);
+			String appSessionIdKey = generateAppSessionKey(userSipProfile);
 			String appSessionId = (String) getServletContext().getAttribute(
 					appSessionIdKey);
 			if (appSessionId == null) {
@@ -196,12 +196,16 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 					logger.info("{} is calling {} by google voice",
 							userSipProfile.getDisplayName(), phoneNumber);
 				}
+				String appSessionIdKey = generateAppSessionKey(userSipProfile);
 				appSession.setAttribute(
 						GV_WAITING_FOR_CALLBACK,
 						phoneNumberUtil.getCanonicalizedPhoneNumber(
 								account.getPhoneNumber(),
 								userSipProfile.getDefaultAreaCode()));
+				getServletContext().setAttribute(appSessionIdKey,
+						appSession.getId());
 				SipSession session = req.getSession();
+				session.setAttribute(APPLICATION_SESSION_ID, appSessionIdKey);
 				session.setAttribute(ORIGINAL_REQUEST, req);
 				appSession.setAttribute(ORIGINAL_SESSION, session);
 				ServletTimer st = timeService.createTimer(appSession,
@@ -299,75 +303,74 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 		}
 		URI fromUri = req.getFrom().getURI();
 		if (fromUri.isSipURI()) {
-			String appSessionIdKey = generateAppSessionKey(req, true);
-			String appSessionId = (String) getServletContext().getAttribute(
-					appSessionIdKey);
-			if (appSessionId != null) {
-				getServletContext().removeAttribute(appSessionIdKey);
-				SipApplicationSession appSession = sipSessionsUtil
-						.getApplicationSessionById(appSessionId);
-				if (appSession != null) {
-					String timerId = (String) appSession
-							.getAttribute(GV_TIMEOUT);
-					if (timerId != null) {
-						appSession.removeAttribute(GV_TIMEOUT);
-						if (logger.isTraceEnabled()) {
-							logger.trace(
-									"Get google voice timeout timer id: {}",
-									timerId);
-						}
-						ServletTimer timer = appSession.getTimer(timerId);
-						if (timer != null) {
+			String appSessionIdKey = (String) req.getSession().getAttribute(
+					APPLICATION_SESSION_ID);
+			if (appSessionIdKey != null) {
+				String appSessionId = (String) getServletContext()
+						.getAttribute(appSessionIdKey);
+				if (appSessionId != null) {
+					getServletContext().removeAttribute(appSessionIdKey);
+					SipApplicationSession appSession = sipSessionsUtil
+							.getApplicationSessionById(appSessionId);
+					if (appSession != null) {
+						String timerId = (String) appSession
+								.getAttribute(GV_TIMEOUT);
+						if (timerId != null) {
+							appSession.removeAttribute(GV_TIMEOUT);
 							if (logger.isTraceEnabled()) {
-								logger.trace("Found google voice timeout timer, cancel it.");
-							}
-							timer.cancel();
-						} else {
-							if (logger.isDebugEnabled()) {
-								logger.debug(
-										"Cannot find timer by timer id: {}",
+								logger.trace(
+										"Get google voice timeout timer id: {}",
 										timerId);
 							}
-						}
-					} else {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Cannot find timer id on application session.");
-						}
-					}
-					GoogleVoiceSession gvSession = (GoogleVoiceSession) appSession
-							.getAttribute(GV_SESSION);
-					if (gvSession != null) {
-						try {
-							if (gvSession.cancel()) {
-								if (logger.isDebugEnabled()) {
-									logger.debug("Google voice call had been canceld");
+							ServletTimer timer = appSession.getTimer(timerId);
+							if (timer != null) {
+								if (logger.isTraceEnabled()) {
+									logger.trace("Found google voice timeout timer, cancel it.");
 								}
+								timer.cancel();
 							} else {
-								if (logger.isInfoEnabled()) {
-									logger.info("Error happened when cancel google voice call.");
+								if (logger.isDebugEnabled()) {
+									logger.debug(
+											"Cannot find timer by timer id: {}",
+											timerId);
 								}
 							}
-						} catch (Exception e) {
-							if (logger.isWarnEnabled()) {
-								logger.warn("Unable to cancel google voice call.");
+						} else {
+							if (logger.isDebugEnabled()) {
+								logger.debug("Cannot find timer id on application session.");
 							}
 						}
+						GoogleVoiceSession gvSession = (GoogleVoiceSession) appSession
+								.getAttribute(GV_SESSION);
+						if (gvSession != null) {
+							try {
+								if (gvSession.cancel()) {
+									if (logger.isDebugEnabled()) {
+										logger.debug("Google voice call had been canceld");
+									}
+								} else {
+									if (logger.isInfoEnabled()) {
+										logger.info("Error happened when cancel google voice call.");
+									}
+								}
+							} catch (Exception e) {
+								if (logger.isWarnEnabled()) {
+									logger.warn("Unable to cancel google voice call.");
+								}
+							}
+						}
+						appSession.invalidate();
+						return;
+					} else {
+						if (logger.isWarnEnabled()) {
+							logger.warn("Cannot found appSession by id: {}",
+									appSessionId);
+						}
 					}
-					appSession.invalidate();
-				} else {
-					if (logger.isWarnEnabled()) {
-						logger.warn("Cannot found appSession by id: {}",
-								appSessionId);
-					}
-				}
-			} else {
-				if (logger.isWarnEnabled()) {
-					logger.warn(
-							"Cannot found appSessionId from context by: {}",
-							appSessionIdKey);
 				}
 			}
 		}
+		super.doCancel(req);
 	}
 
 	/*

@@ -1,24 +1,27 @@
 package com.sipcm.sip.vendor;
 
+import java.io.IOException;
 import java.util.Collection;
 
+import javax.servlet.ServletException;
+import javax.servlet.sip.SipServletResponse;
+
 import com.sipcm.sip.model.AddressBinding;
-import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.model.VoipVendor;
 
 public interface VoipVendorContext {
 
-	public void setVoipVendor(VoipVendor voipVendor);
+	public void initialize(VoipVendor voipVendor);
 
 	public void onUserDeleted(Long... userIds);
 
-	public void registerForIncomingRequest(UserSipProfile userSipProfile,
-			UserVoipAccount account);
+	public void registerForIncomingRequest(UserVoipAccount account);
 
-	public void unregisterForIncomingRequest(UserSipProfile userSipProfile,
-			UserVoipAccount account);
+	public void unregisterForIncomingRequest(UserVoipAccount account);
 
 	public Collection<AddressBinding> isLocalUser(String toUser);
 
+	public void handleRegisterResponse(SipServletResponse resp,
+			UserVoipAccount account) throws ServletException, IOException;
 }

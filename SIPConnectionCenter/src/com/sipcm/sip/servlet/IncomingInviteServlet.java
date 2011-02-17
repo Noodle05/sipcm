@@ -17,6 +17,7 @@ import javax.servlet.sip.annotation.SipServlet;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import com.sipcm.sip.model.AddressBinding;
+import com.sipcm.sip.model.UserSipProfile;
 
 /**
  * @author wgao
@@ -43,9 +44,18 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 		RequestDispatcher dispatcher = null;
 		SipURI fromUri = (SipURI) req.getFrom().getURI();
 		String fromUser = fromUri.getUser();
+		@SuppressWarnings("unchecked")
+		Collection<AddressBinding> bindings = (Collection<AddressBinding>) req
+				.getAttribute(TARGET_USERSIPBINDING);
+		if (bindings == null || bindings.isEmpty()) {
+			response(req, SipServletResponse.SC_NOT_FOUND);
+			return;
+		}
 		if (phoneNumberUtil.isValidPhoneNumber(fromUser)) {
+			UserSipProfile userSipProfile = bindings.iterator().next()
+					.getUserSipProfile();
 			String appSessionId = (String) getServletContext().getAttribute(
-					generateAppSessionKey(req, false));
+					generateAppSessionKey(userSipProfile));
 			SipApplicationSession appSession = null;
 			if (appSessionId != null) {
 				appSession = sipSessionsUtil
@@ -61,6 +71,7 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Call back number match too, forward to google voice servlet.");
 					}
+					req.setAttribute(USER_ATTRIBUTE, userSipProfile);
 					dispatcher = req.getRequestDispatcher("GoogleVoiceServlet");
 				} else {
 					if (logger.isTraceEnabled()) {
@@ -75,13 +86,6 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 			}
 		}
 		if (dispatcher == null) {
-			@SuppressWarnings("unchecked")
-			Collection<AddressBinding> bindings = (Collection<AddressBinding>) req
-					.getAttribute(TARGET_USERSIPBINDING);
-			if (bindings == null || bindings.isEmpty()) {
-				response(req, SipServletResponse.SC_NOT_FOUND);
-				return;
-			}
 			if (logger.isTraceEnabled()) {
 				logger.trace("Forward to back-to-back servlet.");
 			}

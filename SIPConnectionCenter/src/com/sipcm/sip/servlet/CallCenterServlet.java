@@ -3,6 +3,8 @@
  */
 package com.sipcm.sip.servlet;
 
+import gov.nist.javax.sip.message.SIPRequest;
+
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Collection;
@@ -51,6 +53,22 @@ public class CallCenterServlet extends AbstractSipServlet {
 	@Autowired
 	@Qualifier("voipVendorManager")
 	private VoipVendorManager vendorManager;
+
+	@Override
+	protected void doResponse(javax.servlet.sip.SipServletResponse resp)
+			throws javax.servlet.ServletException, java.io.IOException {
+		SipServletRequest req = resp.getRequest();
+		if (req != null
+				&& SIPRequest.REGISTER.equalsIgnoreCase(req.getMethod())) {
+			vendorManager.handleRegisterResponse(resp);
+		} else {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Cannot find client register servlet, just drop it.");
+			}
+			return;
+		}
+		super.doResponse(resp);
+	}
 
 	/**
 	 * DOS protector check.
@@ -122,15 +140,6 @@ public class CallCenterServlet extends AbstractSipServlet {
 			String toHost = toSipUri.getHost();
 			String fromHost = fromSipUri.getHost();
 			String toUser = toSipUri.getUser();
-			// if (!toHost.toUpperCase().endsWith(getDomain().toUpperCase())
-			// && !getDomain().equalsIgnoreCase(fromHost)) {
-			// if (logger.isDebugEnabled()) {
-			// logger.debug("Not from host nor to host is domain we served, response as forbidden.");
-			// }
-			// response(req, SipServletResponse.SC_FORBIDDEN,
-			// "Do not serve your domain.");
-			// return;
-			// }
 
 			if (fromHost.toUpperCase().endsWith(getDomain().toUpperCase())) {
 				if (logger.isTraceEnabled()) {

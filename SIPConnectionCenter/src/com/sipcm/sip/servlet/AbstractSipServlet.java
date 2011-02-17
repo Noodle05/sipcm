@@ -5,11 +5,7 @@ package com.sipcm.sip.servlet;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Properties;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.sip.SipFactory;
@@ -17,7 +13,6 @@ import javax.servlet.sip.SipServlet;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSessionsUtil;
-import javax.servlet.sip.SipURI;
 import javax.servlet.sip.TimerService;
 import javax.sip.message.Request;
 
@@ -28,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.PhoneNumberUtil;
 
 /**
@@ -75,24 +71,14 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 		if (logger.isInfoEnabled()) {
 			logger.info(getServletName() + " has been started");
 		}
-		try {
-			// Getting the Sip factory from the JNDI Context
-			Properties jndiProps = new Properties();
-			Context initCtx = new InitialContext(jndiProps);
-			Context envCtx = (Context) initCtx.lookup("java:comp/env");
-			sipFactory = (SipFactory) envCtx
-					.lookup("sip/org.gaofamily.CallCenter/SipFactory");
-			sipSessionsUtil = (SipSessionsUtil) envCtx
-					.lookup("sip/org.gaofamily.CallCenter/SipSessionsUtil");
-			timeService = (TimerService) envCtx
-					.lookup("sip/org.gaofamily.CallCenter/TimerService");
-			if (logger.isInfoEnabled()) {
-				logger.info("Sip Factory ref from JNDI : " + sipFactory
-						+ ", Sip Sessions Util ref from JNDI : "
-						+ sipSessionsUtil);
-			}
-		} catch (NamingException e) {
-			throw new ServletException("Uh oh -- JNDI problem !", e);
+		sipFactory = (SipFactory) getServletContext().getAttribute(SIP_FACTORY);
+		sipSessionsUtil = (SipSessionsUtil) getServletContext().getAttribute(
+				SIP_SESSIONS_UTIL);
+		timeService = (TimerService) getServletContext().getAttribute(
+				TIMER_SERVICE);
+		if (logger.isInfoEnabled()) {
+			logger.info("Sip Factory ref from JNDI : " + sipFactory
+					+ ", Sip Sessions Util ref from JNDI : " + sipSessionsUtil);
 		}
 	}
 
@@ -115,14 +101,11 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 		response.send();
 	}
 
-	protected String generateAppSessionKey(SipServletRequest req, boolean from) {
-		if (req == null) {
-			throw new NullPointerException("Request is null.");
+	protected String generateAppSessionKey(UserSipProfile userSipProfile) {
+		if (userSipProfile == null) {
+			throw new NullPointerException("UserSipProfile is null.");
 		}
-		SipURI uri = (SipURI) (from ? req.getFrom().getURI() : req.getTo()
-				.getURI());
-		String user = uri.getUser();
-		return APPLICATION_SESSION_ID + user;
+		return APPLICATION_SESSION_ID + userSipProfile.getId();
 	}
 
 	protected boolean specialHandleRequest(SipServletRequest req) {

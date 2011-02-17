@@ -44,6 +44,22 @@ public class RegistrarServlet extends AbstractSipServlet {
 	 * (non-Javadoc)
 	 * 
 	 * @see
+	 * javax.servlet.sip.SipServlet#doResponse(javax.servlet.sip.SipServletResponse
+	 * )
+	 */
+	@Override
+	public void doResponse(SipServletResponse response)
+			throws ServletException, IOException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("I got response as: \"{}\"", response);
+		}
+		super.doResponse(response);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
 	 * javax.servlet.sip.SipServlet#doRegister(javax.servlet.sip.SipServletRequest
 	 * )
 	 */

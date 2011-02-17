@@ -13,7 +13,6 @@ import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
-import javax.servlet.sip.AuthInfo;
 import javax.servlet.sip.B2buaHelper;
 import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipServletRequest;
@@ -23,6 +22,7 @@ import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
 import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.FromHeader;
+import javax.sip.header.RouteHeader;
 import javax.sip.header.ToHeader;
 
 import org.springframework.beans.factory.annotation.Configurable;
@@ -117,7 +117,7 @@ public class DelegatedServlet extends B2bServlet {
 		if (vendor.getProxy() != null) {
 			Address routeAddress = sipFactory.createAddress("sip:"
 					+ vendor.getProxy());
-			forkedRequest.pushRoute(routeAddress);
+			forkedRequest.setAddressHeader(RouteHeader.NAME, routeAddress);
 		}
 		forkedRequest.setRequestURI(toURI);
 		// Remove original authentication headers.
@@ -161,19 +161,14 @@ public class DelegatedServlet extends B2bServlet {
 				// Need to create request from current session but original
 				// request. Otherwise, linked session in B2buaHelper will
 				// be a mess.
-				AuthInfo authInfo = sipFactory.createAuthInfo();
-				authInfo.addAuthInfo(resp.getStatus(), account.getVoipVendor()
-						.getDomain(), account.getAccount(), account
-						.getPassword());
 				SipServletRequest challengeRequest = helper.createRequest(
 						resp.getSession(), origReq, null);
 				// Remove original authentication headers.
 				challengeRequest.removeHeader(AuthorizationHeader.NAME);
 				challengeRequest.removeHeader(PAssertedIdentityHeader.NAME);
 				// Add new authentication headers
-				// SipServletRequest challengeRequest = resp.getSession()
-				// .createRequest(Request.INVITE);
-				challengeRequest.addAuthHeader(resp, authInfo);
+				challengeRequest.addAuthHeader(resp, account.getAccount(),
+						account.getPassword());
 				sipUtil.processingAddressInSDP(challengeRequest, origReq);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Sending challenge request {}",

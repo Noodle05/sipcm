@@ -17,6 +17,7 @@ import com.sipcm.common.OnlineStatus;
 import com.sipcm.sip.VoipAccountType;
 import com.sipcm.sip.VoipVendorType;
 import com.sipcm.sip.business.UserVoipAccountService;
+import com.sipcm.sip.dao.UserVoipAccountDAO;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.model.VoipVendor;
@@ -80,6 +81,26 @@ public class UserVoipAccountServiceImpl extends
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see
+	 * com.sipcm.sip.business.UserVoipAccountService#getOnlineIncomingAccounts
+	 * (com.sipcm.sip.model.UserSipProfile)
+	 */
+	@Override
+	public Collection<UserVoipAccount> getOnlineIncomingAccounts(
+			UserSipProfile user) {
+		Filter f1 = filterFactory.createSimpleFilter("owner", user);
+		Filter f2 = filterFactory.createSimpleFilter("voipVendor.type",
+				VoipVendorType.SIP);
+		Filter f3 = filterFactory.createInFilter("type",
+				VoipAccountType.INCOME, VoipAccountType.BOTH);
+		Filter f4 = filterFactory.createSimpleFilter("online", true);
+		Filter filter = f1.appendAnd(f2).appendAnd(f3).appendAnd(f4);
+		return dao.getEntities(filter, null, null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.sipcm.sip.business.UserVoipAccountService#
 	 * getUserVoipAccountByVendorAndAccount(com.sipcm.sip.model.VoipVendor,
 	 * java.lang.String)
@@ -93,7 +114,9 @@ public class UserVoipAccountServiceImpl extends
 				OnlineStatus.ONLINE);
 		Filter f4 = filterFactory.createInFilter("type",
 				VoipAccountType.INCOME, VoipAccountType.BOTH);
-		Filter filter = f1.appendAnd(f2).appendAnd(f3).appendAnd(f4);
+		Filter f5 = filterFactory.createSimpleFilter("online", true);
+		Filter filter = f1.appendAnd(f2).appendAnd(f3).appendAnd(f4)
+				.appendAnd(f5);
 		Collection<UserVoipAccount> accounts = dao.getEntities(filter, null,
 				null);
 		if (accounts != null && !accounts.isEmpty()) {
@@ -107,5 +130,18 @@ public class UserVoipAccountServiceImpl extends
 			return accounts.iterator().next();
 		}
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.business.UserVoipAccountService#updateOnlineStatus(com.
+	 * sipcm.sip.model.UserVoipAccount)
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void updateOnlineStatus(UserVoipAccount account) {
+		((UserVoipAccountDAO) dao).updateOnlineStatus(account);
 	}
 }
