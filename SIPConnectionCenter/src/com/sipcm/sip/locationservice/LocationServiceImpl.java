@@ -175,11 +175,15 @@ public class LocationServiceImpl implements LocationService {
 	@Override
 	public Collection<Address> getAddresses(UserSipProfile userSipProfile) {
 		List<AddressBinding> addresses = getUserBinding(userSipProfile);
-		if (addresses != null) {
+		if (addresses != null && !addresses.isEmpty()) {
 			Collection<Address> contactHeaders = new ArrayList<Address>(
 					addresses.size());
+			int now = (int) (System.currentTimeMillis() / 1000L);
 			for (AddressBinding binding : addresses) {
-				contactHeaders.add(binding.getAddress());
+				Address a = (Address) binding.getAddress().clone();
+				a.setExpires(binding.getExpires()
+						- (now - binding.getLastCheck()));
+				contactHeaders.add(a);
 			}
 			return contactHeaders;
 		} else {
@@ -292,6 +296,10 @@ public class LocationServiceImpl implements LocationService {
 			Collection<Long> uspids = null;
 			uspids = userSipProfileService.checkAddressBindingExpires();
 			if (uspids != null && !uspids.isEmpty()) {
+				if (logger.isDebugEnabled()) {
+					Long[] ids = uspids.toArray(new Long[uspids.size()]);
+					logger.debug("User expired: {}", Arrays.toString(ids));
+				}
 				Collection<UserSipProfile> uss = new ArrayList<UserSipProfile>(
 						uspids.size());
 				for (Long id : uspids) {
