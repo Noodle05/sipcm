@@ -77,7 +77,7 @@ public class VoipLocalVendorContextImpl implements VoipVendorContext {
 		UserSipProfile usp = userSipProfileService
 				.getUserSipProfileByUsername(toUser);
 		if (usp != null) {
-			return locationService.getUserSipBindingBySipProfile(usp);
+			return locationService.getUserBinding(usp);
 		}
 		return null;
 	}

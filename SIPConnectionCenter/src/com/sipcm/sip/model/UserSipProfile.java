@@ -210,7 +210,7 @@ public class UserSipProfile extends AbstractTrackableEntity implements
 			if (owner != null) {
 				return false;
 			}
-		} else if (!owner.equals(obj)) {
+		} else if (!owner.equals(obj.owner)) {
 			return false;
 		}
 		return true;

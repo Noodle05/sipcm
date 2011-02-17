@@ -133,6 +133,7 @@ public class LocationServiceImpl implements LocationService {
 				addressBinding
 						.setLastCheck((int) (System.currentTimeMillis() / 1000L));
 				addressBindingService.saveEntity(addressBinding);
+				Collections.sort(addresses);
 			}
 		} else {
 			if (expires > 0) {
@@ -198,7 +199,7 @@ public class LocationServiceImpl implements LocationService {
 	 * com.sipcm.sip.locationservice.LocationService#getUserProfileByKey(java
 	 * .lang .String)
 	 */
-	// @Override
+	@Override
 	public List<AddressBinding> getUserBinding(UserSipProfile userSipProfile) {
 		return getUserBinding(userSipProfile, true);
 	}
@@ -269,19 +270,6 @@ public class LocationServiceImpl implements LocationService {
 			}
 		}
 		return addresses;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.sip.locationservice.LocationService#getUserSipBindingBySipProfile
-	 * (com.sipcm.sip.model.UserSipProfile)
-	 */
-	@Override
-	public List<AddressBinding> getUserSipBindingBySipProfile(
-			UserSipProfile userSipProfile) {
-		return addressBindingService.getAddressBindings(userSipProfile);
 	}
 
 	/*

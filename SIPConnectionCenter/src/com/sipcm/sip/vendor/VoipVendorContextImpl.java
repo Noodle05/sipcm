@@ -100,7 +100,7 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 				.getUserVoipAccountByVendorAndAccount(voipVender, toUser);
 		if (account != null) {
 			UserSipProfile profile = account.getOwner();
-			return locationService.getUserSipBindingBySipProfile(profile);
+			return locationService.getUserBinding(profile);
 		}
 		return null;
 	}

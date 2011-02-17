@@ -183,8 +183,8 @@ public class AddressBinding implements IdBasedEntity<Long>, Serializable,
 		} else if (q2 > q1) {
 			return -1;
 		} else {
-			int expiresTime1 = address.getExpires();
-			int expiresTime2 = o.address.getExpires();
+			int expiresTime1 = expires;
+			int expiresTime2 = o.expires;
 			if (expiresTime1 < expiresTime2) {
 				return 1;
 			} else if (expiresTime1 > expiresTime2) {

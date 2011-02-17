@@ -23,7 +23,7 @@ public interface LocationService {
 	public Collection<AddressBinding> getUserSipBindingByPhoneNumber(
 			String phoneNumber);
 
-	public Collection<AddressBinding> getUserSipBindingBySipProfile(
+	public Collection<AddressBinding> getUserBinding(
 			UserSipProfile userSipProfile);
 
 	/**
