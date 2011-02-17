@@ -57,6 +57,7 @@ UNIQUE (name, deletedate)) ENGINE=InnoDB;
 CREATE TABLE tbl_sipaddressbinding (
 id BIGINT NOT NULL AUTO_INCREMENT,
 address VARCHAR(255) NOT NULL,
+expires INTEGER DEFAULT 3600,
 call_id VARCHAR(255),
 last_check INT,
 remote_end VARCHAR(255),
