@@ -49,7 +49,7 @@ public class DosProtector {
 	@PostConstruct
 	public void init() {
 		counter = new MapMaker().concurrencyLevel(32)
-				.expiration(getDosProtectInterval(), TimeUnit.SECONDS)
+				.expireAfterWrite(getDosProtectInterval(), TimeUnit.SECONDS)
 				.makeMap();
 		blockList = new MapMaker().concurrencyLevel(4).makeMap();
 		if (logger.isInfoEnabled()) {
