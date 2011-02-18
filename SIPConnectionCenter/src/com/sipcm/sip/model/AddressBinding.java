@@ -54,7 +54,7 @@ public class AddressBinding implements IdBasedEntity<Long>, Serializable,
 	private String callId;
 
 	@Basic
-	@Column(name = "last_check", insertable = false)
+	@Column(name = "last_check")
 	private Integer lastCheck;
 
 	@Type(type = "sipAddress")
@@ -243,8 +243,9 @@ public class AddressBinding implements IdBasedEntity<Long>, Serializable,
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("AddressBinding[").append("Address=").append(address)
-				.append(",RemoteEnd=").append(remoteEnd).append(",CallId=")
-				.append(callId).append("]");
+				.append(",Expires=").append(expires).append(",RemoteEnd=")
+				.append(remoteEnd).append(",CallId=").append(callId)
+				.append("]");
 		return sb.toString();
 	}
 }

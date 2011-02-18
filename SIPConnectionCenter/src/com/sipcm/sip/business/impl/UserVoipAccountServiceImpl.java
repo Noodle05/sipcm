@@ -144,4 +144,34 @@ public class UserVoipAccountServiceImpl extends
 	public void updateOnlineStatus(UserVoipAccount account) {
 		((UserVoipAccountDAO) dao).updateOnlineStatus(account);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.business.UserVoipAccountService#getOnlineIncomingAccounts
+	 * (java.lang.Long)
+	 */
+	@Override
+	public Collection<UserVoipAccount> getOnlineIncomingAccounts(Long userId) {
+		Filter f1 = filterFactory.createSimpleFilter("owner.id", userId);
+		Filter f2 = filterFactory.createSimpleFilter("voipVendor.type",
+				VoipVendorType.SIP);
+		Filter f3 = filterFactory.createInFilter("type",
+				VoipAccountType.INCOME, VoipAccountType.BOTH);
+		Filter f4 = filterFactory.createSimpleFilter("online", true);
+		Filter filter = f1.appendAnd(f2).appendAnd(f3).appendAnd(f4);
+		return dao.getEntities(filter, null, null);
+	}
+
+	@Override
+	public Collection<UserVoipAccount> getOnlineIncomingAccounts(
+			VoipVendor voipVendor) {
+		Filter f1 = filterFactory.createSimpleFilter("voipVendor", voipVendor);
+		Filter f2 = filterFactory.createInFilter("type",
+				VoipAccountType.INCOME, VoipAccountType.BOTH);
+		Filter f3 = filterFactory.createSimpleFilter("online", true);
+		Filter filter = f1.appendAnd(f2).appendAnd(f3);
+		return dao.getEntities(filter, null, null);
+	}
 }

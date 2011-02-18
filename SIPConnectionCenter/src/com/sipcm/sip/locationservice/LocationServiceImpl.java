@@ -124,7 +124,7 @@ public class LocationServiceImpl implements LocationService {
 				}
 			} else {
 				if (logger.isTraceEnabled()) {
-					logger.trace("Update address addess {}", address);
+					logger.trace("Update address addess {}", addressBinding);
 				}
 				addressBinding.setAddress(address);
 				addressBinding.setExpires(expires);
@@ -134,6 +134,7 @@ public class LocationServiceImpl implements LocationService {
 						.setLastCheck((int) (System.currentTimeMillis() / 1000L));
 				addressBindingService.saveEntity(addressBinding);
 				Collections.sort(addresses);
+				cache.put(userSipProfile, addresses);
 			}
 		} else {
 			if (expires > 0) {
@@ -152,7 +153,7 @@ public class LocationServiceImpl implements LocationService {
 								expires, remoteEnd, callId, !exists);
 				addresses.add(addressBinding);
 				Collections.sort(addresses);
-				cache.putIfAbsent(userSipProfile, addresses);
+				cache.put(userSipProfile, addresses);
 
 				if (!exists) {
 					listener.userRegistered(new RegistrationEventObject(

@@ -170,8 +170,17 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 	 */
 	@Override
 	public void onUserDeleted(Long... userIds) {
-		for (VoipVendorContext ctx : voipVendors.values()) {
-			ctx.onUserDeleted(userIds);
+		for (Long id : userIds) {
+			Collection<UserVoipAccount> accounts = userVoipAccountService
+					.getOnlineIncomingAccounts(id);
+			if (accounts != null && !accounts.isEmpty()) {
+				for (UserVoipAccount account : accounts) {
+					VoipVendorContext ctx = getVoipVendorContext(account);
+					if (ctx != null) {
+						ctx.unregisterForIncomingRequest(account);
+					}
+				}
+			}
 		}
 	}
 
@@ -240,6 +249,7 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 		return contactHost;
 	}
 
+	@Override
 	public void handleRegisterResponse(SipServletResponse resp)
 			throws ServletException, IOException {
 		SipApplicationSession appSession = resp.getApplicationSession(false);

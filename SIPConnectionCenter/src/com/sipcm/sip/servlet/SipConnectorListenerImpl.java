@@ -24,13 +24,19 @@ import com.sipcm.sip.vendor.VoipVendorManager;
  */
 @Configurable
 @SipListener
-public class SipConnectorListenImpl implements SipConnectorListener {
+public class SipConnectorListenerImpl implements SipConnectorListener {
 	private static final Logger logger = LoggerFactory
-			.getLogger(SipConnectorListenImpl.class);
+			.getLogger(SipConnectorListenerImpl.class);
 
 	@Autowired
 	@Qualifier("voipVendorManager")
 	private VoipVendorManager voipVendorManager;
+
+	private volatile boolean setted;
+
+	public SipConnectorListenerImpl() {
+		setted = false;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -41,30 +47,34 @@ public class SipConnectorListenImpl implements SipConnectorListener {
 	 */
 	@Override
 	public void sipConnectorAdded(SipConnector connector) {
-		if ("UDP".equalsIgnoreCase(connector.getTransport())) {
-			try {
-				InetAddress listeningIp = null;
-				int listeningPort = 5060;
-				if (connector.isUseStaticAddress()) {
-					listeningIp = InetAddress.getByName(connector
-							.getStaticServerAddress());
-					listeningPort = connector.getStaticServerPort();
-				} else {
-					listeningIp = InetAddress.getByName(connector
-							.getIpAddress());
-					listeningPort = connector.getPort();
-				}
-				if (listeningIp != null) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("System is listening on \"{}\", port: {}",
-								listeningIp.getHostAddress(), listeningPort);
+		if (!setted) {
+			if ("UDP".equalsIgnoreCase(connector.getTransport())) {
+				try {
+					InetAddress listeningIp = null;
+					int listeningPort = 5060;
+					if (connector.isUseStaticAddress()) {
+						listeningIp = InetAddress.getByName(connector
+								.getStaticServerAddress());
+						listeningPort = connector.getStaticServerPort();
+					} else {
+						listeningIp = InetAddress.getByName(connector
+								.getIpAddress());
+						listeningPort = connector.getPort();
 					}
-					voipVendorManager.setListeningAddress(listeningIp,
-							listeningPort);
-				}
-			} catch (UnknownHostException e) {
-				if (logger.isErrorEnabled()) {
-					logger.error("Cannot determine listening address.", e);
+					if (listeningIp != null) {
+						if (logger.isDebugEnabled()) {
+							logger.debug(
+									"System is listening on \"{}\", port: {}",
+									listeningIp.getHostAddress(), listeningPort);
+						}
+						voipVendorManager.setListeningAddress(listeningIp,
+								listeningPort);
+						setted = true;
+					}
+				} catch (UnknownHostException e) {
+					if (logger.isErrorEnabled()) {
+						logger.error("Cannot determine listening address.", e);
+					}
 				}
 			}
 		}

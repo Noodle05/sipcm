@@ -14,8 +14,6 @@ public interface VoipVendorContext {
 
 	public void initialize(VoipVendor voipVendor);
 
-	public void onUserDeleted(Long... userIds);
-
 	public void registerForIncomingRequest(UserVoipAccount account);
 
 	public void unregisterForIncomingRequest(UserVoipAccount account);

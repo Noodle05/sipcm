@@ -48,17 +48,6 @@ public class VoipLocalVendorContextImpl implements VoipVendorContext {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.sip.vendor.VoipVendorContext#onUserDeleted(java.lang.Long[])
-	 */
-	@Override
-	public void onUserDeleted(Long... userIds) {
-		// Do nothing
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
 	 * com.sipcm.sip.vendor.VoipVendorContext#registerForIncomingRequest(com
 	 * .sipcm.sip.model.UserVoipAccount)
 	 */
