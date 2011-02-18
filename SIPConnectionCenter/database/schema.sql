@@ -115,6 +115,7 @@ callback_number VARCHAR(32),
 type INTEGER NOT NULL,
 user_id BIGINT NOT NULL,
 voipvendor_id INTEGER NOT NULL,
+online BIT(1) NOT NULL DEFAULT b'0',
 PRIMARY KEY (id),
 KEY (voipvendor_id, account, deletedate),
 UNIQUE (user_id, name, deletedate)) ENGINE=InnoDB;

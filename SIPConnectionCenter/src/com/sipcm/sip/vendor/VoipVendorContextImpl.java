@@ -22,8 +22,8 @@ import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.URI;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.ContactHeader;
-import javax.sip.header.RouteHeader;
 
+import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +38,7 @@ import com.sipcm.sip.servlet.AbstractSipServlet;
  * 
  */
 @Component("sipVoipVendorContext")
+@Scope("prototype")
 public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	public static final String REGISTER_EXPIRES = "sip.client.register.expires";
 	private static final String REGISTER_ALLOW_METHODS = "sip.client.register.allow.methods";
@@ -149,9 +150,13 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 		}
 
 		if (voipVendor.getProxy() != null) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Viop Vendor: {}, Proxy: {}", voipVendor,
+						voipVendor.getProxy());
+			}
 			Address routeAddress = sipFactory.createAddress("sip:"
 					+ voipVendor.getProxy());
-			register.setAddressHeader(RouteHeader.NAME, routeAddress);
+			register.pushRoute(routeAddress);
 		}
 		return register;
 	}
@@ -317,6 +322,11 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 				registerForIncomingRequest(account);
 			}
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "Voip Vendor Context object for " + voipVendor;
 	}
 
 	private static class RegisterRenewTask implements Runnable {

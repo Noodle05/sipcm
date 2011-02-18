@@ -13,6 +13,7 @@ import javax.servlet.sip.SipServletResponse;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sipcm.sip.business.UserSipProfileService;
@@ -27,6 +28,7 @@ import com.sipcm.sip.model.VoipVendor;
  * 
  */
 @Component("sipVoipLocalVendorContext")
+@Scope("prototype")
 public class VoipLocalVendorContextImpl implements VoipVendorContext {
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -106,5 +108,10 @@ public class VoipLocalVendorContextImpl implements VoipVendorContext {
 	public void handleRegisterResponse(SipServletResponse resp,
 			UserVoipAccount account) throws ServletException, IOException {
 		// Do nothing
+	}
+
+	@Override
+	public String toString() {
+		return "Voip vendor context for local domain.";
 	}
 }

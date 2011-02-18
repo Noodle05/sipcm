@@ -117,7 +117,7 @@ public class DelegatedServlet extends B2bServlet {
 		if (vendor.getProxy() != null) {
 			Address routeAddress = sipFactory.createAddress("sip:"
 					+ vendor.getProxy());
-			forkedRequest.setAddressHeader(RouteHeader.NAME, routeAddress);
+			forkedRequest.pushRoute(routeAddress);
 		}
 		forkedRequest.setRequestURI(toURI);
 		// Remove original authentication headers.

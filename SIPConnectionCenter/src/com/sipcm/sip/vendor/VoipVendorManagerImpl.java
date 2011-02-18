@@ -103,6 +103,13 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 				voipVendors.put(vender, ctx);
 			}
 		}
+		if (logger.isTraceEnabled()) {
+			logger.trace("Initial voip vendor context done.");
+			for (Entry<VoipVendor, VoipVendorContext> entry : voipVendors
+					.entrySet()) {
+				logger.trace("{}: {}", entry.getKey(), entry.getValue());
+			}
+		}
 	}
 
 	/*
@@ -142,7 +149,7 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 	@Override
 	public void unregisterForIncomingRequest(UserSipProfile userSipProfile) {
 		Collection<UserVoipAccount> accounts = userVoipAccountService
-				.getIncomingAccounts(userSipProfile);
+				.getOnlineIncomingAccounts(userSipProfile);
 		if (accounts != null && !accounts.isEmpty()) {
 			for (UserVoipAccount account : accounts) {
 				VoipVendorContext ctx = getVoipVendorContext(account);
@@ -160,7 +167,12 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 	}
 
 	private VoipVendorContext getVoipVendorContext(UserVoipAccount account) {
-		return voipVendors.get(account.getVoipVendor());
+		VoipVendorContext ctx = voipVendors.get(account.getVoipVendor());
+		if (logger.isTraceEnabled()) {
+			logger.trace("VoipVendorContext for account \"{}\" is \"{}\"",
+					account, ctx);
+		}
+		return ctx;
 	}
 
 	/*
