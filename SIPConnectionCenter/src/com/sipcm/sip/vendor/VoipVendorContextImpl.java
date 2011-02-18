@@ -197,6 +197,18 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 			if (appSession != null) {
 				appSession.invalidate();
 			}
+		} else {
+			if (logger.isInfoEnabled()) {
+				logger.info("Register account \"{}\" failed, response is: {}",
+						account, resp);
+			}
+			account.setOnline(false);
+			userVoipAccountService.updateOnlineStatus(account);
+			SipApplicationSession appSession = resp
+					.getApplicationSession(false);
+			if (appSession != null) {
+				appSession.invalidate();
+			}
 		}
 	}
 
@@ -221,8 +233,8 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 			req.send();
 		} else {
 			appSession.invalidate();
-			if (logger.isDebugEnabled()) {
-				logger.debug("Authentication failed for account: \"{}\"",
+			if (logger.isWarnEnabled()) {
+				logger.warn("Authentication failed for account: \"{}\"",
 						account);
 			}
 			account.setOnline(false);
