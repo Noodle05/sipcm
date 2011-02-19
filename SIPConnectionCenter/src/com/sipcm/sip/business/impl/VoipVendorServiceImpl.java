@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sipcm.base.business.impl.AbstractService;
 import com.sipcm.base.dao.DAO;
+import com.sipcm.sip.VoipVendorType;
 import com.sipcm.sip.business.VoipVendorService;
 import com.sipcm.sip.model.VoipVendor;
 
@@ -32,5 +33,11 @@ public class VoipVendorServiceImpl extends AbstractService<VoipVendor, Integer>
 	@Resource(name = "voipVendorDAO")
 	public void setDAO(DAO<VoipVendor, Integer> dao) {
 		this.dao = dao;
+	}
+
+	public VoipVendor createNewEntity() {
+		VoipVendor entity = super.createNewEntity();
+		entity.setType(VoipVendorType.SIP);
+		return entity;
 	}
 }

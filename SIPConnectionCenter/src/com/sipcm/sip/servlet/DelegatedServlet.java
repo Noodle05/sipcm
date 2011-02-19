@@ -22,7 +22,6 @@ import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
 import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.FromHeader;
-import javax.sip.header.RouteHeader;
 import javax.sip.header.ToHeader;
 
 import org.springframework.beans.factory.annotation.Configurable;
