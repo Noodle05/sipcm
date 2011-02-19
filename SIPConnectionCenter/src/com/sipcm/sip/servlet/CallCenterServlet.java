@@ -205,7 +205,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 				if (logger.isWarnEnabled()) {
 					logger.warn("Cannot accept this INVITE");
 				}
-				response(req, SipServletResponse.SC_BAD_REQUEST);
+				response(req, SipServletResponse.SC_NOT_FOUND);
 				return;
 			}
 		} else {
