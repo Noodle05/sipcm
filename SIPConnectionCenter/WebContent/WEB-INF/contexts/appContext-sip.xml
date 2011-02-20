@@ -19,7 +19,11 @@
 	</util:map>
 
 	<util:list id="sip.registrationEventListeners">
-		<ref bean="sipUserRegistrationForIncomingListener" />
+		<ref bean="sip.UserRegistrationForIncomingListener" />
+	</util:list>
+
+	<util:list id="sip.callEventListeners">
+		<ref bean="sip.CallLogRecorder" />
 	</util:list>
 
 	<bean id="userServiceEventListener" class="com.sipcm.base.CompositeServiceEventListener">

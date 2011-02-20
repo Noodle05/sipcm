@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  * @author wgao
  * 
  */
-@Component("Sip.RegistrationEventListener")
+@Component("sip.RegistrationEventListener")
 public class CompoisteRegistrationEventListener implements
 		RegistrationEventListener {
 	private static final Logger logger = LoggerFactory
@@ -34,7 +34,7 @@ public class CompoisteRegistrationEventListener implements
 	 */
 	@Override
 	@Async
-	public void userRegistered(RegistrationEventObject event) {
+	public void userRegistered(RegistrationEvent event) {
 		if (listeners != null && !listeners.isEmpty()) {
 			for (RegistrationEventListener listener : listeners) {
 				try {
@@ -62,7 +62,7 @@ public class CompoisteRegistrationEventListener implements
 	 */
 	@Override
 	@Async
-	public void userUnregistered(RegistrationEventObject event) {
+	public void userUnregistered(RegistrationEvent event) {
 		if (listeners != null && !listeners.isEmpty()) {
 			for (RegistrationEventListener listener : listeners) {
 				try {

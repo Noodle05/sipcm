@@ -20,7 +20,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.sip.VoipVendorType;
 import com.sipcm.sip.dialplan.DialplanExecutor;
+import com.sipcm.sip.events.CallStartEvent;
 import com.sipcm.sip.locationservice.LocationService;
+import com.sipcm.sip.locationservice.UserBindingInfo;
 import com.sipcm.sip.model.AddressBinding;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
@@ -40,7 +42,7 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 	private DialplanExecutor dialplanExecutor;
 
 	@Autowired
-	@Qualifier("sipLocationService")
+	@Qualifier("sip.LocationService")
 	private LocationService locationService;
 
 	private Map<VoipVendorType, String> voipVendorToServletMap;
@@ -60,7 +62,9 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 		if (logger.isTraceEnabled()) {
 			logger.trace("This is a request to call a phone.");
 		}
-		if (req.getAttribute(USER_ATTRIBUTE) == null) {
+		UserSipProfile userSipProfile = (UserSipProfile) req
+				.getAttribute(USER_ATTRIBUTE);
+		if (userSipProfile == null) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Only local user can call phone number. Response \"not acceptable\"");
 			}
@@ -78,25 +82,30 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 		}
 		Collection<AddressBinding> addresses = locationService
 				.getUserSipBindingByPhoneNumber(phoneNumber);
-		if (addresses != null) {
+		if (addresses != null && !addresses.isEmpty()) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Found local user with this phone number, will forward to local user directly.");
 			}
-			req.setAttribute(TARGET_USERSIPBINDING, addresses);
+			UserBindingInfo ubi = new UserBindingInfo(null, addresses);
+			req.setAttribute(TARGET_USERSIPBINDING, ubi);
 			RequestDispatcher dispather = req
-					.getRequestDispatcher("B2bServlet");
+					.getRequestDispatcher("IncomingInviteServlet");
 			if (dispather == null) {
 				if (logger.isErrorEnabled()) {
 					logger.error("Cannot found target local invite servlet.");
 				}
 				response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 			} else {
+				if (callEventListener != null) {
+					CallStartEvent event = new CallStartEvent(userSipProfile,
+							phoneNumber);
+					req.getSession().setAttribute(OUTGOING_CALL_START, event);
+					callEventListener.outgoingCallStart(event);
+				}
 				dispather.forward(req, null);
 			}
 			return;
 		}
-		UserSipProfile userSipProfile = (UserSipProfile) req
-				.getAttribute(USER_ATTRIBUTE);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Trying to excute dial plan.");
 		}
@@ -116,11 +125,18 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 				RequestDispatcher dispatcher = req
 						.getRequestDispatcher(servlet);
 				if (dispatcher != null) {
+					if (callEventListener != null) {
+						CallStartEvent event = new CallStartEvent(voipAccount,
+								phoneNumber);
+						req.getSession().setAttribute(OUTGOING_CALL_START,
+								event);
+						callEventListener.outgoingCallStart(event);
+					}
 					dispatcher.forward(req, null);
 					return;
 				} else {
-					if (logger.isWarnEnabled()) {
-						logger.warn("Cannot find request dispatcher based on servlet {}, response server internal error.");
+					if (logger.isErrorEnabled()) {
+						logger.error("Cannot find request dispatcher based on servlet {}, response server internal error.");
 					}
 				}
 			} else {

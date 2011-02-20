@@ -35,6 +35,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.googlevoice.GoogleVoiceManager;
 import com.sipcm.googlevoice.GoogleVoiceSession;
+import com.sipcm.sip.events.CallEndEvent;
+import com.sipcm.sip.events.CallStartEvent;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.util.GvB2buaHelperImpl;
@@ -179,6 +181,9 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				logger.trace("Sending OK to callback request. {}", response);
 			}
 			response.send();
+			if (callEventListener != null) {
+				callEstablished(origSession, session);
+			}
 		}
 	}
 
@@ -192,8 +197,8 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 		try {
 			gvSession.login();
 			if (gvSession.call(phoneNumber, "1")) {
-				if (logger.isInfoEnabled()) {
-					logger.info("{} is calling {} by google voice",
+				if (logger.isDebugEnabled()) {
+					logger.debug("{} is calling {} by google voice",
 							userSipProfile.getDisplayName(), phoneNumber);
 				}
 				String appSessionIdKey = generateAppSessionKey(userSipProfile);
@@ -224,6 +229,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				}
 				response(req, SipServletResponse.SC_DECLINE,
 						"Google voice call failed.");
+				callFailed(req.getSession(), "Google voice call failed.");
 				return;
 			}
 		} catch (Exception e) {
@@ -236,6 +242,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				}
 			}
 			response(req, SipServletResponse.SC_BAD_GATEWAY);
+			callFailed(req.getSession(), e);
 			return;
 		}
 	}
@@ -359,6 +366,9 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 								}
 							}
 						}
+						if (callEventListener != null) {
+							callCancelled(req.getSession());
+						}
 						appSession.invalidate();
 						return;
 					} else {
@@ -406,6 +416,16 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 			logger.debug("Timeout, google voice didn't go though in time, cancel it.");
 		}
 		SipServletRequest req = (SipServletRequest) timer.getInfo();
+		if (req == null) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Google voice timeout, but request object is null?");
+			}
+			return;
+		}
+		UserSipProfile userSipProfile = (UserSipProfile) req
+				.getAttribute(USER_ATTRIBUTE);
+		String appSessionIdKey = generateAppSessionKey(userSipProfile);
+		getServletContext().removeAttribute(appSessionIdKey);
 		SipApplicationSession appSession = timer.getApplicationSession();
 		GoogleVoiceSession gv = (GoogleVoiceSession) appSession
 				.getAttribute(GV_SESSION);
@@ -442,5 +462,41 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 
 	private int getGoogleVoiceCallTimeout() {
 		return appConfig.getInt(GV_TIMEOUT, 60);
+	}
+
+	protected void callFailed(SipSession session, Exception e) {
+		CallStartEvent startEvent = (CallStartEvent) session
+				.getAttribute(INCOMING_CALL_START);
+		if (startEvent != null) {
+			session.removeAttribute(INCOMING_CALL_START);
+			CallEndEvent endEvent = new CallEndEvent(startEvent,
+					SipServletResponse.SC_BAD_GATEWAY, e.getMessage());
+			callEventListener.incomingCallFailed(endEvent);
+		}
+		startEvent = (CallStartEvent) session.getAttribute(OUTGOING_CALL_START);
+		if (startEvent != null) {
+			session.removeAttribute(OUTGOING_CALL_START);
+			CallEndEvent endEvent = new CallEndEvent(startEvent,
+					SipServletResponse.SC_BAD_GATEWAY, e.getMessage());
+			callEventListener.outgoingCallFailed(endEvent);
+		}
+	}
+
+	protected void callFailed(SipSession session, String msg) {
+		CallStartEvent startEvent = (CallStartEvent) session
+				.getAttribute(INCOMING_CALL_START);
+		if (startEvent != null) {
+			session.removeAttribute(INCOMING_CALL_START);
+			CallEndEvent endEvent = new CallEndEvent(startEvent,
+					SipServletResponse.SC_BAD_GATEWAY, msg);
+			callEventListener.incomingCallFailed(endEvent);
+		}
+		startEvent = (CallStartEvent) session.getAttribute(OUTGOING_CALL_START);
+		if (startEvent != null) {
+			session.removeAttribute(OUTGOING_CALL_START);
+			CallEndEvent endEvent = new CallEndEvent(startEvent,
+					SipServletResponse.SC_BAD_GATEWAY, msg);
+			callEventListener.outgoingCallFailed(endEvent);
+		}
 	}
 }

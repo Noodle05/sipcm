@@ -127,8 +127,8 @@ public class DelegatedServlet extends B2bServlet {
 			logger.trace("Sending forked request: {}", forkedRequest);
 		}
 		forkedRequest.send();
-		if (logger.isInfoEnabled()) {
-			logger.info(
+		if (logger.isDebugEnabled()) {
+			logger.debug(
 					"{} is calling {} by {}.",
 					new Object[] {
 							account.getOwner().getDisplayName(),

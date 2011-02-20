@@ -28,6 +28,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import com.sipcm.sip.business.UserVoipAccountService;
+import com.sipcm.sip.locationservice.UserBindingInfo;
 import com.sipcm.sip.model.AddressBinding;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
@@ -282,12 +283,16 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	 * @see com.sipcm.sip.vendor.VoipVendorContext#isLocalUser(java.lang.String)
 	 */
 	@Override
-	public Collection<AddressBinding> isLocalUser(String toUser) {
+	public UserBindingInfo isLocalUser(String toUser) {
 		UserVoipAccount account = userVoipAccountService
 				.getUserVoipAccountByVendorAndAccount(voipVendor, toUser);
 		if (account != null) {
 			UserSipProfile profile = account.getOwner();
-			return locationService.getUserBinding(profile);
+			Collection<AddressBinding> abs = locationService
+					.getUserBinding(profile);
+			if (abs != null && !abs.isEmpty()) {
+				return new UserBindingInfo(account, abs);
+			}
 		}
 		return null;
 	}

@@ -26,8 +26,8 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.MapMaker;
 import com.sipcm.sip.business.AddressBindingService;
 import com.sipcm.sip.business.UserSipProfileService;
+import com.sipcm.sip.events.RegistrationEvent;
 import com.sipcm.sip.events.RegistrationEventListener;
-import com.sipcm.sip.events.RegistrationEventObject;
 import com.sipcm.sip.model.AddressBinding;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.PhoneNumberUtil;
@@ -37,7 +37,7 @@ import com.sipcm.sip.util.SipUtil;
  * @author wgao
  * 
  */
-@Component("sipLocationService")
+@Component("sip.LocationService")
 public class LocationServiceImpl implements LocationService {
 	public static final Logger logger = LoggerFactory
 			.getLogger(LocationServiceImpl.class);
@@ -57,7 +57,7 @@ public class LocationServiceImpl implements LocationService {
 	@Resource(name = "userSipProfileService")
 	private UserSipProfileService userSipProfileService;
 
-	@Resource(name = "Sip.RegistrationEventListener")
+	@Resource(name = "sip.RegistrationEventListener")
 	private RegistrationEventListener listener;
 
 	@PostConstruct
@@ -78,7 +78,7 @@ public class LocationServiceImpl implements LocationService {
 	public void removeAllBinding(UserSipProfile userSipProfile) {
 		cache.remove(userSipProfile);
 		addressBindingService.removeByUserSipProfile(userSipProfile);
-		listener.userUnregistered(new RegistrationEventObject(userSipProfile));
+		listener.userUnregistered(new RegistrationEvent(userSipProfile));
 	}
 
 	/*
@@ -112,7 +112,7 @@ public class LocationServiceImpl implements LocationService {
 					addressBindingService.removeBinding(addressBinding,
 							userSipProfile, true);
 					cache.remove(userSipProfile);
-					listener.userUnregistered(new RegistrationEventObject(
+					listener.userUnregistered(new RegistrationEvent(
 							userSipProfile));
 				} else {
 					addressBindingService.removeBinding(addressBinding,
@@ -156,7 +156,7 @@ public class LocationServiceImpl implements LocationService {
 				cache.put(userSipProfile, addresses);
 
 				if (!exists) {
-					listener.userRegistered(new RegistrationEventObject(
+					listener.userRegistered(new RegistrationEvent(
 							userSipProfile));
 				}
 				if (logger.isInfoEnabled()) {
@@ -289,18 +289,13 @@ public class LocationServiceImpl implements LocationService {
 					Long[] ids = uspids.toArray(new Long[uspids.size()]);
 					logger.debug("User expired: {}", Arrays.toString(ids));
 				}
-				Collection<UserSipProfile> uss = new ArrayList<UserSipProfile>(
-						uspids.size());
 				for (Long id : uspids) {
 					UserSipProfile u = userSipProfileService.getEntityById(id);
 					if (u != null) {
-						uss.add(u);
 						cache.remove(u);
+						listener.userUnregistered(new RegistrationEvent(u));
 					}
 				}
-				UserSipProfile[] us = new UserSipProfile[uss.size()];
-				us = uss.toArray(us);
-				listener.userUnregistered(new RegistrationEventObject(us));
 			}
 		} catch (Exception e) {
 			if (logger.isErrorEnabled()) {

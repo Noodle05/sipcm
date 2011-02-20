@@ -21,7 +21,7 @@ import com.sipcm.sip.model.UserSipProfile;
 @Component("userSipProfileServiceEventListener")
 public class UserSipProfileServiceEventListener extends
 		AbstractServiceEventListener<UserSipProfile, Long> {
-	@Resource(name = "sipLocationService")
+	@Resource(name = "sip.LocationService")
 	private LocationService locationService;
 
 	/*

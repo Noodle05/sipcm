@@ -32,35 +32,35 @@ public class CallLog implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
-	public Long id;
+	private Long id;
 
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "user_id")
-	public UserSipProfile user;
+	private UserSipProfile owner;
 
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "voipaccount_id")
-	public UserVoipAccount voipAccount;
+	private UserVoipAccount voipAccount;
 
 	@Enumerated
 	@Column(name = "type", nullable = false)
-	public CallType type;
+	private CallType type;
 
 	@Basic
-	@Column(name = "target", length = 255, nullable = false)
-	public String target;
+	@Column(name = "partner", length = 255, nullable = false)
+	private String partner;
 
 	@Enumerated
 	@Column(name = "status", nullable = false)
-	public CallStatus status;
+	private CallStatus status;
 
 	@Basic
 	@Column(name = "errorcode")
-	public Integer errorCode;
+	private Integer errorCode;
 
 	@Basic
 	@Column(name = "errorMessage", length = 255)
-	public String errorMessage;
+	private String errorMessage;
 
 	@Basic
 	@Column(name = "starttime", nullable = false)
@@ -69,4 +69,124 @@ public class CallLog implements Serializable {
 	@Basic
 	@Column(name = "endtime")
 	public Date endTime;
+
+	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * @param owner
+	 *            the owner to set
+	 */
+	public void setOwner(UserSipProfile owner) {
+		this.owner = owner;
+	}
+
+	/**
+	 * @return the owner
+	 */
+	public UserSipProfile getOwner() {
+		return owner;
+	}
+
+	/**
+	 * @param voipAccount
+	 *            the voipAccount to set
+	 */
+	public void setVoipAccount(UserVoipAccount voipAccount) {
+		this.voipAccount = voipAccount;
+	}
+
+	/**
+	 * @return the voipAccount
+	 */
+	public UserVoipAccount getVoipAccount() {
+		return voipAccount;
+	}
+
+	/**
+	 * @param type
+	 *            the type to set
+	 */
+	public void setType(CallType type) {
+		this.type = type;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public CallType getType() {
+		return type;
+	}
+
+	/**
+	 * @param partner
+	 *            the partner to set
+	 */
+	public void setPartner(String partner) {
+		this.partner = partner;
+	}
+
+	/**
+	 * @return the partner
+	 */
+	public String getPartner() {
+		return partner;
+	}
+
+	/**
+	 * @param status
+	 *            the status to set
+	 */
+	public void setStatus(CallStatus status) {
+		this.status = status;
+	}
+
+	/**
+	 * @return the status
+	 */
+	public CallStatus getStatus() {
+		return status;
+	}
+
+	/**
+	 * @param errorCode
+	 *            the errorCode to set
+	 */
+	public void setErrorCode(Integer errorCode) {
+		this.errorCode = errorCode;
+	}
+
+	/**
+	 * @return the errorCode
+	 */
+	public Integer getErrorCode() {
+		return errorCode;
+	}
+
+	/**
+	 * @param errorMessage
+	 *            the errorMessage to set
+	 */
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+
+	/**
+	 * @return the errorMessage
+	 */
+	public String getErrorMessage() {
+		return errorMessage;
+	}
 }

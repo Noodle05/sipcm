@@ -20,7 +20,7 @@ public class NATKeepAliveTask {
 	// private byte[] buf = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00,
 	// (byte) 0x00 };
 
-	// @Resource(name = "sipLocationService")
+	// @Resource(name = "sip.LocationService")
 	// private LocationService locationService;
 
 	@Scheduled(fixedRate = 30000L)

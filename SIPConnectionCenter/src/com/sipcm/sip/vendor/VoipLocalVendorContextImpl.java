@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import com.sipcm.sip.business.UserSipProfileService;
 import com.sipcm.sip.locationservice.LocationService;
+import com.sipcm.sip.locationservice.UserBindingInfo;
 import com.sipcm.sip.model.AddressBinding;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
@@ -35,7 +36,7 @@ public class VoipLocalVendorContextImpl implements VoipVendorContext {
 	@Resource(name = "userSipProfileService")
 	private UserSipProfileService userSipProfileService;
 
-	@Resource(name = "sipLocationService")
+	@Resource(name = "sip.LocationService")
 	protected LocationService locationService;
 
 	@Resource(name = "voipVendorManager")
@@ -76,11 +77,15 @@ public class VoipLocalVendorContextImpl implements VoipVendorContext {
 	 * @see com.sipcm.sip.vendor.VoipVendorContext#isLocalUser(java.lang.String)
 	 */
 	@Override
-	public Collection<AddressBinding> isLocalUser(String toUser) {
+	public UserBindingInfo isLocalUser(String toUser) {
 		UserSipProfile usp = userSipProfileService
 				.getUserSipProfileByUsername(toUser);
 		if (usp != null) {
-			return locationService.getUserBinding(usp);
+			Collection<AddressBinding> abs = locationService
+					.getUserBinding(usp);
+			if (abs != null && !abs.isEmpty()) {
+				return new UserBindingInfo(null, abs);
+			}
 		}
 		return null;
 	}

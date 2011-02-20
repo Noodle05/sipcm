@@ -10,7 +10,7 @@ import java.util.EventListener;
  * 
  */
 public interface BlockIpEventListener extends EventListener {
-	public void blockIp(BlockIpEventObject event);
+	public void blockIp(BlockIpEvent event);
 
-	public void unblockIp(BlockIpEventObject event);
+	public void unblockIp(BlockIpEvent event);
 }

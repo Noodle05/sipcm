@@ -21,7 +21,7 @@ import com.sipcm.common.model.User;
 @Component("locationServiceUserEventListener")
 public class UserServiceEventListener extends
 		AbstractServiceEventListener<User, Long> {
-	@Resource(name = "sipLocationService")
+	@Resource(name = "sip.LocationService")
 	private LocationService locationService;
 
 	/*

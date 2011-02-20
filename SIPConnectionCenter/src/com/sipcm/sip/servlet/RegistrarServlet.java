@@ -37,7 +37,7 @@ public class RegistrarServlet extends AbstractSipServlet {
 	public static final String SIP_MAX_EXPIRESTIME = "sip.expirestime.max";
 
 	@Autowired
-	@Qualifier("sipLocationService")
+	@Qualifier("sip.LocationService")
 	private LocationService locationService;
 
 	/*

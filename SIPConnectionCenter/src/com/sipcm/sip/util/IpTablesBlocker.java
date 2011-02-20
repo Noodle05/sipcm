@@ -10,8 +10,8 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import com.sipcm.sip.events.BlockIpEvent;
 import com.sipcm.sip.events.BlockIpEventListener;
-import com.sipcm.sip.events.BlockIpEventObject;
 
 /**
  * @author wgao
@@ -32,12 +32,13 @@ public class IpTablesBlocker implements BlockIpEventListener {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.sipcm.sip.nat.BlockEventListener#blockIps(com.sipcm.sip.nat.
-	 * BlockIpEventObject)
+	 * @see
+	 * com.sipcm.sip.events.BlockIpEventListener#blockIp(com.sipcm.sip.events
+	 * .BlockIpEventObject)
 	 */
 	@Override
-	public void blockIp(BlockIpEventObject event) {
-		InetAddress ip = event.getSource();
+	public void blockIp(BlockIpEvent event) {
+		InetAddress ip = event.getIp();
 		if (processor.postBlockRequest(ip)) {
 			processor.process();
 		}
@@ -46,12 +47,13 @@ public class IpTablesBlocker implements BlockIpEventListener {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.sipcm.sip.nat.BlockEventListener#unblockIps(com.sipcm.sip.nat.
-	 * BlockIpEventObject)
+	 * @see
+	 * com.sipcm.sip.events.BlockIpEventListener#unblockIp(com.sipcm.sip.events
+	 * .BlockIpEventObject)
 	 */
 	@Override
-	public void unblockIp(BlockIpEventObject event) {
-		InetAddress ip = event.getSource();
+	public void unblockIp(BlockIpEvent event) {
+		InetAddress ip = event.getIp();
 		if (processor.postUnblockIp(ip)) {
 			processor.process();
 		}

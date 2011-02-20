@@ -10,7 +10,7 @@ import java.util.EventListener;
  * 
  */
 public interface RegistrationEventListener extends EventListener {
-	public void userRegistered(RegistrationEventObject event);
+	public void userRegistered(RegistrationEvent event);
 
-	public void userUnregistered(RegistrationEventObject event);
+	public void userUnregistered(RegistrationEvent event);
 }

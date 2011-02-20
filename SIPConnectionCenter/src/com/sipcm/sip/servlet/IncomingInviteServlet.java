@@ -4,7 +4,6 @@
 package com.sipcm.sip.servlet;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -16,7 +15,8 @@ import javax.servlet.sip.annotation.SipServlet;
 
 import org.springframework.beans.factory.annotation.Configurable;
 
-import com.sipcm.sip.model.AddressBinding;
+import com.sipcm.sip.events.CallStartEvent;
+import com.sipcm.sip.locationservice.UserBindingInfo;
 import com.sipcm.sip.model.UserSipProfile;
 
 /**
@@ -44,15 +44,14 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 		RequestDispatcher dispatcher = null;
 		SipURI fromUri = (SipURI) req.getFrom().getURI();
 		String fromUser = fromUri.getUser();
-		@SuppressWarnings("unchecked")
-		Collection<AddressBinding> bindings = (Collection<AddressBinding>) req
+		UserBindingInfo ubi = (UserBindingInfo) req
 				.getAttribute(TARGET_USERSIPBINDING);
-		if (bindings == null || bindings.isEmpty()) {
+		if (ubi == null) {
 			response(req, SipServletResponse.SC_NOT_FOUND);
 			return;
 		}
 		if (phoneNumberUtil.isValidPhoneNumber(fromUser)) {
-			UserSipProfile userSipProfile = bindings.iterator().next()
+			UserSipProfile userSipProfile = ubi.getBindings().iterator().next()
 					.getUserSipProfile();
 			String appSessionId = (String) getServletContext().getAttribute(
 					generateAppSessionKey(userSipProfile));
@@ -90,6 +89,18 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 				logger.trace("Forward to back-to-back servlet.");
 			}
 			dispatcher = req.getRequestDispatcher("B2bServlet");
+			if (callEventListener != null) {
+				CallStartEvent event;
+				if (ubi.getAccount() != null) {
+					event = new CallStartEvent(ubi.getAccount(), fromUser);
+				} else {
+					UserSipProfile usp = ubi.getBindings().iterator().next()
+							.getUserSipProfile();
+					event = new CallStartEvent(usp, fromUser);
+				}
+				req.getSession().setAttribute(INCOMING_CALL_START, event);
+				callEventListener.incomingCallStart(event);
+			}
 		}
 		dispatcher.forward(req, null);
 	}

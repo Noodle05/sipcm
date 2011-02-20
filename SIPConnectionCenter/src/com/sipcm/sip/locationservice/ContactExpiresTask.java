@@ -27,7 +27,7 @@ public class ContactExpiresTask {
 		running = new AtomicBoolean(false);
 	}
 
-	@Resource(name = "sipLocationService")
+	@Resource(name = "sip.LocationService")
 	private LocationService locationService;
 
 	@Scheduled(fixedRate = 300000L)

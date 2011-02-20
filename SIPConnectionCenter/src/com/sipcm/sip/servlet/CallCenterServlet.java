@@ -7,7 +7,6 @@ import gov.nist.javax.sip.message.SIPRequest;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Collection;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -23,7 +22,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.sip.business.UserSipProfileService;
-import com.sipcm.sip.model.AddressBinding;
+import com.sipcm.sip.locationservice.UserBindingInfo;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.DosProtector;
 import com.sipcm.sip.util.ServerAuthenticationHelper;
@@ -157,9 +156,9 @@ public class CallCenterServlet extends AbstractSipServlet {
 				}
 				req.setAttribute(USER_ATTRIBUTE, userSipProfile);
 			}
-			Collection<AddressBinding> bindings = null;
-			if ((bindings = vendorManager.isLocalUsr(toHost, toUser)) != null) {
-				req.setAttribute(TARGET_USERSIPBINDING, bindings);
+			UserBindingInfo ubi = null;
+			if ((ubi = vendorManager.isLocalUsr(toHost, toUser)) != null) {
+				req.setAttribute(TARGET_USERSIPBINDING, ubi);
 				if (logger.isTraceEnabled()) {
 					logger.trace("This is a incoming invite to local user.");
 				}
@@ -169,8 +168,8 @@ public class CallCenterServlet extends AbstractSipServlet {
 					dispatcher.forward(req, null);
 					return;
 				} else {
-					if (logger.isWarnEnabled()) {
-						logger.warn("Cannot find incoming invite servlet, response server internal error.");
+					if (logger.isErrorEnabled()) {
+						logger.error("Cannot find incoming invite servlet, response server internal error.");
 					}
 					response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 					return;
@@ -187,8 +186,8 @@ public class CallCenterServlet extends AbstractSipServlet {
 					if (dispatcher != null) {
 						dispatcher.forward(req, null);
 					} else {
-						if (logger.isWarnEnabled()) {
-							logger.warn("Cannot find outgoing phone invite servlet, response server internal error.");
+						if (logger.isErrorEnabled()) {
+							logger.error("Cannot find outgoing phone invite servlet, response server internal error.");
 						}
 						response(req,
 								SipServletResponse.SC_SERVER_INTERNAL_ERROR);

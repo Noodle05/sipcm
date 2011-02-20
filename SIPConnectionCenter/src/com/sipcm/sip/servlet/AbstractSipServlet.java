@@ -6,6 +6,7 @@ package com.sipcm.sip.servlet;
 import java.io.IOException;
 import java.util.Arrays;
 
+import javax.annotation.Resource;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.sip.SipFactory;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.sipcm.sip.events.CallEventListener;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.PhoneNumberUtil;
 
@@ -36,12 +38,17 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 
 	public static final String DOMAIN_NAME = "domainname";
 
-	public static final String USER_ATTRIBUTE = "com.sipcm.user";
-	public static final String USER_VOIP_ACCOUNT = "com.sipcm.voip.account";
-	public static final String GV_WAITING_FOR_CALLBACK = "com.sipcm.googlevoice.waiting";
-	public static final String APPLICATION_SESSION_ID = "com.sipcm.appsessionid.";
-	public static final String CALLING_PHONE_NUMBER = "com.sipcm.calling.phonenumber";
-	public static final String TARGET_USERSIPBINDING = "com.sipcm.target.userSipBinding";
+	public static final String USER_ATTRIBUTE = "org.gaofamily.user";
+	public static final String USER_VOIP_ACCOUNT = "org.gaofamily.voip.account";
+	public static final String GV_WAITING_FOR_CALLBACK = "org.gaofamily.googlevoice.waiting";
+	public static final String APPLICATION_SESSION_ID = "org.gaofamily.appsessionid.";
+	public static final String CALLING_PHONE_NUMBER = "org.gaofamily.calling.phonenumber";
+	public static final String TARGET_USERSIPBINDING = "org.gaofamily.target.userSipBinding";
+	public static final String INCOMING_CALL_START = "org.gaofamily.incoming.start.event";
+	public static final String OUTGOING_CALL_START = "org.gaofamily.outgoing.start.event";
+
+	@Resource(name = "sip.CallEventListener")
+	protected CallEventListener callEventListener;
 
 	private static final String[] specialHandleRequest = new String[] {
 			Request.ACK, Request.CANCEL, Request.BYE };

@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.MapMaker;
 import com.sipcm.sip.events.BlockIpEventListener;
-import com.sipcm.sip.events.BlockIpEventObject;
+import com.sipcm.sip.events.BlockIpEvent;
 
 /**
  * @author wgao
@@ -96,7 +96,7 @@ public class DosProtector {
 				if (blockEventListener != null) {
 					try {
 						InetAddress i = InetAddress.getByName(ip);
-						blockEventListener.blockIp(new BlockIpEventObject(i));
+						blockEventListener.blockIp(new BlockIpEvent(i));
 					} catch (Exception e) {
 						if (logger.isWarnEnabled()) {
 							logger.warn(
@@ -116,7 +116,7 @@ public class DosProtector {
 			if (blockEventListener != null) {
 				try {
 					InetAddress i = InetAddress.getByName(ip);
-					blockEventListener.unblockIp(new BlockIpEventObject(i));
+					blockEventListener.unblockIp(new BlockIpEvent(i));
 				} catch (Exception e) {
 					if (logger.isWarnEnabled()) {
 						logger.warn(
@@ -160,7 +160,7 @@ public class DosProtector {
 				if (blockEventListener != null) {
 					try {
 						InetAddress i = InetAddress.getByName(ip);
-						blockEventListener.unblockIp(new BlockIpEventObject(i));
+						blockEventListener.unblockIp(new BlockIpEvent(i));
 					} catch (Exception e) {
 						if (logger.isWarnEnabled()) {
 							logger.warn(

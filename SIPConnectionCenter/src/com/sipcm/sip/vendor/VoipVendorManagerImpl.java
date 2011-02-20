@@ -26,7 +26,7 @@ import org.springframework.web.context.ServletContextAware;
 
 import com.sipcm.sip.business.UserVoipAccountService;
 import com.sipcm.sip.business.VoipVendorService;
-import com.sipcm.sip.model.AddressBinding;
+import com.sipcm.sip.locationservice.UserBindingInfo;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.model.VoipVendor;
@@ -203,7 +203,7 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 	 * java.lang.String)
 	 */
 	@Override
-	public Collection<AddressBinding> isLocalUsr(String toHost, String toUser) {
+	public UserBindingInfo isLocalUsr(String toHost, String toUser) {
 		for (Entry<VoipVendor, VoipVendorContext> entry : voipVendors
 				.entrySet()) {
 			VoipVendor vendor = entry.getKey();
