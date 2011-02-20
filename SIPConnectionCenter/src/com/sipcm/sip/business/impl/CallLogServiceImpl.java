@@ -31,7 +31,6 @@ public class CallLogServiceImpl extends AbstractService<CallLog, Long>
 	@Override
 	@Resource(name = "callLogDAO")
 	public void setDAO(DAO<CallLog, Long> dao) {
-		// TODO Auto-generated method stub
-
+		this.dao = dao;
 	}
 }

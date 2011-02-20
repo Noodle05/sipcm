@@ -14,14 +14,14 @@ PRIMARY KEY (id)) ENGINE=InnoDB;
 CREATE TABLE tbl_calllog (
 id BIGINT NOT NULL AUTO_INCREMENT,
 user_id BIGINT NOT NULL,
-voipaccount_id BIGINT NOT NULL,
+voipaccount_id BIGINT,
 type INTEGER NOT NULL,
-target VARCHAR(255) NOT NULL,
+partner VARCHAR(255) NOT NULL,
 starttime DATETIME NOT NULL,
 status INTEGER NOT NULL,
 endtime DATETIME,
 errorcode INTEGER,
-errorMessage VARCHAR(255),
+errorMessage VARCHAR(2000),
 KEY (user_id, starttime),
 PRIMARY KEY (id)) ENGINE=InnoDB;
 

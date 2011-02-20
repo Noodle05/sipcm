@@ -48,7 +48,7 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 
 	@Basic
 	@Column(name = "name", length = 32, nullable = false)
-	public String name;
+	private String name;
 
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "voipvendor_id")
@@ -108,6 +108,20 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	 */
 	public UserSipProfile getOwner() {
 		return owner;
+	}
+
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
 	}
 
 	/**

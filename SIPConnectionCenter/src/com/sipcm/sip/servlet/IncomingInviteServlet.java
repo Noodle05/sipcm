@@ -91,12 +91,20 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 			dispatcher = req.getRequestDispatcher("B2bServlet");
 			if (callEventListener != null) {
 				CallStartEvent event;
+				String fu = fromUser;
+				if (req.getAttribute(USER_ATTRIBUTE) != null) {
+					fu = ((UserSipProfile) req.getAttribute(USER_ATTRIBUTE))
+							.getPhoneNumber();
+				}
+				if (phoneNumberUtil.isValidPhoneNumber(fu)) {
+					fu = phoneNumberUtil.getCanonicalizedPhoneNumber(fu);
+				}
 				if (ubi.getAccount() != null) {
-					event = new CallStartEvent(ubi.getAccount(), fromUser);
+					event = new CallStartEvent(ubi.getAccount(), fu);
 				} else {
 					UserSipProfile usp = ubi.getBindings().iterator().next()
 							.getUserSipProfile();
-					event = new CallStartEvent(usp, fromUser);
+					event = new CallStartEvent(usp, fu);
 				}
 				req.getSession().setAttribute(INCOMING_CALL_START, event);
 				callEventListener.incomingCallStart(event);

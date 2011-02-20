@@ -38,7 +38,7 @@ public class CallLog implements Serializable {
 	@JoinColumn(name = "user_id")
 	private UserSipProfile owner;
 
-	@ManyToOne(optional = false)
+	@ManyToOne()
 	@JoinColumn(name = "voipaccount_id")
 	private UserVoipAccount voipAccount;
 
@@ -56,19 +56,19 @@ public class CallLog implements Serializable {
 
 	@Basic
 	@Column(name = "errorcode")
-	private Integer errorCode;
+	private int errorCode;
 
 	@Basic
-	@Column(name = "errorMessage", length = 255)
+	@Column(name = "errorMessage", length = 2000)
 	private String errorMessage;
 
 	@Basic
 	@Column(name = "starttime", nullable = false)
-	public Date startTime;
+	private Date startTime;
 
 	@Basic
 	@Column(name = "endtime")
-	public Date endTime;
+	private Date endTime;
 
 	/**
 	 * @param id
@@ -188,5 +188,35 @@ public class CallLog implements Serializable {
 	 */
 	public String getErrorMessage() {
 		return errorMessage;
+	}
+
+	/**
+	 * @param startTime
+	 *            the startTime to set
+	 */
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	/**
+	 * @return the startTime
+	 */
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	/**
+	 * @param endTime
+	 *            the endTime to set
+	 */
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	/**
+	 * @return the endTime
+	 */
+	public Date getEndTime() {
+		return endTime;
 	}
 }
