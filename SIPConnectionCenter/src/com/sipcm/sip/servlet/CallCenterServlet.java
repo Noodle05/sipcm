@@ -195,7 +195,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 					return;
 				} else {
 					if (logger.isWarnEnabled()) {
-						logger.warn("Only authenticated user can call phone number.");
+						logger.warn("Only authenticated user can call phone number, from URI: \"{}\"", fromURI);
 					}
 					response(req, SipServletResponse.SC_BAD_REQUEST);
 					return;
