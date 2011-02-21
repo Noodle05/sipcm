@@ -7,6 +7,7 @@ import gov.nist.javax.sip.message.SIPRequest;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.PostConstruct;
@@ -124,7 +125,6 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 			SipApplicationSession appSession, UserVoipAccount account,
 			int expires) throws ServletParseException {
 		SipFactory sipFactory = voipVendorManager.getSipFactory();
-		String contactHost = voipVendorManager.getContactHost();
 		if (appSession == null) {
 			appSession = sipFactory.createApplicationSession();
 		}
@@ -139,10 +139,7 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 		URI domainURI = sipFactory.createSipURI(null, voipVendor.getDomain());
 		register.setRequestURI(domainURI);
 
-		URI contact = sipFactory
-				.createSipURI(account.getAccount(), contactHost);
-		Address ca = sipFactory.createAddress(contact, account.getOwner()
-				.getDisplayName());
+		Address ca = generateContact(account);
 		ca.setExpires(expires);
 		register.setAddressHeader(ContactHeader.NAME, ca);
 		register.setExpires(expires);
@@ -160,6 +157,16 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 			register.pushRoute(routeAddress);
 		}
 		return register;
+	}
+
+	private Address generateContact(UserVoipAccount account) {
+		SipFactory sipFactory = voipVendorManager.getSipFactory();
+		String contactHost = voipVendorManager.getContactHost();
+		URI contact = sipFactory
+				.createSipURI(account.getAccount(), contactHost);
+		Address ca = sipFactory.createAddress(contact, account.getOwner()
+				.getDisplayName());
+		return ca;
 	}
 
 	/*
@@ -180,11 +187,16 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 				|| resp.getStatus() == SipServletResponse.SC_PROXY_AUTHENTICATION_REQUIRED) {
 			processAuthInfo(resp, account);
 		} else if (resp.getStatus() == SipServletResponse.SC_OK) {
+			Address ca = generateContact(account);
+			ca.setExpires(0);
 			int e = resp.getExpires();
-			String ch = resp.getHeader(ContactHeader.NAME);
-			if (ch != null) {
-				Address a = voipVendorManager.getSipFactory().createAddress(ch);
-				if (a.getExpires() > 0) {
+			Iterator<String> ite = resp.getHeaders(ContactHeader.NAME);
+			while (ite.hasNext()) {
+				String c = ite.next();
+				Address a = voipVendorManager.getSipFactory().createAddress(c);
+				Address b = (Address) a.clone();
+				b.setExpires(0);
+				if (b.equals(ca)) {
 					e = a.getExpires();
 				}
 			}
