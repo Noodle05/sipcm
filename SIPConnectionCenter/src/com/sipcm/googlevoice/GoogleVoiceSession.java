@@ -60,6 +60,7 @@ public class GoogleVoiceSession implements Serializable {
 	private static final String continueUrl = "https://www.google.com/voice/account/signin";
 	private static final String callUrl = "https://www.google.com/voice/call/connect/";
 	private static final String cancelUrl = "https://www.google.com/voice/call/cancel/";
+	private static final String logoutUrl = "https://www.google.com/accounts/Logout";
 
 	private static Pattern galxPattern = Pattern.compile(
 			".*name=\"GALX\"\\s*value=\"([^\"]*)\".*", Pattern.DOTALL
@@ -84,6 +85,7 @@ public class GoogleVoiceSession implements Serializable {
 	private String rnrSe;
 	private int maxRetry = 1;
 	private volatile boolean cancelCall;
+	private volatile boolean loggedIn;
 
 	@Resource(name = "googleVoiceManager")
 	private GoogleVoiceManager manager;
@@ -159,6 +161,7 @@ public class GoogleVoiceSession implements Serializable {
 			response = httpClient.execute(request);
 		}
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+			loggedIn = true;
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					response.getEntity().getContent()));
 			try {
@@ -170,10 +173,14 @@ public class GoogleVoiceSession implements Serializable {
 						break;
 					}
 				}
+			} catch (IOException e) {
+				logout();
+				throw e;
 			} finally {
 				reader.close();
 			}
 			if (rnrSe == null) {
+				logout();
 				if (logger.isDebugEnabled()) {
 					logger.debug("Cannot find rnr.");
 				}
@@ -190,6 +197,23 @@ public class GoogleVoiceSession implements Serializable {
 			}
 			throw new HttpResponseException(response.getStatusLine()
 					.getStatusCode(), "Error happened during login.");
+		}
+	}
+
+	public void logout() {
+		if (loggedIn) {
+			try {
+				HttpGet callGet = new HttpGet(logoutUrl);
+				httpClient.execute(callGet);
+			} catch (Exception e) {
+				if (logger.isWarnEnabled()) {
+					logger.warn(
+							"Error happened when try to logout, will ignore it.",
+							e);
+				}
+			} finally {
+				loggedIn = false;
+			}
 		}
 	}
 

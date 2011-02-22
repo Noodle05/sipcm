@@ -141,7 +141,12 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				logger.trace("Removing google voice callback number and google voice session from applciation.");
 			}
 			appSession.removeAttribute(GV_WAITING_FOR_CALLBACK);
+			GoogleVoiceSession gvSession = (GoogleVoiceSession) appSession
+					.getAttribute(GV_SESSION);
 			appSession.removeAttribute(GV_SESSION);
+			if (gvSession != null) {
+				gvSession.logout();
+			}
 			if (logger.isTraceEnabled()) {
 				logger.trace("Removing google voice timeout timer.");
 			}
@@ -230,6 +235,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				response(req, SipServletResponse.SC_DECLINE,
 						"Google voice call failed.");
 				callFailed(req.getSession(), "Google voice call failed.");
+				gvSession.logout();
 				return;
 			}
 		} catch (Exception e) {
@@ -243,6 +249,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 			}
 			response(req, SipServletResponse.SC_BAD_GATEWAY);
 			callFailed(req.getSession(), e);
+			gvSession.logout();
 			return;
 		}
 	}
@@ -364,6 +371,8 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 								if (logger.isWarnEnabled()) {
 									logger.warn("Unable to cancel google voice call.");
 								}
+							} finally {
+								gvSession.logout();
 							}
 						}
 						if (callEventListener != null) {
@@ -427,14 +436,14 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 		String appSessionIdKey = generateAppSessionKey(userSipProfile);
 		getServletContext().removeAttribute(appSessionIdKey);
 		SipApplicationSession appSession = timer.getApplicationSession();
-		GoogleVoiceSession gv = (GoogleVoiceSession) appSession
+		GoogleVoiceSession gvSession = (GoogleVoiceSession) appSession
 				.getAttribute(GV_SESSION);
-		if (gv != null) {
+		if (gvSession != null) {
 			try {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Cancelling google voice call.");
 				}
-				gv.cancel();
+				gvSession.cancel();
 				if (logger.isTraceEnabled()) {
 					logger.trace("Google voice call canceled.");
 				}
@@ -443,6 +452,8 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 					logger.warn(
 							"Error happened when cancel google voice call.", e);
 				}
+			} finally {
+				gvSession.logout();
 			}
 		}
 		if (State.INITIAL.equals(req.getSession().getState())
