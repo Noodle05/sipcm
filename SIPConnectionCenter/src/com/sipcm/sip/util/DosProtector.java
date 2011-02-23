@@ -68,7 +68,7 @@ public class DosProtector {
 		return false;
 	}
 
-	public void countAuthFailure(SipServletRequest request) {
+	public void countAttack(SipServletRequest request) {
 		String ip = request.getInitialRemoteAddr();
 		if (blockList.containsKey(ip)) {
 			return;

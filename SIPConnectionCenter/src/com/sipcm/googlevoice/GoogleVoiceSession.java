@@ -28,7 +28,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
@@ -174,10 +173,31 @@ public class GoogleVoiceSession implements Serializable {
 					}
 				}
 			} catch (IOException e) {
-				logout();
+				try {
+					reader.close();
+				} catch (IOException ee) {
+					if (logger.isWarnEnabled()) {
+						logger.warn(
+								"Error happened when close reader during IO exception handling, ignore it.",
+								ee);
+					}
+				} finally {
+					reader = null;
+					logout();
+				}
 				throw e;
 			} finally {
-				reader.close();
+				if (reader != null) {
+					try {
+						reader.close();
+					} catch (IOException e) {
+						if (logger.isWarnEnabled()) {
+							logger.warn(
+									"Error happened when close reader, ignore it.",
+									e);
+						}
+					}
+				}
 			}
 			if (rnrSe == null) {
 				logout();
@@ -190,13 +210,16 @@ public class GoogleVoiceSession implements Serializable {
 				logger.trace("Find rnr: {}", rnrSe);
 			}
 		} else {
+			String error = response.getEntity() == null ? null : EntityUtils
+					.toString(response.getEntity());
 			request.abort();
 			if (logger.isDebugEnabled()) {
 				logger.debug("Login page return error {}", response
 						.getStatusLine().getStatusCode());
 			}
 			throw new HttpResponseException(response.getStatusLine()
-					.getStatusCode(), "Error happened during login.");
+					.getStatusCode(), error == null ? "No content in page"
+					: error);
 		}
 	}
 
@@ -212,6 +235,7 @@ public class GoogleVoiceSession implements Serializable {
 							e);
 				}
 			} finally {
+				rnrSe = null;
 				loggedIn = false;
 			}
 		}
@@ -265,7 +289,7 @@ public class GoogleVoiceSession implements Serializable {
 		return callMethod(callPost, 0);
 	}
 
-	private boolean callMethod(HttpUriRequest request, int retry)
+	private boolean callMethod(HttpPost request, int retry)
 			throws ClientProtocolException, IOException, HttpResponseException,
 			AuthenticationException {
 		HttpResponse response = httpClient.execute(request);
