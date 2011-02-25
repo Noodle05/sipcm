@@ -215,6 +215,13 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.web.context.ServletContextAware#setServletContext
+	 * (javax.servlet.ServletContext)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setServletContext(ServletContext servletContext) {
@@ -231,6 +238,12 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.vendor.VoipVendorManager#setListeningAddress(java.net.
+	 * InetAddress, int)
+	 */
 	@Override
 	public void setListeningAddress(InetAddress listeningIp, int listeningPort) {
 		if (publicIpAddressHolder.getPublicIp() != null) {

@@ -96,6 +96,16 @@
 			conf="provided->default;foride->sources,javadoc">
 			<exclude module="log4j" />
 		</dependency>
+		<dependency org="net.sf.json-lib" name="json-lib" rev="2.4"
+			conf="compile->default">
+			<artifact name="json-lib" type="jar"
+				url="http://repo2.maven.org/maven2/net/sf/json-lib/json-lib/2.3/json-lib-2.4-jdk15.jar"
+				conf="compile->default;foride->sources,javadoc" />
+			<exclude module="commons-beanutils" />
+			<exclude module="commons-logging" />
+		</dependency>
+		<dependency org="net.sf.ezmorph" name="ezmorph" rev="1.0.6"
+			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-aop"
 			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-aspects"
@@ -124,10 +134,8 @@
 			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-test"
 			rev="3.0.5.RELEASE" conf="test->default;foride->sources,javadoc" />
-		<!-- dependency org="org.quartz-scheduler" name="quartz" rev="1.8.4"
-			conf="runtime->default;foride->sources,javadoc">
-			<exclude module="slf4j-api" />
-		</dependency -->
+		<!-- dependency org="org.quartz-scheduler" name="quartz" rev="1.8.4" conf="runtime->default;foride->sources,javadoc"> 
+			<exclude module="slf4j-api" /> </dependency -->
 		<dependency org="org.mobicents.servlet.sip" name="sip-servlets-impl"
 			rev="1.5.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="javax.servlet" name="servlet-api" rev="2.5"
@@ -162,8 +170,8 @@
 			rev="1.1.1-GA-Patch01" conf="compile->default;foride->sources,javadoc">
 			<exclude module="servlet-api" />
 		</dependency>
-		<!-- dependency org="net.schmizz" name="sshj" rev="0.3.0"
-			conf="compile->default;foride->sources,javadoc" / -->
+		<!-- dependency org="net.schmizz" name="sshj" rev="0.3.0" conf="compile->default;foride->sources,javadoc" 
+			/ -->
 		<dependency org="com.jcraft" name="jsch" rev="0.1.42"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="junit" name="junit" rev="4.8.1"

@@ -8,6 +8,7 @@ import gov.nist.javax.sip.message.SIPRequest;
 import java.io.IOException;
 import java.security.Principal;
 
+import javax.annotation.Resource;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.sip.SipServletRequest;
@@ -16,10 +17,6 @@ import javax.servlet.sip.SipSession;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.sip.business.UserSipProfileService;
 import com.sipcm.sip.locationservice.UserBindingInfo;
@@ -32,26 +29,34 @@ import com.sipcm.sip.vendor.VoipVendorManager;
  * @author wgao
  * 
  */
-@Configurable
 @SipServlet(name = "CallCenterServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
 public class CallCenterServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = -4659953196279153841L;
 
-	@Autowired
-	@Qualifier("serverAuthenticationHelper")
+	@Resource(name = "serverAuthenticationHelper")
 	private ServerAuthenticationHelper authenticationHelper;
 
-	@Autowired
-	@Qualifier("userSipProfileService")
+	@Resource(name = "userSipProfileService")
 	private UserSipProfileService userSipProfileService;
 
-	@Autowired
-	@Qualifier("sip.DosProtector")
+	@Resource(name = "sip.DosProtector")
 	private DosProtector dosProtector;
 
-	@Autowired
-	@Qualifier("voipVendorManager")
+	@Resource(name = "voipVendorManager")
 	private VoipVendorManager vendorManager;
+
+	// @Override
+	// public void init() throws ServletException {
+	// super.init();
+	// authenticationHelper = (ServerAuthenticationHelper) getServletContext()
+	// .getAttribute("serverAuthenticationHelper");
+	// userSipProfileService = (UserSipProfileService) getServletContext()
+	// .getAttribute("userSipProfileService");
+	// dosProtector = (DosProtector) getServletContext().getAttribute(
+	// "sip.DosProtector");
+	// vendorManager = (VoipVendorManager) getServletContext().getAttribute(
+	// "voipVendorManager");
+	// }
 
 	@Override
 	protected void doResponse(javax.servlet.sip.SipServletResponse resp)
@@ -195,7 +200,9 @@ public class CallCenterServlet extends AbstractSipServlet {
 					return;
 				} else {
 					if (logger.isWarnEnabled()) {
-						logger.warn("Only authenticated user can call phone number, from URI: \"{}\"", fromURI);
+						logger.warn(
+								"Only authenticated user can call phone number, from URI: \"{}\"",
+								fromURI);
 					}
 					response(req, SipServletResponse.SC_BAD_REQUEST);
 					dosProtector.countAttack(req);

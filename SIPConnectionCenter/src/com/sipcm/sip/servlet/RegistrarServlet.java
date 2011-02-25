@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
 import javax.servlet.sip.SipServletRequest;
@@ -17,10 +18,6 @@ import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
 import javax.sip.header.ContactHeader;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import com.sipcm.sip.locationservice.LocationService;
 import com.sipcm.sip.model.UserSipProfile;
 
@@ -28,7 +25,6 @@ import com.sipcm.sip.model.UserSipProfile;
  * @author wgao
  * 
  */
-@Configurable
 @SipServlet(name = "RegistrarServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
 public class RegistrarServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = 2954502051478832933L;
@@ -36,9 +32,15 @@ public class RegistrarServlet extends AbstractSipServlet {
 	public static final String SIP_MIN_EXPIRESTIME = "sip.expirestime.min";
 	public static final String SIP_MAX_EXPIRESTIME = "sip.expirestime.max";
 
-	@Autowired
-	@Qualifier("sip.LocationService")
+	@Resource(name = "sip.LocationService")
 	private LocationService locationService;
+
+	// @Override
+	// public void init() throws ServletException {
+	// super.init();
+	// locationService = (LocationService) getServletContext().getAttribute(
+	// "sip.LocationService");
+	// }
 
 	/*
 	 * (non-Javadoc)

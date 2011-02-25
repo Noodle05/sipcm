@@ -1,12 +1,39 @@
 @CHARSET "UTF-8";
 
 body {
+	margin-top: 40px;
 	border: 0px;
 	text-align: center;
+	border: 0px;
 }
 
 div#bodyContainer {
 	text-align: left;
 	margin: 0 auto;
 	width: 800px;
+}
+
+div#headerContainer {
+	width: 100%;
+	font-size: 36px;
+	line-height: 48px;
+	background-color: navy;
+	color: white;
+	text-align: center;
+}
+
+div#footerContainer {
+	width: 100%;
+	font-size: 14px;
+	background-color: navy;
+	width: 100%;
+	color: white;
+}
+
+.error {
+	color: red;
+}
+
+.submit {
+	align: center;
 }

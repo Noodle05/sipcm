@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
 import javax.servlet.sip.B2buaHelper;
@@ -29,9 +30,6 @@ import javax.sip.header.ContactHeader;
 import org.mobicents.servlet.sip.core.session.MobicentsSipSession;
 import org.mobicents.servlet.sip.message.B2buaHelperImpl;
 import org.mobicents.servlet.sip.message.SipServletRequestImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.googlevoice.GoogleVoiceManager;
 import com.sipcm.googlevoice.GoogleVoiceSession;
@@ -45,7 +43,6 @@ import com.sipcm.sip.util.GvB2buaHelperImpl;
  * @author wgao
  * 
  */
-@Configurable
 @SipServlet(name = "GoogleVoiceServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
 @SipListener
 public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
@@ -56,9 +53,15 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 	public static final String ORIGINAL_REQUEST = "com.sipcm.originalRequest";
 	public static final String GV_TIMEOUT = "com.sipcm.googlevoice.timeout";
 
-	@Autowired
-	@Qualifier("googleVoiceManager")
+	@Resource(name = "googleVoiceManager")
 	private GoogleVoiceManager googleVoiceManager;
+
+	// @Override
+	// public void init() throws ServletException {
+	// super.init();
+	// googleVoiceManager = (GoogleVoiceManager) getServletContext()
+	// .getAttribute("googleVoiceManager");
+	// }
 
 	/*
 	 * (non-Javadoc)

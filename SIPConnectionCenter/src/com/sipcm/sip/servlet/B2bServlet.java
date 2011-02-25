@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
 import javax.servlet.sip.B2buaHelper;
@@ -26,10 +27,6 @@ import javax.servlet.sip.annotation.SipServlet;
 import javax.sip.header.FromHeader;
 import javax.sip.message.Request;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import com.sipcm.common.PhoneNumberStatus;
 import com.sipcm.sip.events.CallEndEvent;
 import com.sipcm.sip.events.CallStartEvent;
@@ -42,7 +39,6 @@ import com.sipcm.sip.util.SipUtil;
  * @author wgao
  * 
  */
-@Configurable
 @SipServlet(name = "B2bServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
 public class B2bServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = -7798141358134636972L;
@@ -50,9 +46,14 @@ public class B2bServlet extends AbstractSipServlet {
 	public static final String LINKED_SESSION_STATUS = "com.sipcm.linkedSessionStatus";
 	public static final String REMOTE_URI = "com.sipcm.remote.uri";
 
-	@Autowired
-	@Qualifier("sipUtil")
+	@Resource(name = "sipUtil")
 	protected SipUtil sipUtil;
+
+	// @Override
+	// public void init() throws ServletException {
+	// super.init();
+	// sipUtil = (SipUtil) getServletContext().getAttribute("sipUtil");
+	// }
 
 	@Override
 	protected void doRequest(SipServletRequest req) throws ServletException,

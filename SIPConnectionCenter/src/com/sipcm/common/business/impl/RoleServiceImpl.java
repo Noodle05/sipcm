@@ -6,6 +6,7 @@ package com.sipcm.common.business.impl;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
@@ -26,6 +27,13 @@ public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 		RoleService {
 	private ConcurrentMap<String, Role> cache;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.base.business.impl.AbstractService#init()
+	 */
+	@Override
+	@PostConstruct
 	public void init() {
 		super.init();
 		cache = new MapMaker().concurrencyLevel(2).softValues()

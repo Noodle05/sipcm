@@ -48,7 +48,7 @@ public class UserSipProfileServiceImpl extends
 	 * @see com.sipcm.base.business.Service#createNewEntity()
 	 */
 	@Override
-	@Transactional(propagation = Propagation.SUPPORTS)
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public UserSipProfile createNewEntity() {
 		UserSipProfile entity = super.createNewEntity();
 		entity.setSipStatus(OnlineStatus.OFFLINE);
@@ -65,7 +65,7 @@ public class UserSipProfileServiceImpl extends
 	 * .sipcm.common.model.User)
 	 */
 	@Override
-	@Transactional(propagation = Propagation.SUPPORTS)
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public UserSipProfile createUserSipProfile(User user) {
 		UserSipProfile userSipProfile = createNewEntity();
 		userSipProfile.setOwner(user);

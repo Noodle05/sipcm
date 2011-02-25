@@ -12,7 +12,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.sipcm.base.dao.hibernate.AbstractDAO;
 import com.sipcm.common.OnlineStatus;
@@ -23,7 +23,7 @@ import com.sipcm.sip.model.UserSipProfile;
  * @author wgao
  * 
  */
-@Component("userSipProfileDAO")
+@Repository("userSipProfileDAO")
 public class UserSipProfileDAOImpl extends AbstractDAO<UserSipProfile, Long>
 		implements UserSipProfileDAO {
 	/*

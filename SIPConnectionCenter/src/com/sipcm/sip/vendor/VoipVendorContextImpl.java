@@ -194,10 +194,11 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 			while (ite.hasNext()) {
 				String c = ite.next();
 				Address a = voipVendorManager.getSipFactory().createAddress(c);
-				Address b = (Address) a.clone();
-				b.setExpires(0);
-				if (b.equals(ca)) {
-					e = a.getExpires();
+				int b = a.getExpires();
+				a.setExpires(0);
+				if (ca.equals(a)) {
+					e = b;
+					break;
 				}
 			}
 			if (e <= 0) {

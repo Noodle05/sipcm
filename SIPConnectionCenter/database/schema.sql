@@ -76,11 +76,19 @@ first_name VARCHAR(64) NOT NULL,
 last_name VARCHAR(64) NOT NULL,
 middle_name VARCHAR(64),
 password CHAR(32),
+locale VARCHAR(16),
+time_zone VARCHAR(64),
 status INTEGER NOT NULL,
 username VARCHAR(32) NOT NULL,
 PRIMARY KEY (id),
 UNIQUE (username, deletedate),
 UNIQUE (email, deletedate)) ENGINE=InnoDB;
+
+CREATE TABLE tbl_useractivation (
+id BIGINT NOT NULL UNIQUE,
+active_code VARCHAR(32) NOT NULL,
+expire_date DATETIME NOT NULL,
+PRIMARY KEY (id)) ENGINE=InnoDB;
 
 CREATE TABLE tbl_userrole (
 user_id BIGINT NOT NULL,
@@ -148,6 +156,10 @@ ADD CONSTRAINT FK_CALLLOG_VOIPACCOUNT FOREIGN KEY (voipaccount_id) REFERENCES tb
 ALTER TABLE tbl_sipaddressbinding
 ADD INDEX FK_SIPADDRESSBINDING_USERSIPPROFILE (user_id),
 ADD CONSTRAINT FK_SIPADDRESSBINDING_USERSIPPROFILE FOREIGN KEY (user_id) REFERENCES tbl_usersipprofile (id);
+
+ALTER TABLE tbl_useractivation
+ADD INDEX FK_USERACTIVATION_USER (id),
+ADD CONSTRAINT FK_USERACTIVATION_USER FOREIGN KEY (id) REFERENCES tbl_user (id);
 
 ALTER TABLE tbl_userrole
 ADD INDEX FK_USERROLE_ROLE (role_id),

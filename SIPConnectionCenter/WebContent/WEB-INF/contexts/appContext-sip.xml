@@ -34,4 +34,29 @@
 			</util:list>
 		</property>
 	</bean>
+
+	<!-- Define ServletContextAttributeExporter to make spring beans available 
+		to servlet context, so they can inject by @Resource annontation, this will 
+		avoid to use load time weaver, and @PostConstruct invoke twice -->
+	<bean
+		class="org.springframework.web.context.support.ServletContextAttributeExporter">
+		<property name="attributes">
+			<util:map>
+				<entry key="sip.CallEventListener" value-ref="sip.CallEventListener" />
+				<entry key="phoneNumberUtil" value-ref="phoneNumberUtil" />
+				<entry key="applicationConfiguration" value-ref="applicationConfiguration" />
+				<entry key="sipUtil" value-ref="sipUtil" />
+				<entry key="serverAuthenticationHelper" value-ref="serverAuthenticationHelper" />
+				<entry key="userSipProfileService" value-ref="userSipProfileService" />
+				<entry key="sip.DosProtector" value-ref="sip.DosProtector" />
+				<entry key="voipVendorManager" value-ref="voipVendorManager" />
+				<entry key="googleVoiceManager" value-ref="googleVoiceManager" />
+				<entry key="dialplanExecutor" value-ref="dialplanExecutor" />
+				<entry key="sip.LocationService" value-ref="sip.LocationService" />
+				<entry key="mapHolderBean" value-ref="mapHolderBean" />
+				<entry key="userService" value-ref="userService" />
+				<entry key="roleService" value-ref="roleService" />
+			</util:map>
+		</property>
+	</bean>
 </beans>

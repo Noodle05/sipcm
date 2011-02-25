@@ -7,16 +7,12 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.annotation.SipServlet;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.sip.VoipVendorType;
 import com.sipcm.sip.dialplan.DialplanExecutor;
@@ -32,27 +28,31 @@ import com.sipcm.sip.util.MapHolderBean;
  * @author wgao
  * 
  */
-@Configurable
 @SipServlet(name = "OutgoingPhoneInviteServlet", applicationName = "org.gaofamily.CallCenter", loadOnStartup = 1)
 public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = 7063054667574623307L;
 
-	@Autowired
-	@Qualifier("dialplanExecutor")
+	@Resource(name = "dialplanExecutor")
 	private DialplanExecutor dialplanExecutor;
 
-	@Autowired
-	@Qualifier("sip.LocationService")
+	@Resource(name = "sip.LocationService")
 	private LocationService locationService;
+
+	@Resource(name = "mapHolderBean")
+	private MapHolderBean mapHolderBean;
 
 	private Map<VoipVendorType, String> voipVendorToServletMap;
 
-	@Autowired
-	@Qualifier("mapHolderBean")
-	private MapHolderBean mapHolderBean;
-
-	@PostConstruct
-	public void springInit() {
+	@Override
+	public void init() throws ServletException {
+		super.init();
+		// dialplanExecutor = (DialplanExecutor)
+		// getServletContext().getAttribute(
+		// "dialplanExecutor");
+		// locationService = (LocationService) getServletContext().getAttribute(
+		// "sip.LocationService");
+		// mapHolderBean = (MapHolderBean) getServletContext().getAttribute(
+		// "mapHolderBean");
 		voipVendorToServletMap = mapHolderBean.getVoipVendorToServletMap();
 	}
 

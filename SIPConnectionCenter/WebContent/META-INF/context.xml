@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context antiResourceLocking="false" privileged="true"
 	className="org.mobicents.servlet.sip.startup.SipStandardContext">
-	<Loader
-		loaderClass="org.springframework.instrument.classloading.tomcat.TomcatInstrumentableClassLoader"
-		useSystemClassLoaderAsParent="false" />
-	<ResourceLink name="mail/Session" global="mail/Session" type="javax.mail.Session" />
-	<ResourceLink name="jdbc/sipcmDS" global="jdbc/sipcmDS" type="javax.sql.DataSource" />
+	<ResourceLink name="mail/Session" global="mail/Session"
+		type="javax.mail.Session" />
+	<ResourceLink name="jdbc/sipcmDS" global="jdbc/sipcmDS"
+		type="javax.sql.DataSource" />
 	<Manager className="org.mobicents.servlet.sip.core.session.SipStandardManager" />
 </Context>

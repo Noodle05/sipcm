@@ -20,9 +20,6 @@ import javax.sip.message.Request;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.sipcm.sip.events.CallEventListener;
 import com.sipcm.sip.model.UserSipProfile;
@@ -32,7 +29,6 @@ import com.sipcm.sip.util.PhoneNumberUtil;
  * @author wgao
  * 
  */
-@Configurable
 public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 	private static final long serialVersionUID = -2473822499443253930L;
 
@@ -47,9 +43,6 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 	public static final String INCOMING_CALL_START = "org.gaofamily.incoming.start.event";
 	public static final String OUTGOING_CALL_START = "org.gaofamily.outgoing.start.event";
 
-	@Resource(name = "sip.CallEventListener")
-	protected CallEventListener callEventListener;
-
 	private static final String[] specialHandleRequest = new String[] {
 			Request.ACK, Request.CANCEL, Request.BYE };
 	static {
@@ -58,18 +51,22 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
+	@Resource(name = "sip.CallEventListener")
+	protected CallEventListener callEventListener;
+
+	@Resource(name = "javax.servlet.sip.SipFactory")
 	protected SipFactory sipFactory;
 
+	@Resource(name = "javax.servlet.sip.SipSessionsUtil")
 	protected SipSessionsUtil sipSessionsUtil;
 
+	@Resource(name = "javax.servlet.sip.TimerService")
 	protected TimerService timeService;
 
-	@Autowired
-	@Qualifier("phoneNumberUtil")
+	@Resource(name = "phoneNumberUtil")
 	protected PhoneNumberUtil phoneNumberUtil;
 
-	@Autowired
-	@Qualifier("applicationConfiguration")
+	@Resource(name = "applicationConfiguration")
 	protected Configuration appConfig;
 
 	@Override
@@ -78,15 +75,13 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 		if (logger.isInfoEnabled()) {
 			logger.info(getServletName() + " has been started");
 		}
-		sipFactory = (SipFactory) getServletContext().getAttribute(SIP_FACTORY);
-		sipSessionsUtil = (SipSessionsUtil) getServletContext().getAttribute(
-				SIP_SESSIONS_UTIL);
-		timeService = (TimerService) getServletContext().getAttribute(
-				TIMER_SERVICE);
-		if (logger.isInfoEnabled()) {
-			logger.info("Sip Factory ref from JNDI : " + sipFactory
-					+ ", Sip Sessions Util ref from JNDI : " + sipSessionsUtil);
-		}
+		// Inject spring beans
+		// callEventListener = (CallEventListener) getServletContext()
+		// .getAttribute("sip.CallEventListener");
+		// phoneNumberUtil = (PhoneNumberUtil) getServletContext().getAttribute(
+		// "phoneNumberUtil");
+		// appConfig = (Configuration) getServletContext().getAttribute(
+		// "applicationConfiguration");
 	}
 
 	protected String getDomain() {

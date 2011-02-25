@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -17,9 +19,11 @@ import javax.faces.validator.ValidatorException;
 
 import nl.captcha.Captcha;
 
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.apache.commons.configuration.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.sipcm.common.AccountStatus;
 import com.sipcm.common.business.RoleService;
 import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.Role;
@@ -29,14 +33,24 @@ import com.sipcm.common.model.User;
  * @author wgao
  * 
  */
-@Component("registrationBean")
-@Scope("request")
+@ManagedBean(name = "registrationBean")
+@SessionScoped
 public class RegistrationBean {
+	private static final Logger logger = LoggerFactory
+			.getLogger(RegistrationBean.class);
+
+	public static final String USERNAME_PATTERN = "register.username.pattern";
+	public static final String EMAIL_PATTERN = "register.email.pattern";
+	public static final String ACTIVE_METHOD = "register.active.method";
+
 	@Resource(name = "userService")
 	private UserService userService;
 
 	@Resource(name = "roleService")
 	private RoleService roleService;
+
+	@Resource(name = "applicationConfiguration")
+	private Configuration appConfig;
 
 	private String username;
 
@@ -54,9 +68,18 @@ public class RegistrationBean {
 
 	private ResourceBundle resource;
 
+	private Pattern usernamePattern;
+
+	private Pattern emailPattern;
+
 	@PostConstruct
 	public void init() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("A new instance of Registration bean been created.");
+		}
 		resource = ResourceBundle.getBundle("messages.CallerPages");
+		usernamePattern = Pattern.compile(getUsernamePattern());
+		emailPattern = Pattern.compile(getEmailPattern());
 	}
 
 	public String register() {
@@ -70,18 +93,31 @@ public class RegistrationBean {
 		user.setMiddleName(middleName);
 		user.setLastName(lastName);
 		user.setDisplayName(displayName);
-//		Role callerRole = roleService.getCallerRole();
-//		user.addRole(callerRole);
+		if (ActiveMethod.NONE.equals(getActiveMethod())) {
+			user.setStatus(AccountStatus.ACTIVE);
+		}
+		Role callerRole = roleService.getCallerRole();
+		user.addRole(callerRole);
 		userService.setPassword(user, password);
 		userService.saveEntity(user);
+		switch (getActiveMethod()) {
+		case SELF:
+			selfActive(user);
+			break;
+		case ADMIN:
+			adminActive(user);
+			break;
+		default:
+			break;
+		}
 		result = "RegisterSuccess";
 		return result;
 	}
 
 	public void validateUsername(FacesContext context,
 			UIComponent componentToValidate, Object value) {
-		String username = (String) value;
-		if (!Pattern.matches("^\\p{Alpha}[\\w|\\.]{5,31}$", username)) {
+		String username = ((String) value).trim();
+		if (!usernamePattern.matcher(username).matches()) {
 			FacesMessage message = new FacesMessage(
 					resource.getString("register.error.username.pattern"));
 			throw new ValidatorException(message);
@@ -96,8 +132,8 @@ public class RegistrationBean {
 
 	public void validateEmail(FacesContext context,
 			UIComponent componentToValidate, Object value) {
-		String email = (String) value;
-		if (!Pattern.matches("^[^@]+@[^@^\\.]+\\.[^@^\\.]+$", email)) {
+		String email = ((String) value).trim();
+		if (!emailPattern.matcher(email).matches()) {
 			FacesMessage message = new FacesMessage(
 					resource.getString("register.error.email.pattern"));
 			throw new ValidatorException(message);
@@ -112,7 +148,7 @@ public class RegistrationBean {
 
 	public void validateCaptcha(FacesContext context,
 			UIComponent componentToValidate, Object value) {
-		String text = (String) value;
+		String text = ((String) value).trim();
 		Captcha captcha = (Captcha) context.getExternalContext()
 				.getSessionMap().get(Captcha.NAME);
 		if (captcha == null || !captcha.isCorrect(text)) {
@@ -129,8 +165,9 @@ public class RegistrationBean {
 		UIInput confirmPasswdTxt = (UIInput) components
 				.findComponent("confirmPassword");
 		if (passwordTxt.isValid() && confirmPasswdTxt.isValid()) {
-			String password = passwordTxt.getLocalValue().toString();
-			String confirmPasswd = confirmPasswdTxt.getLocalValue().toString();
+			String password = passwordTxt.getLocalValue().toString().trim();
+			String confirmPasswd = confirmPasswdTxt.getLocalValue().toString()
+					.trim();
 			if (password != null && confirmPasswd != null) {
 				if (!password.equals(confirmPasswd)) {
 					FacesMessage message = new FacesMessage(
@@ -147,7 +184,7 @@ public class RegistrationBean {
 	 *            the username to set
 	 */
 	public void setUsername(String username) {
-		this.username = username;
+		this.username = username.trim();
 	}
 
 	/**
@@ -162,7 +199,7 @@ public class RegistrationBean {
 	 *            the email to set
 	 */
 	public void setEmail(String email) {
-		this.email = email;
+		this.email = email.trim();
 	}
 
 	/**
@@ -177,7 +214,7 @@ public class RegistrationBean {
 	 *            the password to set
 	 */
 	public void setPassword(String password) {
-		this.password = password;
+		this.password = password.trim();
 	}
 
 	/**
@@ -192,7 +229,7 @@ public class RegistrationBean {
 	 *            the firstName to set
 	 */
 	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+		this.firstName = firstName.trim();
 	}
 
 	/**
@@ -223,7 +260,7 @@ public class RegistrationBean {
 	 *            the lastName to set
 	 */
 	public void setLastName(String lastName) {
-		this.lastName = lastName;
+		this.lastName = lastName.trim();
 	}
 
 	/**
@@ -247,5 +284,37 @@ public class RegistrationBean {
 	 */
 	public String getDisplayName() {
 		return displayName;
+	}
+
+	private String getUsernamePattern() {
+		return appConfig.getString(USERNAME_PATTERN,
+				"^\\p{Alpha}[\\w|\\.]{5,31}$");
+	}
+
+	private String getEmailPattern() {
+		return appConfig.getString(EMAIL_PATTERN,
+				"^[^@]+@[^@^\\.]+\\.[^@^\\.]+$");
+	}
+
+	/**
+	 * Active method: None, Self or Admin
+	 * 
+	 * @return
+	 */
+	private ActiveMethod getActiveMethod() {
+		String t = appConfig.getString(ACTIVE_METHOD, "self");
+		try {
+			return ActiveMethod.valueOf(t);
+		} catch (Exception e) {
+			return ActiveMethod.SELF;
+		}
+	}
+
+	private void selfActive(User user) {
+		// TODO:
+	}
+
+	private void adminActive(User user) {
+		// TODO:
 	}
 }

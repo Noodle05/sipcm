@@ -5,14 +5,21 @@ package com.sipcm.common.model;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TimeZone;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -72,9 +79,21 @@ public class User extends AbstractTrackableEntity implements
 	@Column(name = "password", length = 32)
 	private String password;
 
+	@Basic
+	@Column(name = "locale", length = 16)
+	private Locale locale;
+
+	@Basic
+	@Column(name = "time_zone", length = 64)
+	private TimeZone timeZone;
+
 	@Enumerated
 	@Column(name = "status", nullable = false)
 	private AccountStatus status;
+
+	@ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+	@JoinTable(name = "tbl_userrole", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+	private Set<Role> roles;
 
 	/**
 	 * @param id
@@ -225,6 +244,36 @@ public class User extends AbstractTrackableEntity implements
 	}
 
 	/**
+	 * @param locale
+	 *            the locale to set
+	 */
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
+	/**
+	 * @return the locale
+	 */
+	public Locale getLocale() {
+		return locale;
+	}
+
+	/**
+	 * @param timeZone
+	 *            the timeZone to set
+	 */
+	public void setTimeZone(TimeZone timeZone) {
+		this.timeZone = timeZone;
+	}
+
+	/**
+	 * @return the timeZone
+	 */
+	public TimeZone getTimeZone() {
+		return timeZone;
+	}
+
+	/**
 	 * @param status
 	 *            the status to set
 	 */
@@ -237,6 +286,21 @@ public class User extends AbstractTrackableEntity implements
 	 */
 	public AccountStatus getStatus() {
 		return status;
+	}
+
+	/**
+	 * @param roles
+	 *            the roles to set
+	 */
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
+
+	/**
+	 * @return the roles
+	 */
+	public Set<Role> getRoles() {
+		return roles;
 	}
 
 	/*
@@ -302,5 +366,9 @@ public class User extends AbstractTrackableEntity implements
 				.append(getDisplayName()).append(",email=").append(email)
 				.append("]");
 		return sb.toString();
+	}
+
+	public void addRole(Role role) {
+		roles.add(role);
 	}
 }

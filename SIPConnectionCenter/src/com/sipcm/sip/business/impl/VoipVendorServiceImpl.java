@@ -6,6 +6,7 @@ package com.sipcm.sip.business.impl;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sipcm.base.business.impl.AbstractService;
@@ -35,6 +36,8 @@ public class VoipVendorServiceImpl extends AbstractService<VoipVendor, Integer>
 		this.dao = dao;
 	}
 
+	@Override
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public VoipVendor createNewEntity() {
 		VoipVendor entity = super.createNewEntity();
 		entity.setType(VoipVendorType.SIP);

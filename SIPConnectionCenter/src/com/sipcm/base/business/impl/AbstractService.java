@@ -11,16 +11,17 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import com.sipcm.base.business.Service;
-import com.sipcm.base.dao.DAO;
-import com.sipcm.base.filter.FSP;
-import com.sipcm.base.filter.Filter;
-import com.sipcm.base.filter.FilterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.sipcm.base.business.Service;
+import com.sipcm.base.dao.DAO;
+import com.sipcm.base.filter.FSP;
+import com.sipcm.base.filter.Filter;
+import com.sipcm.base.filter.FilterFactory;
 
 /**
  * @author Jack
@@ -46,8 +47,8 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 		entityClass = (Class<Entity>) ((ParameterizedType) getClass()
 				.getGenericSuperclass()).getActualTypeArguments()[0];
 		if (logger.isDebugEnabled()) {
-			logger.debug("Entity class been initialized as: {}", entityClass
-					.getName());
+			logger.debug("Entity class been initialized as: {}",
+					entityClass.getName());
 		}
 	}
 
@@ -56,7 +57,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * 
 	 * @see com.sipcm.base.business.Service#createNewEntity()
 	 */
-	@Transactional(propagation = Propagation.SUPPORTS)
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public Entity createNewEntity() {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Creating new entity instance.");
@@ -73,8 +74,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.business.Service#getEntityById(java.io.Serializable)
+	 * @see com.sipcm.base.business.Service#getEntityById(java.io.Serializable)
 	 */
 	public Entity getEntityById(ID id) {
 		if (logger.isTraceEnabled()) {
@@ -86,8 +86,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.business.Service#getEntities(com.sipcm.base.filter
+	 * @see com.sipcm.base.business.Service#getEntities(com.sipcm.base.filter
 	 * .FSP)
 	 */
 	public List<Entity> getEntities(FSP fsp) {
@@ -100,8 +99,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.business.Service#getEntities(com.sipcm.base.filter
+	 * @see com.sipcm.base.business.Service#getEntities(com.sipcm.base.filter
 	 * .Filter)
 	 */
 	public List<Entity> getEntities(Filter filter) {
@@ -126,8 +124,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.business.Service#getUniqueEntity(com.sipcm.base
+	 * @see com.sipcm.base.business.Service#getUniqueEntity(com.sipcm.base
 	 * .filter.Filter)
 	 */
 	public Entity getUniqueEntity(Filter filter) {
@@ -140,8 +137,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.business.Service#getRowCount(com.sipcm.base.filter
+	 * @see com.sipcm.base.business.Service#getRowCount(com.sipcm.base.filter
 	 * .Filter)
 	 */
 	public int getRowCount(Filter filter) {
@@ -175,8 +171,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.business.Service#refreshEntity(java.io.Serializable)
+	 * @see com.sipcm.base.business.Service#refreshEntity(java.io.Serializable)
 	 */
 	public Entity refreshEntity(Entity entity) {
 		if (logger.isTraceEnabled()) {
@@ -188,8 +183,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.business.Service#removeEntity(java.io.Serializable)
+	 * @see com.sipcm.base.business.Service#removeEntity(java.io.Serializable)
 	 */
 	@Transactional(readOnly = false)
 	public Entity removeEntity(Entity entity) {
@@ -202,8 +196,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.business.Service#removeEntities(java.util.Collection)
+	 * @see com.sipcm.base.business.Service#removeEntities(java.util.Collection)
 	 */
 	@Transactional(readOnly = false)
 	public Collection<Entity> removeEntities(Collection<Entity> entities) {
@@ -218,8 +211,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.base.business.Service#removeEntityById(java.io.Serializable
-	 * )
+	 * com.sipcm.base.business.Service#removeEntityById(java.io.Serializable )
 	 */
 	@Transactional(readOnly = false)
 	public Entity removeEntityById(ID id) {
@@ -245,8 +237,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.business.Service#saveEntities(java.util.Collection)
+	 * @see com.sipcm.base.business.Service#saveEntities(java.util.Collection)
 	 */
 	@Transactional(readOnly = false)
 	public Collection<Entity> saveEntities(Collection<Entity> entities) {
@@ -260,8 +251,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.business.Service#getEntityId(java.io.Serializable)
+	 * @see com.sipcm.base.business.Service#getEntityId(java.io.Serializable)
 	 */
 	public ID getEntityId(Entity entity) {
 		if (logger.isTraceEnabled()) {

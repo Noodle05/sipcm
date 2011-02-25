@@ -9,7 +9,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.sipcm.base.dao.hibernate.AbstractDAO;
 import com.sipcm.sip.dao.UserVoipAccountDAO;
@@ -19,7 +19,7 @@ import com.sipcm.sip.model.UserVoipAccount;
  * @author wgao
  * 
  */
-@Component("userVoipAccountDAO")
+@Repository("userVoipAccountDAO")
 public class UserVoipAccountDAOImpl extends AbstractDAO<UserVoipAccount, Long>
 		implements UserVoipAccountDAO {
 	/*

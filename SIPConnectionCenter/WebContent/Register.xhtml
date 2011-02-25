@@ -21,14 +21,18 @@
 						value="#{registrationBean.username}" maxlength="32"
 						required="true"
 						requiredMessage="#{messages['register.error.username.required']}"
-						validator="#{registrationBean.validateUsername}" />
+						validator="#{registrationBean.validateUsername}">
+						<f:ajax event="blur" render="usernameError" />
+					</h:inputText>
 					<h:message id="usernameError" for="username" styleClass="error" />
 					#{messages['register.email']}:
 					<h:inputText label="#{messages['register.email']}"
 						value="#{registrationBean.email}" id="email" maxlength="255"
 						required="true"
 						requiredMessage="#{messages['register.error.email.required']}"
-						validator="#{registrationBean.validateEmail}" />
+						validator="#{registrationBean.validateEmail}">
+						<f:ajax event="blur" render="emailError" />
+					</h:inputText>
 					<h:message id="emailError" for="email" styleClass="error" />
 					#{messages['register.password']}:
 					<h:inputSecret label="#{messages['register.password']}"
@@ -37,6 +41,7 @@
 						requiredMessage="#{messages['register.error.password.required']}"
 						validatorMessage="#{messages['register.error.password.size']}">
 						<f:validateLength minimum="6" maximum="32" />
+						<f:ajax event="blur" render="passwordError" />
 					</h:inputSecret>
 					<h:message id="passwordError" for="password" styleClass="error" />
 					#{messages['register.confirmPassword']}:
@@ -45,6 +50,7 @@
 						requiredMessage="#{messages['register.error.password.required']}"
 						validatorMessage="#{messages['register.error.password.size']}">
 						<f:validateLength minimum="6" maximum="32" />
+						<f:ajax event="blur" render="passwordError" />
 					</h:inputSecret>
 					<h:message id="confirmPasswordError" for="confirmPassword"
 						styleClass="error" />
@@ -79,7 +85,7 @@
 						validator="#{registrationBean.validateCaptcha}" />
 					<h:message id="captchaError" for="captchaCode" styleClass="error" />
 					<f:facet name="footer">
-						<h:commandButton id="submit"
+						<h:commandButton id="submit" styleClass="submit"
 							value="#{messages['register.submit']}"
 							action="#{registrationBean.register}" />
 					</f:facet>
