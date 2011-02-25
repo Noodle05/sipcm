@@ -6,7 +6,9 @@ package com.sipcm.sip.vendor;
 import gov.nist.javax.sip.message.SIPRequest;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.concurrent.ScheduledFuture;
 
@@ -43,7 +45,8 @@ import com.sipcm.sip.servlet.AbstractSipServlet;
 @Scope("prototype")
 public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	public static final String REGISTER_EXPIRES = "sip.client.register.expires";
-	private static final String REGISTER_ALLOW_METHODS = "sip.client.register.allow.methods";
+	public static final String REGISTER_ALLOW_METHODS = "sip.client.register.allow.methods";
+	public static final String REGISTER_MINIMUM_INTERVAL = "sip.client.register.interval.minimum";
 
 	@Resource(name = "userVoidAccountService")
 	private UserVoipAccountService userVoipAccountService;
@@ -76,21 +79,33 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	}
 
 	private void scheduleRenewTask() {
-		cancelRenewTask();
+		Date start = null;
+		if (cancelRenewTask()) {
+			Calendar c = Calendar.getInstance();
+			c.add(Calendar.SECOND, (expires - 30));
+			start = c.getTime();
+		}
 		long period = (expires - 30) * 1000L;
 		if (logger.isDebugEnabled()) {
 			logger.debug("Scheduling renew register task in period: {}ms",
 					period);
 		}
-		renewFuture = taskScheduler.scheduleAtFixedRate(renewTask, period);
+		if (start != null) {
+			renewFuture = taskScheduler.scheduleAtFixedRate(renewTask, start,
+					period);
+		} else {
+			renewFuture = taskScheduler.scheduleAtFixedRate(renewTask, period);
+		}
 	}
 
-	private void cancelRenewTask() {
+	private boolean cancelRenewTask() {
 		if (renewFuture != null && !renewFuture.isCancelled()
 				&& !renewFuture.isDone()) {
 			renewFuture.cancel(false);
 			renewFuture = null;
+			return true;
 		}
+		return false;
 	}
 
 	/*
@@ -205,7 +220,8 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 				account.setOnline(false);
 			} else {
 				account.setOnline(true);
-				if (e < expires) {
+				if (e >= getMinimumRenewInterval() && e <= getRegisterExpries()
+						&& e < expires) {
 					expires = e;
 					scheduleRenewTask();
 				}
@@ -340,6 +356,10 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 				registerForIncomingRequest(account);
 			}
 		}
+	}
+
+	private int getMinimumRenewInterval() {
+		return appConfig.getInt(REGISTER_MINIMUM_INTERVAL, 300);
 	}
 
 	@Override

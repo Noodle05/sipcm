@@ -22,6 +22,7 @@
 
 	<entry key="sip.client.register.expires">3600</entry>
 	<entry key="sip.client.register.allow.methods">INVITE,ACK,CANCEL,BYE</entry>
+	<entry key="sip.client.register.interval.minimum">300</entry>
 
 	<entry key="firewall.enable">false</entry>
 	<entry key="firewall.host">localhost</entry>
