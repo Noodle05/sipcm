@@ -1,0 +1,11 @@
+<html>
+<body>
+<h3>Hi ${activation.owner.displayName},</h3>
+<h4>Welcome to the Gaofamily Call Center!</h4><br />
+<div> You are not done yet, please click <a href="${serverUrl}/register/activation.jsf?userId=${activation.owner.id}&activeCode=${activation.activeCode}"> here</a> to active your account.
+</div>
+<div>
+If you are not able to click above link, please visit "${serverUrl}/register/activation.jsf?userId=${activation.owner.id}&activeCode=${activation.activeCode}" from your browser to active your account.
+</div>
+</body>
+</html>

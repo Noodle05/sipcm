@@ -15,7 +15,7 @@ import com.sipcm.sip.model.UserVoipAccount;
  * @author wgao
  * 
  */
-@Component("naDialplanExecutor")
+@Component("sipNaDialplanExecutor")
 public class NaDialplanExecutor extends AbstractDialplanExecutor {
 	/*
 	 * (non-Javadoc)

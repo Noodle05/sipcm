@@ -51,7 +51,7 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	@Resource(name = "userVoidAccountService")
 	private UserVoipAccountService userVoipAccountService;
 
-	@Resource(name = "global.scheduler")
+	@Resource(name = "globalScheduler")
 	private TaskScheduler taskScheduler;
 
 	private ScheduledFuture<?> renewFuture;

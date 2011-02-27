@@ -9,6 +9,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sipcm.base.filter.impl.FilterFactoryImpl;
+
 /**
  * @author Jack
  * 
@@ -17,7 +19,8 @@ public abstract class FilterFactory {
 	private static final Logger logger = LoggerFactory
 			.getLogger(FilterFactory.class);
 
-	public static final String defaultFilterFactoryClass = "com.sipcm.base.filter.impl.FilterFactoryImpl";
+	public static final String defaultFilterFactoryClass = FilterFactoryImpl.class
+			.getCanonicalName();
 
 	public static FilterFactory getDefaultFilterFactory() {
 		FilterFactory filterFactory = null;

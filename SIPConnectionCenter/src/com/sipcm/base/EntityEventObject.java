@@ -4,6 +4,7 @@
 package com.sipcm.base;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.EventObject;
 
 import com.sipcm.base.model.IdBasedEntity;
@@ -16,7 +17,7 @@ public class EntityEventObject<Entity extends IdBasedEntity<ID>, ID extends Seri
 		extends EventObject {
 	private static final long serialVersionUID = 78096042020821625L;
 
-	public EntityEventObject(Entity... entity) {
+	public EntityEventObject(Collection<Entity> entity) {
 		super(entity);
 	}
 
@@ -27,7 +28,7 @@ public class EntityEventObject<Entity extends IdBasedEntity<ID>, ID extends Seri
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Entity[] getSource() {
-		return (Entity[]) source;
+	public Collection<Entity> getSource() {
+		return (Collection<Entity>) source;
 	}
 }

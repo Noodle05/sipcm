@@ -9,6 +9,7 @@ import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
@@ -19,6 +20,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import com.sipcm.base.model.IdBasedEntity;
+import com.sipcm.common.ActiveMethod;
 
 /**
  * @author wgao
@@ -46,6 +48,10 @@ public class UserActivation implements IdBasedEntity<Long>, Serializable {
 	@Basic
 	@Column(name = "expire_date", nullable = false)
 	private Date expireDate;
+
+	@Enumerated
+	@Column(name = "method", nullable = false)
+	private ActiveMethod method;
 
 	/**
 	 * @param id
@@ -105,5 +111,20 @@ public class UserActivation implements IdBasedEntity<Long>, Serializable {
 	 */
 	public Date getExpireDate() {
 		return expireDate;
+	}
+
+	/**
+	 * @param method
+	 *            the method to set
+	 */
+	public void setMethod(ActiveMethod method) {
+		this.method = method;
+	}
+
+	/**
+	 * @return the method
+	 */
+	public ActiveMethod getMethod() {
+		return method;
 	}
 }

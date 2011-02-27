@@ -28,7 +28,7 @@ import com.sipcm.sip.events.BlockIpEvent;
  * @author wgao
  * 
  */
-@Component("sip.DosProtector")
+@Component("sipDosProtector")
 public class DosProtector {
 	private static final Logger logger = LoggerFactory
 			.getLogger(DosProtector.class);
@@ -37,7 +37,7 @@ public class DosProtector {
 	public static final String SIP_DOS_PROTECT_MAX_REQUESTS = "sip.dos.protect.max.requests";
 	public static final String SIP_DOS_PROTECT_BLOCK_TIME = "sip.dos.protect.block.time";
 
-	@Resource(name = "sip.dosBlockEventListener")
+	@Resource(name = "sipDosBlockEventListener")
 	private BlockIpEventListener blockEventListener;
 
 	private ConcurrentMap<String, AtomicInteger> counter;

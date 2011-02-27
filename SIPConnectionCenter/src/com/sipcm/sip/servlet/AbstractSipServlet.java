@@ -51,7 +51,7 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Resource(name = "sip.CallEventListener")
+	@Resource(name = "sipCallEventListener")
 	protected CallEventListener callEventListener;
 
 	@Resource(name = "javax.servlet.sip.SipFactory")
@@ -75,13 +75,6 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 		if (logger.isInfoEnabled()) {
 			logger.info(getServletName() + " has been started");
 		}
-		// Inject spring beans
-		// callEventListener = (CallEventListener) getServletContext()
-		// .getAttribute("sip.CallEventListener");
-		// phoneNumberUtil = (PhoneNumberUtil) getServletContext().getAttribute(
-		// "phoneNumberUtil");
-		// appConfig = (Configuration) getServletContext().getAttribute(
-		// "applicationConfiguration");
 	}
 
 	protected String getDomain() {

@@ -18,15 +18,15 @@ import org.springframework.stereotype.Component;
  * @author Jack
  * 
  */
-@Component("emailProcessor")
+@Component("globalEmailProcessor")
 public class EmailProcessorImpl implements EmailProcessor {
 	private static final Logger logger = LoggerFactory
 			.getLogger(EmailProcessorImpl.class);
 
-	@Resource(name = "email.queue")
+	@Resource(name = "globalEmailQueue")
 	private BlockingQueue<EmailBean> emailList;
 
-	@Resource(name = "emailService")
+	@Resource(name = "globalEmailService")
 	private EmailService emailService;
 
 	private final AtomicBoolean running;

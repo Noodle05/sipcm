@@ -3,13 +3,15 @@
  */
 package com.sipcm.web.register;
 
-import java.util.ResourceBundle;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -17,17 +19,21 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.validator.ValidatorException;
 
-import nl.captcha.Captcha;
-
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sipcm.common.AccountStatus;
+import com.sipcm.common.ActiveMethod;
 import com.sipcm.common.business.RoleService;
+import com.sipcm.common.business.UserActivationService;
 import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.Role;
 import com.sipcm.common.model.User;
+import com.sipcm.common.model.UserActivation;
+import com.sipcm.email.EmailBean;
+import com.sipcm.email.Emailer;
+import com.sipcm.web.util.Messages;
 
 /**
  * @author wgao
@@ -35,22 +41,35 @@ import com.sipcm.common.model.User;
  */
 @ManagedBean(name = "registrationBean")
 @SessionScoped
-public class RegistrationBean {
+public class RegistrationBean implements Serializable {
+	private static final long serialVersionUID = -6419289187735553748L;
+
 	private static final Logger logger = LoggerFactory
 			.getLogger(RegistrationBean.class);
 
 	public static final String USERNAME_PATTERN = "register.username.pattern";
 	public static final String EMAIL_PATTERN = "register.email.pattern";
 	public static final String ACTIVE_METHOD = "register.active.method";
+	public static final String ACTIVE_EXPIRES = "register.active.expires";
+	public static final String ADMIN_EMAIL = "global.admin.email";
 
-	@Resource(name = "userService")
+	public static final String SELF_ACTIVE_EMAIL_TEMPATE = "/templates/self-active.vm";
+	public static final String ADMIN_ACTIVE_EMAIL_TEMPLATE = "/templates/admin-active.vm";
+
+	@ManagedProperty(value = "#{applicationConfiguration}")
+	private Configuration appConfig;
+
+	@ManagedProperty(value = "#{globalEmailer}")
+	private Emailer emailer;
+
+	@ManagedProperty(value = "#{userService}")
 	private UserService userService;
 
-	@Resource(name = "roleService")
+	@ManagedProperty(value = "#{roleService}")
 	private RoleService roleService;
 
-	@Resource(name = "applicationConfiguration")
-	private Configuration appConfig;
+	@ManagedProperty(value = "#{userActivationService}")
+	private UserActivationService userActivationService;
 
 	private String username;
 
@@ -66,8 +85,6 @@ public class RegistrationBean {
 
 	private String displayName;
 
-	private ResourceBundle resource;
-
 	private Pattern usernamePattern;
 
 	private Pattern emailPattern;
@@ -75,9 +92,8 @@ public class RegistrationBean {
 	@PostConstruct
 	public void init() {
 		if (logger.isDebugEnabled()) {
-			logger.debug("A new instance of Registration bean been created.");
+			logger.debug("A new registration bean been created.");
 		}
-		resource = ResourceBundle.getBundle("messages.CallerPages");
 		usernamePattern = Pattern.compile(getUsernamePattern());
 		emailPattern = Pattern.compile(getEmailPattern());
 	}
@@ -85,7 +101,6 @@ public class RegistrationBean {
 	public String register() {
 		String result;
 		FacesContext context = FacesContext.getCurrentInstance();
-		context.getExternalContext().getSessionMap().remove(Captcha.NAME);
 		User user = userService.createNewEntity();
 		user.setUsername(username);
 		user.setEmail(email);
@@ -110,6 +125,7 @@ public class RegistrationBean {
 		default:
 			break;
 		}
+		context.getExternalContext().getSessionMap().remove("registrationBean");
 		result = "RegisterSuccess";
 		return result;
 	}
@@ -117,15 +133,23 @@ public class RegistrationBean {
 	public void validateUsername(FacesContext context,
 			UIComponent componentToValidate, Object value) {
 		String username = ((String) value).trim();
+		if (username.length() < 6 || username.length() > 32) {
+			FacesMessage message = Messages.getMessage(
+					"register.error.username.length",
+					FacesMessage.SEVERITY_ERROR);
+			throw new ValidatorException(message);
+		}
 		if (!usernamePattern.matcher(username).matches()) {
-			FacesMessage message = new FacesMessage(
-					resource.getString("register.error.username.pattern"));
+			FacesMessage message = Messages.getMessage(
+					"register.error.username.pattern",
+					FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
 		User user = userService.getUserByUsername(username);
 		if (user != null) {
-			FacesMessage message = new FacesMessage(
-					resource.getString("register.error.username.exists"));
+			FacesMessage message = Messages.getMessage(
+					"register.error.username.exists",
+					FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
 	}
@@ -134,26 +158,15 @@ public class RegistrationBean {
 			UIComponent componentToValidate, Object value) {
 		String email = ((String) value).trim();
 		if (!emailPattern.matcher(email).matches()) {
-			FacesMessage message = new FacesMessage(
-					resource.getString("register.error.email.pattern"));
+			FacesMessage message = Messages
+					.getMessage("register.error.email.pattern",
+							FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
 		User user = userService.getUserByEmail(email);
 		if (user != null) {
-			FacesMessage message = new FacesMessage(
-					resource.getString("register.error.email.exists"));
-			throw new ValidatorException(message);
-		}
-	}
-
-	public void validateCaptcha(FacesContext context,
-			UIComponent componentToValidate, Object value) {
-		String text = ((String) value).trim();
-		Captcha captcha = (Captcha) context.getExternalContext()
-				.getSessionMap().get(Captcha.NAME);
-		if (captcha == null || !captcha.isCorrect(text)) {
-			FacesMessage message = new FacesMessage(
-					resource.getString("register.error.captcha.notmatch"));
+			FacesMessage message = Messages.getMessage(
+					"register.error.email.exists", FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
 	}
@@ -170,13 +183,55 @@ public class RegistrationBean {
 					.trim();
 			if (password != null && confirmPasswd != null) {
 				if (!password.equals(confirmPasswd)) {
-					FacesMessage message = new FacesMessage(
-							resource.getString("register.error.password.notmatch"));
+					FacesMessage message = Messages.getMessage(
+							"register.error.password.notmatch",
+							FacesMessage.SEVERITY_ERROR);
 					fc.addMessage("registrationForm:confirmPassword", message);
 					fc.renderResponse();
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param appConfig
+	 *            the appConfig to set
+	 */
+	public void setAppConfig(Configuration appConfig) {
+		this.appConfig = appConfig;
+	}
+
+	/**
+	 * @param emailer
+	 *            the emailer to set
+	 */
+	public void setEmailer(Emailer emailer) {
+		this.emailer = emailer;
+	}
+
+	/**
+	 * @param userService
+	 *            the userService to set
+	 */
+	public void setUserService(UserService userService) {
+		this.userService = userService;
+	}
+
+	/**
+	 * @param roleService
+	 *            the roleService to set
+	 */
+	public void setRoleService(RoleService roleService) {
+		this.roleService = roleService;
+	}
+
+	/**
+	 * @param userActivationService
+	 *            the userActivationService to set
+	 */
+	public void setUserActivationService(
+			UserActivationService userActivationService) {
+		this.userActivationService = userActivationService;
 	}
 
 	/**
@@ -302,7 +357,7 @@ public class RegistrationBean {
 	 * @return
 	 */
 	private ActiveMethod getActiveMethod() {
-		String t = appConfig.getString(ACTIVE_METHOD, "self");
+		String t = appConfig.getString(ACTIVE_METHOD, "SELF");
 		try {
 			return ActiveMethod.valueOf(t);
 		} catch (Exception e) {
@@ -310,11 +365,65 @@ public class RegistrationBean {
 		}
 	}
 
+	private String getAdminEmail() {
+		return appConfig.getString(ADMIN_EMAIL);
+	}
+
+	private int getActiveExpires() {
+		return appConfig.getInt(ACTIVE_EXPIRES, 72);
+	}
+
 	private void selfActive(User user) {
-		// TODO:
+		UserActivation userActivation = userActivationService
+				.createUserActivation(user, ActiveMethod.SELF,
+						getActiveExpires());
+		userActivationService.saveEntity(userActivation);
+		EmailBean emailBean = new EmailBean();
+		emailBean.addToAddress(user.getEmail());
+		Map<String, Object> params = new HashMap<String, Object>();
+		FacesContext ctx = FacesContext.getCurrentInstance();
+		String scheme = ctx.getExternalContext().getRequestScheme();
+		String sn = ctx.getExternalContext().getRequestServerName();
+		int port = ctx.getExternalContext().getRequestServerPort();
+		String serverUrl = scheme + "://" + sn;
+		if ("HTTPS".equalsIgnoreCase(scheme)) {
+			if (port != 443) {
+				serverUrl = serverUrl + ":" + Integer.toString(port);
+			}
+		} else {
+			if (port != 80) {
+				serverUrl = serverUrl + ":" + Integer.toString(port);
+			}
+		}
+		params.put("serverUrl", serverUrl);
+		params.put("activation", userActivation);
+		emailBean.setTemplate(SELF_ACTIVE_EMAIL_TEMPATE, params);
+		emailBean.setParams(params);
+		emailBean.setFromAddress(getAdminEmail());
+		emailBean.setHtmlEncoded(true);
+		emailBean.setSubject(Messages.getString(null,
+				"register.active.self.email.subject", null));
+		emailer.sendMail(emailBean);
 	}
 
 	private void adminActive(User user) {
-		// TODO:
+		UserActivation userActivation = userActivationService
+				.createUserActivation(user, ActiveMethod.ADMIN,
+						getActiveExpires());
+		userActivationService.saveEntity(userActivation);
+		if (getAdminEmail() != null) {
+			prepareActiveEmail(userActivation, getAdminEmail());
+		} else {
+			if (logger.isWarnEnabled()) {
+				logger.warn("System been configured to active account by admin, but there's not admin email setted.");
+			}
+		}
+	}
+
+	private void prepareActiveEmail(UserActivation userActivation, String email) {
+		// EmailBean emailBean = new EmailBean();
+		// emailBean.addToAddress(email);
+		// // TODO:
+		// emailer.sendMail(emailBean);
 	}
 }

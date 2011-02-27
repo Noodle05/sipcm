@@ -36,7 +36,7 @@ public class VoipLocalVendorContextImpl implements VoipVendorContext {
 	@Resource(name = "userSipProfileService")
 	private UserSipProfileService userSipProfileService;
 
-	@Resource(name = "sip.LocationService")
+	@Resource(name = "sipLocationService")
 	protected LocationService locationService;
 
 	@Resource(name = "voipVendorManager")

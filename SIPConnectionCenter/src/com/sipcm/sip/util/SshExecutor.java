@@ -37,7 +37,7 @@ public class SshExecutor {
 	private static final Logger logger = LoggerFactory
 			.getLogger(SshExecutor.class);
 
-	@Resource(name = "global.scheduler")
+	@Resource(name = "globalScheduler")
 	private TaskScheduler scheduler;
 
 	private final Runnable disconnectTask;

@@ -39,24 +39,11 @@ public class CallCenterServlet extends AbstractSipServlet {
 	@Resource(name = "userSipProfileService")
 	private UserSipProfileService userSipProfileService;
 
-	@Resource(name = "sip.DosProtector")
+	@Resource(name = "sipDosProtector")
 	private DosProtector dosProtector;
 
 	@Resource(name = "voipVendorManager")
 	private VoipVendorManager vendorManager;
-
-	// @Override
-	// public void init() throws ServletException {
-	// super.init();
-	// authenticationHelper = (ServerAuthenticationHelper) getServletContext()
-	// .getAttribute("serverAuthenticationHelper");
-	// userSipProfileService = (UserSipProfileService) getServletContext()
-	// .getAttribute("userSipProfileService");
-	// dosProtector = (DosProtector) getServletContext().getAttribute(
-	// "sip.DosProtector");
-	// vendorManager = (VoipVendorManager) getServletContext().getAttribute(
-	// "voipVendorManager");
-	// }
 
 	@Override
 	protected void doResponse(javax.servlet.sip.SipServletResponse resp)

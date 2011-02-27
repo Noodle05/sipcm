@@ -18,12 +18,12 @@ import com.sipcm.sip.model.UserVoipAccount;
  * 
  * @author wgao
  */
-@Component("dialplanExecutor")
+@Component("sipDialplanExecutor")
 public class CompositeDialplanExecutorImpl extends AbstractDialplanExecutor {
-	@Resource(name = "internationalDialplanExecutor")
+	@Resource(name = "sipInternationalDialplanExecutor")
 	private AbstractDialplanExecutor internationalDialplanExecutor;
 
-	@Resource(name = "naDialplanExecutor")
+	@Resource(name = "sipNaDialplanExecutor")
 	private AbstractDialplanExecutor naDialplanExecutor;
 
 	/*

@@ -16,12 +16,12 @@ import org.springframework.stereotype.Component;
  * @author wgao
  * 
  */
-@Component("sip.CallLogSaveTask")
+@Component("sipCallLogSaveTask")
 public class CallLogSaveTask implements Runnable {
 	private static final Logger logger = LoggerFactory
 			.getLogger(CallLogSaveTask.class);
 
-	@Resource(name = "sip.CallLogRecorder")
+	@Resource(name = "sipCallLogRecorder")
 	private CallLogRecorder callLogRecorder;
 
 	private final AtomicBoolean running;

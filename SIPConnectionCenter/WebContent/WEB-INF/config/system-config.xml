@@ -4,6 +4,8 @@
 	<comment>Calling Center configuration file. This is just a template,
 		default location of this file should be: /usr/local/etc/sip-config.xml</comment>
 	<entry key="domainname">gaofamily.org</entry>
+	<entry key="global.admin.email">master@domain.name</entry>
+
 	<entry key="sip.server.realm">gaofamily.org</entry>
 	<entry key="sip.publicIp.process">true</entry>
 
@@ -31,4 +33,8 @@
 	<entry key="firewall.private_key">/usr/local/etc/ssh/id_rsa</entry>
 	<entry key="firewall.password_phrase" />
 	<entry key="firewall.ssh.disconnect.delay">60</entry>
+
+	<entry key="register.active.method">SELF</entry>
+	<entry key="register.username.pattern"><![CDATA[^\p{Alpha}[\w|\.]{5,31}$]]></entry>
+	<entry key="register.email.pattern"><![CDATA[^[^@]+@[^@^\.]+\.[^@^\.]+$]]></entry>
 </properties>

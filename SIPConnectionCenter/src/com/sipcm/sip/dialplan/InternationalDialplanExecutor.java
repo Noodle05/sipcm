@@ -15,7 +15,7 @@ import com.sipcm.sip.model.UserVoipAccount;
  * @author wgao
  * 
  */
-@Component("internationalDialplanExecutor")
+@Component("sipInternationalDialplanExecutor")
 public class InternationalDialplanExecutor extends AbstractDialplanExecutor {
 	/*
 	 * (non-Javadoc)

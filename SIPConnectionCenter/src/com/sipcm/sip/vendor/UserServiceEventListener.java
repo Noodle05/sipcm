@@ -3,6 +3,9 @@
  */
 package com.sipcm.sip.vendor;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
@@ -29,11 +32,15 @@ public class UserServiceEventListener extends
 	 */
 	@Override
 	public void entityDeleted(EntityEventObject<User, Long> event) {
-		User[] users = event.getSource();
-		Long[] ids = new Long[users.length];
-		for (int i = 0; i < users.length; i++) {
-			ids[i] = users[i].getId();
+		Collection<User> users = event.getSource();
+		Collection<Long> deletedIds = new ArrayList<Long>(users.size());
+		for (User user : users) {
+			deletedIds.add(user.getId());
 		}
-		voipVendorManager.onUserDeleted(ids);
+		if (!deletedIds.isEmpty()) {
+			Long[] ids = new Long[deletedIds.size()];
+			ids = deletedIds.toArray(ids);
+			voipVendorManager.onUserDeleted(ids);
+		}
 	}
 }

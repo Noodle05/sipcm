@@ -32,15 +32,8 @@ public class RegistrarServlet extends AbstractSipServlet {
 	public static final String SIP_MIN_EXPIRESTIME = "sip.expirestime.min";
 	public static final String SIP_MAX_EXPIRESTIME = "sip.expirestime.max";
 
-	@Resource(name = "sip.LocationService")
+	@Resource(name = "sipLocationService")
 	private LocationService locationService;
-
-	// @Override
-	// public void init() throws ServletException {
-	// super.init();
-	// locationService = (LocationService) getServletContext().getAttribute(
-	// "sip.LocationService");
-	// }
 
 	/*
 	 * (non-Javadoc)

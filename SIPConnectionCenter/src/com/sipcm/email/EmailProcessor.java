@@ -1,5 +1,12 @@
+/**
+ * 
+ */
 package com.sipcm.email;
 
+/**
+ * @author wgao
+ * 
+ */
 public interface EmailProcessor {
 
 	public void process();

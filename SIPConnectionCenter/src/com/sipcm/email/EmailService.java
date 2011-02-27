@@ -12,23 +12,28 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
+import org.springframework.ui.velocity.VelocityEngineUtils;
 
 /**
  * @author Jack
  * 
  */
-@Component("emailService")
+@Component("globalEmailService")
 public class EmailService {
 	private static Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-	@Resource(name = "global.mailSender")
+	@Resource(name = "globalMailSender")
 	private JavaMailSender mailSender;
+
+	@Resource(name = "globalVelocityEngine")
+	private VelocityEngine velocityEngine;
 
 	void sendEmail(final EmailBean emailBean) throws Exception {
 		if (logger.isTraceEnabled()) {
@@ -85,8 +90,8 @@ public class EmailService {
 
 		MimeMessageHelper helper;
 		if (StringUtils.isNotEmpty(emailBean.getCharSet())) {
-			helper = new MimeMessageHelper(mimeMessage, true, emailBean
-					.getCharSet());
+			helper = new MimeMessageHelper(mimeMessage, true,
+					emailBean.getCharSet());
 		} else {
 			helper = new MimeMessageHelper(mimeMessage, true);
 		}
@@ -112,11 +117,14 @@ public class EmailService {
 		if (emailBean.getPriority() != null) {
 			helper.setPriority(emailBean.getPriority().getValue());
 		}
-		if (emailBean.isHtmlEncoded()) {
-			helper.setText(emailBean.getBody(), true);
+		String text;
+		if (emailBean.isTemplate()) {
+			text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
+					emailBean.getBody(), emailBean.getParams());
 		} else {
-			helper.setText(emailBean.getBody(), false);
+			text = emailBean.getBody();
 		}
+		helper.setText(text, emailBean.isHtmlEncoded());
 
 		Collection<DataSource> attachments = emailBean.getAttachments();
 		if (attachments != null) {

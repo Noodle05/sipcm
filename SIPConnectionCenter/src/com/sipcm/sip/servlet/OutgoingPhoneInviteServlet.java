@@ -32,10 +32,10 @@ import com.sipcm.sip.util.MapHolderBean;
 public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = 7063054667574623307L;
 
-	@Resource(name = "dialplanExecutor")
+	@Resource(name = "sipDialplanExecutor")
 	private DialplanExecutor dialplanExecutor;
 
-	@Resource(name = "sip.LocationService")
+	@Resource(name = "sipLocationService")
 	private LocationService locationService;
 
 	@Resource(name = "mapHolderBean")
@@ -46,13 +46,6 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 	@Override
 	public void init() throws ServletException {
 		super.init();
-		// dialplanExecutor = (DialplanExecutor)
-		// getServletContext().getAttribute(
-		// "dialplanExecutor");
-		// locationService = (LocationService) getServletContext().getAttribute(
-		// "sip.LocationService");
-		// mapHolderBean = (MapHolderBean) getServletContext().getAttribute(
-		// "mapHolderBean");
 		voipVendorToServletMap = mapHolderBean.getVoipVendorToServletMap();
 	}
 

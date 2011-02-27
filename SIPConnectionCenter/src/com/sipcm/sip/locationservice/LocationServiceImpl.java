@@ -37,7 +37,7 @@ import com.sipcm.sip.util.SipUtil;
  * @author wgao
  * 
  */
-@Component("sip.LocationService")
+@Component("sipLocationService")
 public class LocationServiceImpl implements LocationService {
 	public static final Logger logger = LoggerFactory
 			.getLogger(LocationServiceImpl.class);
@@ -57,7 +57,7 @@ public class LocationServiceImpl implements LocationService {
 	@Resource(name = "userSipProfileService")
 	private UserSipProfileService userSipProfileService;
 
-	@Resource(name = "sip.RegistrationEventListener")
+	@Resource(name = "sipRegistrationEventListener")
 	private RegistrationEventListener listener;
 
 	@PostConstruct
@@ -249,8 +249,12 @@ public class LocationServiceImpl implements LocationService {
 				String p = usp.getPhoneNumber() == null ? null : usp
 						.getPhoneNumber();
 				if (pn.equals(p)) {
-					addresses = entry.getValue();
-					break;
+					if (usp.isAllowLocalDirectly()) {
+						addresses = entry.getValue();
+						break;
+					} else {
+						return null;
+					}
 				}
 			}
 		}

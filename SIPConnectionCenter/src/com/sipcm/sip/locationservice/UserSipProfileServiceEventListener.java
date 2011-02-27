@@ -21,7 +21,7 @@ import com.sipcm.sip.model.UserSipProfile;
 @Component("userSipProfileServiceEventListener")
 public class UserSipProfileServiceEventListener extends
 		AbstractServiceEventListener<UserSipProfile, Long> {
-	@Resource(name = "sip.LocationService")
+	@Resource(name = "sipLocationService")
 	private LocationService locationService;
 
 	/*
@@ -32,12 +32,10 @@ public class UserSipProfileServiceEventListener extends
 	 */
 	@Override
 	public void entityModified(EntityEventObject<UserSipProfile, Long> event) {
-		UserSipProfile[] users = event.getSource();
-		Collection<Long> changedIds = new ArrayList<Long>(users.length);
+		Collection<UserSipProfile> users = event.getSource();
+		Collection<Long> changedIds = new ArrayList<Long>(users.size());
 		for (UserSipProfile user : users) {
-			if (user.getOwner().getStatus().isActive()) {
-				changedIds.add(user.getOwner().getId());
-			}
+			changedIds.add(user.getId());
 		}
 		if (!changedIds.isEmpty()) {
 			Long[] ids = new Long[changedIds.size()];
@@ -55,11 +53,15 @@ public class UserSipProfileServiceEventListener extends
 	 */
 	@Override
 	public void entityDeleted(EntityEventObject<UserSipProfile, Long> event) {
-		UserSipProfile[] users = event.getSource();
-		Long[] ids = new Long[users.length];
-		for (int i = 0; i < users.length; i++) {
-			ids[i] = users[i].getOwner().getId();
+		Collection<UserSipProfile> users = event.getSource();
+		Collection<Long> deletedIds = new ArrayList<Long>(users.size());
+		for (UserSipProfile user : users) {
+			deletedIds.add(user.getId());
 		}
-		locationService.onUserChanged(ids);
+		if (!deletedIds.isEmpty()) {
+			Long[] ids = new Long[deletedIds.size()];
+			ids = deletedIds.toArray(ids);
+			locationService.onUserChanged(ids);
+		}
 	}
 }

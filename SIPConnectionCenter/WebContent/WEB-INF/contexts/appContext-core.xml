@@ -16,12 +16,12 @@
 	<tx:annotation-driven transaction-manager="txManager"
 		order="100" />
 
-	<task:annotation-driven executor="global.executor"
-		scheduler="global.scheduler" />
+	<task:annotation-driven executor="globalExecutor"
+		scheduler="globalScheduler" />
 
-	<task:executor id="global.executor" pool-size="15" />
+	<task:executor id="globalExecutor" pool-size="15" />
 
-	<task:scheduler id="global.scheduler" pool-size="10" />
+	<task:scheduler id="globalScheduler" pool-size="10" />
 
 	<bean id="placeholderConfig" class="com.sipcm.spring.EncryptedPlaceholderConfigurer"
 		init-method="init">
@@ -41,7 +41,7 @@
 		</property>
 	</bean>
 
-	<bean id="email.queue" class="java.util.concurrent.LinkedBlockingQueue">
+	<bean id="globalEmailQueue" class="java.util.concurrent.LinkedBlockingQueue">
 		<constructor-arg index="0" value="500" />
 	</bean>
 
@@ -49,5 +49,15 @@
 		<property name="stringOutputType" value="hexadecimal" />
 		<property name="saltSizeBytes" value="0" />
 		<property name="iterations" value="1" />
+	</bean>
+
+	<bean id="globalVelocityEngine"
+		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="velocityProperties">
+			<value>
+				resource.loader=class
+				class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+			</value>
+		</property>
 	</bean>
 </beans>

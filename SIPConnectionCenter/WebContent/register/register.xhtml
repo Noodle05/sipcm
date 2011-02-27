@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	template="/WEB-INF/templates/masterLayout.xhtml">
+	<ui:define name="windowTitle">#{messages['register.title']}</ui:define>
+	<ui:define name="content">
+		<f:view contentType="text/html">
+			<h:form id="registrationForm">
+				<p:panel header="#{messages['register.header']}">
+					<h:panelGrid columns="3">
+						<f:event listener="#{registrationBean.validatePassword}"
+							type="postValidate" />
+						<h:outputLabel for="username"
+							value="#{messages['register.username']}" />
+						<p:inputText label="#{messages['register.username']}"
+							id="username" value="#{registrationBean.username}" maxlength="32"
+							required="true"
+							requiredMessage="#{messages['register.error.username.required']}"
+							validator="#{registrationBean.validateUsername}">
+							<f:validateLength minimum="6" maximum="32" />
+							<f:ajax event="blur" render="usernameError" />
+						</p:inputText>
+						<p:message id="usernameError" for="username" styleClass="error" />
+						<h:outputLabel for="email" value="#{messages['register.email']}" />
+						<p:inputText label="#{messages['register.email']}"
+							value="#{registrationBean.email}" id="email" maxlength="255"
+							required="true"
+							requiredMessage="#{messages['register.error.email.required']}"
+							validator="#{registrationBean.validateEmail}">
+							<f:ajax event="blur" render="emailError" />
+						</p:inputText>
+						<p:message id="emailError" for="email" styleClass="error" />
+						<h:outputLabel for="password"
+							value="#{messages['register.password']}" />
+						<p:password id="password" label="#{messages['register.password']}"
+							value="#{registrationBean.password}" minLength="6" maxlength="32"
+							required="true"
+							requiredMessage="#{messages['register.error.password.required']}"
+							validatorMessage="#{messages['register.error.password.size']}">
+							<f:validateLength minimum="6" maximum="32" />
+						</p:password>
+						<p:message id="passwordError" for="password" styleClass="error" />
+						<h:outputLabel for="confirmPassword"
+							value="#{messages['register.confirmPassword']}" />
+						<p:password id="confirmPassword"
+							label="#{messages['register.confirmPassword']}" minLength="6"
+							maxlength="32" required="true"
+							requiredMessage="#{messages['register.error.password.required']}"
+							validatorMessage="#{messages['register.error.password.size']}">
+							<f:validateLength minimum="6" maximum="32" />
+						</p:password>
+						<p:message id="confirmPasswordError" for="confirmPassword"
+							styleClass="error" />
+						<h:outputLabel for="firstName"
+							value="#{messages['register.firstName']}" />
+						<p:inputText label="#{messages['register.firstName']}"
+							value="#{registrationBean.firstName}" id="firstName"
+							maxlength="64" required="true"
+							requiredMessage="#{messages['register.error.firstName.required']}" />
+						<p:message id="firstNameError" for="firstName" styleClass="error" />
+						<h:outputLabel for="middleName"
+							value="#{messages['register.middleName']}" />
+						<p:inputText label="#{messages['register.middleName']}"
+							value="#{registrationBean.middleName}" id="middleName"
+							maxlength="64" />
+						<p:message id="middleNameError" for="middleName"
+							styleClass="error" />
+						<h:outputLabel for="lastName"
+							value="#{messages['register.lastName']}" />
+						<p:inputText label="#{messages['register.lastName']}"
+							value="#{registrationBean.lastName}" id="lastName" maxlength="64"
+							required="true"
+							requiredMessage="#{messages['register.error.lastName.required']}" />
+						<p:message id="lastNameError" for="lastName" styleClass="error" />
+						<h:outputLabel for="displayName"
+							value="#{messages['register.displayName']}" />
+						<p:inputText label="#{messages['register.displayName']}"
+							value="#{registrationBean.displayName}" id="displayName"
+							maxlength="64" />
+						<p:message id="displayNameError" for="displayName"
+							styleClass="error" />
+						<h:outputLabel for="captcha"
+							value="#{messages['register.captcha']}" />
+						<p:captcha id="captcha" label="Captcha" secure="true" />
+						<p:message id="captchaError" for="captcha" styleClass="error" />
+					</h:panelGrid>
+					<p:commandButton ajax="false" id="submit" styleClass="submit"
+						value="#{messages['register.submit']}"
+						action="#{registrationBean.register}" />
+				</p:panel>
+			</h:form>
+		</f:view>
+	</ui:define>
+</ui:composition>

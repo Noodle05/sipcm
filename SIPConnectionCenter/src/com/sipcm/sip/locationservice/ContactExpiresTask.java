@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  * @author wgao
  * 
  */
-@Component("contactExpiresTask")
+@Component("sipContactExpiresTask")
 public class ContactExpiresTask {
 	private static final Logger logger = LoggerFactory
 			.getLogger(ContactExpiresTask.class);
@@ -27,7 +27,7 @@ public class ContactExpiresTask {
 		running = new AtomicBoolean(false);
 	}
 
-	@Resource(name = "sip.LocationService")
+	@Resource(name = "sipLocationService")
 	private LocationService locationService;
 
 	@Scheduled(fixedRate = 300000L)

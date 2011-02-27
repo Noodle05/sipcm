@@ -17,6 +17,7 @@
 		<param-name>log4jRefreshInterval</param-name>
 		<param-value>300000</param-value>
 	</context-param>
+
 	<filter>
 		<filter-name>hibernateFilter</filter-name>
 		<filter-class>
@@ -26,11 +27,13 @@
 			<param-value>sessionFactory</param-value>
 		</init-param>
 	</filter>
+
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 		<welcome-file>index.htm</welcome-file>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
+
 	<listener>
 		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
 	</listener>
@@ -43,6 +46,7 @@
 	<listener>
 		<listener-class>com.sun.faces.config.ConfigureListener</listener-class>
 	</listener>
+
 	<resource-ref>
 		<description>
 			Resource reference to a factory for javax.mail.Session
@@ -73,22 +77,7 @@
 		<servlet-name>Faces Servlet</servlet-name>
 		<url-pattern>*.jsf</url-pattern>
 	</servlet-mapping>
-	<servlet>
-		<servlet-name>Captcha</servlet-name>
-		<servlet-class>com.sipcm.web.CaptchaServlet</servlet-class>
-		<init-param>
-			<param-name>width</param-name>
-			<param-value>200</param-value>
-		</init-param>
-		<init-param>
-			<param-name>height</param-name>
-			<param-value>50</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Captcha</servlet-name>
-		<url-pattern>/captchaImg</url-pattern>
-	</servlet-mapping>
+
 	<context-param>
 		<param-name>javax.faces.INTERPRET_EMPTY_STRING_SUBMITTED_VALUES_AS_NULL</param-name>
 		<param-value>true</param-value>
@@ -109,5 +98,17 @@
 	<context-param>
 		<param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
 		<param-value>resources.application</param-value>
+	</context-param>
+	<context-param>
+		<param-name>primefaces.PRIVATE_CAPTCHA_KEY</param-name>
+		<param-value>6LdK9cESAAAAAG1imLXOlYnyn3Ibhm2MTQ28W2sV</param-value>
+	</context-param>
+	<context-param>
+		<param-name>primefaces.PUBLIC_CAPTCHA_KEY</param-name>
+		<param-value>6LdK9cESAAAAAJ_Bf41EKbic6_sw1t76v1CLT0AT</param-value>
+	</context-param>
+	<context-param>
+		<param-name>primefaces.THEME</param-name>
+		<param-value>cupertino</param-value>
 	</context-param>
 </web-app>

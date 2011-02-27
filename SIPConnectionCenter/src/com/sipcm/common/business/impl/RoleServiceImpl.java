@@ -61,13 +61,13 @@ public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 	 */
 	@Override
 	public Role getCallerRole() {
-		Role role = cache.get(callerRole);
+		Role role = cache.get(CALLER_ROLE);
 		if (role == null) {
 			Filter filter = filterFactory.createSimpleFilter("name",
-					callerRole, Filter.Operator.IEQ);
+					CALLER_ROLE, Filter.Operator.IEQ);
 			role = dao.getUniqueEntity(filter);
 			if (role != null) {
-				cache.putIfAbsent(callerRole, role);
+				cache.putIfAbsent(CALLER_ROLE, role);
 			}
 		}
 		return role;

@@ -16,12 +16,12 @@ import org.springframework.stereotype.Component;
  * @author wgao
  * 
  */
-@Component("sip.CallEventListener")
+@Component("sipCallEventListener")
 public class CompositeCallEventListener implements CallEventListener {
 	private static final Logger logger = LoggerFactory
 			.getLogger(CompositeCallEventListener.class);
 
-	@Resource(name = "sip.callEventListeners")
+	@Resource(name = "sipCallEventListeners")
 	private Collection<CallEventListener> listeners;
 
 	/*

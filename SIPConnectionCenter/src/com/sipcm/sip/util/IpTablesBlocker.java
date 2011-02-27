@@ -17,7 +17,7 @@ import com.sipcm.sip.events.BlockIpEventListener;
  * @author wgao
  * 
  */
-@Component("sip.dosBlockEventListener")
+@Component("sipDosBlockEventListener")
 public class IpTablesBlocker implements BlockIpEventListener {
 	@Resource(name = "ipTablesBlockProcessor")
 	private IpTablesProcessor processor;

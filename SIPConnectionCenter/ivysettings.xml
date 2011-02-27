@@ -15,6 +15,8 @@
 				where we can get what we need -->
 			<ibiblio name="java.net" root="http://download.java.net/maven/2/"
 				pattern="[organisation]/[type]s/[artifact]-[revision].[ext]" />
+			<ibiblio name="primefaces" m2compatible="true" checksums=""
+				root="http://repository.prime.com.tr" />
 		</chain>
 	</resolvers>
 	<include url="${ivy.default.settings.dir}/ivysettings-main-chain.xml" />

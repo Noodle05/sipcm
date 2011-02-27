@@ -49,12 +49,6 @@ public class B2bServlet extends AbstractSipServlet {
 	@Resource(name = "sipUtil")
 	protected SipUtil sipUtil;
 
-	// @Override
-	// public void init() throws ServletException {
-	// super.init();
-	// sipUtil = (SipUtil) getServletContext().getAttribute("sipUtil");
-	// }
-
 	@Override
 	protected void doRequest(SipServletRequest req) throws ServletException,
 			IOException {

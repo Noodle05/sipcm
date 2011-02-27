@@ -23,7 +23,7 @@ import com.sipcm.sip.model.CallLog;
  * @author wgao
  * 
  */
-@Component("sip.CallLogRecorder")
+@Component("sipCallLogRecorder")
 public class CallLogRecorder implements CallEventListener {
 	private static final Logger logger = LoggerFactory
 			.getLogger(CallLogRecorder.class);
@@ -31,7 +31,7 @@ public class CallLogRecorder implements CallEventListener {
 	@Resource(name = "callLogService")
 	private CallLogService callLogService;
 
-	@Resource(name = "sip.CallLogSaveTask")
+	@Resource(name = "sipCallLogSaveTask")
 	private Runnable saveTask;
 
 	private final Collection<CallLog> callLogs;

@@ -17,7 +17,7 @@ import com.sipcm.sip.model.UserSipProfile;
  * @author wgao
  * 
  */
-@Component("sip.UserRegistrationForIncomingListener")
+@Component("sipUserRegistrationForIncomingListener")
 public class UserRegistrationEventListener implements RegistrationEventListener {
 	private static final Logger logger = LoggerFactory
 			.getLogger(UserRegistrationEventListener.class);

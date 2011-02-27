@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	template="/WEB-INF/templates/masterLayout.xhtml">
+	<ui:define name="windowTitle">#{messages['activation.title']}</ui:define>
+	<ui:define name="content">
+		<f:metadata>
+			<f:viewParam name="userId" value="#{activationBean.userId}" />
+			<f:viewParam name="activeCode" value="#{activationBean.activeCode}" />
+			<f:event listener="#{activationBean.activeUser}" type="preRenderView" />
+		</f:metadata>
+		<p:panel header="#{messages['activation.title']}">
+			<p:messages />
+			<h:outputText rendered="#{activationBean.actived}"></h:outputText>
+		</p:panel>
+	</ui:define>
+</ui:composition>

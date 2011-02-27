@@ -15,14 +15,14 @@ import org.springframework.stereotype.Component;
  * @author Wei Gao
  * 
  */
-@Component("emailer")
+@Component("globalEmailer")
 public class EmailerImpl implements Emailer {
 	private static final Logger logger = LoggerFactory
 			.getLogger(EmailerImpl.class);
 
 	private final AtomicBoolean emailSendEnabled = new AtomicBoolean(true);
 
-	@Resource(name = "emailProcessor")
+	@Resource(name = "globalEmailProcessor")
 	private EmailProcessor processor;
 
 	/*

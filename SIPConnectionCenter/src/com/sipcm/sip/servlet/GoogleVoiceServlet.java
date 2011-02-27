@@ -56,13 +56,6 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 	@Resource(name = "googleVoiceManager")
 	private GoogleVoiceManager googleVoiceManager;
 
-	// @Override
-	// public void init() throws ServletException {
-	// super.init();
-	// googleVoiceManager = (GoogleVoiceManager) getServletContext()
-	// .getAttribute("googleVoiceManager");
-	// }
-
 	/*
 	 * (non-Javadoc)
 	 * 

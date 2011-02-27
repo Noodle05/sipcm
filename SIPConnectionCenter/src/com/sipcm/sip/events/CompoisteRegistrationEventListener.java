@@ -16,13 +16,13 @@ import org.springframework.stereotype.Component;
  * @author wgao
  * 
  */
-@Component("sip.RegistrationEventListener")
+@Component("sipRegistrationEventListener")
 public class CompoisteRegistrationEventListener implements
 		RegistrationEventListener {
 	private static final Logger logger = LoggerFactory
 			.getLogger(CompoisteRegistrationEventListener.class);
 
-	@Resource(name = "sip.registrationEventListeners")
+	@Resource(name = "sipRegistrationEventListeners")
 	private Collection<RegistrationEventListener> listeners;
 
 	/*

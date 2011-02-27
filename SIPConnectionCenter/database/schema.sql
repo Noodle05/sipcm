@@ -88,6 +88,7 @@ CREATE TABLE tbl_useractivation (
 id BIGINT NOT NULL UNIQUE,
 active_code VARCHAR(32) NOT NULL,
 expire_date DATETIME NOT NULL,
+method INTEGER NOT NULL,
 PRIMARY KEY (id)) ENGINE=InnoDB;
 
 CREATE TABLE tbl_userrole (

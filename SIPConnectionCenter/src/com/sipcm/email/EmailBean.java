@@ -6,6 +6,7 @@ package com.sipcm.email;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
@@ -32,6 +33,10 @@ public class EmailBean implements Serializable {
 	private String subject;
 
 	private String body;
+
+	private boolean template;
+
+	private Map<String, Object> params;
 
 	private String charSet;
 
@@ -123,6 +128,13 @@ public class EmailBean implements Serializable {
 	 */
 	public String getBody() {
 		return body;
+	}
+
+	/**
+	 * @return the template
+	 */
+	public boolean isTemplate() {
+		return template;
 	}
 
 	/**
@@ -254,6 +266,34 @@ public class EmailBean implements Serializable {
 	 */
 	public void setBody(String body) {
 		this.body = body;
+		this.template = false;
+	}
+
+	/**
+	 * Set template
+	 * 
+	 * @param template
+	 * @param params
+	 */
+	public void setTemplate(String template, Map<String, Object> params) {
+		this.body = template;
+		this.template = true;
+	}
+
+	/**
+	 * @param params
+	 *            the params
+	 */
+	public void setParams(Map<String, Object> params) {
+		this.params = params;
+	}
+
+	/**
+	 * 
+	 * @return the params
+	 */
+	public Map<String, Object> getParams() {
+		return params;
 	}
 
 	/**

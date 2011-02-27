@@ -4,7 +4,6 @@
 package com.sipcm.base.business;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,9 +45,10 @@ public abstract class AbstractServiceEventObserver<Entity extends IdBasedEntity<
 			logger.debug("Entity: \"{}\" been saved, notify listener.", entity);
 		}
 		try {
-			@SuppressWarnings("unchecked")
+			Collection<Entity> entities = new ArrayList<Entity>(1);
+			entities.add(entity);
 			EntityEventObject<Entity, ID> event = new EntityEventObject<Entity, ID>(
-					entity);
+					entities);
 			if (isNew) {
 				listener.entityCreated(event);
 			} else {
@@ -89,11 +89,8 @@ public abstract class AbstractServiceEventObserver<Entity extends IdBasedEntity<
 				logger.debug("Collection of entities saved, notify listener.");
 			}
 			if (!newEntities.isEmpty()) {
-				@SuppressWarnings("unchecked")
-				Entity[] nE = (Entity[]) Array.newInstance(newEntities
-						.iterator().next().getClass(), newEntities.size());
 				EntityEventObject<Entity, ID> event = new EntityEventObject<Entity, ID>(
-						nE);
+						entities);
 				try {
 					listener.entityCreated(event);
 				} catch (Throwable e) {
@@ -103,11 +100,8 @@ public abstract class AbstractServiceEventObserver<Entity extends IdBasedEntity<
 				}
 			}
 			if (!existingEntities.isEmpty()) {
-				@SuppressWarnings("unchecked")
-				Entity[] nE = (Entity[]) Array.newInstance(newEntities
-						.iterator().next().getClass(), newEntities.size());
 				EntityEventObject<Entity, ID> event = new EntityEventObject<Entity, ID>(
-						nE);
+						entities);
 				try {
 					listener.entityModified(event);
 				} catch (Throwable e) {
@@ -130,9 +124,10 @@ public abstract class AbstractServiceEventObserver<Entity extends IdBasedEntity<
 						entity);
 			}
 			try {
-				@SuppressWarnings("unchecked")
+				Collection<Entity> entities = new ArrayList<Entity>(1);
+				entities.add(entity);
 				EntityEventObject<Entity, ID> event = new EntityEventObject<Entity, ID>(
-						entity);
+						entities);
 				listener.entityDeleted(event);
 			} catch (Throwable e) {
 				if (logger.isErrorEnabled()) {
@@ -150,11 +145,8 @@ public abstract class AbstractServiceEventObserver<Entity extends IdBasedEntity<
 			if (logger.isDebugEnabled()) {
 				logger.debug("Collection of entities been deleted, notify listener.");
 			}
-			@SuppressWarnings("unchecked")
-			Entity[] nE = (Entity[]) Array.newInstance(entities.iterator()
-					.next().getClass(), entities.size());
 			EntityEventObject<Entity, ID> event = new EntityEventObject<Entity, ID>(
-					nE);
+					entities);
 			try {
 				listener.entityDeleted(event);
 			} catch (Throwable e) {

@@ -21,7 +21,7 @@ import com.sipcm.common.model.User;
 @Component("locationServiceUserEventListener")
 public class UserServiceEventListener extends
 		AbstractServiceEventListener<User, Long> {
-	@Resource(name = "sip.LocationService")
+	@Resource(name = "sipLocationService")
 	private LocationService locationService;
 
 	/*
@@ -32,8 +32,8 @@ public class UserServiceEventListener extends
 	 */
 	@Override
 	public void entityModified(EntityEventObject<User, Long> event) {
-		User[] users = event.getSource();
-		Collection<Long> changedIds = new ArrayList<Long>(users.length);
+		Collection<User> users = event.getSource();
+		Collection<Long> changedIds = new ArrayList<Long>(users.size());
 		for (User user : users) {
 			changedIds.add(user.getId());
 		}
@@ -52,11 +52,15 @@ public class UserServiceEventListener extends
 	 */
 	@Override
 	public void entityDeleted(EntityEventObject<User, Long> event) {
-		User[] users = event.getSource();
-		Long[] ids = new Long[users.length];
-		for (int i = 0; i < users.length; i++) {
-			ids[i] = users[i].getId();
+		Collection<User> users = event.getSource();
+		Collection<Long> deletedIds = new ArrayList<Long>(users.size());
+		for (User user : users) {
+			deletedIds.add(user.getId());
 		}
-		locationService.onUserChanged(ids);
+		if (!deletedIds.isEmpty()) {
+			Long[] ids = new Long[deletedIds.size()];
+			ids = deletedIds.toArray(ids);
+			locationService.onUserChanged(ids);
+		}
 	}
 }

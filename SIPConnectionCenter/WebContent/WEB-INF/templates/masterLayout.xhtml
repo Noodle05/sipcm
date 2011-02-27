@@ -15,12 +15,14 @@
 
 <h:body>
 	<div id="bodyContainer">
-	<div id="headerContainer"><ui:insert name="header">
+	<div id="headerContainer" class="title ui-widget-header ui-corner-all"><ui:insert
+		name="header">
 		<ui:include src="masterHeader.xhtml" />
 	</ui:insert></div>
 
 	<div id="contentContainer"><ui:insert name="content" /></div>
-	<div id="footerContainer"><ui:insert name="footer">
+	<div id="footerContainer" class="title ui-widget-header ui-corner-all"><ui:insert
+		name="footer">
 		<ui:include src="masterFooter.xhtml" />
 	</ui:insert></div>
 	</div>
