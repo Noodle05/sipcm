@@ -84,6 +84,18 @@
 							maxlength="64" />
 						<p:message id="displayNameError" for="displayName"
 							styleClass="error" />
+						<h:outputLabel for="locale" value="#{messages['register.locale']}" />
+						<h:selectOneMenu id="locale" value="#{registrationBean.locale}">
+							<f:selectItems value="#{registrationBean.availableLocales}" />
+						</h:selectOneMenu>
+						<p:message id="localeError" for="locale" styleClass="error" />
+						<h:outputLabel for="timeZone"
+							value="#{messages['register.timeZone']}" />
+						<h:selectOneMenu id="timeZone"
+							value="#{registrationBean.timeZone}">
+							<f:selectItems value="#{registrationBean.availableTimeZones}" />
+						</h:selectOneMenu>
+						<p:message id="timeZoneError" for="timeZone" styleClass="error" />
 						<h:outputLabel for="captcha"
 							value="#{messages['register.captcha']}" />
 						<p:captcha id="captcha" label="Captcha" secure="true" />

@@ -1,0 +1,15 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <h3>${activation.owner.displayName}，你好</h3>
+    <h4>欢迎来到Gaofamily Call Center！</h4><br />
+    <div>你的注册过程还没有完成，请点击<a href="${serverUrl}/register/activation.jsf?userId=${activation.owner.id}&activeCode=${activation.activeCode}">这里</a>激活你帐号。
+    </div>
+    <div>如果你无法点击上面的连接，请用你的浏览器访问"${serverUrl}/register/activation.jsf?userId=${activation.owner.id}&activeCode=${activation.activeCode}"以激活你的帐号。
+    </div>
+  </body>
+</html>

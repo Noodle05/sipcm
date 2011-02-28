@@ -4,6 +4,7 @@
 package com.sipcm.email;
 
 import java.util.Collection;
+import java.util.Locale;
 
 import javax.activation.DataSource;
 import javax.annotation.Resource;
@@ -93,7 +94,7 @@ public class EmailService {
 			helper = new MimeMessageHelper(mimeMessage, true,
 					emailBean.getCharSet());
 		} else {
-			helper = new MimeMessageHelper(mimeMessage, true);
+			helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 		}
 		for (String address : emailBean.getToAddress()) {
 			helper.addTo(address);
@@ -119,8 +120,39 @@ public class EmailService {
 		}
 		String text;
 		if (emailBean.isTemplate()) {
+			String temp = null;
+			Locale locale = emailBean.getLocale();
+			if (locale != null) {
+				String base = emailBean.getBody();
+				String ext = null;
+				int index = base.lastIndexOf('.');
+				if (index >= 0) {
+					ext = base.substring(index);
+					base = base.substring(0, index);
+				} else {
+					ext = "";
+				}
+				if (locale.getCountry() != null
+						&& locale.getCountry().length() > 0) {
+					String s = base + "_" + locale.getLanguage() + "_"
+							+ locale.getCountry() + ext;
+					if (velocityEngine.resourceExists(s)) {
+						temp = s;
+					}
+				}
+				if (temp == null && locale.getLanguage() != null
+						&& locale.getLanguage().length() > 0) {
+					String s = base + "_" + locale.getLanguage() + ext;
+					if (velocityEngine.resourceExists(s)) {
+						temp = s;
+					}
+				}
+			}
+			if (temp == null) {
+				temp = emailBean.getBody();
+			}
 			text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
-					emailBean.getBody(), emailBean.getParams());
+					temp, "UTF-8", emailBean.getParams());
 		} else {
 			text = emailBean.getBody();
 		}

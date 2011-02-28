@@ -16,7 +16,12 @@
 		</f:metadata>
 		<p:panel header="#{messages['activation.title']}">
 			<p:messages />
-			<h:outputText rendered="#{activationBean.actived}"></h:outputText>
+			<h:outputText value="#{messages['activation.activated']}"
+				rendered="#{activationBean.actived}" />
+			<br />
+			<h:outputLink value="/index.jsp">
+				<h:outputText value="#{messages['activation.content']}" />
+			</h:outputLink>
 		</p:panel>
 	</ui:define>
 </ui:composition>

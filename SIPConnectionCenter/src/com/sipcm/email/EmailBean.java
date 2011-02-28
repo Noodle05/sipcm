@@ -6,6 +6,7 @@ package com.sipcm.email;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.activation.DataSource;
@@ -45,6 +46,8 @@ public class EmailBean implements Serializable {
 	private Collection<DataSource> attachments;
 
 	private boolean htmlEncoded;
+
+	private Locale locale;
 
 	/**
 	 * Email priority enumeration.
@@ -248,6 +251,20 @@ public class EmailBean implements Serializable {
 	 */
 	public void setHtmlEncoded(boolean htmlEncoded) {
 		this.htmlEncoded = htmlEncoded;
+	}
+
+	/**
+	 * @param locale the locale to set
+	 */
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
+	/**
+	 * @return the locale
+	 */
+	public Locale getLocale() {
+		return locale;
 	}
 
 	/**

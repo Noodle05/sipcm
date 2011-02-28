@@ -55,7 +55,11 @@ public abstract class Messages {
 		}
 		String detail = getString(appBundle, bundleName,
 				resourceId + "_detail", locale, loader, params);
-		return new FacesMessage(severity, summary, detail);
+		if (severity != null) {
+			return new FacesMessage(severity, summary, detail);
+		} else {
+			return new FacesMessage(summary, detail);
+		}
 	}
 
 	public static String getString(String bundle, String resourceId,

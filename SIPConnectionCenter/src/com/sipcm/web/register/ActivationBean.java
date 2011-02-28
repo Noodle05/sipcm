@@ -4,6 +4,7 @@
 package com.sipcm.web.register;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -74,23 +75,33 @@ public class ActivationBean implements Serializable {
 		}
 		UserActivation ua = userActivationService.getUserActivationByUser(user);
 		if (ua == null) {
-			FacesMessage message = Messages
-					.getMessage("account.active.error.invaliduserid");
+			FacesMessage message = Messages.getMessage(
+					"account.active.error.invaliduserid",
+					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return;
 		}
 		if (!AccountStatus.PENDING.equals(user.getStatus())) {
 			userActivationService.removeEntity(ua);
+			FacesMessage message = Messages.getMessage(
+					"account.active.error.notpending",
+					FacesMessage.SEVERITY_ERROR);
+			fc.addMessage(null, message);
+			return;
+		}
+		if (ua.getExpireDate().before(new Date())) {
 			FacesMessage message = Messages
-					.getMessage("account.active.error.notpending");
+					.getMessage("account.active.error.expired",
+							FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return;
 		}
 		if (ActiveMethod.ADMIN.equals(ua.getMethod())) {
 			// Admin active, check if current user is admin
 			if (!fc.getExternalContext().isUserInRole(RoleService.ADMIN_ROLE)) {
-				FacesMessage message = Messages
-						.getMessage("account.active.error.onlyadmin");
+				FacesMessage message = Messages.getMessage(
+						"account.active.error.onlyadmin",
+						FacesMessage.SEVERITY_ERROR);
 				fc.addMessage(null, message);
 				return;
 			} else {
@@ -98,14 +109,16 @@ public class ActivationBean implements Serializable {
 			}
 		}
 		if (activeCode == null) {
-			FacesMessage message = Messages
-					.getMessage("account.active.error.invalidactivecode");
+			FacesMessage message = Messages.getMessage(
+					"account.active.error.invalidactivecode",
+					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return;
 		}
 		if (!ua.getActiveCode().equals(activeCode)) {
-			FacesMessage message = Messages
-					.getMessage("account.active.error.invalidactivecode");
+			FacesMessage message = Messages.getMessage(
+					"account.active.error.invalidactivecode",
+					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return;
 		}
