@@ -215,7 +215,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				session.setAttribute(ORIGINAL_REQUEST, req);
 				appSession.setAttribute(ORIGINAL_SESSION, session);
 				ServletTimer st = timeService.createTimer(appSession,
-						getGoogleVoiceCallTimeout() * 1000L, false,
+						appConfig.getGoogleVoiceCallTimeout() * 1000L, false,
 						(SipServletRequestImpl) req);
 				appSession.setAttribute(GV_TIMEOUT, st.getId());
 				response(req, SipServletResponse.SC_SESSION_PROGRESS,
@@ -465,10 +465,6 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				}
 			}
 		}
-	}
-
-	private int getGoogleVoiceCallTimeout() {
-		return appConfig.getInt(GV_TIMEOUT, 60);
 	}
 
 	protected void callFailed(SipSession session, Exception e) {

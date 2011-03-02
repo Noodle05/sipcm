@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	template="/WEB-INF/templates/masterLayout.xhtml">
+	<ui:define name="windowTitle">#{messages['login.title']}</ui:define>
+	<ui:define name="content">
+		<f:view contentType="text/html">
+			<p:panel header="#{messages['login.header']}">
+				<p:messages id="loginError" showDetail="true" />
+				<h:form id="loginForm" prependId="false">
+					<h:panelGrid columns="3">
+						<h:outputLabel for="j_username"
+							value="#{messages['login.username']}" />
+						<p:inputText label="#{messages['login.username']}" id="j_username"
+							value="#{loginBean.username}" maxlength="64" required="true"
+							requiredMessage="#{messages['login.error.username.required']}" />
+						<p:message id="usernameError" for="j_username" styleClass="error" />
+						<h:outputLabel for="j_password"
+							value="#{messages['login.password']}" />
+						<p:password label="#{messages['login.password']}" id="j_password"
+							value="#{loginBean.password}" feedback="false" required="true"
+							requiredMessage="#{messages['login.error.password.required']}" />
+						<p:message id="passwordError" for="j_password" styleClass="error" />
+						<h:outputLabel for="_spring_security_remember_me"
+							value="#{messages['login.remember_me']}" />
+						<h:selectBooleanCheckbox id="_spring_security_remember_me"
+							value="#{loginBean.rememberMe}" />
+						<p:message id="rememberMeError" for="_spring_security_remember_me"
+							styleClass="error" />
+						<h:outputLabel for="captcha" value="#{messages['login.captcha']}" />
+						<p:captcha id="captcha" label="#{messages['login.captcha']}"
+							secure="true" required="true" theme="white"
+							requiredMessage="#{messages['login.error.captcha.required']}" />
+						<p:message id="captchaError" for="captcha" styleClass="error" />
+					</h:panelGrid>
+					<p:commandButton ajax="false" id="login" styleClass="submit"
+						value="#{messages['login.submit']}" action="#{loginBean.doLogin}" />
+				</h:form>
+				<h:outputLink value="/account/register.jsf">
+					<h:outputText value="#{messages['login.register']}" />
+				</h:outputLink>
+				<br />
+				<h:outputLink value="/account/forgetPassword.jsf">
+					<h:outputText value="#{messages['login.forgetpassword']}" />
+				</h:outputLink>
+			</p:panel>
+		</f:view>
+	</ui:define>
+</ui:composition>

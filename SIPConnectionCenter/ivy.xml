@@ -127,10 +127,12 @@
 		<dependency org="org.springframework" name="spring-web"
 			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework.security" name="spring-security-core"
-			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc">
+			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc">
 			<exclude org="org.aspectj" />
 		</dependency>
 		<dependency org="org.springframework.security" name="spring-security-web"
+			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.springframework.security" name="spring-security-config"
 			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-test"
 			rev="3.0.5.RELEASE" conf="test->default;foride->sources,javadoc" />
@@ -178,5 +180,7 @@
 			rev="1.0.0" conf="runtime->default" />
 		<dependency org="org.apache.velocity" name="velocity" rev="1.7"
 			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.springframework.security" name="facelets-taglib-jsf20-spring-3"
+			rev="0.5" conf="runtime->default;foride->sources,javadoc" />
 	</dependencies>
 </ivy-module>

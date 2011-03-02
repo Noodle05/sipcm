@@ -7,7 +7,6 @@ import java.util.HashSet;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.configuration.Configuration;
 import org.jasypt.digest.StringDigester;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,6 +16,7 @@ import com.sipcm.base.business.impl.AbstractService;
 import com.sipcm.base.dao.DAO;
 import com.sipcm.base.filter.Filter;
 import com.sipcm.common.AccountStatus;
+import com.sipcm.common.SystemConfiguration;
 import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.Role;
 import com.sipcm.common.model.User;
@@ -29,13 +29,11 @@ import com.sipcm.common.model.User;
 @Transactional(readOnly = true)
 public class UserServiceImpl extends AbstractService<User, Long> implements
 		UserService {
-	public static final String REALM_NAME = "sip.server.realm";
-
-	@Resource(name = "stringDigester")
+	@Resource(name = "globalStringDigester")
 	private StringDigester stringDigester;
 
-	@Resource(name = "applicationConfiguration")
-	private Configuration appConfig;
+	@Resource(name = "systemConfiguration")
+	private SystemConfiguration appConfig;
 
 	/*
 	 * (non-Javadoc)
@@ -90,9 +88,8 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	public User setPassword(User entity, String password) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(entity.getUsername()).append(":")
-				.append(appConfig.getString(REALM_NAME)).append(":")
-				.append(password);
-		String passwd = stringDigester.digest(sb.toString()).toLowerCase();
+				.append(appConfig.getRealmName()).append(":").append(password);
+		String passwd = stringDigester.digest(sb.toString());
 		entity.setPassword(passwd);
 		return entity;
 	}
@@ -109,8 +106,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	public boolean matchPassword(User entity, String password) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(entity.getUsername()).append(":")
-				.append(appConfig.getString(REALM_NAME)).append(":")
-				.append(password);
+				.append(appConfig.getRealmName()).append(":").append(password);
 		return stringDigester.matches(sb.toString(), entity.getPassword());
 	}
 }

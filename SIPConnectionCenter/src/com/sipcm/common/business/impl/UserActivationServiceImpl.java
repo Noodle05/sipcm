@@ -69,8 +69,8 @@ public class UserActivationServiceImpl extends
 	 */
 	@Override
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
-	public UserActivation createUserActivation(User owner, ActiveMethod method,
-			int expireHours) {
+	public UserActivation createUserActivation(final User owner,
+			final ActiveMethod method, int expireHours) {
 		if (method == null) {
 			throw new NullPointerException("Active method cannot be null.");
 		}
@@ -102,9 +102,26 @@ public class UserActivationServiceImpl extends
 	 * (com.sipcm.common.model.User)
 	 */
 	@Override
-	public UserActivation getUserActivationByUser(User user) {
+	public UserActivation getUserActivationByUser(final User user) {
 		Filter filter = filterFactory.createSimpleFilter("owner.id",
 				user.getId());
 		return dao.getUniqueEntity(filter);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.common.business.UserActivationService#updateExpires(com.sipcm
+	 * .common.model.UserActivation, int)
+	 */
+	@Override
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	public UserActivation updateExpires(final UserActivation userActivaiton,
+			int expireHours) {
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.HOUR, expireHours);
+		userActivaiton.setExpireDate(c.getTime());
+		return userActivaiton;
 	}
 }

@@ -25,16 +25,13 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.apache.commons.configuration.Configuration;
-import org.jasypt.util.text.StrongTextEncryptor;
-import org.jasypt.util.text.TextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.jcraft.jsch.JSchException;
-import com.sipcm.util.CodecTool;
+import com.sipcm.common.SystemConfiguration;
 
 /**
  * @author wgao
@@ -44,14 +41,6 @@ import com.sipcm.util.CodecTool;
 public class IpTablesProcessorImpl implements IpTablesProcessor {
 	private static final Logger logger = LoggerFactory
 			.getLogger(IpTablesProcessorImpl.class);
-
-	public static final String FIREWALL_ENABLED = "firewall.enable";
-	public static final String FIREWALL_HOST = "firewall.host";
-	public static final String FIREWALL_USER = "firewall.user";
-	public static final String KNOWN_HOSTS = "firewall.known_hosts";
-	public static final String PRIVATE_KEY = "firewall.private_key";
-	public static final String PASSPHRASE = "firewall.password_phrase";
-	public static final String SSH_DISCONNECT_DELAY = "firewall.ssh.disconnect.delay";
 
 	private static final String IP_ELEMENT = "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
 	private static final String IPADDR = IP_ELEMENT + "\\." + IP_ELEMENT
@@ -68,13 +57,11 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	private static final String REMOVE_BLOCK_COMMAND = "/usr/sbin/iptables -D FORWARD {0}";
 	private static final String ADD_BLOCK_IP_COMMAND = "/usr/sbin/iptables -I FORWARD 1 -p udp -s {0} --dport 5060 -j DROP";
 
-	@Resource(name = "applicationConfiguration")
-	private Configuration appConfig;
+	@Resource(name = "systemConfiguration")
+	private SystemConfiguration appConfig;
 
 	@Resource(name = "sshExecutor")
 	private SshExecutor sshExecutor;
-
-	private final TextEncryptor textEncryptor;
 
 	private enum RequestType {
 		BLOCK, UNBLOCK, REMOVEALL;
@@ -86,10 +73,6 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	private final AtomicBoolean running;
 
 	public IpTablesProcessorImpl() {
-		StrongTextEncryptor encryptor = new StrongTextEncryptor();
-		encryptor.setPassword(CodecTool.PASSWORD);
-		textEncryptor = encryptor;
-
 		requests = new LinkedBlockingQueue<Request>();
 		running = new AtomicBoolean(false);
 		requestsLock = new ReentrantLock();
@@ -97,10 +80,12 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 
 	@PostConstruct
 	public void init() {
-		if (isFirewallEnabled()) {
-			sshExecutor.init(getFirewallHost(), getFirewallUser(),
-					getKnownHostsFile(), getPrivateKeyFile(),
-					getPasswordPhrase(), getSshDisconnectDelay());
+		if (appConfig.isFirewallEnabled()) {
+			sshExecutor.init(appConfig.getFirewallHost(),
+					appConfig.getFirewallUser(), appConfig.getKnownHostsFile(),
+					appConfig.getPrivateKeyFile(),
+					appConfig.getPasswordPhrase(),
+					appConfig.getSshDisconnectDelay());
 		}
 	}
 
@@ -112,7 +97,7 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	 */
 	@Override
 	public boolean postBlockRequest(InetAddress ip) {
-		if (isFirewallEnabled()) {
+		if (appConfig.isFirewallEnabled()) {
 			if (ip != null) {
 				requestsLock.lock();
 				try {
@@ -145,7 +130,7 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	 */
 	@Override
 	public boolean postUnblockIp(InetAddress ip) {
-		if (isFirewallEnabled()) {
+		if (appConfig.isFirewallEnabled()) {
 			if (ip != null) {
 				requestsLock.lock();
 				try {
@@ -177,7 +162,7 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	 */
 	@Override
 	public boolean postRemoveAll() {
-		if (isFirewallEnabled()) {
+		if (appConfig.isFirewallEnabled()) {
 			requestsLock.lock();
 			try {
 				if (logger.isTraceEnabled()) {
@@ -200,7 +185,7 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	@Override
 	@Async
 	public void process() {
-		if (isFirewallEnabled()) {
+		if (appConfig.isFirewallEnabled()) {
 			if (running.compareAndSet(false, true)) {
 				try {
 					Request request;
@@ -373,38 +358,6 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 			}
 		}
 		return result;
-	}
-
-	private String getFirewallHost() {
-		return appConfig.getString(FIREWALL_HOST);
-	}
-
-	private String getFirewallUser() {
-		return appConfig.getString(FIREWALL_USER);
-	}
-
-	private String getKnownHostsFile() {
-		return appConfig.getString(KNOWN_HOSTS);
-	}
-
-	private String getPrivateKeyFile() {
-		return appConfig.getString(PRIVATE_KEY);
-	}
-
-	private boolean isFirewallEnabled() {
-		return appConfig.getBoolean(FIREWALL_ENABLED);
-	}
-
-	private String getPasswordPhrase() {
-		String password = appConfig.getString(PASSPHRASE);
-		if (password != null) {
-			password = textEncryptor.decrypt(password);
-		}
-		return password;
-	}
-
-	private int getSshDisconnectDelay() {
-		return appConfig.getInt(SSH_DISCONNECT_DELAY, 60);
 	}
 
 	private class Request {

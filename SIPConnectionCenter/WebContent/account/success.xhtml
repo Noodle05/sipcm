@@ -7,20 +7,13 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.prime.com.tr/ui"
 	template="/WEB-INF/templates/masterLayout.xhtml">
-	<ui:define name="windowTitle">#{messages['activation.title']}</ui:define>
+	<ui:define name="windowTitle">#{messages['success.message.title']}</ui:define>
 	<ui:define name="content">
-		<f:metadata>
-			<f:viewParam name="userId" value="#{activationBean.userId}" />
-			<f:viewParam name="activeCode" value="#{activationBean.activeCode}" />
-			<f:event listener="#{activationBean.activeUser}" type="preRenderView" />
-		</f:metadata>
-		<p:panel header="#{messages['activation.title']}">
-			<p:messages />
-			<h:outputText value="#{messages['activation.activated']}"
-				rendered="#{activationBean.actived}" />
+		<p:panel header="#{messages['success.message.title']}">
+			<p:messages showSummary="true" showDetail="true" />
 			<br />
 			<h:outputLink value="/index.jsp">
-				<h:outputText value="#{messages['activation.content']}" />
+				<h:outputText value="#{messages['main.return.to.home']}" />
 			</h:outputLink>
 		</p:panel>
 	</ui:define>

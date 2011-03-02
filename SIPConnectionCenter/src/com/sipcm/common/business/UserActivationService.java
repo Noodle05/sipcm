@@ -17,4 +17,7 @@ public interface UserActivationService extends Service<UserActivation, Long> {
 			int expireHours);
 
 	public UserActivation getUserActivationByUser(User user);
+
+	public UserActivation updateExpires(UserActivation userActivation,
+			int expireHours);
 }

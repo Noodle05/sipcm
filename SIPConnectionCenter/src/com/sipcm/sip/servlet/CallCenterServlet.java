@@ -132,7 +132,8 @@ public class CallCenterServlet extends AbstractSipServlet {
 			String fromHost = fromSipUri.getHost();
 			String toUser = toSipUri.getUser();
 
-			if (fromHost.toUpperCase().endsWith(getDomain().toUpperCase())) {
+			if (fromHost.toUpperCase().endsWith(
+					appConfig.getDomain().toUpperCase())) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("From host is the domain we served, check authentication.");
 				}

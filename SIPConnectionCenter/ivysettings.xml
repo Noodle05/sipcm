@@ -17,6 +17,8 @@
 				pattern="[organisation]/[type]s/[artifact]-[revision].[ext]" />
 			<ibiblio name="primefaces" m2compatible="true" checksums=""
 				root="http://repository.prime.com.tr" />
+			<ibiblio name="facelets" m2compatible="true" checksums=""
+				root="http://spring-security-facelets-taglib.googlecode.com/svn/repo/" />
 		</chain>
 	</resolvers>
 	<include url="${ivy.default.settings.dir}/ivysettings-main-chain.xml" />

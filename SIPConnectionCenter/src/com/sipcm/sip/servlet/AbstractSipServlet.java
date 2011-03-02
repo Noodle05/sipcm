@@ -17,10 +17,10 @@ import javax.servlet.sip.SipSessionsUtil;
 import javax.servlet.sip.TimerService;
 import javax.sip.message.Request;
 
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sipcm.common.SystemConfiguration;
 import com.sipcm.sip.events.CallEventListener;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.PhoneNumberUtil;
@@ -31,8 +31,6 @@ import com.sipcm.sip.util.PhoneNumberUtil;
  */
 public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 	private static final long serialVersionUID = -2473822499443253930L;
-
-	public static final String DOMAIN_NAME = "domainname";
 
 	public static final String USER_ATTRIBUTE = "org.gaofamily.user";
 	public static final String USER_VOIP_ACCOUNT = "org.gaofamily.voip.account";
@@ -66,8 +64,8 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 	@Resource(name = "phoneNumberUtil")
 	protected PhoneNumberUtil phoneNumberUtil;
 
-	@Resource(name = "applicationConfiguration")
-	protected Configuration appConfig;
+	@Resource(name = "systemConfiguration")
+	protected SystemConfiguration appConfig;
 
 	@Override
 	public void init() throws ServletException {
@@ -75,10 +73,6 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 		if (logger.isInfoEnabled()) {
 			logger.info(getServletName() + " has been started");
 		}
-	}
-
-	protected String getDomain() {
-		return appConfig.getString(DOMAIN_NAME);
 	}
 
 	protected void response(SipServletRequest req, int statusCode)

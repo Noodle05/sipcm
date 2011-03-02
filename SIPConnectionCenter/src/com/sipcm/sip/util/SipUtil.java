@@ -15,12 +15,12 @@ import javax.sdp.SessionDescription;
 import javax.servlet.sip.SipServletMessage;
 import javax.servlet.sip.URI;
 
-import org.apache.commons.configuration.Configuration;
 import org.mobicents.servlet.sip.address.SipURIImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.sipcm.common.SystemConfiguration;
 import com.sipcm.sip.nat.PublicIpAddressHolder;
 
 /**
@@ -31,13 +31,11 @@ import com.sipcm.sip.nat.PublicIpAddressHolder;
 public class SipUtil {
 	private static final Logger logger = LoggerFactory.getLogger(SipUtil.class);
 
-	public static final String PROCESS_PUBLIC_IP = "sip.publicIp.process";
-
 	@Resource(name = "publicIpAddressHolder")
 	private PublicIpAddressHolder publicIpAddressHolder;
 
-	@Resource(name = "applicationConfiguration")
-	private Configuration appConfig;
+	@Resource(name = "systemConfiguration")
+	private SystemConfiguration appConfig;
 
 	public URI getCanonicalizedURI(URI uri) {
 		if (uri instanceof SipURIImpl) {
@@ -54,7 +52,8 @@ public class SipUtil {
 
 	public void processingAddressInSDP(SipServletMessage forkedMessage,
 			SipServletMessage originalMessage) {
-		if (!isProcessPublicIp() || publicIpAddressHolder.getPublicIp() == null) {
+		if (!appConfig.isProcessPublicIp()
+				|| publicIpAddressHolder.getPublicIp() == null) {
 			return;
 		}
 		try {
@@ -119,9 +118,5 @@ public class SipUtil {
 				}
 			}
 		}
-	}
-
-	private boolean isProcessPublicIp() {
-		return appConfig.getBoolean(PROCESS_PUBLIC_IP, true);
 	}
 }

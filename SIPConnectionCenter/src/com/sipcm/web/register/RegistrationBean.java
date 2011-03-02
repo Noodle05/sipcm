@@ -25,20 +25,19 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.validator.ValidatorException;
 
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sipcm.common.AccountStatus;
 import com.sipcm.common.ActiveMethod;
+import com.sipcm.common.SystemConfiguration;
 import com.sipcm.common.business.RoleService;
 import com.sipcm.common.business.UserActivationService;
 import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.Role;
 import com.sipcm.common.model.User;
 import com.sipcm.common.model.UserActivation;
-import com.sipcm.email.EmailBean;
-import com.sipcm.email.Emailer;
+import com.sipcm.web.util.EmailUtils;
 import com.sipcm.web.util.Messages;
 
 /**
@@ -53,13 +52,7 @@ public class RegistrationBean implements Serializable {
 	private static final Logger logger = LoggerFactory
 			.getLogger(RegistrationBean.class);
 
-	public static final String USERNAME_PATTERN = "register.username.pattern";
-	public static final String EMAIL_PATTERN = "register.email.pattern";
-	public static final String ACTIVE_METHOD = "register.active.method";
-	public static final String ACTIVE_EXPIRES = "register.active.expires";
-	public static final String ADMIN_EMAIL = "global.admin.email";
-
-	public static final String SELF_ACTIVE_EMAIL_TEMPATE = "/templates/self-active.vm";
+	public static final String SELF_ACTIVE_EMAIL_TEMPLATE = "/templates/self-active.vm";
 	public static final String ADMIN_ACTIVE_EMAIL_TEMPLATE = "/templates/admin-active.vm";
 
 	public static final String NA = "---";
@@ -102,11 +95,11 @@ public class RegistrationBean implements Serializable {
 				Locale.CHINA);
 	}
 
-	@ManagedProperty(value = "#{applicationConfiguration}")
-	private Configuration appConfig;
+	@ManagedProperty(value = "#{systemConfiguration}")
+	private SystemConfiguration appConfig;
 
-	@ManagedProperty(value = "#{globalEmailer}")
-	private Emailer emailer;
+	@ManagedProperty(value = "#{webEmailUtils}")
+	private EmailUtils emailUtils;
 
 	@ManagedProperty(value = "#{userService}")
 	private UserService userService;
@@ -144,12 +137,11 @@ public class RegistrationBean implements Serializable {
 		if (logger.isDebugEnabled()) {
 			logger.debug("A new registration bean been created.");
 		}
-		usernamePattern = Pattern.compile(getUsernamePattern());
-		emailPattern = Pattern.compile(getEmailPattern());
+		usernamePattern = Pattern.compile(appConfig.getUsernamePattern());
+		emailPattern = Pattern.compile(appConfig.getEmailPattern());
 	}
 
 	public String register() {
-		String result;
 		FacesContext context = FacesContext.getCurrentInstance();
 		User user = userService.createNewEntity();
 		user.setUsername(username);
@@ -166,26 +158,35 @@ public class RegistrationBean implements Serializable {
 			TimeZone tz = TimeZone.getTimeZone(timeZone);
 			user.setTimeZone(tz);
 		}
-		if (ActiveMethod.NONE.equals(getActiveMethod())) {
+		if (ActiveMethod.NONE.equals(appConfig.getActiveMethod())) {
 			user.setStatus(AccountStatus.ACTIVE);
 		}
-		Role callerRole = roleService.getCallerRole();
-		user.addRole(callerRole);
+		Role userRole = roleService.getUserRole();
+		user.addRole(userRole);
 		userService.setPassword(user, password);
 		userService.saveEntity(user);
-		switch (getActiveMethod()) {
+		FacesMessage message;
+		switch (appConfig.getActiveMethod()) {
 		case SELF:
 			selfActive(user);
+			message = Messages.getMessage("register.success.self.active",
+					FacesMessage.SEVERITY_INFO);
+			context.addMessage(null, message);
 			break;
 		case ADMIN:
 			adminActive(user);
+			message = Messages.getMessage("register.success.admin.active",
+					FacesMessage.SEVERITY_INFO);
+			context.addMessage(null, message);
 			break;
 		default:
+			message = Messages.getMessage("register.success",
+					FacesMessage.SEVERITY_INFO);
+			context.addMessage(null, message);
 			break;
 		}
 		context.getExternalContext().getSessionMap().remove("registrationBean");
-		result = "RegisterSuccess";
-		return result;
+		return "success";
 	}
 
 	public void validateUsername(FacesContext context,
@@ -255,16 +256,16 @@ public class RegistrationBean implements Serializable {
 	 * @param appConfig
 	 *            the appConfig to set
 	 */
-	public void setAppConfig(Configuration appConfig) {
+	public void setAppConfig(SystemConfiguration appConfig) {
 		this.appConfig = appConfig;
 	}
 
 	/**
-	 * @param emailer
-	 *            the emailer to set
+	 * @param emailUtils
+	 *            the emailUtils to set
 	 */
-	public void setEmailer(Emailer emailer) {
-		this.emailer = emailer;
+	public void setEmailUtils(EmailUtils emailUtils) {
+		this.emailUtils = emailUtils;
 	}
 
 	/**
@@ -437,90 +438,30 @@ public class RegistrationBean implements Serializable {
 		return availableTimeZones;
 	}
 
-	private String getUsernamePattern() {
-		return appConfig.getString(USERNAME_PATTERN,
-				"^\\p{Alpha}[\\w|\\.]{5,31}$");
-	}
-
-	private String getEmailPattern() {
-		return appConfig.getString(EMAIL_PATTERN,
-				"^[^@]+@[^@^\\.]+\\.[^@^\\.]+$");
-	}
-
-	/**
-	 * Active method: None, Self or Admin
-	 * 
-	 * @return
-	 */
-	private ActiveMethod getActiveMethod() {
-		String t = appConfig.getString(ACTIVE_METHOD, "SELF");
-		try {
-			return ActiveMethod.valueOf(t);
-		} catch (Exception e) {
-			return ActiveMethod.SELF;
-		}
-	}
-
-	private String getAdminEmail() {
-		return appConfig.getString(ADMIN_EMAIL);
-	}
-
-	private int getActiveExpires() {
-		return appConfig.getInt(ACTIVE_EXPIRES, 72);
-	}
-
 	private void selfActive(User user) {
 		UserActivation userActivation = userActivationService
 				.createUserActivation(user, ActiveMethod.SELF,
-						getActiveExpires());
+						appConfig.getActiveExpires());
 		userActivationService.saveEntity(userActivation);
-		EmailBean emailBean = new EmailBean();
-		emailBean.addToAddress(user.getEmail());
 		Map<String, Object> params = new HashMap<String, Object>();
-		FacesContext ctx = FacesContext.getCurrentInstance();
-		String scheme = ctx.getExternalContext().getRequestScheme();
-		String sn = ctx.getExternalContext().getRequestServerName();
-		int port = ctx.getExternalContext().getRequestServerPort();
-		String serverUrl = scheme + "://" + sn;
-		if ("HTTPS".equalsIgnoreCase(scheme)) {
-			if (port != 443) {
-				serverUrl = serverUrl + ":" + Integer.toString(port);
-			}
-		} else {
-			if (port != 80) {
-				serverUrl = serverUrl + ":" + Integer.toString(port);
-			}
-		}
-		params.put("serverUrl", serverUrl);
 		params.put("activation", userActivation);
-		emailBean.setTemplate(SELF_ACTIVE_EMAIL_TEMPATE, params);
-		emailBean.setParams(params);
-		emailBean.setFromAddress(getAdminEmail());
-		emailBean.setHtmlEncoded(true);
-		emailBean.setSubject(Messages.getString(null,
-				"register.active.self.email.subject", null));
-		emailBean.setLocale(user.getLocale());
-		emailer.sendMail(emailBean);
+
+		emailUtils.sendMail(user.getEmail(), Messages.getString(null,
+				"register.active.self.email.subject", null),
+				SELF_ACTIVE_EMAIL_TEMPLATE, params, user.getLocale());
 	}
 
 	private void adminActive(User user) {
 		UserActivation userActivation = userActivationService
 				.createUserActivation(user, ActiveMethod.ADMIN,
-						getActiveExpires());
+						appConfig.getActiveExpires());
 		userActivationService.saveEntity(userActivation);
-		if (getAdminEmail() != null) {
-			prepareActiveEmail(userActivation, getAdminEmail());
-		} else {
-			if (logger.isWarnEnabled()) {
-				logger.warn("System been configured to active account by admin, but there's not admin email setted.");
-			}
-		}
-	}
 
-	private void prepareActiveEmail(UserActivation userActivation, String email) {
-		// EmailBean emailBean = new EmailBean();
-		// emailBean.addToAddress(email);
-		// // TODO:
-		// emailer.sendMail(emailBean);
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("activation", userActivation);
+
+		emailUtils.sendMail(appConfig.getAdminEmail(), Messages.getString(null,
+				"register.active.admin.email.subject", null),
+				ADMIN_ACTIVE_EMAIL_TEMPLATE, params, user.getLocale());
 	}
 }

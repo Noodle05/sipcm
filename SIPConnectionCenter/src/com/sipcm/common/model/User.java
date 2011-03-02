@@ -72,7 +72,7 @@ public class User extends AbstractTrackableEntity implements
 	private String email;
 
 	@Basic
-	@Column(name = "username", length = 32, nullable = false)
+	@Column(name = "username", length = 64, nullable = false)
 	private String username;
 
 	@Basic

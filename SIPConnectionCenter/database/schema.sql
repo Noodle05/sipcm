@@ -1,3 +1,10 @@
+CREATE TABLE persistent_logins (
+username VARCHAR(64) NOT NULL,
+series VARCHAR(64) NOT NULL,
+token VARCHAR(64) NOT NULL,
+last_used TIMESTAMP NOT NULL,
+PRIMARY KEY(series)) ENGINE=InnoDB;
+
 CREATE TABLE tbl_address (
 id BIGINT NOT NULL AUTO_INCREMENT,
 createdate TIMESTAMP DEFAULT 0,
@@ -79,7 +86,7 @@ password CHAR(32),
 locale VARCHAR(16),
 time_zone VARCHAR(64),
 status INTEGER NOT NULL,
-username VARCHAR(32) NOT NULL,
+username VARCHAR(64) NOT NULL,
 PRIMARY KEY (id),
 UNIQUE (username, deletedate),
 UNIQUE (email, deletedate)) ENGINE=InnoDB;
@@ -183,7 +190,7 @@ ADD INDEX FK_USERVOIPACCOUNT_VOIPVENDOR (voipvendor_id),
 ADD CONSTRAINT FK_USERVOIPACCOUNT_VOIPVENDOR FOREIGN KEY (voipvendor_id) REFERENCES tbl_voipvendor (id);
 
 CREATE OR REPLACE VIEW vw_user AS
-SELECT username AS username, password AS password
+SELECT username AS username, lower(password) AS password
 FROM tbl_user
 WHERE status = 1
 AND deletedate = 0;

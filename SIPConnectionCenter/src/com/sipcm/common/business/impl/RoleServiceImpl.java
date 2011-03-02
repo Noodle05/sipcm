@@ -37,7 +37,7 @@ public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 	public void init() {
 		super.init();
 		cache = new MapMaker().concurrencyLevel(2).softValues()
-				.initialCapacity(1).expireAfterWrite(8, TimeUnit.HOURS)
+				.initialCapacity(2).expireAfterWrite(8, TimeUnit.HOURS)
 				.makeMap();
 	}
 
@@ -60,14 +60,14 @@ public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 	 * @see com.sipcm.common.business.RoleService#getCallerRule()
 	 */
 	@Override
-	public Role getCallerRole() {
-		Role role = cache.get(CALLER_ROLE);
+	public Role getUserRole() {
+		Role role = cache.get(USER_ROLE);
 		if (role == null) {
 			Filter filter = filterFactory.createSimpleFilter("name",
-					CALLER_ROLE, Filter.Operator.IEQ);
+					USER_ROLE, Filter.Operator.IEQ);
 			role = dao.getUniqueEntity(filter);
 			if (role != null) {
-				cache.putIfAbsent(CALLER_ROLE, role);
+				cache.putIfAbsent(USER_ROLE, role);
 			}
 		}
 		return role;

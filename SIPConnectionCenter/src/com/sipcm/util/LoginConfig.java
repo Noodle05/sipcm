@@ -6,9 +6,10 @@ package com.sipcm.util;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.apache.commons.configuration.Configuration;
 import org.mobicents.servlet.sip.startup.loading.SipLoginConfig;
 import org.springframework.stereotype.Component;
+
+import com.sipcm.common.SystemConfiguration;
 
 /**
  * @author wgao
@@ -18,14 +19,12 @@ import org.springframework.stereotype.Component;
 public class LoginConfig extends SipLoginConfig {
 	private static final long serialVersionUID = 4540900505386597721L;
 
-	public static final String REALM_NAME = "sip.server.realm";
-
-	@Resource(name = "applicationConfiguration")
-	private Configuration appConfig;
+	@Resource(name = "systemConfiguration")
+	private SystemConfiguration appConfig;
 
 	@PostConstruct
 	public void init() {
 		this.setAuthMethod(DIGEST_AUTHENTICATION_METHOD);
-		this.setRealmName(appConfig.getString(REALM_NAME));
+		this.setRealmName(appConfig.getRealmName());
 	}
 }

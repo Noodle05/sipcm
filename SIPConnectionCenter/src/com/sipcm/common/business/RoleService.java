@@ -11,8 +11,8 @@ import com.sipcm.common.model.Role;
  * 
  */
 public interface RoleService extends Service<Role, Integer> {
-	public static final String CALLER_ROLE = "caller";
-	public static final String ADMIN_ROLE = "admin";
+	public static final String USER_ROLE = "ROLE_USER";
+	public static final String ADMIN_ROLE = "ROLE_ADMIN";
 
-	public Role getCallerRole();
+	public Role getUserRole();
 }

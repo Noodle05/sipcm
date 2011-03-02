@@ -44,10 +44,6 @@ import com.sipcm.sip.servlet.AbstractSipServlet;
 @Component("sipVoipVendorContext")
 @Scope("prototype")
 public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
-	public static final String REGISTER_EXPIRES = "sip.client.register.expires";
-	public static final String REGISTER_ALLOW_METHODS = "sip.client.register.allow.methods";
-	public static final String REGISTER_MINIMUM_INTERVAL = "sip.client.register.interval.minimum";
-
 	@Resource(name = "userVoidAccountService")
 	private UserVoipAccountService userVoipAccountService;
 
@@ -68,8 +64,8 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 
 	@PostConstruct
 	public void init() {
-		allowMethods = getAllowMethods();
-		expires = getRegisterExpries();
+		allowMethods = appConfig.getSipClientAllowMethods();
+		expires = appConfig.getSipClientRegisterExpries();
 		scheduleRenewTask();
 	}
 
@@ -121,7 +117,7 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 		if (contactHost != null) {
 			try {
 				SipServletRequest register = generateRegisterRequest(null,
-						account, getRegisterExpries());
+						account, appConfig.getSipClientRegisterExpries());
 
 				if (logger.isTraceEnabled()) {
 					logger.trace("Sending register request: {}", register);
@@ -220,7 +216,8 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 				account.setOnline(false);
 			} else {
 				account.setOnline(true);
-				if (e >= getMinimumRenewInterval() && e <= getRegisterExpries()
+				if (e >= appConfig.getSipClientMinimumRenewInterval()
+						&& e <= appConfig.getSipClientRegisterExpries()
 						&& e < expires) {
 					expires = e;
 					scheduleRenewTask();
@@ -326,25 +323,6 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 		return null;
 	}
 
-	private int getRegisterExpries() {
-		return appConfig.getInt(REGISTER_EXPIRES, 3600);
-	}
-
-	private String getAllowMethods() {
-		String ret = null;
-		String[] methods = appConfig.getStringArray(REGISTER_ALLOW_METHODS);
-		if (methods != null && methods.length > 0) {
-			for (String m : methods) {
-				if (ret == null) {
-					ret = m;
-				} else {
-					ret = ret + "," + m;
-				}
-			}
-		}
-		return ret;
-	}
-
 	private void renewRegister() {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Timeout, renew all registered accounts.");
@@ -356,10 +334,6 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 				registerForIncomingRequest(account);
 			}
 		}
-	}
-
-	private int getMinimumRenewInterval() {
-		return appConfig.getInt(REGISTER_MINIMUM_INTERVAL, 300);
 	}
 
 	@Override

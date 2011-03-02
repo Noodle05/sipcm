@@ -1,0 +1,11 @@
+<html>
+<body>
+<h3>New user registered</h3>
+<h4>New user ${activation.owner.displayName} had registered and waiting for active.</h4><br />
+<p> Please click <a href="${serverUrl}/account/activation.jsf?userId=${activation.owner.id}">here</a> to active this account.
+</p>
+<p>
+If you are not able to click above link, please visit "${serverUrl}/account/activation.jsf?userId=${activation.owner.id}" from your browser to active this account.
+</p>
+</body>
+</html>

@@ -35,8 +35,8 @@ public class ApplicationConfiguration extends AbstractConfiguration {
 	@Resource(name = "configService")
 	private ConfigValueService configValueService;
 
-	private Lock configReadLock;
-	private Lock configWriteLock;
+	private final Lock configReadLock;
+	private final Lock configWriteLock;
 
 	public ApplicationConfiguration() {
 		super();

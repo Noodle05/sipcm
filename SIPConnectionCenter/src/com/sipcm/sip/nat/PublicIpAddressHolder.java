@@ -15,10 +15,11 @@ import net.java.stun4j.StunAddress;
 import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
 
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import com.sipcm.common.SystemConfiguration;
 
 /**
  * @author wgao
@@ -29,10 +30,6 @@ public class PublicIpAddressHolder {
 	private static final Logger logger = LoggerFactory
 			.getLogger(PublicIpAddressHolder.class);
 
-	public static final String USE_STUN = "sip.useStun";
-	public static final String STUN_SERVER = "sip.stun.server";
-	public static final String STUN_PORT = "sip.stun.port";
-
 	private static final int MAX_PORT_NUMBER = 65535;
 	private static final int MIN_PORT_NUMBER = 1024;
 
@@ -40,12 +37,12 @@ public class PublicIpAddressHolder {
 
 	private InetAddress publicIp;
 
-	@Resource(name = "applicationConfiguration")
-	private Configuration appConfig;
+	@Resource(name = "systemConfiguration")
+	private SystemConfiguration appConfig;
 
 	@PostConstruct
 	public void init() {
-		if (isUseStun()) {
+		if (appConfig.isUseStun()) {
 			probePublicIp();
 		}
 	}
@@ -69,7 +66,8 @@ public class PublicIpAddressHolder {
 						randomPort);
 
 				StunAddress serverStunAddress = new StunAddress(
-						getStunServerAddress(), getStunServerPort());
+						appConfig.getStunServerAddress(),
+						appConfig.getStunServerPort());
 
 				NetworkConfigurationDiscoveryProcess addressDiscovery = new NetworkConfigurationDiscoveryProcess(
 						localStunAddress, serverStunAddress);
@@ -101,18 +99,6 @@ public class PublicIpAddressHolder {
 						ex);
 			}
 		}
-	}
-
-	private boolean isUseStun() {
-		return appConfig.getBoolean(USE_STUN, true);
-	}
-
-	private String getStunServerAddress() {
-		return appConfig.getString(STUN_SERVER, "stun.counterpath.com");
-	}
-
-	private int getStunServerPort() {
-		return appConfig.getInt(STUN_PORT, 3478);
 	}
 
 	/**

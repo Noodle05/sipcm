@@ -1,13 +1,55 @@
-@CHARSET "UTF-8";
-
 body {
 	border: 0px;
 	text-align: center;
 	border: 0px;
 }
 
-div#bodyContainer {
+.main-body {
 	text-align: left;
 	margin: 0 auto;
 	width: 800px;
+}
+
+.header-menu {
+	clear: both;
+	position: relative;
+	height: 1.5em;
+	margin: 0 auto;
+	width: 798px;
+}
+
+.header-menu-left {
+	float: left;
+	width: 600px;
+}
+
+.header-menu-right {
+	float: right;
+	width: 198px;
+}
+
+.nav-menu {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	width: 30em;
+}
+
+.nav-menu li {
+	float: left;
+	margin: 0 0.15em;
+}
+
+.nav-menu li a {
+	background: url("#{resource['images/background.png']}") #fff bottom left
+		repeat-x;
+	height: 1.25em;
+	line-height: 1.25em;
+	float: left;
+	width: 5em;
+	display: block;
+	border: 0.1em solid #dcdce9;
+	color: #0d2474;
+	text-decoration: none;
+	text-align: center;
 }

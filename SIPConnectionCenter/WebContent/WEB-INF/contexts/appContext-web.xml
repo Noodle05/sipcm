@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.4.xsd">
+	<http auto-config="true" access-denied-page="/accessDenied.jsf">
+		<intercept-url pattern="/resources/**" filters="none" />
+		<intercept-url pattern="/jquery/**" filters="none" />
+		<intercept-url pattern="/javax.faces.resource/**"
+			filters="none" />
+		<intercept-url pattern="/login.jsf" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/account/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/members/**" access="ROLE_USER" />
+		<intercept-url pattern="/admin/**" access="ROLE_ADMIN" />
+		<form-login login-processing-url="/j_spring_security_check"
+			login-page="/login.jsf" default-target-url="/index.jsf"
+			authentication-failure-url="/login.jsf" />
+		<logout logout-url="/logout" logout-success-url="/index.jsp" />
+		<remember-me key="gaofamily.org" data-source-ref="dataSource" />
+	</http>
+
+	<authentication-manager>
+		<authentication-provider ref="securityAuthenticationProvider" />
+	</authentication-manager>
+
+	<beans:bean id="securityPasswordEncoder" class="org.jasypt.spring.security3.PasswordEncoder">
+		<beans:property name="stringDigester" ref="globalStringDigester" />
+	</beans:bean>
+</beans:beans>

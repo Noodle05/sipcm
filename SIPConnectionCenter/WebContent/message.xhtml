@@ -5,11 +5,16 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
 	template="/WEB-INF/templates/masterLayout.xhtml">
-	<ui:define name="windowTitle">#{messages['register.success']}</ui:define>
+	<ui:define name="windowTitle">#{messages['message.title']}</ui:define>
 	<ui:define name="content">
-		<h:panelGrid border="5">
-		#{messages['register.success']}
-	</h:panelGrid>
+		<p:panel header="#{messages['message.title']}">
+			<p:messages />
+			<br />
+			<h:outputLink value="/index.jsp">
+				<h:outputText value="#{messages['activation.content']}" />
+			</h:outputLink>
+		</p:panel>
 	</ui:define>
 </ui:composition>

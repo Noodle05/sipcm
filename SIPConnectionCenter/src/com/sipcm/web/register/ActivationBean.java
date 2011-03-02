@@ -48,11 +48,8 @@ public class ActivationBean implements Serializable {
 
 	private String activeCode;
 
-	private boolean actived;
-
 	@PostConstruct
 	public void init() {
-		actived = false;
 		if (logger.isDebugEnabled()) {
 			logger.debug("A new activation bean been created.");
 		}
@@ -61,15 +58,17 @@ public class ActivationBean implements Serializable {
 	public void activeUser(ComponentSystemEvent event) {
 		FacesContext fc = FacesContext.getCurrentInstance();
 		if (userId == null) {
-			FacesMessage message = Messages
-					.getMessage("account.active.error.invaliduserid");
+			FacesMessage message = Messages.getMessage(
+					"account.active.error.invaliduserid",
+					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return;
 		}
 		User user = userService.getEntityById(userId);
 		if (user == null) {
-			FacesMessage message = Messages
-					.getMessage("account.active.error.invaliduserid");
+			FacesMessage message = Messages.getMessage(
+					"account.active.error.invaliduserid",
+					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return;
 		}
@@ -125,7 +124,9 @@ public class ActivationBean implements Serializable {
 		userActivationService.removeEntity(ua);
 		user.setStatus(AccountStatus.ACTIVE);
 		userService.saveEntity(user);
-		actived = true;
+		FacesMessage message = Messages.getMessage("activation.success",
+				FacesMessage.SEVERITY_INFO);
+		fc.addMessage(null, message);
 	}
 
 	/**
@@ -173,20 +174,5 @@ public class ActivationBean implements Serializable {
 	 */
 	public String getActiveCode() {
 		return activeCode;
-	}
-
-	/**
-	 * @param actived
-	 *            the actived to set
-	 */
-	public void setActived(boolean actived) {
-		this.actived = actived;
-	}
-
-	/**
-	 * @return the actived
-	 */
-	public boolean isActived() {
-		return actived;
 	}
 }

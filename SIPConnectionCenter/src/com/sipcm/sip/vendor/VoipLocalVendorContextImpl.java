@@ -10,12 +10,12 @@ import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.sip.SipServletResponse;
 
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.sipcm.common.SystemConfiguration;
 import com.sipcm.sip.business.UserSipProfileService;
 import com.sipcm.sip.locationservice.LocationService;
 import com.sipcm.sip.locationservice.UserBindingInfo;
@@ -42,8 +42,8 @@ public class VoipLocalVendorContextImpl implements VoipVendorContext {
 	@Resource(name = "voipVendorManager")
 	protected VoipVendorManager voipVendorManager;
 
-	@Resource(name = "applicationConfiguration")
-	protected Configuration appConfig;
+	@Resource(name = "systemConfiguration")
+	protected SystemConfiguration appConfig;
 
 	protected VoipVendor voipVendor;
 

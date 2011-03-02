@@ -7,7 +7,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.conn.params.ConnPerRouteBean;
@@ -21,6 +20,8 @@ import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sipcm.common.SystemConfiguration;
+
 /**
  * @author wgao
  * 
@@ -28,10 +29,8 @@ import org.slf4j.LoggerFactory;
 public abstract class GoogleVoiceManager {
 	private Logger logger = LoggerFactory.getLogger(GoogleVoiceManager.class);
 
-	public static final String MAX_TOTAL_CONNECTIONS = "com.sip.http.client.maxConnections";
-
-	@Resource(name = "applicationConfiguration")
-	private Configuration appConfig;
+	@Resource(name = "systemConfiguration")
+	private SystemConfiguration appConfig;
 
 	private ClientConnectionManager connMgr;
 
@@ -39,7 +38,7 @@ public abstract class GoogleVoiceManager {
 
 	@PostConstruct
 	public void init() {
-		int maxConnections = appConfig.getInt(MAX_TOTAL_CONNECTIONS, 50);
+		int maxConnections = appConfig.getMaxHttpClientTotalConnections();
 		HttpParams params = new BasicHttpParams();
 		params.setIntParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS,
 				maxConnections);

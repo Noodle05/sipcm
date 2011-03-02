@@ -44,7 +44,7 @@
 			<util:map>
 				<entry key="sipCallEventListener" value-ref="sipCallEventListener" />
 				<entry key="phoneNumberUtil" value-ref="phoneNumberUtil" />
-				<entry key="applicationConfiguration" value-ref="applicationConfiguration" />
+				<entry key="systemConfiguration" value-ref="systemConfiguration" />
 				<entry key="sipUtil" value-ref="sipUtil" />
 				<entry key="serverAuthenticationHelper" value-ref="serverAuthenticationHelper" />
 				<entry key="userSipProfileService" value-ref="userSipProfileService" />

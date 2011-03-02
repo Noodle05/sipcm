@@ -14,15 +14,15 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.sip.SipServletRequest;
 
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.MapMaker;
-import com.sipcm.sip.events.BlockIpEventListener;
+import com.sipcm.common.SystemConfiguration;
 import com.sipcm.sip.events.BlockIpEvent;
+import com.sipcm.sip.events.BlockIpEventListener;
 
 /**
  * @author wgao
@@ -33,30 +33,28 @@ public class DosProtector {
 	private static final Logger logger = LoggerFactory
 			.getLogger(DosProtector.class);
 
-	public static final String SIP_DOS_PROTECT_INTERVAL = "sip.dos.protect.interval";
-	public static final String SIP_DOS_PROTECT_MAX_REQUESTS = "sip.dos.protect.max.requests";
-	public static final String SIP_DOS_PROTECT_BLOCK_TIME = "sip.dos.protect.block.time";
-
 	@Resource(name = "sipDosBlockEventListener")
 	private BlockIpEventListener blockEventListener;
 
 	private ConcurrentMap<String, AtomicInteger> counter;
 	private ConcurrentMap<String, Long> blockList;
 
-	@Resource(name = "applicationConfiguration")
-	private Configuration appConfig;
+	@Resource(name = "systemConfiguration")
+	private SystemConfiguration appConfig;
 
 	@PostConstruct
 	public void init() {
-		counter = new MapMaker().concurrencyLevel(32)
-				.expireAfterWrite(getDosProtectInterval(), TimeUnit.SECONDS)
-				.makeMap();
+		counter = new MapMaker()
+				.concurrencyLevel(32)
+				.expireAfterWrite(appConfig.getDosProtectInterval(),
+						TimeUnit.SECONDS).makeMap();
 		blockList = new MapMaker().concurrencyLevel(4).makeMap();
 		if (logger.isInfoEnabled()) {
 			logger.info(
 					"DosProtector enabled. Block remote IP that failed authentication more than \"{}\" times in \"{}\" seconds for \"{}\" seconds.",
-					new Object[] { getDosProtectMaximumRequests(),
-							getDosProtectInterval(), getDosProtectBlockTime() });
+					new Object[] { appConfig.getDosProtectMaximumRequests(),
+							appConfig.getDosProtectInterval(),
+							appConfig.getDosProtectBlockTime() });
 		}
 	}
 
@@ -82,17 +80,17 @@ public class DosProtector {
 			}
 		}
 		int c = count.incrementAndGet();
-		if (c > getDosProtectMaximumRequests()) {
+		if (c > appConfig.getDosProtectMaximumRequests()) {
 			if (logger.isInfoEnabled()) {
 				logger.info(
 						"Remote address: \"{}\" authentication failed \"{}\" times in \"{}\" seconds, block it for \"{}\" seconds.",
-						new Object[] { ip, c, getDosProtectInterval(),
-								getDosProtectBlockTime() });
+						new Object[] { ip, c,
+								appConfig.getDosProtectInterval(),
+								appConfig.getDosProtectBlockTime() });
 			}
-			if (blockList
-					.putIfAbsent(
-							ip,
-							(System.currentTimeMillis() + getDosProtectBlockTime() * 1000L)) == null) {
+			if (blockList.putIfAbsent(ip,
+					(System.currentTimeMillis() + appConfig
+							.getDosProtectBlockTime() * 1000L)) == null) {
 				if (blockEventListener != null) {
 					try {
 						InetAddress i = InetAddress.getByName(ip);
@@ -127,18 +125,6 @@ public class DosProtector {
 			}
 		}
 		counter.remove(ip);
-	}
-
-	public long getDosProtectInterval() {
-		return appConfig.getLong(SIP_DOS_PROTECT_INTERVAL, 60L);
-	}
-
-	public int getDosProtectMaximumRequests() {
-		return appConfig.getInt(SIP_DOS_PROTECT_MAX_REQUESTS, 10);
-	}
-
-	public long getDosProtectBlockTime() {
-		return appConfig.getLong(SIP_DOS_PROTECT_BLOCK_TIME, 3600L);
 	}
 
 	@Scheduled(fixedRate = 60000L)

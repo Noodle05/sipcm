@@ -98,7 +98,9 @@
 						<p:message id="timeZoneError" for="timeZone" styleClass="error" />
 						<h:outputLabel for="captcha"
 							value="#{messages['register.captcha']}" />
-						<p:captcha id="captcha" label="Captcha" secure="true" />
+						<p:captcha id="captcha" label="Captcha" secure="true"
+							required="true" theme="white"
+							requiredMessage="#{messages['register.error.captcha.required']}" />
 						<p:message id="captchaError" for="captcha" styleClass="error" />
 					</h:panelGrid>
 					<p:commandButton ajax="false" id="submit" styleClass="submit"

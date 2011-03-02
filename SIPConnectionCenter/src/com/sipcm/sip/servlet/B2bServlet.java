@@ -227,7 +227,8 @@ public class B2bServlet extends AbstractSipServlet {
 			} else {
 				userName = userSipProfile.getPhoneNumber();
 			}
-			SipURI fromUri = sipFactory.createSipURI(userName, getDomain());
+			SipURI fromUri = sipFactory.createSipURI(userName,
+					appConfig.getDomain());
 			Address fromAddr = sipFactory.createAddress(fromUri,
 					userSipProfile.getDisplayName());
 			Map<String, List<String>> headers = new HashMap<String, List<String>>();

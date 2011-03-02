@@ -1,3 +1,3 @@
 <%
-	response.sendRedirect("Register.jsf");
+	response.sendRedirect("index.jsf");
 %>

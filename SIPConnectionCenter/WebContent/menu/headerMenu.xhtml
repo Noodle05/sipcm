@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:sec="http://www.springframework.org/security/facelets/tags">
+	<div class="header-menu-left">
+	<ul class="nav-menu">
+		<li><h:outputLink value="/index.jsf">
+			<h:outputText value="#{messages['header.menu.home']}" />
+		</h:outputLink></li>
+	</ul>
+	</div>
+	<div class="header-menu-right">
+	<ul class="nav-menu">
+		<sec:isAnonymous>
+			<li><h:outputLink value="/login.jsf">
+				<h:outputText value="#{messages['header.menu.login']}" />
+			</h:outputLink></li>
+			<li><h:outputLink value="/account/register.jsf">
+				<h:outputText value="#{messages['header.menu.register']}" />
+			</h:outputLink></li>
+		</sec:isAnonymous>
+		<sec:isAuthenticated>
+			<li><h:outputLink value="/logout">
+				<h:outputText value="#{messages['header.menu.logout']}" />
+			</h:outputLink></li>
+		</sec:isAuthenticated>
+	</ul>
+	</div>
+</ui:composition>

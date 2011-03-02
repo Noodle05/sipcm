@@ -29,9 +29,6 @@ import com.sipcm.sip.model.UserSipProfile;
 public class RegistrarServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = 2954502051478832933L;
 
-	public static final String SIP_MIN_EXPIRESTIME = "sip.expirestime.min";
-	public static final String SIP_MAX_EXPIRESTIME = "sip.expirestime.max";
-
 	@Resource(name = "sipLocationService")
 	private LocationService locationService;
 
@@ -80,7 +77,8 @@ public class RegistrarServlet extends AbstractSipServlet {
 		if (toURI.isSipURI()) {
 			final SipURI sipUri = (SipURI) toURI;
 			String host = sipUri.getHost();
-			if (!host.toUpperCase().endsWith(getDomain().toUpperCase())) {
+			if (!host.toUpperCase().endsWith(
+					appConfig.getDomain().toUpperCase())) {
 				SipServletResponse response = req.createResponse(
 						SipServletResponse.SC_FORBIDDEN,
 						"Do not serve your domain.");
@@ -139,7 +137,7 @@ public class RegistrarServlet extends AbstractSipServlet {
 				locationService.removeAllBinding(userSipProfile);
 			} else {
 				if (expiresTime < 0) {
-					expiresTime = appConfig.getInt(SIP_MAX_EXPIRESTIME);
+					expiresTime = appConfig.getSipMaxExpires();
 				}
 				for (Address a : contacts) {
 					if (logger.isTraceEnabled()) {
@@ -201,10 +199,8 @@ public class RegistrarServlet extends AbstractSipServlet {
 
 	private int correctExpiresTime(int expiresTime) {
 		if (expiresTime != 0) {
-			expiresTime = Math.min(expiresTime,
-					appConfig.getInt(SIP_MAX_EXPIRESTIME, 3600));
-			expiresTime = Math.max(expiresTime,
-					appConfig.getInt(SIP_MIN_EXPIRESTIME, 300));
+			expiresTime = Math.min(expiresTime, appConfig.getSipMaxExpires());
+			expiresTime = Math.max(expiresTime, appConfig.getSipMinExpires());
 		}
 		return expiresTime;
 	}
