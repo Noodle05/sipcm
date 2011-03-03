@@ -111,4 +111,8 @@ public class UserDetailsImpl implements UserDetails {
 	public boolean isEnabled() {
 		return user.getStatus().isActive();
 	}
+
+	public User getUser() {
+		return user;
+	}
 }

@@ -26,7 +26,7 @@ import com.sipcm.sip.model.VoipVendor;
  * @author wgao
  * 
  */
-@Service("userVoidAccountService")
+@Service("userVoipAccountService")
 @Transactional(readOnly = true)
 public class UserVoipAccountServiceImpl extends
 		AbstractService<UserVoipAccount, Long> implements
@@ -164,6 +164,13 @@ public class UserVoipAccountServiceImpl extends
 		return dao.getEntities(filter, null, null);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.business.UserVoipAccountService#getOnlineIncomingAccounts
+	 * (com.sipcm.sip.model.VoipVendor)
+	 */
 	@Override
 	public Collection<UserVoipAccount> getOnlineIncomingAccounts(
 			VoipVendor voipVendor) {
@@ -172,6 +179,21 @@ public class UserVoipAccountServiceImpl extends
 				VoipAccountType.INCOME, VoipAccountType.BOTH);
 		Filter f3 = filterFactory.createSimpleFilter("online", true);
 		Filter filter = f1.appendAnd(f2).appendAnd(f3);
+		return dao.getEntities(filter, null, null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.business.UserVoipAccountService#getUserVoipAccount(com.
+	 * sipcm.sip.model.UserSipProfile)
+	 */
+	@Override
+	public Collection<UserVoipAccount> getUserVoipAccount(
+			UserSipProfile userSipProfile) {
+		Filter filter = filterFactory.createSimpleFilter("owner",
+				userSipProfile);
 		return dao.getEntities(filter, null, null);
 	}
 }

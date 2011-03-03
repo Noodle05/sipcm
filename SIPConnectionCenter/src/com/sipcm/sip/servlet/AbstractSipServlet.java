@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import com.sipcm.common.SystemConfiguration;
 import com.sipcm.sip.events.CallEventListener;
 import com.sipcm.sip.model.UserSipProfile;
-import com.sipcm.sip.util.PhoneNumberUtil;
 
 /**
  * @author wgao
@@ -60,9 +59,6 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 
 	@Resource(name = "javax.servlet.sip.TimerService")
 	protected TimerService timeService;
-
-	@Resource(name = "phoneNumberUtil")
-	protected PhoneNumberUtil phoneNumberUtil;
 
 	@Resource(name = "systemConfiguration")
 	protected SystemConfiguration appConfig;

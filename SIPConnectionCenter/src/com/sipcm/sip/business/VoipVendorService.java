@@ -3,6 +3,8 @@
  */
 package com.sipcm.sip.business;
 
+import java.util.Collection;
+
 import com.sipcm.base.business.Service;
 import com.sipcm.sip.model.VoipVendor;
 
@@ -11,5 +13,7 @@ import com.sipcm.sip.model.VoipVendor;
  * 
  */
 public interface VoipVendorService extends Service<VoipVendor, Integer> {
+	public Collection<VoipVendor> getManagableVoipVendors();
 
+	public VoipVendor getVoipVendorByName(String name);
 }

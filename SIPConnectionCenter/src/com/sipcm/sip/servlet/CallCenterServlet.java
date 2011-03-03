@@ -22,6 +22,7 @@ import com.sipcm.sip.business.UserSipProfileService;
 import com.sipcm.sip.locationservice.UserBindingInfo;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.util.DosProtector;
+import com.sipcm.sip.util.PhoneNumberUtil;
 import com.sipcm.sip.util.ServerAuthenticationHelper;
 import com.sipcm.sip.vendor.VoipVendorManager;
 
@@ -167,11 +168,11 @@ public class CallCenterServlet extends AbstractSipServlet {
 					response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 					return;
 				}
-			} else if (phoneNumberUtil.isValidPhoneNumber(toUser)) {
+			} else if (PhoneNumberUtil.isValidPhoneNumber(toUser)) {
 				UserSipProfile user = (UserSipProfile) req
 						.getAttribute(USER_ATTRIBUTE);
 				if (user != null) {
-					req.setAttribute(CALLING_PHONE_NUMBER, phoneNumberUtil
+					req.setAttribute(CALLING_PHONE_NUMBER, PhoneNumberUtil
 							.getCanonicalizedPhoneNumber(toUser,
 									user.getDefaultAreaCode()));
 					RequestDispatcher dispatcher = req

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui">
+	<p:menu>
+		<p:menuitem value="#{messages['member.menu.profile']}"
+			url="#{request.contextPath}/member/profile.jsf" />
+		<p:menuitem value="#{messages['member.menu.voip.profile']}"
+			url="#{request.contextPath}/member/voipprofile.jsf" />
+		<p:menuitem value="#{messages['member.menu.history']}"
+			url="#{request.contextPath}/member/history.jsf" />
+	</p:menu>
+</ui:composition>

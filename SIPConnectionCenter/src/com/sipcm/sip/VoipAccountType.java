@@ -8,5 +8,15 @@ package com.sipcm.sip;
  * 
  */
 public enum VoipAccountType {
-	INCOME, OUTGOING, BOTH
+	INCOME("Income"), OUTGOING("Outgoing"), BOTH("Both");
+
+	private String label;
+
+	private VoipAccountType(String lable) {
+		this.label = lable;
+	}
+
+	public String getLabel() {
+		return label;
+	}
 }

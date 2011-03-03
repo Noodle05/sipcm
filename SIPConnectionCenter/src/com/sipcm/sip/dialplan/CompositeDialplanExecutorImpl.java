@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
+import com.sipcm.sip.util.PhoneNumberUtil;
 
 /**
  * This is a dummy dialplan executor. It will just return the first user voip
@@ -39,7 +40,7 @@ public class CompositeDialplanExecutorImpl extends AbstractDialplanExecutor {
 		if (accounts == null || accounts.isEmpty()) {
 			return null;
 		}
-		if (phoneNumberUtil.isNaPhoneNumber(phoneNumber)) {
+		if (PhoneNumberUtil.isNaPhoneNumber(phoneNumber)) {
 			return naDialplanExecutor.internalExecute(userSipProfile,
 					phoneNumber, accounts);
 		} else {

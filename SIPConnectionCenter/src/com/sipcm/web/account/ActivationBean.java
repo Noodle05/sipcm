@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.sipcm.web.register;
+package com.sipcm.web.account;
 
 import java.io.Serializable;
 import java.util.Date;

@@ -47,7 +47,7 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 	@Resource(name = "voipVendorService")
 	private VoipVendorService voipVendorService;
 
-	@Resource(name = "userVoidAccountService")
+	@Resource(name = "userVoipAccountService")
 	private UserVoipAccountService userVoipAccountService;
 
 	@Resource(name = "publicIpAddressHolder")

@@ -1,17 +1,12 @@
 package com.sipcm.sip.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class PhoneNumberUtilTest {
-	private PhoneNumberUtil phoneNumberUtil;
-
-	@Before
-	public void init() {
-		phoneNumberUtil = new PhoneNumberUtil();
-	}
 
 	@Test
 	public void testGetCanonicalizedPhoneNumber() {
@@ -20,18 +15,18 @@ public class PhoneNumberUtilTest {
 
 	@Test
 	public void testIsValidPhoneNumber() {
-		assertTrue(phoneNumberUtil.isValidPhoneNumber("+14084763933"));
-		assertTrue(phoneNumberUtil.isValidPhoneNumber("14084763933"));
-		assertTrue(phoneNumberUtil.isValidPhoneNumber("4085487389"));
-		assertTrue(phoneNumberUtil.isValidPhoneNumber("4763933"));
-		assertTrue(phoneNumberUtil.isValidPhoneNumber("+861083942283"));
-		assertTrue(phoneNumberUtil.isValidPhoneNumber("011861083942283"));
-		assertTrue(phoneNumberUtil.isValidPhoneNumber("00861083942283"));
-		assertFalse(phoneNumberUtil.isValidPhoneNumber("001861083942283"));
-		assertFalse(phoneNumberUtil.isValidPhoneNumber("0111861083942283"));
-		assertFalse(phoneNumberUtil.isValidPhoneNumber("0111a61083942283"));
-		assertFalse(phoneNumberUtil.isValidPhoneNumber("011183"));
-		assertFalse(phoneNumberUtil.isValidPhoneNumber("+011183"));
+		assertTrue(PhoneNumberUtil.isValidPhoneNumber("+14084763933"));
+		assertTrue(PhoneNumberUtil.isValidPhoneNumber("14084763933"));
+		assertTrue(PhoneNumberUtil.isValidPhoneNumber("4085487389"));
+		assertTrue(PhoneNumberUtil.isValidPhoneNumber("4763933"));
+		assertTrue(PhoneNumberUtil.isValidPhoneNumber("+861083942283"));
+		assertTrue(PhoneNumberUtil.isValidPhoneNumber("011861083942283"));
+		assertTrue(PhoneNumberUtil.isValidPhoneNumber("00861083942283"));
+		assertFalse(PhoneNumberUtil.isValidPhoneNumber("001861083942283"));
+		assertFalse(PhoneNumberUtil.isValidPhoneNumber("0111861083942283"));
+		assertFalse(PhoneNumberUtil.isValidPhoneNumber("0111a61083942283"));
+		assertFalse(PhoneNumberUtil.isValidPhoneNumber("011183"));
+		assertFalse(PhoneNumberUtil.isValidPhoneNumber("+011183"));
 	}
 
 	@Test

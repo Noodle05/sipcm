@@ -22,6 +22,9 @@ public interface UserVoipAccountService extends Service<UserVoipAccount, Long> {
 	public Collection<UserVoipAccount> getOnlineIncomingAccounts(
 			UserSipProfile user);
 
+	public Collection<UserVoipAccount> getUserVoipAccount(
+			UserSipProfile userSipProfile);
+
 	public Collection<UserVoipAccount> getOnlineIncomingAccounts(Long userId);
 
 	public UserVoipAccount getUserVoipAccountByVendorAndAccount(

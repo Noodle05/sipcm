@@ -5,14 +5,13 @@ package com.sipcm.sip.util;
 
 import java.util.regex.Pattern;
 
-import org.springframework.stereotype.Component;
-
 /**
  * @author wgao
  * 
  */
-@Component("phoneNumberUtil")
-public class PhoneNumberUtil {
+public abstract class PhoneNumberUtil {
+	private static final long serialVersionUID = -4401623664272801936L;
+
 	public static final String US_CA_NUMBER = "\\d{7}|(?:\\+1|1)?\\d{10}";
 	public static final String INTERNATIONAL_NUMBER = "(?:\\+|011|00)[^1]\\d{7,}";
 
@@ -22,12 +21,14 @@ public class PhoneNumberUtil {
 			+ US_CA_NUMBER + ")$");
 	public static final Pattern INTERNATIONAL_NUMBER_PATTERN = Pattern
 			.compile("^(" + INTERNATIONAL_NUMBER + ")$");
+	public static final Pattern NA_AREA_CODE_PATTERN = Pattern
+			.compile("^\\((\\d{3})\\)$");
 
-	public String getCanonicalizedPhoneNumber(String phoneNumber) {
+	public static String getCanonicalizedPhoneNumber(String phoneNumber) {
 		return getCanonicalizedPhoneNumber(phoneNumber, null);
 	}
 
-	public String getCanonicalizedPhoneNumber(String phoneNumber,
+	public static String getCanonicalizedPhoneNumber(String phoneNumber,
 			String defaultAreaCode) {
 		// Remove any no "+" or no digital characters.
 		String newNumber = phoneNumber.replaceAll("[^\\+|^\\d]", "");
@@ -57,17 +58,27 @@ public class PhoneNumberUtil {
 		return phoneNumber;
 	}
 
-	public boolean isValidPhoneNumber(String phoneNumber) {
+	public static boolean isValidPhoneNumber(String phoneNumber) {
 		return (PHONE_NUMBER.matcher(phoneNumber).matches());
 	}
 
-	public boolean isNaPhoneNumber(String phoneNumber) {
+	public static boolean isNaPhoneNumber(String phoneNumber) {
 		return (US_CA_NUMBER_PATTERN
 				.matcher(getCanonicalizedPhoneNumber(phoneNumber)).matches());
 	}
 
-	public boolean isInternationalPhoneNumber(String phoneNumber) {
+	public static boolean isInternationalPhoneNumber(String phoneNumber) {
 		return (INTERNATIONAL_NUMBER_PATTERN
 				.matcher(getCanonicalizedPhoneNumber(phoneNumber)).matches());
+	}
+
+	public static String formattedNAPhoneNumber(String phoneNumber) {
+		String pn = phoneNumber;
+		if (isNaPhoneNumber(phoneNumber)) {
+			String t = getCanonicalizedPhoneNumber(phoneNumber).substring(2);
+			pn = "(" + t.substring(0, 3) + ") " + t.substring(3, 6) + "-"
+					+ t.substring(6);
+		}
+		return pn;
 	}
 }

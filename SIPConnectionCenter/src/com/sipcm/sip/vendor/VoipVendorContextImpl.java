@@ -44,7 +44,7 @@ import com.sipcm.sip.servlet.AbstractSipServlet;
 @Component("sipVoipVendorContext")
 @Scope("prototype")
 public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
-	@Resource(name = "userVoidAccountService")
+	@Resource(name = "userVoipAccountService")
 	private UserVoipAccountService userVoipAccountService;
 
 	@Resource(name = "globalScheduler")

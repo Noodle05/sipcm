@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.model.VoipVendor;
+import com.sipcm.sip.util.PhoneNumberUtil;
 
 /**
  * @author wgao
@@ -84,7 +85,7 @@ public class DelegatedServlet extends B2bServlet {
 		final SipURI toSipURI = (SipURI) req.getTo().getURI();
 		VoipVendor vendor = account.getVoipVendor();
 		URI toURI = sipFactory
-				.createSipURI(phoneNumberUtil
+				.createSipURI(PhoneNumberUtil
 						.getCanonicalizedPhoneNumber(toSipURI.getUser()),
 						vendor.getDomain());
 		SipURI fromURI = sipFactory.createSipURI(
@@ -93,7 +94,7 @@ public class DelegatedServlet extends B2bServlet {
 		Address toAddress = sipFactory.createAddress(toURI);
 		String fromDisplayName;
 		if (account.getPhoneNumber() != null) {
-			fromDisplayName = phoneNumberUtil
+			fromDisplayName = PhoneNumberUtil
 					.getCanonicalizedPhoneNumber(account.getPhoneNumber());
 		} else {
 			fromDisplayName = req.getFrom().getDisplayName();
@@ -132,7 +133,7 @@ public class DelegatedServlet extends B2bServlet {
 					"{} is calling {} by {}.",
 					new Object[] {
 							account.getOwner().getDisplayName(),
-							phoneNumberUtil
+							PhoneNumberUtil
 									.getCanonicalizedPhoneNumber(toSipURI
 											.getUser()),
 							account.getVoipVendor().getName() });

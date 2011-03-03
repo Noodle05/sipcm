@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import com.sipcm.sip.events.CallStartEvent;
 import com.sipcm.sip.locationservice.UserBindingInfo;
 import com.sipcm.sip.model.UserSipProfile;
+import com.sipcm.sip.util.PhoneNumberUtil;
 
 /**
  * @author wgao
@@ -50,7 +51,7 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 			response(req, SipServletResponse.SC_NOT_FOUND);
 			return;
 		}
-		if (phoneNumberUtil.isValidPhoneNumber(fromUser)) {
+		if (PhoneNumberUtil.isValidPhoneNumber(fromUser)) {
 			UserSipProfile userSipProfile = ubi.getBindings().iterator().next()
 					.getUserSipProfile();
 			String appSessionId = (String) getServletContext().getAttribute(
@@ -64,7 +65,7 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Found application session for this to user, this probably a google voice call back.");
 				}
-				if (phoneNumberUtil.getCanonicalizedPhoneNumber(fromUser)
+				if (PhoneNumberUtil.getCanonicalizedPhoneNumber(fromUser)
 						.equals(appSession
 								.getAttribute(GV_WAITING_FOR_CALLBACK))) {
 					if (logger.isTraceEnabled()) {
@@ -78,7 +79,7 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 								"However call back number doesn't match. Waiting call back from {}, this call from {}",
 								appSession
 										.getAttribute(GV_WAITING_FOR_CALLBACK),
-								phoneNumberUtil
+								PhoneNumberUtil
 										.getCanonicalizedPhoneNumber(fromUser));
 					}
 				}
@@ -96,8 +97,8 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 					fu = ((UserSipProfile) req.getAttribute(USER_ATTRIBUTE))
 							.getPhoneNumber();
 				}
-				if (phoneNumberUtil.isValidPhoneNumber(fu)) {
-					fu = phoneNumberUtil.getCanonicalizedPhoneNumber(fu);
+				if (PhoneNumberUtil.isValidPhoneNumber(fu)) {
+					fu = PhoneNumberUtil.getCanonicalizedPhoneNumber(fu);
 				}
 				if (ubi.getAccount() != null) {
 					event = new CallStartEvent(ubi.getAccount(), fu);

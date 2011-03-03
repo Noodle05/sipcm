@@ -43,7 +43,6 @@
 		<property name="attributes">
 			<util:map>
 				<entry key="sipCallEventListener" value-ref="sipCallEventListener" />
-				<entry key="phoneNumberUtil" value-ref="phoneNumberUtil" />
 				<entry key="systemConfiguration" value-ref="systemConfiguration" />
 				<entry key="sipUtil" value-ref="sipUtil" />
 				<entry key="serverAuthenticationHelper" value-ref="serverAuthenticationHelper" />

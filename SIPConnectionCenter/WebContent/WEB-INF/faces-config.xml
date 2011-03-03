@@ -13,4 +13,15 @@
 		</locale-config>
 		<message-bundle>messages.CallerPages</message-bundle>
 	</application>
+	<navigation-rule>
+		<from-view-id>*</from-view-id>
+		<navigation-case>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/success.jsf</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>failed</from-outcome>
+			<to-view-id>/failed.jsf</to-view-id>
+		</navigation-case>
+	</navigation-rule>
 </faces-config>

@@ -11,7 +11,7 @@
 	<ui:define name="content">
 		<f:view contentType="text/html">
 			<p:panel header="#{messages['login.header']}">
-				<p:messages id="loginError" showDetail="true" />
+				<p:messages id="loginError" showDetail="true" globalOnly="true" />
 				<h:form id="loginForm" prependId="false">
 					<h:panelGrid columns="3">
 						<h:outputLabel for="j_username"

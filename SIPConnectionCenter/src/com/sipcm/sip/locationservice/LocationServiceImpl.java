@@ -48,9 +48,6 @@ public class LocationServiceImpl implements LocationService {
 	@Resource(name = "sipUtil")
 	private SipUtil sipUtil;
 
-	@Resource(name = "phoneNumberUtil")
-	private PhoneNumberUtil phoneNumberUtil;
-
 	@Resource(name = "addressBindingService")
 	private AddressBindingService addressBindingService;
 
@@ -240,7 +237,7 @@ public class LocationServiceImpl implements LocationService {
 			String phoneNumber) {
 		if (phoneNumber == null)
 			throw new NullPointerException("Phone number cannot be null.");
-		String pn = phoneNumberUtil.getCanonicalizedPhoneNumber(phoneNumber);
+		String pn = PhoneNumberUtil.getCanonicalizedPhoneNumber(phoneNumber);
 		List<AddressBinding> addresses = null;
 		if (!cacheBusy) {
 			for (Entry<UserSipProfile, List<AddressBinding>> entry : cache

@@ -8,6 +8,9 @@
 	xmlns:p="http://primefaces.prime.com.tr/ui"
 	template="/WEB-INF/templates/masterLayout.xhtml">
 	<ui:define name="windowTitle">#{messages['success.message.title']}</ui:define>
+	<ui:define name="extraHeader">
+		<meta http-equiv="Refresh" content="3; URL=/index.jsp" />
+	</ui:define>
 	<ui:define name="content">
 		<p:panel header="#{messages['success.message.title']}">
 			<p:messages showSummary="true" showDetail="true" />

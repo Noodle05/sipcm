@@ -8,6 +8,16 @@
 		<li><h:outputLink value="/index.jsf">
 			<h:outputText value="#{messages['header.menu.home']}" />
 		</h:outputLink></li>
+		<sec:ifAllGranted roles="ROLE_USER">
+			<li><h:outputLink value="/member/index.jsf">
+				<h:outputText value="#{messages['header.menu.member']}" />
+			</h:outputLink></li>
+		</sec:ifAllGranted>
+		<sec:ifAllGranted roles="ROLE_ADMIN">
+			<li><h:outputLink value="/admin/index.jsf">
+				<h:outputText value="#{messages['header.menu.admin']}" />
+			</h:outputLink></li>
+		</sec:ifAllGranted>
 	</ul>
 	</div>
 	<div class="header-menu-right">

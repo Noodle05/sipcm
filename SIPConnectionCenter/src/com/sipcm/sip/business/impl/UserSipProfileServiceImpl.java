@@ -76,6 +76,19 @@ public class UserSipProfileServiceImpl extends
 	 * (non-Javadoc)
 	 * 
 	 * @see
+	 * com.sipcm.sip.business.UserSipProfileService#getUserSipProfileByUser(
+	 * com.sipcm.common.model.User)
+	 */
+	@Override
+	public UserSipProfile getUserSipProfileByUser(User user) {
+		Filter filter = filterFactory.createSimpleFilter("owner", user);
+		return dao.getUniqueEntity(filter);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
 	 * com.sipcm.sip.business.UserSipProfileService#getUserSipProfileByUsername
 	 * (java.lang.String)
 	 */

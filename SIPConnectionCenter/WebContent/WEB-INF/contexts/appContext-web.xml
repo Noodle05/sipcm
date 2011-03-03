@@ -10,7 +10,7 @@
 			filters="none" />
 		<intercept-url pattern="/login.jsf" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/account/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/members/**" access="ROLE_USER" />
+		<intercept-url pattern="/member/**" access="ROLE_USER" />
 		<intercept-url pattern="/admin/**" access="ROLE_ADMIN" />
 		<form-login login-processing-url="/j_spring_security_check"
 			login-page="/login.jsf" default-target-url="/index.jsf"

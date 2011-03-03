@@ -38,6 +38,7 @@ import com.sipcm.sip.events.CallStartEvent;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.util.GvB2buaHelperImpl;
+import com.sipcm.sip.util.PhoneNumberUtil;
 
 /**
  * @author wgao
@@ -205,7 +206,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				String appSessionIdKey = generateAppSessionKey(userSipProfile);
 				appSession.setAttribute(
 						GV_WAITING_FOR_CALLBACK,
-						phoneNumberUtil.getCanonicalizedPhoneNumber(
+						PhoneNumberUtil.getCanonicalizedPhoneNumber(
 								account.getPhoneNumber(),
 								userSipProfile.getDefaultAreaCode()));
 				getServletContext().setAttribute(appSessionIdKey,

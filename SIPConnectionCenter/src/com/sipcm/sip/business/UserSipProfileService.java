@@ -17,6 +17,8 @@ import com.sipcm.sip.model.UserSipProfile;
 public interface UserSipProfileService extends Service<UserSipProfile, Long> {
 	public UserSipProfile createUserSipProfile(User user);
 
+	public UserSipProfile getUserSipProfileByUser(User user);
+
 	public UserSipProfile getUserSipProfileByUsername(String username);
 
 	public UserSipProfile getUserSipProfileByPhoneNumber(String phoneNumber);
