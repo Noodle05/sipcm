@@ -243,7 +243,8 @@ public class LocationServiceImpl implements LocationService {
 			for (Entry<UserSipProfile, List<AddressBinding>> entry : cache
 					.entrySet()) {
 				UserSipProfile usp = entry.getKey();
-				String p = usp.getPhoneNumber() == null ? null : usp
+				String p = usp.getPhoneNumberStatus().isVerified()
+						&& usp.getPhoneNumber() == null ? null : usp
 						.getPhoneNumber();
 				if (pn.equals(p)) {
 					if (usp.isAllowLocalDirectly()) {
