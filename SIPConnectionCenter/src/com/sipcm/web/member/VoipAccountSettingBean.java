@@ -78,6 +78,8 @@ public class VoipAccountSettingBean implements Serializable {
 			throw new IllegalStateException(
 					"Access this page without user? Can't be!");
 		}
+		voipAccountPasswordMap = new HashMap<Long, String>();
+		voipAccounts = new ArrayList<UserVoipAccount>();
 		userSipProfile = getUserSipProfile(user);
 		if (userSipProfile != null) {
 			sipProfilePhoneNumber = userSipProfile.getPhoneNumber();
@@ -85,8 +87,6 @@ public class VoipAccountSettingBean implements Serializable {
 			sipProfileAllowInternal = userSipProfile.isAllowLocalDirectly();
 			Collection<UserVoipAccount> accounts = getUserVoipAccountService()
 					.getUserVoipAccount(userSipProfile);
-			voipAccountPasswordMap = new HashMap<Long, String>();
-			voipAccounts = new ArrayList<UserVoipAccount>();
 			if (accounts != null) {
 				for (UserVoipAccount account : accounts) {
 					voipAccountPasswordMap.put(account.getId(),
@@ -104,15 +104,10 @@ public class VoipAccountSettingBean implements Serializable {
 				userSipProfile = getUserSipProfileService()
 						.createUserSipProfile(getCurrentUser());
 			}
-			Long id = userSipProfile.getId();
 			userSipProfile.setPhoneNumber(sipProfilePhoneNumber);
 			userSipProfile.setDefaultAreaCode(sipProfileDefaultArea);
 			userSipProfile.setAllowLocalDirectly(sipProfileAllowInternal);
 			getUserSipProfileService().saveEntity(userSipProfile);
-			if (id == null) {
-				voipAccounts = new ArrayList<UserVoipAccount>();
-				voipAccountPasswordMap = new HashMap<Long, String>();
-			}
 			FacesMessage message = Messages.getMessage(
 					"member.sipprofile.success", FacesMessage.SEVERITY_INFO);
 			FacesContext.getCurrentInstance().addMessage(null, message);
