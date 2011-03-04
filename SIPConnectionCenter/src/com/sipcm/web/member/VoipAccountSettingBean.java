@@ -4,13 +4,17 @@
 package com.sipcm.web.member;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 
 import org.primefaces.event.RowEditEvent;
@@ -20,12 +24,14 @@ import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.User;
 import com.sipcm.security.UserDetailsImpl;
 import com.sipcm.sip.VoipAccountType;
+import com.sipcm.sip.VoipVendorType;
 import com.sipcm.sip.business.UserSipProfileService;
 import com.sipcm.sip.business.UserVoipAccountService;
 import com.sipcm.sip.business.VoipVendorService;
 import com.sipcm.sip.model.UserSipProfile;
 import com.sipcm.sip.model.UserVoipAccount;
 import com.sipcm.sip.model.VoipVendor;
+import com.sipcm.web.util.JSFUtils;
 import com.sipcm.web.util.Messages;
 
 /**
@@ -33,7 +39,7 @@ import com.sipcm.web.util.Messages;
  * 
  */
 @ManagedBean(name = "voipAccountSettingBean")
-@SessionScoped
+@ViewScoped
 public class VoipAccountSettingBean implements Serializable {
 	private static final long serialVersionUID = -4107844991260539763L;
 
@@ -49,10 +55,9 @@ public class VoipAccountSettingBean implements Serializable {
 	@ManagedProperty(value = "#{userVoipAccountService}")
 	private transient UserVoipAccountService userVoipAccountService;
 
-	private User user;
 	private UserSipProfile userSipProfile;
 
-	private Collection<UserVoipAccount> voipAccounts;
+	private Map<UserVoipAccount, String> voipAccountPasswordMap;
 
 	private String sipProfilePhoneNumber = "";
 
@@ -60,70 +65,167 @@ public class VoipAccountSettingBean implements Serializable {
 
 	private boolean sipProfileAllowInternal = true;
 
+	private UserVoipAccount selectedVoipAccount;
+
 	@PostConstruct
 	public void init() {
-		user = getCurrentUser();
+		User user = getCurrentUser();
 		if (user == null) {
 			throw new IllegalStateException(
 					"Access this page without user? Can't be!");
 		}
-		userSipProfile = getUserSipProfile();
+		userSipProfile = getUserSipProfile(user);
 		if (userSipProfile != null) {
 			sipProfilePhoneNumber = userSipProfile.getPhoneNumber();
 			sipProfileDefaultArea = userSipProfile.getDefaultAreaCode();
 			sipProfileAllowInternal = userSipProfile.isAllowLocalDirectly();
-			voipAccounts = userVoipAccountService
+			Collection<UserVoipAccount> accounts = getUserVoipAccountService()
 					.getUserVoipAccount(userSipProfile);
+			voipAccountPasswordMap = new HashMap<UserVoipAccount, String>();
+			if (accounts != null) {
+				for (UserVoipAccount account : accounts) {
+					voipAccountPasswordMap.put(account, account.getPassword());
+					account.setPassword(null);
+				}
+			}
 		}
 	}
 
 	public void saveSipProfile() {
-		if (userSipProfile == null) {
-			userSipProfile = userSipProfileService.createUserSipProfile(user);
+		try {
+			if (userSipProfile == null) {
+				userSipProfile = getUserSipProfileService()
+						.createUserSipProfile(getCurrentUser());
+			}
+			userSipProfile.setPhoneNumber(sipProfilePhoneNumber);
+			userSipProfile.setDefaultAreaCode(sipProfileDefaultArea);
+			userSipProfile.setAllowLocalDirectly(sipProfileAllowInternal);
+			getUserSipProfileService().saveEntity(userSipProfile);
+			FacesMessage message = Messages.getMessage(
+					"member.sipprofile.success", FacesMessage.SEVERITY_INFO);
+			FacesContext.getCurrentInstance().addMessage(null, message);
+		} catch (Exception e) {
+			FacesMessage message = new FacesMessage(
+					FacesMessage.SEVERITY_ERROR, e.getLocalizedMessage(), null);
+			FacesContext.getCurrentInstance().addMessage(null, message);
 		}
-		userSipProfile.setPhoneNumber(sipProfilePhoneNumber);
-		userSipProfile.setDefaultAreaCode(sipProfileDefaultArea);
-		userSipProfile.setAllowLocalDirectly(sipProfileAllowInternal);
-		userSipProfileService.saveEntity(userSipProfile);
-		FacesMessage message = Messages.getMessage("member.sipprofile.success",
-				FacesMessage.SEVERITY_INFO);
-		FacesContext.getCurrentInstance().addMessage(null, message);
 	}
 
 	public void accountRowEdit(RowEditEvent event) {
-		@SuppressWarnings("unused")
-		UserVoipAccount account = (UserVoipAccount) event.getObject();
-		FacesMessage message = Messages
-				.getMessage("member.voip.accounts.save.success",
+		try {
+			UserVoipAccount account = (UserVoipAccount) event.getObject();
+			if (validateUserVoipAccount(account)) {
+				if (account.getPassword() == null
+						&& voipAccountPasswordMap.get(account) != null) {
+					account.setPassword(voipAccountPasswordMap.get(account));
+				}
+				getUserVoipAccountService().saveEntity(account);
+				voipAccountPasswordMap.put(account, account.getPassword());
+				account.setPassword(null);
+				FacesMessage message = Messages.getMessage(
+						"member.voip.accounts.save.success",
 						FacesMessage.SEVERITY_INFO);
-		FacesContext.getCurrentInstance().addMessage(null, message);
+				FacesContext.getCurrentInstance().addMessage(null, message);
+			}
+		} catch (Exception e) {
+			FacesMessage message = new FacesMessage(
+					FacesMessage.SEVERITY_ERROR, e.getLocalizedMessage(), null);
+			FacesContext.getCurrentInstance().addMessage(null, message);
+		}
 	}
 
-	/**
-	 * @param voipAccounts
-	 *            the voipAccounts
-	 */
-	public void setVoipAccounts(Collection<UserVoipAccount> voipAccounts) {
-		this.voipAccounts = voipAccounts;
+	private boolean validateUserVoipAccount(UserVoipAccount account) {
+		boolean ret = true;
+		if (account.getPassword() == null
+				&& voipAccountPasswordMap.get(account) == null) {
+			FacesMessage message = Messages.getMessage(
+					"member.voip.error.password.required",
+					FacesMessage.SEVERITY_ERROR);
+			FacesContext.getCurrentInstance().addMessage(null, message);
+			ret = false;
+		}
+		if (VoipVendorType.GOOGLE_VOICE.equals(account.getVoipVendor()
+				.getType())) {
+			if (!VoipAccountType.OUTGOING.equals(account.getType())) {
+				FacesMessage message = Messages.getMessage(
+						"member.voip.error.googlevoice.outgoing.only",
+						FacesMessage.SEVERITY_ERROR);
+				FacesContext.getCurrentInstance().addMessage(null, message);
+				ret = false;
+			}
+			if (account.getPhoneNumber() == null) {
+				FacesMessage message = Messages.getMessage(
+						"member.voip.error.googlevoice.phonenumber.required",
+						FacesMessage.SEVERITY_ERROR);
+				FacesContext.getCurrentInstance().addMessage(null, message);
+				ret = false;
+			}
+			if (account.getCallBackNumber() == null) {
+				FacesMessage message = Messages.getMessage(
+						"member.voip.error.googlevoice.callback.required",
+						FacesMessage.SEVERITY_ERROR);
+				FacesContext.getCurrentInstance().addMessage(null, message);
+				ret = false;
+			}
+		} else {
+			if (!VoipAccountType.OUTGOING.equals(account.getType())) {
+				if (account.getPhoneNumber() == null) {
+					FacesMessage message = Messages.getMessage(
+							"member.voip.error.income.phonenumber.required",
+							FacesMessage.SEVERITY_ERROR);
+					FacesContext.getCurrentInstance().addMessage(null, message);
+					ret = false;
+				}
+			}
+			if (account.getCallBackNumber() != null) {
+				FacesMessage message = Messages.getMessage(
+						"member.voip.error.sip.no.callback",
+						FacesMessage.SEVERITY_ERROR);
+				FacesContext.getCurrentInstance().addMessage(null, message);
+				ret = false;
+			}
+		}
+		return ret;
+	}
+
+	public void addVoipAccount() {
+		try {
+			UserVoipAccount account = getUserVoipAccountService()
+					.createNewEntity();
+			account.setOwnser(userSipProfile);
+			voipAccountPasswordMap.put(account, null);
+			FacesMessage message = Messages.getMessage(
+					"member.voip.accounts.added", FacesMessage.SEVERITY_INFO);
+			FacesContext.getCurrentInstance().addMessage(null, message);
+		} catch (Exception e) {
+			FacesMessage message = new FacesMessage(
+					FacesMessage.SEVERITY_ERROR, e.getLocalizedMessage(), null);
+			FacesContext.getCurrentInstance().addMessage(null, message);
+		}
+	}
+
+	public void removeVoipoAccount(UserVoipAccount account) {
+		System.out.println("I'm here!");
 	}
 
 	/**
 	 * @return the voipAccounts
 	 */
-	public Collection<UserVoipAccount> getVoipAccounts() {
-		return voipAccounts;
+	public List<UserVoipAccount> getVoipAccounts() {
+		return new ArrayList<UserVoipAccount>(voipAccountPasswordMap.keySet());
 	}
 
 	public Collection<VoipVendor> getVoipVendors() {
-		return voipVendorService.getManagableVoipVendors();
+		return getVoipVendorService().getManagableVoipVendors();
 	}
 
 	public VoipAccountType[] getVoipAccountTypes() {
 		return VoipAccountType.values();
 	}
 
-	private UserSipProfile getUserSipProfile() {
-		userSipProfile = userSipProfileService.getUserSipProfileByUser(user);
+	private UserSipProfile getUserSipProfile(User user) {
+		userSipProfile = getUserSipProfileService().getUserSipProfileByUser(
+				user);
 		return userSipProfile;
 	}
 
@@ -135,7 +237,7 @@ public class VoipAccountSettingBean implements Serializable {
 			user = ((UserDetailsImpl) principal).getUser();
 		} else {
 			String username = principal.toString();
-			user = userService.getUserByUsername(username);
+			user = getUserService().getUserByUsername(username);
 		}
 		return user;
 	}
@@ -152,6 +254,14 @@ public class VoipAccountSettingBean implements Serializable {
 		this.voipVendorService = voipVendorService;
 	}
 
+	private VoipVendorService getVoipVendorService() {
+		if (voipVendorService == null) {
+			voipVendorService = JSFUtils.getManagedBean("voipVendorService",
+					VoipVendorService.class);
+		}
+		return voipVendorService;
+	}
+
 	/**
 	 * @param userSipProfileService
 	 *            the userSipProfileService to set
@@ -159,6 +269,14 @@ public class VoipAccountSettingBean implements Serializable {
 	public void setUserSipProfileService(
 			UserSipProfileService userSipProfileService) {
 		this.userSipProfileService = userSipProfileService;
+	}
+
+	private UserSipProfileService getUserSipProfileService() {
+		if (userSipProfileService == null) {
+			userSipProfileService = JSFUtils.getManagedBean(
+					"userSipProfileService", UserSipProfileService.class);
+		}
+		return userSipProfileService;
 	}
 
 	/**
@@ -169,6 +287,14 @@ public class VoipAccountSettingBean implements Serializable {
 		this.userService = userService;
 	}
 
+	private UserService getUserService() {
+		if (userService == null) {
+			userService = JSFUtils.getManagedBean("userService",
+					UserService.class);
+		}
+		return userService;
+	}
+
 	/**
 	 * @param userVoipAccountService
 	 *            the userVoipAccountService to set
@@ -176,6 +302,14 @@ public class VoipAccountSettingBean implements Serializable {
 	public void setUserVoipAccountService(
 			UserVoipAccountService userVoipAccountService) {
 		this.userVoipAccountService = userVoipAccountService;
+	}
+
+	private UserVoipAccountService getUserVoipAccountService() {
+		if (userVoipAccountService == null) {
+			userVoipAccountService = JSFUtils.getManagedBean(
+					"userVoipAccountService", UserVoipAccountService.class);
+		}
+		return userVoipAccountService;
 	}
 
 	/**
@@ -221,5 +355,20 @@ public class VoipAccountSettingBean implements Serializable {
 	 */
 	public boolean isSipProfileAllowInternal() {
 		return sipProfileAllowInternal;
+	}
+
+	/**
+	 * @param selectedVoipAccount
+	 *            the selectedVoipAccount to set
+	 */
+	public void setSelectedVoipAccount(UserVoipAccount selectedVoipAccount) {
+		this.selectedVoipAccount = selectedVoipAccount;
+	}
+
+	/**
+	 * @return the selectedVoipAccount
+	 */
+	public UserVoipAccount getSelectedVoipAccount() {
+		return selectedVoipAccount;
 	}
 }

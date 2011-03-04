@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.sipcm.web.util;
+package com.sipcm.web.converter;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -31,7 +31,7 @@ public class VoipAccountTypeConverter implements Converter {
 			return null;
 		} else {
 			Integer o = Integer.parseInt(value);
-			return VoipAccountType.values()[(o - 1)];
+			return VoipAccountType.values()[o];
 		}
 	}
 
@@ -48,7 +48,7 @@ public class VoipAccountTypeConverter implements Converter {
 		if (value == null) {
 			return null;
 		} else {
-			return Integer.toString(((VoipAccountType) value).ordinal() + 1);
+			return Integer.toString(((VoipAccountType) value).ordinal());
 		}
 	}
 }

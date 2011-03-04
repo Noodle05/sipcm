@@ -176,11 +176,13 @@
 			conf="test->default;foride->sources,javadoc" />
 		<dependency org="org.primefaces" name="primefaces" rev="2.2.1"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="org.primefaces.themes" name="cupertino"
+		<dependency org="org.primefaces.themes" name="aristo"
 			rev="1.0.0" conf="runtime->default" />
 		<dependency org="org.apache.velocity" name="velocity" rev="1.7"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework.security" name="facelets-taglib-jsf20-spring-3"
 			rev="0.5" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="javax.el" name="el-api" rev="2.1.2-b04"
+			conf="provided->default" />
 	</dependencies>
 </ivy-module>

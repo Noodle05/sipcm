@@ -39,10 +39,10 @@ public class ActivationBean implements Serializable {
 			.getLogger(ActivationBean.class);
 
 	@ManagedProperty(value = "#{userActivationService}")
-	private UserActivationService userActivationService;
+	private transient UserActivationService userActivationService;
 
 	@ManagedProperty(value = "#{userService}")
-	private UserService userService;
+	private transient UserService userService;
 
 	private Long userId;
 

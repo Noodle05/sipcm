@@ -34,16 +34,16 @@ public class ForgetPasswordFormBean implements Serializable {
 	public static final String FORGET_PASSWORD_EMAIL_TEMPLATE = "/templates/forget-password.vm";
 
 	@ManagedProperty("#{userService}")
-	private UserService userService;
+	private transient UserService userService;
 
 	@ManagedProperty("#{userActivationService}")
-	private UserActivationService userActivationService;
+	private transient UserActivationService userActivationService;
 
 	@ManagedProperty("#{systemConfiguration}")
-	private SystemConfiguration appConfig;
+	private transient SystemConfiguration appConfig;
 
 	@ManagedProperty(value = "#{webEmailUtils}")
-	private EmailUtils emailUtils;
+	private transient EmailUtils emailUtils;
 
 	private String email;
 

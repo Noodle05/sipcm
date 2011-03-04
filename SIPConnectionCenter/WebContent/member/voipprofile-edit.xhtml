@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	template="/WEB-INF/templates/memberLayout.xhtml">
+	<ui:define name="windowTitle">#{messages['member.title']}</ui:define>
+	<ui:define name="memberContent">
+		<f:view contentType="text/html">
+			<p:growl id="growl" showDetail="true" />
+			<p:panel header="#{messages['member.voip.header']}">
+				<h:form id="userSipProfile">
+					<h:panelGrid columns="3">
+						<h:outputLabel for="sipProfilePhoneNumber"
+							value="#{messages['member.sipprofile.phonenumber']}" />
+						<p:inputMask id="sipProfilePhoneNumber"
+							value="#{voipAccountSettingBean.sipProfilePhoneNumber}"
+							mask="(999) 999-9999" required="true"
+							requiredMessage="#{messages['member.sipprofile.error.phonenumber.required']}"
+							converter="#{naPhoneNumberConverter}" />
+						<p:message id="sipProfilePhoneNumberError"
+							for="sipProfilePhoneNumber" />
+						<h:outputLabel for="sipProfileAreaCode"
+							value="#{messages['member.sipprofile.default.area']}" />
+						<p:inputMask id="sipProfileAreaCode"
+							value="#{voipAccountSettingBean.sipProfileDefaultArea}"
+							mask="999" required="true"
+							requiredMessage="#{messages['member.sipprofile.error.areacode.required']}"
+							converter="#{naAreaCodeConverter}" />
+						<p:message id="sipProfileAreaCodeError" for="sipProfileAreaCode" />
+						<h:outputLabel for="sipProfileAllowInternal"
+							value="#{messages['member.sipprofile.allow.internal']}" />
+						<h:selectBooleanCheckbox id="sipProfileAllowInternal"
+							value="#{voipAccountSettingBean.sipProfileAllowInternal}" />
+						<p:message id="sipProfileAllowInternalError"
+							for="sipProfileAllowInternal" />
+					</h:panelGrid>
+					<p:commandButton ajax="true" id="saveSipProfile"
+						styleClass="submit" value="#{messages['member.sipprofile.save']}"
+						action="#{voipAccountSettingBean.saveSipProfile}"
+						update="voipAccountsPanel growl" />
+				</h:form>
+			</p:panel>
+			<p:outputPanel id="voipAccountsPanel">
+				<h:form id="voipAccountsForm"
+					rendered="#{voipAccountSettingBean.hasSipProfile}">
+					<p:dataTable id="voipAccounts"
+						value="#{voipAccountSettingBean.voipAccounts}" var="voipAccount"
+						rowEditListener="#{voipAccountSettingBean.accountRowEdit}"
+						onRowEditUpdate="growl">
+						<f:facet name="header">
+							<h:outputText value="#{messages['member.voip.account.header']}" />
+						</f:facet>
+						<p:column headerText="#{messages['member.voip.voipvendor']}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{voipAccount.voipVendor.name}" />
+								</f:facet>
+								<f:facet name="input">
+									<h:selectOneMenu id="viopVendor"
+										value="#{voipAccount.voipVendor}" style="width:100%"
+										converter="#{voipVendorConverter}" required="true"
+										requiredMessage="#{messages['member.voip.error.voipvendor.required']}">
+										<f:selectItems value="#{voipAccountSettingBean.voipVendors}"
+											var="v" itemLabel="#{v.name}" />
+									</h:selectOneMenu>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+						<p:column headerText="#{messages['member.voip.name']}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{voipAccount.name}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText id="voipName" value="#{voipAccount.name}"
+										style="width:100%" required="true"
+										requiredMessage="#{messages['member.voip.error.name.required']}" />
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+						<p:column headerText="#{messages['member.voip.account']}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{voipAccount.account}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText id="voipAccount" value="#{voipAccount.account}"
+										style="width:100%" required="true"
+										requiredMessage="#{messages['member.voip.error.account.required']}" />
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+						<p:column headerText="#{messages['member.voip.password']}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="********" />
+								</f:facet>
+								<f:facet name="input">
+									<p:password id="voipPassword" value="#{voipAccount.password}"
+										style="width:100%" feedback="false" />
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+						<p:column headerText="#{messages['member.voip.phone.number']}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{voipAccount.phoneNumber}"
+										converter="#{naPhoneNumberConverter}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputMask id="voipPhoneNumber"
+										value="#{voipAccount.phoneNumber}" mask="(999) 999-9999"
+										converter="#{naPhoneNumberConverter}" style="width:100%" />
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+						<p:column headerText="#{messages['member.voip.callback.number']}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{voipAccount.callBackNumber}"
+										converter="#{naPhoneNumberConverter}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputMask id="voipCallbackNumber"
+										value="#{voipAccount.callBackNumber}" mask="(999) 999-9999"
+										converter="#{naPhoneNumberConverter}" style="width:100%" />
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+						<p:column headerText="#{messages['member.voip.type']}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{voipAccount.type.label}" />
+								</f:facet>
+								<f:facet name="input">
+									<h:selectOneMenu id="voipType" value="#{voipAccount.type}"
+										style="width:100%" converter="#{voipAccountTypeConverter}"
+										required="true"
+										requiredMessage="#{messages['member.voip.error.type.required']}">
+										<f:selectItems
+											value="#{voipAccountSettingBean.voipAccountTypes}" var="vt"
+											itemLabel="#{vt.label}" />
+									</h:selectOneMenu>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+						<p:column>
+							<p:rowEditor />
+						</p:column>
+						<p:column>
+							<p:commandLink ajax="true"
+								action="#{voipAccountSettingBean.removeVoipoAccount}"
+								update="@form growl" process="@this">
+								<span title="Remove" class="ui-icon ui-icon-trash" />
+							</p:commandLink>
+						</p:column>
+					</p:dataTable>
+					<p:commandButton ajax="true" id="newVoipAccount"
+						styleClass="submit" value="#{messages['member.voip.new']}"
+						action="#{voipAccountSettingBean.addVoipAccount}"
+						update="voipAccountsForm, growl" />
+				</h:form>
+			</p:outputPanel>
+		</f:view>
+	</ui:define>
+</ui:composition>

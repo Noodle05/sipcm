@@ -41,117 +41,141 @@
 					<p:commandButton ajax="true" id="saveSipProfile"
 						styleClass="submit" value="#{messages['member.sipprofile.save']}"
 						action="#{voipAccountSettingBean.saveSipProfile}"
-						update="voipAccounts, growl" />
+						update="voipAccountsPanel growl" />
 				</h:form>
 			</p:panel>
-			<h:form id="voipAccountsForm">
-				<p:dataTable id="voipAccounts"
-					value="#{voipAccountSettingBean.voipAccounts}" var="voipAccount"
-					rowEditListener="#{voipAccountSettingBean.accountRowEdit}"
-					onRowEditUpdate="growl">
-					<f:facet name="header">
-						<h:outputText value="#{messages['member.voip.account.header']}" />
-					</f:facet>
-					<p:column headerText="#{messages['member.voip.voipvendor']}">
-						<p:cellEditor>
-							<f:facet name="output">
-								<h:outputText value="#{voipAccount.voipVendor.name}" />
+
+			<p:outputPanel id="voipAccountsPanel">
+				<h:form id="voipAccountsForm"
+					rendered="#{voipAccountSettingBean.hasSipProfile}">
+					<p:dataTable id="voipAccounts"
+						value="#{voipAccountSettingBean.voipAccounts}" var="voipAccount"
+						emptyMessage="#{messages['member.voip.account.empty']}">
+						<f:facet name="header">
+							<h:outputText value="#{messages['member.voip.account.header']}" />
+						</f:facet>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages['member.voip.name']}" />
 							</f:facet>
-							<f:facet name="input">
-								<h:selectOneMenu id="viopVendor"
-									value="#{voipAccount.voipVendor}" style="width:100%"
-									converter="#{voipVendorConverter}">
-									<f:selectItems value="#{voipAccountSettingBean.voipVendors}"
-										var="v" itemLabel="#{v.name}" />
-								</h:selectOneMenu>
+							<h:outputText value="#{voipAccount.name}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages['member.voip.voipvendor']}" />
 							</f:facet>
-						</p:cellEditor>
-					</p:column>
-					<p:column headerText="#{messages['member.voip.name']}">
-						<p:cellEditor>
-							<f:facet name="output">
-								<h:outputText value="#{voipAccount.name}" />
+							<h:outputText value="#{voipAccount.voipVendor.name}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages['member.voip.account']}" />
 							</f:facet>
-							<f:facet name="input">
-								<p:inputText id="voipName" value="#{voipAccount.name}"
-									style="width:100%" />
+							<h:outputText value="#{voipAccount.account}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages['member.voip.phone.number']}" />
 							</f:facet>
-						</p:cellEditor>
-					</p:column>
-					<p:column headerText="#{messages['member.voip.account']}">
-						<p:cellEditor>
-							<f:facet name="output">
-								<h:outputText value="#{voipAccount.account}" />
+							<h:outputText value="#{voipAccount.phoneNumber}"
+								converter="#{naPhoneNumberConverter}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages['member.voip.type']}" />
 							</f:facet>
-							<f:facet name="input">
-								<p:inputText id="voipAccount" value="#{voipAccount.account}"
-									style="width:100%" />
+							<h:outputText value="#{voipAccount.type.label}" />
+						</p:column>
+						<p:column style="width:32px">
+							<p:commandLink update="accountEdit"
+								oncomplete="accountDialog.show()">
+								<f:setPropertyActionListener value="#{voipAccount}"
+									target="#{voipAccountSettingBean.selectedVoipAccount}" />
+								<span title="Remove" class="ui-icon ui-icon-pencil" />
+							</p:commandLink>
+							<p:commandLink update="voipAccountsForm, growl">
+								<f:setPropertyActionListener value="#{voipAccount}"
+									target="#{voipAccountSettingBean.selectedVoipAccount}" />
+								<span title="Remove" class="ui-icon ui-icon-trash" />
+							</p:commandLink>
+						</p:column>
+						<f:facet name="footer">
+							<p:commandButton ajax="true" id="newVoipAccount"
+								styleClass="submit" value="#{messages['member.voip.new']}"
+								action="#{voipAccountSettingBean.addVoipAccount}"
+								update="voipAccountsForm, growl" />
+						</f:facet>
+					</p:dataTable>
+				</h:form>
+
+				<p:dialog header="#{messages['member.voiop.account.edit.headers']}"
+					widgetVar="accountDialog" resizable="false" width="400">
+					<h:form id="accountEdit">
+						<h:panelGrid columns="3" cellpadding="4">
+							<h:outputLabel for="viopVendorEditor"
+								value="#{messages['member.voip.voipvendor']}" />
+							<h:selectOneMenu id="viopVendorEditor"
+								value="#{voipAccountSettingBean.selectedVoipAccount.voipVendor}"
+								converter="#{voipVendorConverter}" required="true"
+								requiredMessage="#{messages['member.voip.error.voipvendor.required']}">
+								<f:selectItems value="#{voipAccountSettingBean.voipVendors}"
+									var="v" itemLabel="#{v.name}" />
+							</h:selectOneMenu>
+							<p:message id="viopVendorEditorError" for="viopVendorEditor" />
+							<h:outputLabel for="voipNameEditor"
+								value="#{messages['member.voip.name']}" />
+							<p:inputText id="voipNameEditor"
+								value="#{voipAccountSettingBean.selectedVoipAccount.name}"
+								required="true"
+								requiredMessage="#{messages['member.voip.error.name.required']}" />
+							<p:message id="voipNameEditorError" for="voipNameEditor" />
+							<h:outputLabel for="voipAccountEditor"
+								value="#{messages['member.voip.account']}" />
+							<p:inputText id="voipAccountEditor"
+								value="#{voipAccountSettingBean.selectedVoipAccount.account}"
+								required="true"
+								requiredMessage="#{messages['member.voip.error.account.required']}" />
+							<p:message id="voipAccountEditorError" for="voipAccountEditor" />
+							<h:outputLabel for="voipPasswordEditor"
+								value="#{messages['member.voip.password']}" />
+							<p:password id="voipPasswordEditor"
+								value="#{voipAccountSettingBean.selectedVoipAccount.password}"
+								feedback="false" />
+							<p:message id="voipPasswordEditorError" for="voipPasswordEditor" />
+							<h:outputLabel for="voipPhoneNumberEditor"
+								value="#{messages['member.voip.phone.number']}" />
+							<p:inputMask id="voipPhoneNumberEditor"
+								value="#{voipAccountSettingBean.selectedVoipAccount.phoneNumber}"
+								mask="(999) 999-9999" converter="#{naPhoneNumberConverter}" />
+							<p:message id="voipPhoneNumberEditorError"
+								for="voipPhoneNumberEditor" />
+							<h:outputLabel for="voipCallbackEditor"
+								value="#{messages['member.voip.callback.number']}" />
+							<p:inputMask id="voipCallbackEditor"
+								value="#{voipAccountSettingBean.selectedVoipAccount.callBackNumber}"
+								mask="(999) 999-9999" converter="#{naPhoneNumberConverter}" />
+							<p:message id="voipCallbackEditorError" for="voipCallbackEditor" />
+							<h:outputLabel for="voipTypeEditor"
+								value="#{messages['member.voip.type']}" />
+							<h:selectOneMenu id="voipTypeEditor"
+								value="#{voipAccountSettingBean.selectedVoipAccount.type}"
+								converter="#{voipAccountTypeConverter}" required="true"
+								requiredMessage="#{messages['member.voip.error.type.required']}">
+								<f:selectItems
+									value="#{voipAccountSettingBean.voipAccountTypes}" var="vt"
+									itemLabel="#{vt.label}" />
+							</h:selectOneMenu>
+							<p:message id="voipTypeEditorError" for="voipTypeEditor" />
+							<f:facet name="footer">
+								<p:commandButton ajax="true"
+									action="${voipAccountSettingBean.saveAccount}"
+									update="voipAccountsForm, growl"
+									value="${messages['member.voip.account.save']}" />
 							</f:facet>
-						</p:cellEditor>
-					</p:column>
-					<p:column headerText="#{messages['member.voip.password']}">
-						<p:cellEditor>
-							<f:facet name="output">
-								<h:outputText value="********" />
-							</f:facet>
-							<f:facet name="input">
-								<p:password id="voipPassword" value="#{voipAccount.password}"
-									style="width:100%" feedback="false" />
-							</f:facet>
-						</p:cellEditor>
-					</p:column>
-					<p:column headerText="#{messages['member.voip.phone.number']}">
-						<p:cellEditor>
-							<f:facet name="output">
-								<h:outputText value="#{voipAccount.phoneNumber}"
-									converter="#{naPhoneNumberConverter}" />
-							</f:facet>
-							<f:facet name="input">
-								<p:inputMask id="voipPhoneNumber"
-									value="#{voipAccount.phoneNumber}" mask="(999) 999-9999"
-									converter="#{naPhoneNumberConverter}" style="width:100%" />
-							</f:facet>
-						</p:cellEditor>
-					</p:column>
-					<p:column headerText="#{messages['member.voip.callback.number']}">
-						<p:cellEditor>
-							<f:facet name="output">
-								<h:outputText value="#{voipAccount.callBackNumber}"
-									converter="#{naPhoneNumberConverter}" />
-							</f:facet>
-							<f:facet name="input">
-								<p:inputMask id="voipCallbackNumber"
-									value="#{voipAccount.callBackNumber}" mask="(999) 999-9999"
-									converter="#{naPhoneNumberConverter}" style="width:100%" />
-							</f:facet>
-						</p:cellEditor>
-					</p:column>
-					<p:column headerText="#{messages['member.voip.type']}">
-						<p:cellEditor>
-							<f:facet name="output">
-								<h:outputText value="#{voipAccount.type.label}" />
-							</f:facet>
-							<f:facet name="input">
-								<h:selectOneMenu id="voipType" value="#{voipAccount.type}"
-									style="width:100%" converter="#{voipAccountTypeConverter}">
-									<f:selectItems
-										value="#{voipAccountSettingBean.voipAccountTypes}" var="vt"
-										itemLabel="#{vt.label}" />
-								</h:selectOneMenu>
-							</f:facet>
-						</p:cellEditor>
-					</p:column>
-					<p:column>
-						<p:rowEditor />
-						<p:commandLink
-							actionListener="#{voipAccountSettingBean.deleteVoipAccount}"
-							update="voipAccountsForm">
-							<h:outputText value="D" />
-							<f:param name="accountId" value="#{voipAccount.id}" />
-						</p:commandLink>
-					</p:column>
-				</p:dataTable>
-			</h:form>
+						</h:panelGrid>
+					</h:form>
+				</p:dialog>
+
+			</p:outputPanel>
 		</f:view>
 	</ui:define>
 </ui:composition>

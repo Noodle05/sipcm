@@ -38,6 +38,7 @@ import com.sipcm.common.model.Role;
 import com.sipcm.common.model.User;
 import com.sipcm.common.model.UserActivation;
 import com.sipcm.web.util.EmailUtils;
+import com.sipcm.web.util.JSFUtils;
 import com.sipcm.web.util.Messages;
 
 /**
@@ -96,19 +97,19 @@ public class RegistrationBean implements Serializable {
 	}
 
 	@ManagedProperty(value = "#{systemConfiguration}")
-	private SystemConfiguration appConfig;
+	private transient SystemConfiguration appConfig;
 
 	@ManagedProperty(value = "#{webEmailUtils}")
-	private EmailUtils emailUtils;
+	private transient EmailUtils emailUtils;
 
 	@ManagedProperty(value = "#{userService}")
-	private UserService userService;
+	private transient UserService userService;
 
 	@ManagedProperty(value = "#{roleService}")
-	private RoleService roleService;
+	private transient RoleService roleService;
 
 	@ManagedProperty(value = "#{userActivationService}")
-	private UserActivationService userActivationService;
+	private transient UserActivationService userActivationService;
 
 	private String username;
 
@@ -137,13 +138,13 @@ public class RegistrationBean implements Serializable {
 		if (logger.isDebugEnabled()) {
 			logger.debug("A new registration bean been created.");
 		}
-		usernamePattern = Pattern.compile(appConfig.getUsernamePattern());
-		emailPattern = Pattern.compile(appConfig.getEmailPattern());
+		usernamePattern = Pattern.compile(getAppConfig().getUsernamePattern());
+		emailPattern = Pattern.compile(getAppConfig().getEmailPattern());
 	}
 
 	public String register() {
 		FacesContext context = FacesContext.getCurrentInstance();
-		User user = userService.createNewEntity();
+		User user = getUserService().createNewEntity();
 		user.setUsername(username);
 		user.setEmail(email);
 		user.setFirstName(firstName);
@@ -158,15 +159,15 @@ public class RegistrationBean implements Serializable {
 			TimeZone tz = TimeZone.getTimeZone(timeZone);
 			user.setTimeZone(tz);
 		}
-		if (ActiveMethod.NONE.equals(appConfig.getActiveMethod())) {
+		if (ActiveMethod.NONE.equals(getAppConfig().getActiveMethod())) {
 			user.setStatus(AccountStatus.ACTIVE);
 		}
-		Role userRole = roleService.getUserRole();
+		Role userRole = getRoleService().getUserRole();
 		user.addRole(userRole);
-		userService.setPassword(user, password);
-		userService.saveEntity(user);
+		getUserService().setPassword(user, password);
+		getUserService().saveEntity(user);
 		FacesMessage message;
-		switch (appConfig.getActiveMethod()) {
+		switch (getAppConfig().getActiveMethod()) {
 		case SELF:
 			selfActive(user);
 			message = Messages.getMessage("register.success.self.active",
@@ -204,7 +205,7 @@ public class RegistrationBean implements Serializable {
 					FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
-		User user = userService.getUserByUsername(username);
+		User user = getUserService().getUserByUsername(username);
 		if (user != null) {
 			FacesMessage message = Messages.getMessage(
 					"register.error.username.exists",
@@ -222,7 +223,7 @@ public class RegistrationBean implements Serializable {
 							FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
-		User user = userService.getUserByEmail(email);
+		User user = getUserService().getUserByEmail(email);
 		if (user != null) {
 			FacesMessage message = Messages.getMessage(
 					"register.error.email.exists", FacesMessage.SEVERITY_ERROR);
@@ -260,12 +261,28 @@ public class RegistrationBean implements Serializable {
 		this.appConfig = appConfig;
 	}
 
+	private SystemConfiguration getAppConfig() {
+		if (appConfig == null) {
+			appConfig = JSFUtils.getManagedBean("systemConfiguration",
+					SystemConfiguration.class);
+		}
+		return appConfig;
+	}
+
 	/**
 	 * @param emailUtils
 	 *            the emailUtils to set
 	 */
 	public void setEmailUtils(EmailUtils emailUtils) {
 		this.emailUtils = emailUtils;
+	}
+
+	private EmailUtils getEmailUtils() {
+		if (emailUtils == null) {
+			emailUtils = JSFUtils.getManagedBean("webEmailUtils",
+					EmailUtils.class);
+		}
+		return emailUtils;
 	}
 
 	/**
@@ -276,12 +293,28 @@ public class RegistrationBean implements Serializable {
 		this.userService = userService;
 	}
 
+	private UserService getUserService() {
+		if (userService == null) {
+			userService = JSFUtils.getManagedBean("userService",
+					UserService.class);
+		}
+		return userService;
+	}
+
 	/**
 	 * @param roleService
 	 *            the roleService to set
 	 */
 	public void setRoleService(RoleService roleService) {
 		this.roleService = roleService;
+	}
+
+	private RoleService getRoleService() {
+		if (roleService == null) {
+			roleService = JSFUtils.getManagedBean("roleService",
+					RoleService.class);
+		}
+		return roleService;
 	}
 
 	/**
@@ -293,12 +326,20 @@ public class RegistrationBean implements Serializable {
 		this.userActivationService = userActivationService;
 	}
 
+	private UserActivationService getUserActivationService() {
+		if (userActivationService == null) {
+			userActivationService = JSFUtils.getManagedBean(
+					"userActivationService", UserActivationService.class);
+		}
+		return userActivationService;
+	}
+
 	/**
 	 * @param username
 	 *            the username to set
 	 */
 	public void setUsername(String username) {
-		this.username = username.trim();
+		this.username = username;
 	}
 
 	/**
@@ -313,7 +354,7 @@ public class RegistrationBean implements Serializable {
 	 *            the email to set
 	 */
 	public void setEmail(String email) {
-		this.email = email.trim();
+		this.email = email;
 	}
 
 	/**
@@ -328,7 +369,7 @@ public class RegistrationBean implements Serializable {
 	 *            the password to set
 	 */
 	public void setPassword(String password) {
-		this.password = password.trim();
+		this.password = password;
 	}
 
 	/**
@@ -343,7 +384,7 @@ public class RegistrationBean implements Serializable {
 	 *            the firstName to set
 	 */
 	public void setFirstName(String firstName) {
-		this.firstName = firstName.trim();
+		this.firstName = firstName;
 	}
 
 	/**
@@ -358,8 +399,7 @@ public class RegistrationBean implements Serializable {
 	 *            the middleName to set
 	 */
 	public void setMiddleName(String middleName) {
-		this.middleName = (middleName == null || middleName.trim().isEmpty()) ? null
-				: middleName.trim();
+		this.middleName = middleName;
 	}
 
 	/**
@@ -374,7 +414,7 @@ public class RegistrationBean implements Serializable {
 	 *            the lastName to set
 	 */
 	public void setLastName(String lastName) {
-		this.lastName = lastName.trim();
+		this.lastName = lastName;
 	}
 
 	/**
@@ -389,8 +429,7 @@ public class RegistrationBean implements Serializable {
 	 *            the displayName to set
 	 */
 	public void setDisplayName(String displayName) {
-		this.displayName = (displayName == null || displayName.trim().isEmpty()) ? null
-				: displayName.trim();
+		this.displayName = displayName;
 	}
 
 	/**
@@ -439,29 +478,33 @@ public class RegistrationBean implements Serializable {
 	}
 
 	private void selfActive(User user) {
-		UserActivation userActivation = userActivationService
+		UserActivation userActivation = getUserActivationService()
 				.createUserActivation(user, ActiveMethod.SELF,
-						appConfig.getActiveExpires());
-		userActivationService.saveEntity(userActivation);
+						getAppConfig().getActiveExpires());
+		getUserActivationService().saveEntity(userActivation);
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("activation", userActivation);
 
-		emailUtils.sendMail(user.getEmail(), Messages.getString(null,
-				"register.active.self.email.subject", null),
-				SELF_ACTIVE_EMAIL_TEMPLATE, params, user.getLocale());
+		getEmailUtils().sendMail(
+				user.getEmail(),
+				Messages.getString(null, "register.active.self.email.subject",
+						null), SELF_ACTIVE_EMAIL_TEMPLATE, params,
+				user.getLocale());
 	}
 
 	private void adminActive(User user) {
-		UserActivation userActivation = userActivationService
+		UserActivation userActivation = getUserActivationService()
 				.createUserActivation(user, ActiveMethod.ADMIN,
-						appConfig.getActiveExpires());
-		userActivationService.saveEntity(userActivation);
+						getAppConfig().getActiveExpires());
+		getUserActivationService().saveEntity(userActivation);
 
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("activation", userActivation);
 
-		emailUtils.sendMail(appConfig.getAdminEmail(), Messages.getString(null,
-				"register.active.admin.email.subject", null),
-				ADMIN_ACTIVE_EMAIL_TEMPLATE, params, user.getLocale());
+		getEmailUtils().sendMail(
+				getAppConfig().getAdminEmail(),
+				Messages.getString(null, "register.active.admin.email.subject",
+						null), ADMIN_ACTIVE_EMAIL_TEMPLATE, params,
+				user.getLocale());
 	}
 }
