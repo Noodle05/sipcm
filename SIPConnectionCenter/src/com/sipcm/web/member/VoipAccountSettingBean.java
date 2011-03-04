@@ -16,7 +16,9 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 
+import org.primefaces.context.RequestContext;
 import org.primefaces.event.RowEditEvent;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -57,7 +59,9 @@ public class VoipAccountSettingBean implements Serializable {
 
 	private UserSipProfile userSipProfile;
 
-	private Map<UserVoipAccount, String> voipAccountPasswordMap;
+	private Map<Long, String> voipAccountPasswordMap;
+
+	private List<UserVoipAccount> voipAccounts;
 
 	private String sipProfilePhoneNumber = "";
 
@@ -81,11 +85,14 @@ public class VoipAccountSettingBean implements Serializable {
 			sipProfileAllowInternal = userSipProfile.isAllowLocalDirectly();
 			Collection<UserVoipAccount> accounts = getUserVoipAccountService()
 					.getUserVoipAccount(userSipProfile);
-			voipAccountPasswordMap = new HashMap<UserVoipAccount, String>();
+			voipAccountPasswordMap = new HashMap<Long, String>();
+			voipAccounts = new ArrayList<UserVoipAccount>();
 			if (accounts != null) {
 				for (UserVoipAccount account : accounts) {
-					voipAccountPasswordMap.put(account, account.getPassword());
+					voipAccountPasswordMap.put(account.getId(),
+							account.getPassword());
 					account.setPassword(null);
+					voipAccounts.add(account);
 				}
 			}
 		}
@@ -120,7 +127,8 @@ public class VoipAccountSettingBean implements Serializable {
 					account.setPassword(voipAccountPasswordMap.get(account));
 				}
 				getUserVoipAccountService().saveEntity(account);
-				voipAccountPasswordMap.put(account, account.getPassword());
+				voipAccountPasswordMap.put(account.getId(),
+						account.getPassword());
 				account.setPassword(null);
 				FacesMessage message = Messages.getMessage(
 						"member.voip.accounts.save.success",
@@ -134,10 +142,44 @@ public class VoipAccountSettingBean implements Serializable {
 		}
 	}
 
+	public void saveAccount(ActionEvent actionEvent) {
+		RequestContext context = RequestContext.getCurrentInstance();
+		boolean saved = false;
+		try {
+			if (validateUserVoipAccount(selectedVoipAccount)) {
+				if (selectedVoipAccount.getPassword() == null
+						&& selectedVoipAccount.getId() != null
+						&& voipAccountPasswordMap.get(selectedVoipAccount
+								.getId()) != null) {
+					selectedVoipAccount.setPassword(voipAccountPasswordMap
+							.get(selectedVoipAccount.getId()));
+				}
+				Long id = selectedVoipAccount.getId();
+				getUserVoipAccountService().saveEntity(selectedVoipAccount);
+				voipAccountPasswordMap.put(selectedVoipAccount.getId(),
+						selectedVoipAccount.getPassword());
+				selectedVoipAccount.setPassword(null);
+				if (id == null) {
+					voipAccounts.add(selectedVoipAccount);
+				}
+				FacesMessage message = Messages.getMessage(
+						"member.voip.accounts.save.success",
+						FacesMessage.SEVERITY_INFO);
+				FacesContext.getCurrentInstance().addMessage(null, message);
+				saved = true;
+			}
+		} catch (Exception e) {
+			FacesMessage message = new FacesMessage(
+					FacesMessage.SEVERITY_ERROR, e.getLocalizedMessage(), null);
+			FacesContext.getCurrentInstance().addMessage(null, message);
+		}
+		context.addCallbackParam("saved", saved);
+	}
+
 	private boolean validateUserVoipAccount(UserVoipAccount account) {
 		boolean ret = true;
 		if (account.getPassword() == null
-				&& voipAccountPasswordMap.get(account) == null) {
+				&& voipAccountPasswordMap.get(account.getId()) == null) {
 			FacesMessage message = Messages.getMessage(
 					"member.voip.error.password.required",
 					FacesMessage.SEVERITY_ERROR);
@@ -193,10 +235,7 @@ public class VoipAccountSettingBean implements Serializable {
 			UserVoipAccount account = getUserVoipAccountService()
 					.createNewEntity();
 			account.setOwnser(userSipProfile);
-			voipAccountPasswordMap.put(account, null);
-			FacesMessage message = Messages.getMessage(
-					"member.voip.accounts.added", FacesMessage.SEVERITY_INFO);
-			FacesContext.getCurrentInstance().addMessage(null, message);
+			selectedVoipAccount = account;
 		} catch (Exception e) {
 			FacesMessage message = new FacesMessage(
 					FacesMessage.SEVERITY_ERROR, e.getLocalizedMessage(), null);
@@ -204,15 +243,20 @@ public class VoipAccountSettingBean implements Serializable {
 		}
 	}
 
-	public void removeVoipoAccount(UserVoipAccount account) {
-		System.out.println("I'm here!");
+	public void removeVoipAccount(ActionEvent action) {
+		getUserVoipAccountService().removeEntity(selectedVoipAccount);
+		voipAccountPasswordMap.remove(selectedVoipAccount.getId());
+		voipAccounts.remove(selectedVoipAccount);
+		FacesMessage message = Messages.getMessage(
+				"member.voip.account.deleted", FacesMessage.SEVERITY_INFO);
+		FacesContext.getCurrentInstance().addMessage(null, message);
 	}
 
 	/**
 	 * @return the voipAccounts
 	 */
 	public List<UserVoipAccount> getVoipAccounts() {
-		return new ArrayList<UserVoipAccount>(voipAccountPasswordMap.keySet());
+		return voipAccounts;
 	}
 
 	public Collection<VoipVendor> getVoipVendors() {

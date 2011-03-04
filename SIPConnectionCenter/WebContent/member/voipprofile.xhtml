@@ -10,6 +10,19 @@
 	<ui:define name="windowTitle">#{messages['member.title']}</ui:define>
 	<ui:define name="memberContent">
 		<f:view contentType="text/html">
+			<script type="text/javascript">
+				// <![CDATA[
+				function handleSaveAccountRequest(xhr, status, args) {
+					if (args.validationFailed || !args.saved) {
+						jQuery('#accountDialog').parent().effect("shake", {
+							times : 3
+						}, 100);
+					} else {
+						accountDialog.hide();
+					}
+				}
+				// ]]>
+			</script>
 			<p:growl id="growl" showDetail="true" />
 			<p:panel header="#{messages['member.voip.header']}">
 				<h:form id="userSipProfile">
@@ -92,7 +105,7 @@
 									target="#{voipAccountSettingBean.selectedVoipAccount}" />
 								<span title="Remove" class="ui-icon ui-icon-pencil" />
 							</p:commandLink>
-							<p:commandLink update="voipAccountsForm, growl">
+							<p:commandLink onclick="removeAccountConfirmation.show()">
 								<f:setPropertyActionListener value="#{voipAccount}"
 									target="#{voipAccountSettingBean.selectedVoipAccount}" />
 								<span title="Remove" class="ui-icon ui-icon-trash" />
@@ -102,13 +115,14 @@
 							<p:commandButton ajax="true" id="newVoipAccount"
 								styleClass="submit" value="#{messages['member.voip.new']}"
 								action="#{voipAccountSettingBean.addVoipAccount}"
-								update="voipAccountsForm, growl" />
+								update="accountEdit" oncomplete="accountDialog.show()" />
 						</f:facet>
 					</p:dataTable>
 				</h:form>
 
-				<p:dialog header="#{messages['member.voiop.account.edit.headers']}"
-					widgetVar="accountDialog" resizable="false" width="400">
+				<p:dialog id="accountDialog"
+					header="#{messages['member.voiop.account.edit.headers']}"
+					widgetVar="accountDialog" resizable="false" width="400" modal="true">
 					<h:form id="accountEdit">
 						<h:panelGrid columns="3" cellpadding="4">
 							<h:outputLabel for="viopVendorEditor"
@@ -166,14 +180,30 @@
 							</h:selectOneMenu>
 							<p:message id="voipTypeEditorError" for="voipTypeEditor" />
 							<f:facet name="footer">
-								<p:commandButton ajax="true"
-									action="${voipAccountSettingBean.saveAccount}"
+								<p:commandButton
+									actionListener="${voipAccountSettingBean.saveAccount}"
 									update="voipAccountsForm, growl"
-									value="${messages['member.voip.account.save']}" />
+									value="${messages['member.voip.account.save']}"
+									oncomplete="handleSaveAccountRequest(xhr, status, args)" />
 							</f:facet>
 						</h:panelGrid>
 					</h:form>
 				</p:dialog>
+
+				<p:confirmDialog
+					message="#{messages['member.voip.account.delete.confirm']}"
+					header="#{messages['member.voip.account.delete.confirm.header']}"
+					severity="alert" widgetVar="removeAccountConfirmation" modal="true">
+					<h:form>
+						<p:commandButton
+							value="#{messages['member.voip.account.delete.yes']}"
+							update="voipAccountsForm, growl" oncomplete="removeAccountConfirmation.hide()"
+							actionListener="#{voipAccountSettingBean.removeVoipAccount}" />
+						<p:commandButton
+							value="#{messages['member.voip.account.delete.no']}"
+							onclick="removeAccountConfirmation.hide()" type="button" />
+					</h:form>
+				</p:confirmDialog>
 
 			</p:outputPanel>
 		</f:view>

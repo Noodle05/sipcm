@@ -8,7 +8,6 @@ import java.sql.Timestamp;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
@@ -27,7 +26,7 @@ public abstract class AbstractTrackableEntity implements TrackableEntity {
 	@Column(name = "createdate", insertable = true, updatable = false)
 	protected Timestamp createDate;
 
-	@Version
+	@Basic
 	@Column(name = "lastmodify", insertable = false, updatable = false)
 	protected Timestamp lastModify;
 
