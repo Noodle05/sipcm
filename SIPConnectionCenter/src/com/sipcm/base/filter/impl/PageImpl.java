@@ -22,6 +22,8 @@ class PageImpl implements Page, Serializable {
 
 	private boolean tooManySearchReturn = false;
 
+	private int startRowPosition = -1;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -63,10 +65,14 @@ class PageImpl implements Page, Serializable {
 	 */
 	@Override
 	public int getStartRowPosition() {
-		if (recordsPerPage >= 0) {
-			return recordsPerPage * (getCurrentPage() - 1);
+		if (startRowPosition < 0) {
+			if (recordsPerPage >= 0) {
+				return recordsPerPage * (getCurrentPage() - 1);
+			} else {
+				return 0;
+			}
 		} else {
-			return 0;
+			return startRowPosition;
 		}
 	}
 
@@ -133,6 +139,18 @@ class PageImpl implements Page, Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.sipcm.base.filter.Page#setStartRowPosition(int)
+	 */
+	@Override
+	public void setStartRowPosition(int startRowPosition) {
+		if (startRowPosition >= 0) {
+			this.startRowPosition = startRowPosition;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.sipcm.base.filter.Page#setTooManySearchReturn(boolean)
 	 */
 	@Override
@@ -158,9 +176,9 @@ class PageImpl implements Page, Serializable {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Total records: ").append(totalRecords).append(
-				", Records/page: ").append(recordsPerPage).append(
-				", Current page: ").append(currentPage);
+		sb.append("Total records: ").append(totalRecords)
+				.append(", Records/page: ").append(recordsPerPage)
+				.append(", Current page: ").append(currentPage);
 		return sb.toString();
 	}
 }

@@ -2,12 +2,15 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.prime.com.tr/ui">
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:sec="http://www.springframework.org/security/facelets/tags">
 	<p:menu style="height:100%">
 		<p:menuitem value="#{messages['member.menu.profile']}"
 			url="#{request.contextPath}/member/profile.jsf" />
-		<p:menuitem value="#{messages['member.menu.voip.profile']}"
-			url="#{request.contextPath}/member/voipprofile.jsf" />
+		<sec:ifAllGranted roles="ROLE_CALLER">
+			<p:menuitem value="#{messages['member.menu.voip.profile']}"
+				url="#{request.contextPath}/member/voipprofile.jsf" />
+		</sec:ifAllGranted>
 		<p:menuitem value="#{messages['member.menu.history']}"
 			url="#{request.contextPath}/member/history.jsf" />
 	</p:menu>

@@ -18,6 +18,7 @@ import javax.servlet.sip.SipURI;
 import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
 
+import com.sipcm.common.business.RoleService;
 import com.sipcm.sip.business.UserSipProfileService;
 import com.sipcm.sip.locationservice.UserBindingInfo;
 import com.sipcm.sip.model.UserSipProfile;
@@ -244,14 +245,18 @@ public class CallCenterServlet extends AbstractSipServlet {
 			throws IOException {
 		UserSipProfile userSipProfile = null;
 		if (authenticationHelper.authenticate(req)) {
-			Principal principal = req.getUserPrincipal();
-			String username = principal.getName();
-			userSipProfile = userSipProfileService
-					.getUserSipProfileByUsername(username);
-			if (userSipProfile == null) {
-				response(req, SipServletResponse.SC_NOT_FOUND);
+			if (req.isUserInRole(RoleService.CALLER_ROLE)) {
+				Principal principal = req.getUserPrincipal();
+				String username = principal.getName();
+				userSipProfile = userSipProfileService
+						.getUserSipProfileByUsername(username);
+				if (userSipProfile == null) {
+					response(req, SipServletResponse.SC_NOT_FOUND);
+				}
+				dosProtector.resetCounter(req);
+			} else {
+				response(req, SipServletResponse.SC_FORBIDDEN);
 			}
-			dosProtector.resetCounter(req);
 		} else {
 			dosProtector.countAttack(req);
 		}

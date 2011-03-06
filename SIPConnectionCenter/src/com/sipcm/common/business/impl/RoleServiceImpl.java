@@ -63,11 +63,39 @@ public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 	public Role getUserRole() {
 		Role role = cache.get(USER_ROLE);
 		if (role == null) {
-			Filter filter = filterFactory.createSimpleFilter("name",
-					USER_ROLE, Filter.Operator.IEQ);
+			Filter filter = filterFactory.createSimpleFilter("name", USER_ROLE,
+					Filter.Operator.IEQ);
 			role = dao.getUniqueEntity(filter);
 			if (role != null) {
 				cache.putIfAbsent(USER_ROLE, role);
+			}
+		}
+		return role;
+	}
+
+	@Override
+	public Role getCallerRole() {
+		Role role = cache.get(CALLER_ROLE);
+		if (role == null) {
+			Filter filter = filterFactory.createSimpleFilter("name",
+					CALLER_ROLE, Filter.Operator.IEQ);
+			role = dao.getUniqueEntity(filter);
+			if (role != null) {
+				cache.putIfAbsent(CALLER_ROLE, role);
+			}
+		}
+		return role;
+	}
+
+	@Override
+	public Role getAdminRole() {
+		Role role = cache.get(ADMIN_ROLE);
+		if (role == null) {
+			Filter filter = filterFactory.createSimpleFilter("name",
+					ADMIN_ROLE, Filter.Operator.IEQ);
+			role = dao.getUniqueEntity(filter);
+			if (role != null) {
+				cache.putIfAbsent(ADMIN_ROLE, role);
 			}
 		}
 		return role;

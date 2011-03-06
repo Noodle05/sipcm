@@ -3,15 +3,68 @@
  */
 package com.sipcm.web.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.faces.context.FacesContext;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.sipcm.common.business.UserService;
+import com.sipcm.common.model.User;
+import com.sipcm.security.UserDetailsImpl;
 
 /**
  * @author wgao
  * 
  */
 public abstract class JSFUtils {
+	public static final String NA = "---";
+
+	public static final String[] availableTimeZones = new String[] { NA,
+			"Pacific/Midway", "US/Hawaii", "US/Alaska", "US/Pacific",
+			"America/Tijuana", "US/Arizona", "America/Chihuahua",
+			"US/Mountain", "America/Guatemala", "US/Central",
+			"America/Mexico_City", "Canada/Saskatchewan", "America/Bogota",
+			"US/Eastern", "US/East-Indiana", "Canada/Eastern",
+			"America/Caracas", "America/Manaus", "America/Santiago",
+			"Canada/Newfoundland", "Brazil/East", "America/Buenos_Aires",
+			"America/Godthab", "America/Montevideo", "Atlantic/South_Georgia",
+			"Atlantic/Azores", "Atlantic/Cape_Verde", "Africa/Casablanca",
+			"Europe/London", "Europe/Berlin", "Europe/Belgrade",
+			"Europe/Brussels", "Europe/Warsaw", "Africa/Algiers", "Asia/Amman",
+			"Europe/Athens", "Asia/Beirut", "Africa/Cairo", "Africa/Harare",
+			"Europe/Helsinki", "Asia/Jerusalem", "Europe/Minsk",
+			"Africa/Windhoek", "Asia/Baghdad", "Asia/Kuwait", "Europe/Moscow",
+			"Africa/Nairobi", "Asia/Tbilisi", "Asia/Tehran", "Asia/Muscat",
+			"Asia/Baku", "Asia/Yerevan", "Asia/Kabul", "Asia/Yekaterinburg",
+			"Asia/Karachi", "Asia/Calcutta", "Asia/Colombo", "Asia/Katmandu",
+			"Asia/Novosibirsk", "Asia/Dhaka", "Asia/Rangoon", "Asia/Bangkok",
+			"Asia/Krasnoyarsk", "Asia/Hong_Kong", "Asia/Irkutsk",
+			"Asia/Kuala_Lumpur", "Australia/Perth", "Asia/Taipei",
+			"Asia/Tokyo", "Asia/Seoul", "Asia/Yakutsk", "Australia/Adelaide",
+			"Australia/Darwin", "Australia/Brisbane", "Australia/Sydney",
+			"Pacific/Guam", "Australia/Hobart", "Asia/Vladivostok",
+			"Asia/Magadan", "Pacific/Auckland", "Pacific/Fiji",
+			"Pacific/Tongatapu" };
+	static {
+		Arrays.sort(availableTimeZones);
+	}
+
+	public static final Map<String, Locale> availableLocales = new LinkedHashMap<String, Locale>();
+	static {
+		availableLocales.put(NA, null);
+		availableLocales.put(Locale.US.getDisplayCountry(Locale.US), Locale.US);
+		availableLocales.put(Locale.CHINA.getDisplayCountry(Locale.CHINA),
+				Locale.CHINA);
+	}
+
 	public static <T> T getManagedBean(String managedBeanKey, Class<T> clazz)
 			throws IllegalArgumentException {
 		if (managedBeanKey == null) {
@@ -46,5 +99,28 @@ public abstract class JSFUtils {
 								+ managedBean.getClass().getName() + "]");
 			}
 		}
+	}
+
+	public static User getCurrentUser() {
+		Object principal = SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		User user = null;
+		if (principal instanceof UserDetailsImpl) {
+			user = ((UserDetailsImpl) principal).getUser();
+		} else {
+			String username = principal.toString();
+			UserService userService = getManagedBean("userService",
+					UserService.class);
+			user = userService.getUserByUsername(username);
+		}
+		return user;
+	}
+
+	public static List<String> getAvailableLocales() {
+		return new ArrayList<String>(availableLocales.keySet());
+	}
+
+	public static String[] getAvailableTimeZones() {
+		return availableTimeZones;
 	}
 }

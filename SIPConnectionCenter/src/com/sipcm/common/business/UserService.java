@@ -20,4 +20,6 @@ public interface UserService extends Service<User, Long> {
 	public boolean matchPassword(User entity, String password);
 
 	public User getUserByEmail(String email);
+
+	public User fullyLoadUser(Long id);
 }

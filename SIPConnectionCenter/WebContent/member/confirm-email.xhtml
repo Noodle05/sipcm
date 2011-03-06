@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	template="/WEB-INF/templates/memberLayout.xhtml">
+	<ui:define name="windowTitle">#{messages['member.email.confirm.title']}</ui:define>
+	<ui:define name="memberContent">
+		<f:metadata>
+			<f:viewParam name="userId" value="#{emailConfirmBean.userId}" />
+			<f:viewParam name="activeCode" value="#{emailConfirmBean.activeCode}" />
+			<f:event listener="#{emailConfirmBean.confirm}" type="preRenderView" />
+		</f:metadata>
+		<p:panel header="#{messages['member.email.confirm.message.title']}">
+			<p:messages showSummary="true" showDetail="true" />
+			<br />
+			<h:outputLink value="/member/index.jsf">
+				<h:outputText value="#{messages['member.email.confirm.return']}" />
+			</h:outputLink>
+		</p:panel>
+	</ui:define>
+</ui:composition>

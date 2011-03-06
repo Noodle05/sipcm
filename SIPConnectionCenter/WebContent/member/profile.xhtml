@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	template="/WEB-INF/templates/memberLayout.xhtml">
+	<ui:define name="windowTitle">#{messages['member.title']}</ui:define>
+	<ui:define name="memberContent">
+		<f:view contentType="text/html">
+			<p:growl id="growl" showDetail="true" />
+			<h:form id="profileForm">
+				<p:panel header="#{messages['member.profile.header']}">
+					<h:panelGrid columns="2">
+						<f:event listener="#{profileBean.validatePassword}"
+							type="postValidate" />
+						<h:outputLabel for="email"
+							value="#{messages['member.profile.email']}" />
+						<p:inputText label="#{messages['member.profile.email']}"
+							value="#{profileBean.email}" id="email" maxlength="255"
+							required="true"
+							requiredMessage="#{messages['register.error.email.required']}"
+							validator="#{profileBean.validateEmail}">
+							<p:ajax update="growl" event="blur" />
+						</p:inputText>
+						<h:outputLabel for="password"
+							value="#{messages['member.profile.password']}" />
+						<p:password id="password"
+							label="#{messages['member.profile.password']}"
+							value="#{profileBean.password}" minLength="6" maxlength="32"
+							validatorMessage="#{messages['register.error.password.size']}">
+							<f:validateLength minimum="6" maximum="32" />
+						</p:password>
+						<h:outputLabel for="confirmPassword"
+							value="#{messages['member.profile.confirmPassword']}" />
+						<p:password id="confirmPassword"
+							label="#{messages['member.profile.confirmPassword']}"
+							minLength="6" maxlength="32"
+							validatorMessage="#{messages['register.error.password.size']}">
+							<f:validateLength minimum="6" maximum="32" />
+						</p:password>
+						<h:outputLabel for="firstName"
+							value="#{messages['member.profile.firstName']}" />
+						<p:inputText label="#{messages['member.profile.firstName']}"
+							value="#{profileBean.firstName}" id="firstName" maxlength="64"
+							required="true"
+							requiredMessage="#{messages['register.error.firstName.required']}" />
+						<h:outputLabel for="middleName"
+							value="#{messages['member.profile.middleName']}" />
+						<p:inputText label="#{messages['member.profile.middleName']}"
+							value="#{profileBean.middleName}" id="middleName" maxlength="64" />
+						<h:outputLabel for="lastName"
+							value="#{messages['member.profile.lastName']}" />
+						<p:inputText label="#{messages['member.profile.lastName']}"
+							value="#{profileBean.lastName}" id="lastName" maxlength="64"
+							required="true"
+							requiredMessage="#{messages['register.error.lastName.required']}" />
+						<h:outputLabel for="displayName"
+							value="#{messages['member.profile.displayName']}" />
+						<p:inputText label="#{messages['member.profile.displayName']}"
+							value="#{profileBean.displayName}" id="displayName"
+							maxlength="64" />
+						<h:outputLabel for="locale"
+							value="#{messages['member.profile.locale']}" />
+						<h:selectOneMenu id="locale" value="#{profileBean.locale}">
+							<f:selectItems value="#{profileBean.availableLocales}" />
+						</h:selectOneMenu>
+						<h:outputLabel for="timeZone"
+							value="#{messages['member.profile.timeZone']}" />
+						<h:selectOneMenu id="timeZone" value="#{profileBean.timeZone}">
+							<f:selectItems value="#{profileBean.availableTimeZones}" />
+						</h:selectOneMenu>
+					</h:panelGrid>
+					<p:commandButton ajax="true" id="submit" styleClass="submit"
+						value="#{messages['member.profile.submit']}"
+						action="#{profileBean.save}" update="profileForm growl" />
+				</p:panel>
+			</h:form>
+		</f:view>
+	</ui:define>
+</ui:composition>

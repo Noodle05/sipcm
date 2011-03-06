@@ -1,0 +1,15 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <h3>${activation.owner.displayName}，你好</h3>
+    <h4>你需要确认你的email地址</h4><br />
+    <p>因为你改变了你注册的email地址，你需要点击<a href="${serverUrl}/member/confirm-email.jsf?userId=${activation.owner.id}&activeCode=${activation.activeCode}">这里</a>确认你的email地址。
+    </p>
+    <p>如果你无法点击上面的连接，请用你的浏览器访问"${serverUrl}/member/confirm-email.jsf?userId=${activation.owner.id}&activeCode=${activation.activeCode}"以确认你的email地址。
+    </p>
+  </body>
+</html>

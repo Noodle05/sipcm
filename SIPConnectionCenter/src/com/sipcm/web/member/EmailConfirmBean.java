@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.sipcm.web.account;
+package com.sipcm.web.member;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -16,7 +16,6 @@ import javax.faces.event.ComponentSystemEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sipcm.common.AccountStatus;
 import com.sipcm.common.ActiveMethod;
 import com.sipcm.common.business.RoleService;
 import com.sipcm.common.business.UserActivationService;
@@ -29,13 +28,13 @@ import com.sipcm.web.util.Messages;
  * @author wgao
  * 
  */
-@ManagedBean(name = "activationBean")
+@ManagedBean(name = "emailConfirmBean")
 @RequestScoped
-public class ActivationBean implements Serializable {
-	private static final long serialVersionUID = 6392210650635418763L;
+public class EmailConfirmBean implements Serializable {
+	private static final long serialVersionUID = -8821859014971422150L;
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(ActivationBean.class);
+			.getLogger(EmailConfirmBean.class);
 
 	@ManagedProperty(value = "#{userActivationService}")
 	private transient UserActivationService userActivationService;
@@ -50,15 +49,15 @@ public class ActivationBean implements Serializable {
 
 	private String activeCode;
 
-	public void activeUser(ComponentSystemEvent event) {
+	public void confirm(ComponentSystemEvent event) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Active user with user id: {}, active code: \"{}\"",
+			logger.debug("Confirm email for user id: {}, active code: \"{}\"",
 					userId, activeCode);
 		}
 		FacesContext fc = FacesContext.getCurrentInstance();
 		if (userId == null) {
 			FacesMessage message = Messages.getMessage(
-					"account.active.error.invaliduserid",
+					"member.email.confirm.error.invaliduserid",
 					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return;
@@ -66,40 +65,23 @@ public class ActivationBean implements Serializable {
 		User user = userService.fullyLoadUser(userId);
 		if (user == null) {
 			FacesMessage message = Messages.getMessage(
-					"account.active.error.invaliduserid",
+					"member.email.confirm.error.invaliduserid",
 					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return;
-		}
-		if (logger.isTraceEnabled()) {
-			logger.trace("User object: \"{}\"", user);
 		}
 		UserActivation ua = userActivationService.getUserActivationByUser(user);
 		if (ua == null) {
 			FacesMessage message = Messages.getMessage(
-					"account.active.error.invaliduserid",
-					FacesMessage.SEVERITY_ERROR);
-			fc.addMessage(null, message);
-			return;
-		}
-		if (logger.isTraceEnabled()) {
-			logger.trace("User Activation object: \"{}\"", ua);
-		}
-		if (!AccountStatus.PENDING.equals(user.getStatus())) {
-			userActivationService.removeEntity(ua);
-			FacesMessage message = Messages.getMessage(
-					"account.active.error.notpending",
+					"member.email.confirm.error.invaliduserid",
 					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return;
 		}
 		if (ua.getExpireDate().before(new Date())) {
-			if (logger.isTraceEnabled()) {
-				logger.trace("User active object alread expired");
-			}
-			FacesMessage message = Messages
-					.getMessage("account.active.error.expired",
-							FacesMessage.SEVERITY_ERROR);
+			FacesMessage message = Messages.getMessage(
+					"member.email.confirm.error.expired",
+					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return;
 		}
@@ -107,7 +89,7 @@ public class ActivationBean implements Serializable {
 			// Admin active, check if current user is admin
 			if (!fc.getExternalContext().isUserInRole(RoleService.ADMIN_ROLE)) {
 				FacesMessage message = Messages.getMessage(
-						"account.active.error.onlyadmin",
+						"member.email.confirm.error.onlyadmin",
 						FacesMessage.SEVERITY_ERROR);
 				fc.addMessage(null, message);
 				return;
@@ -117,33 +99,23 @@ public class ActivationBean implements Serializable {
 		}
 		if (activeCode == null) {
 			FacesMessage message = Messages.getMessage(
-					"account.active.error.invalidactivecode",
+					"member.email.confirm.error.invalidactivecode",
 					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return;
 		}
 		if (!ua.getActiveCode().equals(activeCode)) {
 			FacesMessage message = Messages.getMessage(
-					"account.active.error.invalidactivecode",
+					"member.email.confirm.error.invalidactivecode",
 					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return;
 		}
-		if (logger.isTraceEnabled()) {
-			logger.trace("Remove user activation object.");
-		}
 		userActivationService.removeEntity(ua);
-		if (logger.isTraceEnabled()) {
-			logger.trace("User status change to active.");
-		}
-		user.setStatus(AccountStatus.ACTIVE);
-		if (logger.isTraceEnabled()) {
-			logger.trace("Add caller role.");
-		}
 		user.addRole(roleService.getCallerRole());
 		userService.saveEntity(user);
-		FacesMessage message = Messages.getMessage("activation.success",
-				FacesMessage.SEVERITY_INFO);
+		FacesMessage message = Messages.getMessage(
+				"member.email.confirm.success", FacesMessage.SEVERITY_INFO);
 		fc.addMessage(null, message);
 	}
 

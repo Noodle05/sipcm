@@ -96,14 +96,8 @@
 			conf="provided->default;foride->sources,javadoc">
 			<exclude module="log4j" />
 		</dependency>
-		<dependency org="net.sf.json-lib" name="json-lib" rev="2.4"
-			conf="compile->default">
-			<artifact name="json-lib" type="jar"
-				url="http://repo2.maven.org/maven2/net/sf/json-lib/json-lib/2.3/json-lib-2.4-jdk15.jar"
-				conf="compile->default;foride->sources,javadoc" />
-			<exclude module="commons-beanutils" />
-			<exclude module="commons-logging" />
-		</dependency>
+		<dependency org="com.google.code.gson" name="gson" rev="1.6"
+			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="net.sf.ezmorph" name="ezmorph" rev="1.0.6"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-aop"

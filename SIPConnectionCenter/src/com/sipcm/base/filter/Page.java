@@ -12,6 +12,8 @@ public interface Page {
 
 	public int getStartRowPosition();
 
+	public void setStartRowPosition(int startRowPosition);
+
 	public int getEndRowPosition();
 
 	public void setTotalRecords(int totalRecords);

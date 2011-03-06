@@ -20,11 +20,8 @@ import javax.faces.event.ActionEvent;
 
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.RowEditEvent;
-import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.User;
-import com.sipcm.security.UserDetailsImpl;
 import com.sipcm.sip.VoipAccountType;
 import com.sipcm.sip.VoipVendorType;
 import com.sipcm.sip.business.UserSipProfileService;
@@ -51,9 +48,6 @@ public class VoipAccountSettingBean implements Serializable {
 	@ManagedProperty(value = "#{userSipProfileService}")
 	private transient UserSipProfileService userSipProfileService;
 
-	@ManagedProperty(value = "#{userService}")
-	private transient UserService userService;
-
 	@ManagedProperty(value = "#{userVoipAccountService}")
 	private transient UserVoipAccountService userVoipAccountService;
 
@@ -73,7 +67,7 @@ public class VoipAccountSettingBean implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		User user = getCurrentUser();
+		User user = JSFUtils.getCurrentUser();
 		if (user == null) {
 			throw new IllegalStateException(
 					"Access this page without user? Can't be!");
@@ -102,7 +96,7 @@ public class VoipAccountSettingBean implements Serializable {
 		try {
 			if (userSipProfile == null) {
 				userSipProfile = getUserSipProfileService()
-						.createUserSipProfile(getCurrentUser());
+						.createUserSipProfile(JSFUtils.getCurrentUser());
 			}
 			userSipProfile.setPhoneNumber(sipProfilePhoneNumber);
 			userSipProfile.setDefaultAreaCode(sipProfileDefaultArea);
@@ -273,19 +267,6 @@ public class VoipAccountSettingBean implements Serializable {
 		return userSipProfile;
 	}
 
-	private User getCurrentUser() {
-		Object principal = SecurityContextHolder.getContext()
-				.getAuthentication().getPrincipal();
-		User user = null;
-		if (principal instanceof UserDetailsImpl) {
-			user = ((UserDetailsImpl) principal).getUser();
-		} else {
-			String username = principal.toString();
-			user = getUserService().getUserByUsername(username);
-		}
-		return user;
-	}
-
 	public boolean isHasSipProfile() {
 		return userSipProfile != null;
 	}
@@ -321,22 +302,6 @@ public class VoipAccountSettingBean implements Serializable {
 					"userSipProfileService", UserSipProfileService.class);
 		}
 		return userSipProfileService;
-	}
-
-	/**
-	 * @param userService
-	 *            the userService to set
-	 */
-	public void setUserService(UserService userService) {
-		this.userService = userService;
-	}
-
-	private UserService getUserService() {
-		if (userService == null) {
-			userService = JSFUtils.getManagedBean("userService",
-					UserService.class);
-		}
-		return userService;
 	}
 
 	/**

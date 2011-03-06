@@ -4,15 +4,17 @@
 package com.sipcm.base.filter.impl;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Component;
+
 import com.sipcm.base.filter.Filter;
 import com.sipcm.base.filter.FilterFactory;
 import com.sipcm.base.filter.InvalidFilterException;
 import com.sipcm.base.filter.Page;
 import com.sipcm.base.filter.Sort;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Jack
@@ -23,8 +25,7 @@ public class FilterFactoryImpl extends FilterFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.filter.FilterFactory#createSimpleFilter(java.lang.
+	 * @see com.sipcm.base.filter.FilterFactory#createSimpleFilter(java.lang.
 	 * String, java.io.Serializable)
 	 */
 	@Override
@@ -35,8 +36,7 @@ public class FilterFactoryImpl extends FilterFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.filter.FilterFactory#createSimpleFilter(java.lang.
+	 * @see com.sipcm.base.filter.FilterFactory#createSimpleFilter(java.lang.
 	 * String, java.io.Serializable, com.sipcm.base.filter.Filter.Operator)
 	 */
 	@Override
@@ -60,8 +60,7 @@ public class FilterFactoryImpl extends FilterFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.filter.FilterFactory#createSimpleFilter(java.lang.
+	 * @see com.sipcm.base.filter.FilterFactory#createSimpleFilter(java.lang.
 	 * String)
 	 */
 	@Override
@@ -72,8 +71,7 @@ public class FilterFactoryImpl extends FilterFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.filter.FilterFactory#createBetweenFilter(java.lang
+	 * @see com.sipcm.base.filter.FilterFactory#createBetweenFilter(java.lang
 	 * .String, java.io.Serializable, java.io.Serializable)
 	 */
 	@Override
@@ -87,8 +85,7 @@ public class FilterFactoryImpl extends FilterFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.filter.FilterFactory#createNotBetweenFilter(java.lang
+	 * @see com.sipcm.base.filter.FilterFactory#createNotBetweenFilter(java.lang
 	 * .String, java.io.Serializable, java.io.Serializable)
 	 */
 	@Override
@@ -102,13 +99,12 @@ public class FilterFactoryImpl extends FilterFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.filter.FilterFactory#createInFilter(java.lang.String,
+	 * @see com.sipcm.base.filter.FilterFactory#createInFilter(java.lang.String,
 	 * java.util.List)
 	 */
 	@Override
-	public Filter createInFilter(String name,
-			List<? extends Serializable> values) {
+	public <T extends Serializable> Filter createInFilter(String name,
+			List<T> values) {
 		checkArguments(name);
 		return new InListFilter(name, values, false);
 	}
@@ -116,23 +112,23 @@ public class FilterFactoryImpl extends FilterFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.filter.FilterFactory#createInFilter(java.lang.String,
+	 * @see com.sipcm.base.filter.FilterFactory#createInFilter(java.lang.String,
 	 * T[])
 	 */
 	@Override
 	public <T extends Serializable> Filter createInFilter(String name,
 			T... values) {
 		checkArguments(name);
-		return new InListFilter(name, false, values);
+		return new InListFilter(name, values == null ? null
+				: Arrays.asList(values), false);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.base.filter.FilterFactory#createNotInFilter(java.lang.String
-	 * , java.util.List)
+	 * com.sipcm.base.filter.FilterFactory#createNotInFilter(java.lang.String ,
+	 * java.util.List)
 	 */
 	@Override
 	public Filter createNotInFilter(String name,
@@ -145,21 +141,21 @@ public class FilterFactoryImpl extends FilterFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.base.filter.FilterFactory#createNotInFilter(java.lang.String
-	 * , T[])
+	 * com.sipcm.base.filter.FilterFactory#createNotInFilter(java.lang.String ,
+	 * T[])
 	 */
 	@Override
 	public <T extends Serializable> Filter createNotInFilter(String name,
 			T... values) {
 		checkArguments(name);
-		return new InListFilter(name, true, values);
+		return new InListFilter(name, values == null ? null
+				: Arrays.asList(values), true);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.filter.FilterFactory#createIsNullFilter(java.lang.
+	 * @see com.sipcm.base.filter.FilterFactory#createIsNullFilter(java.lang.
 	 * String)
 	 */
 	@Override
@@ -171,8 +167,7 @@ public class FilterFactoryImpl extends FilterFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.base.filter.FilterFactory#createIsNotNullFilter(java.lang
+	 * @see com.sipcm.base.filter.FilterFactory#createIsNotNullFilter(java.lang
 	 * .String)
 	 */
 	@Override

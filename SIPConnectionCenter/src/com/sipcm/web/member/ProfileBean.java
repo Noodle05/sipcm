@@ -1,13 +1,14 @@
 /**
  * 
  */
-package com.sipcm.web.account;
+package com.sipcm.web.member;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -15,7 +16,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -24,14 +25,13 @@ import javax.faces.validator.ValidatorException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.sipcm.common.AccountStatus;
 import com.sipcm.common.ActiveMethod;
 import com.sipcm.common.SystemConfiguration;
 import com.sipcm.common.business.RoleService;
 import com.sipcm.common.business.UserActivationService;
 import com.sipcm.common.business.UserService;
-import com.sipcm.common.model.Role;
 import com.sipcm.common.model.User;
 import com.sipcm.common.model.UserActivation;
 import com.sipcm.web.util.EmailUtils;
@@ -42,16 +42,15 @@ import com.sipcm.web.util.Messages;
  * @author wgao
  * 
  */
-@ManagedBean(name = "registrationBean")
-@SessionScoped
-public class RegistrationBean implements Serializable {
-	private static final long serialVersionUID = -6419289187735553748L;
+@ManagedBean(name = "profileBean")
+@ViewScoped
+public class ProfileBean implements Serializable {
+	private static final long serialVersionUID = 3724475125208917222L;
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(RegistrationBean.class);
+			.getLogger(ProfileBean.class);
 
-	public static final String SELF_ACTIVE_EMAIL_TEMPLATE = "/templates/self-active.vm";
-	public static final String ADMIN_ACTIVE_EMAIL_TEMPLATE = "/templates/admin-active.vm";
+	public static final String CONFIRM_EMAIL_TEMPLATE = "/templates/email-confirm.vm";
 
 	@ManagedProperty(value = "#{systemConfiguration}")
 	private transient SystemConfiguration appConfig;
@@ -67,8 +66,6 @@ public class RegistrationBean implements Serializable {
 
 	@ManagedProperty(value = "#{userActivationService}")
 	private transient UserActivationService userActivationService;
-
-	private String username;
 
 	private String email;
 
@@ -86,28 +83,56 @@ public class RegistrationBean implements Serializable {
 
 	private String timeZone;
 
-	private Pattern usernamePattern;
-
 	private Pattern emailPattern;
 
 	@PostConstruct
 	public void init() {
-		if (logger.isDebugEnabled()) {
-			logger.debug("A new registration bean been created.");
-		}
-		usernamePattern = Pattern.compile(getAppConfig().getUsernamePattern());
 		emailPattern = Pattern.compile(getAppConfig().getEmailPattern());
+		User user = JSFUtils.getCurrentUser();
+		if (user == null) {
+			throw new IllegalStateException(
+					"Calling profile bean without user?");
+		}
+		email = user.getEmail();
+		firstName = user.getFirstName();
+		middleName = user.getMiddleName();
+		lastName = user.getLastName();
+		displayName = user.getDisplayName();
+		if (user.getLocale() != null) {
+			for (Entry<String, Locale> entry : JSFUtils.availableLocales
+					.entrySet()) {
+				if (user.getLocale().equals(entry.getValue())) {
+					locale = entry.getKey();
+					break;
+				}
+			}
+		}
+		if (locale == null) {
+			locale = JSFUtils.NA;
+		}
+		if (user.getTimeZone() != null) {
+			timeZone = user.getTimeZone().getID();
+		} else {
+			timeZone = JSFUtils.NA;
+		}
 	}
 
-	public String register() {
-		FacesContext context = FacesContext.getCurrentInstance();
-		User user = getUserService().createNewEntity();
-		user.setUsername(username);
-		user.setEmail(email);
+	public void save() {
+		User user = JSFUtils.getCurrentUser();
+		if (logger.isDebugEnabled()) {
+			logger.debug("Saving user profile for \"{}\"", user);
+		}
+		if (password != null) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Password changed.");
+			}
+			getUserService().setPassword(user, password);
+		}
 		user.setFirstName(firstName);
 		user.setMiddleName(middleName);
 		user.setLastName(lastName);
 		user.setDisplayName(displayName);
+		user.setLocale(JSFUtils.availableLocales.get(locale));
 		if (locale != null) {
 			Locale l = JSFUtils.availableLocales.get(locale);
 			user.setLocale(l);
@@ -120,58 +145,34 @@ public class RegistrationBean implements Serializable {
 		} else {
 			user.setTimeZone(null);
 		}
-		if (ActiveMethod.NONE.equals(getAppConfig().getActiveMethod())) {
-			user.setStatus(AccountStatus.ACTIVE);
+		boolean suspend = false;
+		if (!email.equalsIgnoreCase(user.getEmail())) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Email changed, remove caller role.");
+			}
+			user.setEmail(email);
+			user.removeRole(getRoleService().getCallerRole());
+			suspend = true;
 		}
-		Role userRole = getRoleService().getUserRole();
-		user.addRole(userRole);
-		getUserService().setPassword(user, password);
 		getUserService().saveEntity(user);
-		FacesMessage message;
-		switch (getAppConfig().getActiveMethod()) {
-		case SELF:
-			selfActive(user);
-			message = Messages.getMessage("register.success.self.active",
-					FacesMessage.SEVERITY_INFO);
-			context.addMessage(null, message);
-			break;
-		case ADMIN:
-			adminActive(user);
-			message = Messages.getMessage("register.success.admin.active",
-					FacesMessage.SEVERITY_INFO);
-			context.addMessage(null, message);
-			break;
-		default:
-			message = Messages.getMessage("register.success",
-					FacesMessage.SEVERITY_INFO);
-			context.addMessage(null, message);
-			break;
-		}
-		context.getExternalContext().getSessionMap().remove("registrationBean");
-		return "success";
-	}
-
-	public void validateUsername(FacesContext context,
-			UIComponent componentToValidate, Object value) {
-		String username = ((String) value).trim();
-		if (username.length() < 6 || username.length() > 32) {
+		if (suspend) {
+			changeEmail(user);
 			FacesMessage message = Messages.getMessage(
-					"register.error.username.length",
-					FacesMessage.SEVERITY_ERROR);
-			throw new ValidatorException(message);
+					"member.profile.voip.suspend", FacesMessage.SEVERITY_WARN);
+			FacesContext.getCurrentInstance().addMessage(null, message);
 		}
-		if (!usernamePattern.matcher(username).matches()) {
-			FacesMessage message = Messages.getMessage(
-					"register.error.username.pattern",
-					FacesMessage.SEVERITY_ERROR);
-			throw new ValidatorException(message);
-		}
-		User user = getUserService().getUserByUsername(username);
-		if (user != null) {
-			FacesMessage message = Messages.getMessage(
-					"register.error.username.exists",
-					FacesMessage.SEVERITY_ERROR);
-			throw new ValidatorException(message);
+		FacesMessage message = Messages.getMessage("member.profile.saved",
+				FacesMessage.SEVERITY_INFO);
+		FacesContext.getCurrentInstance().addMessage(null, message);
+		if (suspend) {
+			// Since user changed their email, user's role changed, need to
+			// logout user.
+			if (logger.isTraceEnabled()) {
+				logger.trace("Logout user since email changed.");
+			}
+			FacesContext.getCurrentInstance().getExternalContext()
+					.invalidateSession();
+			SecurityContextHolder.clearContext();
 		}
 	}
 
@@ -185,7 +186,7 @@ public class RegistrationBean implements Serializable {
 			throw new ValidatorException(message);
 		}
 		User user = getUserService().getUserByEmail(email);
-		if (user != null) {
+		if (user != null && !user.equals(JSFUtils.getCurrentUser())) {
 			FacesMessage message = Messages.getMessage(
 					"register.error.email.exists", FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
@@ -199,19 +200,45 @@ public class RegistrationBean implements Serializable {
 		UIInput confirmPasswdTxt = (UIInput) components
 				.findComponent("confirmPassword");
 		if (passwordTxt.isValid() && confirmPasswdTxt.isValid()) {
-			String password = passwordTxt.getLocalValue().toString().trim();
-			String confirmPasswd = confirmPasswdTxt.getLocalValue().toString()
-					.trim();
-			if (password != null && confirmPasswd != null) {
-				if (!password.equals(confirmPasswd)) {
-					FacesMessage message = Messages.getMessage(
-							"register.error.password.notmatch",
-							FacesMessage.SEVERITY_ERROR);
-					fc.addMessage("registrationForm:confirmPassword", message);
-					fc.renderResponse();
+			if (passwordTxt.getLocalValue() != null
+					|| confirmPasswdTxt.getLocalValue() != null) {
+				String password = passwordTxt.getLocalValue() == null ? null
+						: passwordTxt.getLocalValue().toString().trim();
+				String confirmPasswd = confirmPasswdTxt.getLocalValue() == null ? null
+						: confirmPasswdTxt.getLocalValue().toString().trim();
+				if (password == null) {
+					if (confirmPasswd == null) {
+						return;
+					}
+				} else if (password.equals(confirmPasswd)) {
+					return;
 				}
+				FacesMessage message = Messages.getMessage(
+						"register.error.password.notmatch",
+						FacesMessage.SEVERITY_ERROR);
+				fc.addMessage("registrationForm:confirmPassword", message);
+				fc.renderResponse();
 			}
 		}
+	}
+
+	private void changeEmail(User user) {
+		if (logger.isTraceEnabled()) {
+			logger.trace("Create user activation object.");
+		}
+		UserActivation userActivation = getUserActivationService()
+				.createUserActivation(user, ActiveMethod.SELF,
+						getAppConfig().getActiveExpires());
+		getUserActivationService().saveEntity(userActivation);
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("activation", userActivation);
+
+		if (logger.isTraceEnabled()) {
+			logger.trace("Sending confirm email");
+		}
+		getEmailUtils().sendMail(user.getEmail(),
+				Messages.getString(null, "member.email.confirm.subject", null),
+				CONFIRM_EMAIL_TEMPLATE, params, user.getLocale());
 	}
 
 	/**
@@ -262,10 +289,6 @@ public class RegistrationBean implements Serializable {
 		return userService;
 	}
 
-	/**
-	 * @param roleService
-	 *            the roleService to set
-	 */
 	public void setRoleService(RoleService roleService) {
 		this.roleService = roleService;
 	}
@@ -293,21 +316,6 @@ public class RegistrationBean implements Serializable {
 					"userActivationService", UserActivationService.class);
 		}
 		return userActivationService;
-	}
-
-	/**
-	 * @param username
-	 *            the username to set
-	 */
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	/**
-	 * @return the username
-	 */
-	public String getUsername() {
-		return username;
 	}
 
 	/**
@@ -436,36 +444,5 @@ public class RegistrationBean implements Serializable {
 
 	public String[] getAvailableTimeZones() {
 		return JSFUtils.getAvailableTimeZones();
-	}
-
-	private void selfActive(User user) {
-		UserActivation userActivation = getUserActivationService()
-				.createUserActivation(user, ActiveMethod.SELF,
-						getAppConfig().getActiveExpires());
-		getUserActivationService().saveEntity(userActivation);
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("activation", userActivation);
-
-		getEmailUtils().sendMail(
-				user.getEmail(),
-				Messages.getString(null, "register.active.self.email.subject",
-						null), SELF_ACTIVE_EMAIL_TEMPLATE, params,
-				user.getLocale());
-	}
-
-	private void adminActive(User user) {
-		UserActivation userActivation = getUserActivationService()
-				.createUserActivation(user, ActiveMethod.ADMIN,
-						getAppConfig().getActiveExpires());
-		getUserActivationService().saveEntity(userActivation);
-
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("activation", userActivation);
-
-		getEmailUtils().sendMail(
-				getAppConfig().getAdminEmail(),
-				Messages.getString(null, "register.active.admin.email.subject",
-						null), ADMIN_ACTIVE_EMAIL_TEMPLATE, params,
-				user.getLocale());
 	}
 }

@@ -10,6 +10,9 @@
 			filters="none" />
 		<intercept-url pattern="/login.jsf" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/account/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/member/voipprofile.jsf" access="ROLE_CALLER" />
+		<intercept-url pattern="/member/voipprofile-edit.jsf"
+			access="ROLE_CALLER" />
 		<intercept-url pattern="/member/**" access="ROLE_USER" />
 		<intercept-url pattern="/admin/**" access="ROLE_ADMIN" />
 		<form-login login-processing-url="/j_spring_security_check"

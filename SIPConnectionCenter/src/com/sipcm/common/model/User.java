@@ -23,6 +23,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.SQLDelete;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
@@ -91,8 +92,9 @@ public class User extends AbstractTrackableEntity implements
 	@Column(name = "status", nullable = false)
 	private AccountStatus status;
 
-	@ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+	@ManyToMany(cascade = { CascadeType.ALL })
 	@JoinTable(name = "tbl_userrole", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+	@Filter(name = "defaultFilter", condition = "deletedate = 0")
 	private Set<Role> roles;
 
 	/**
@@ -370,5 +372,9 @@ public class User extends AbstractTrackableEntity implements
 
 	public void addRole(Role role) {
 		roles.add(role);
+	}
+
+	public void removeRole(Role role) {
+		roles.remove(role);
 	}
 }

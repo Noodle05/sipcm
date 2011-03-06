@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	template="/WEB-INF/templates/memberLayout.xhtml">
+	<ui:define name="windowTitle">#{messages['member.call.log.title']}</ui:define>
+	<ui:define name="memberContent">
+		<p:growl id="growl" showDetail="true" />
+		<f:view contentType="text/html">
+			<h:form id="searchForm">
+				<p:panel header="#{messages['member.call.log.search.condition']}">
+					<h:panelGrid columns="4">
+						<f:event listener="#{callLogBean.validateStatus}"
+							type="postValidate" />
+						<h:outputLabel for="startDate"
+							value="#{messages['member.call.log.start.date']}" />
+						<p:calendar id="startDate" value="#{callLogBean.startDate}"
+							showOn="button" required="true"
+							requiredMessage="#{messages['member.call.log.start.date.required']}" />
+						<h:outputLabel for="endDate"
+							value="#{messages['member.call.log.end.date']}" />
+						<p:calendar id="endDate" value="#{callLogBean.endDate}"
+							showOn="button" />
+						<h:outputLabel for="callStatus"
+							value="#{messages['member.call.log.status']}" />
+						<h:panelGroup id="callStatus">
+							<h:selectBooleanCheckbox id="includeConnected"
+								value="#{callLogBean.includeConnected}" />
+							<h:outputText
+								value="#{messages['member.call.log.status.connected']}" />
+							<h:selectBooleanCheckbox id="includeFailed"
+								value="#{callLogBean.includeFailed}" />
+							<h:outputText
+								value="#{messages['member.call.log.status.failed']}" />
+							<h:selectBooleanCheckbox id="includeCancelled"
+								value="#{callLogBean.includeCancelled}" />
+							<h:outputText
+								value="#{messages['member.call.log.status.cancelled']}" />
+						</h:panelGroup>
+						<h:outputLabel for="callType"
+							value="#{messages['member.call.log.type']}" />
+						<h:selectOneMenu id="callType" value="#{callLogBean.callType}">
+							<f:selectItems value="#{callLogBean.callTypes}" />
+						</h:selectOneMenu>
+					</h:panelGrid>
+					<f:facet name="footer">
+						<p:commandButton ajax="true" id="submit"
+							value="#{messages['member.call.log.search']}"
+							actionListener="#{callLogBean.updateFilter}"
+							update="callLogList growl" />
+					</f:facet>
+				</p:panel>
+			</h:form>
+			<h:form id="callLogList">
+				<p:dataTable var="callLog" value="#{callLogBean.lazyModel}"
+					paginator="true" rows="30" lazy="true"
+					paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="30,50,100">
+					<f:facet name="header">
+						<h:outputText value="#{messages['member.call.log.list']}" />
+					</f:facet>
+					<p:column headerText="#{messages['member.calllog.start.date']}">
+						<h:outputText value="callLog.startDate" />
+					</p:column>
+					<p:column headerText="#{messages['member.calllog.dure']}">
+						<h:outputText value="callLog.dureInSecond" />
+					</p:column>
+					<p:column headerText="#{messages['member.calllog.viop.account']}">
+						<h:outputText
+							value="#{callLog.voipAccount == null ? '' : callLog.voipAccount.name}" />
+					</p:column>
+					<p:column headerText="#{messages['member.calllog.status']}">
+						<h:outputText value="callLog.status" />
+					</p:column>
+					<p:column headerText="#{messages['member.calllog.type']}">
+						<h:outputText value="callLog.type" />
+					</p:column>
+					<p:column headerText="#{messages['member.calllog.number']}">
+						<h:outputText value="callLog.partner" />
+					</p:column>
+				</p:dataTable>
+			</h:form>
+		</f:view>
+	</ui:define>
+</ui:composition>

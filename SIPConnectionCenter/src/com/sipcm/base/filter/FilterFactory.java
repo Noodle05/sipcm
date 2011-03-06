@@ -107,8 +107,8 @@ public abstract class FilterFactory {
 	 * @param values
 	 * @return Filter object.
 	 */
-	public abstract Filter createInFilter(String name,
-			List<? extends Serializable> values);
+	public abstract <T extends Serializable> Filter createInFilter(String name,
+			List<T> values);
 
 	/**
 	 * Create in filter by name of property and list of values.

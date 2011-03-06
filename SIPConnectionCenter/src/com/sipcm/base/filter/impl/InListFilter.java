@@ -18,22 +18,10 @@ class InListFilter extends BaseInFilter implements Serializable {
 
 	private List<? extends Serializable> rightHand;
 
-	InListFilter(String left, List<? extends Serializable> right,
+	<T extends Serializable> InListFilter(String left, List<T> right,
 			boolean notFlag) {
 		super(left, notFlag);
 		this.rightHand = right;
-	}
-
-	<T extends Serializable> InListFilter(String left, boolean notFlag,
-			T... right) {
-		super(left, notFlag);
-		if (right != null) {
-			List<T> rh = new ArrayList<T>(right.length);
-			for (T r : right) {
-				rh.add(r);
-			}
-			this.rightHand = rh;
-		}
 	}
 
 	/*

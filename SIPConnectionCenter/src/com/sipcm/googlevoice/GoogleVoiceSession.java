@@ -39,7 +39,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.google.gson.Gson;
 import com.sipcm.common.AuthenticationException;
+import com.sipcm.googlevoice.setting.GoogleVoiceConfig;
 
 /**
  * @author wgao
@@ -54,12 +56,13 @@ public class GoogleVoiceSession implements Serializable {
 
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.A.B.C Safari/525.13";
 
-	private static final String loginPageUrl = "https://www.google.com/accounts/ServiceLogin";
-	private static final String loginUrl = "https://www.google.com/accounts/ServiceLoginAuth";
-	private static final String continueUrl = "https://www.google.com/voice/account/signin";
-	private static final String callUrl = "https://www.google.com/voice/call/connect/";
-	private static final String cancelUrl = "https://www.google.com/voice/call/cancel/";
-	private static final String logoutUrl = "https://www.google.com/accounts/Logout";
+	private static final String LOGIN_PAGE_URL = "https://www.google.com/accounts/ServiceLogin";
+	private static final String LOGIN_URL = "https://www.google.com/accounts/ServiceLoginAuth";
+	private static final String CONTINUE_URL = "https://www.google.com/voice/account/signin";
+	private static final String CALL_URL = "https://www.google.com/voice/call/connect/";
+	private static final String CONCEL_URL = "https://www.google.com/voice/call/cancel/";
+	private static final String LOGOUT_URL = "https://www.google.com/accounts/Logout";
+	private static final String PHONE_SETTING_URL = "https://www.google.com/voice/settings/tab/phones?v=514";
 
 	private static Pattern galxPattern = Pattern.compile(
 			".*name=\"GALX\"\\s*value=\"([^\"]*)\".*", Pattern.DOTALL
@@ -76,6 +79,8 @@ public class GoogleVoiceSession implements Serializable {
 			.compile("^CaptchaToken=(.*)$");
 	private static final Pattern captchaUrlPattern = Pattern
 			.compile("^CaptchaUrl=(.*)$");
+	private static final Pattern phoneSettingPattern = Pattern
+			.compile("^<json><!\\[CDATA\\[(.*)\\]\\]></json>$");
 
 	private String username;
 	private String password;
@@ -108,7 +113,7 @@ public class GoogleVoiceSession implements Serializable {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Trying to login.");
 		}
-		HttpGet loginPage = new HttpGet(loginPageUrl);
+		HttpGet loginPage = new HttpGet(LOGIN_PAGE_URL);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Trying to get galx.");
 		}
@@ -131,11 +136,11 @@ public class GoogleVoiceSession implements Serializable {
 			}
 			throw new NoAuthTokenException();
 		}
-		HttpPost login = new HttpPost(loginUrl);
+		HttpPost login = new HttpPost(LOGIN_URL);
 		List<NameValuePair> ps = new ArrayList<NameValuePair>();
 		ps.add(new BasicNameValuePair("Email", username));
 		ps.add(new BasicNameValuePair("Passwd", password));
-		ps.add(new BasicNameValuePair("continue", continueUrl));
+		ps.add(new BasicNameValuePair("continue", CONTINUE_URL));
 		ps.add(new BasicNameValuePair("GALX", galx));
 		HttpEntity oe = new UrlEncodedFormEntity(ps);
 		login.setEntity(oe);
@@ -226,7 +231,7 @@ public class GoogleVoiceSession implements Serializable {
 	public void logout() {
 		if (loggedIn) {
 			try {
-				HttpGet callGet = new HttpGet(logoutUrl);
+				HttpGet callGet = new HttpGet(LOGOUT_URL);
 				httpClient.execute(callGet);
 			} catch (Exception e) {
 				if (logger.isWarnEnabled()) {
@@ -245,7 +250,7 @@ public class GoogleVoiceSession implements Serializable {
 			throws ClientProtocolException, IOException, HttpResponseException,
 			AuthenticationException {
 		if (!cancelCall) {
-			HttpPost callPost = new HttpPost(callUrl);
+			HttpPost callPost = new HttpPost(CALL_URL);
 			List<NameValuePair> ps = new ArrayList<NameValuePair>();
 			ps.add(new BasicNameValuePair("outgoingNumber", destination));
 			ps.add(new BasicNameValuePair("forwardingNumber", myNumber));
@@ -275,7 +280,7 @@ public class GoogleVoiceSession implements Serializable {
 			logger.debug("Cancelling call.");
 		}
 		cancelCall = true;
-		HttpPost callPost = new HttpPost(cancelUrl);
+		HttpPost callPost = new HttpPost(CONCEL_URL);
 		List<NameValuePair> ps = new ArrayList<NameValuePair>();
 		ps.add(new BasicNameValuePair("outgoingNumber", "undefined"));
 		ps.add(new BasicNameValuePair("forwardingNumber", "undefined"));
@@ -287,6 +292,55 @@ public class GoogleVoiceSession implements Serializable {
 			logger.trace("Call \"cancel\" method.");
 		}
 		return callMethod(callPost, 0);
+	}
+
+	public GoogleVoiceConfig getGoogleVoiceSetting()
+			throws ClientProtocolException, IOException {
+		HttpGet request = new HttpGet(PHONE_SETTING_URL);
+		HttpResponse response = httpClient.execute(request);
+		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					response.getEntity().getContent()));
+			try {
+				String tmp = null;
+				while ((tmp = reader.readLine()) != null) {
+					Matcher m = phoneSettingPattern.matcher(tmp);
+					if (m.matches()) {
+						String jsonStr = m.group(1);
+						Gson gson = new Gson();
+						GoogleVoiceConfig config = gson.fromJson(jsonStr,
+								GoogleVoiceConfig.class);
+						return config;
+					}
+				}
+			} catch (IOException e) {
+				try {
+					reader.close();
+				} catch (IOException ee) {
+					if (logger.isWarnEnabled()) {
+						logger.warn(
+								"Error happened when close reader during IO exception handling, ignore it.",
+								ee);
+					}
+				} finally {
+					reader = null;
+				}
+				throw e;
+			} finally {
+				if (reader != null) {
+					try {
+						reader.close();
+					} catch (IOException e) {
+						if (logger.isWarnEnabled()) {
+							logger.warn(
+									"Error happened when close reader, ignore it.",
+									e);
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	private boolean callMethod(HttpPost request, int retry)
