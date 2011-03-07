@@ -120,6 +120,8 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 		if (sortField != null) {
 			sort = getFilterFactory().createSort(sortField,
 					sortOrder ? Direction.ASC : Direction.DESC);
+		} else {
+			sort = getFilterFactory().createSort("startTime", Direction.DESC);
 		}
 		FSP fsp = new FSP();
 		fsp.setFilter(baseFilter);

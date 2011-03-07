@@ -34,6 +34,7 @@ import com.sipcm.common.business.UserActivationService;
 import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.User;
 import com.sipcm.common.model.UserActivation;
+import com.sipcm.web.LocaleTimeZoneHolderBean;
 import com.sipcm.web.util.EmailUtils;
 import com.sipcm.web.util.JSFUtils;
 import com.sipcm.web.util.Messages;
@@ -155,6 +156,12 @@ public class ProfileBean implements Serializable {
 			suspend = true;
 		}
 		getUserService().saveEntity(user);
+		LocaleTimeZoneHolderBean b = JSFUtils.getManagedBean(
+				"localeTimeZoneHolderBean", LocaleTimeZoneHolderBean.class);
+		if (b != null) {
+			b.setLocale(user.getLocale());
+			b.setTimeZone(user.getTimeZone());
+		}
 		if (suspend) {
 			changeEmail(user);
 			FacesMessage message = Messages.getMessage(

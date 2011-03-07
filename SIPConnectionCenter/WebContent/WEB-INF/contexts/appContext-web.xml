@@ -25,8 +25,4 @@
 	<authentication-manager>
 		<authentication-provider ref="securityAuthenticationProvider" />
 	</authentication-manager>
-
-	<beans:bean id="securityPasswordEncoder" class="org.jasypt.spring.security3.PasswordEncoder">
-		<beans:property name="stringDigester" ref="globalStringDigester" />
-	</beans:bean>
 </beans:beans>

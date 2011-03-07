@@ -9,7 +9,6 @@ import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -50,7 +49,7 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	@Column(name = "name", length = 32, nullable = false)
 	private String name;
 
-	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "voipvendor_id")
 	private VoipVendor voipVendor;
 
@@ -111,7 +110,8 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	}
 
 	/**
-	 * @param name the name to set
+	 * @param name
+	 *            the name to set
 	 */
 	public void setName(String name) {
 		this.name = name;

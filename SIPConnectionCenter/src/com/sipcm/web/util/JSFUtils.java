@@ -14,6 +14,8 @@ import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.faces.context.FacesContext;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.sipcm.common.business.UserService;
@@ -102,16 +104,23 @@ public abstract class JSFUtils {
 	}
 
 	public static User getCurrentUser() {
-		Object principal = SecurityContextHolder.getContext()
-				.getAuthentication().getPrincipal();
 		User user = null;
-		if (principal instanceof UserDetailsImpl) {
-			user = ((UserDetailsImpl) principal).getUser();
-		} else {
-			String username = principal.toString();
-			UserService userService = getManagedBean("userService",
-					UserService.class);
-			user = userService.getUserByUsername(username);
+		SecurityContext context = SecurityContextHolder.getContext();
+		if (context != null) {
+			Authentication auth = context.getAuthentication();
+			if (auth != null) {
+				Object principal = auth.getPrincipal();
+				if (principal != null) {
+					if (principal instanceof UserDetailsImpl) {
+						user = ((UserDetailsImpl) principal).getUser();
+					} else {
+						String username = principal.toString();
+						UserService userService = getManagedBean("userService",
+								UserService.class);
+						user = userService.getUserByUsername(username);
+					}
+				}
+			}
 		}
 		return user;
 	}

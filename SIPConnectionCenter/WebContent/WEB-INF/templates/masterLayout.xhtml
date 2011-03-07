@@ -5,33 +5,42 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core">
-<f:loadBundle var="messages" basename="messages.CallerPages" />
-<h:head>
-	<title><ui:insert name="windowTitle">
-		<h:outputText value="#{messages['default.windowsTitle']}" />
-	</ui:insert></title>
-	<h:outputStylesheet library="css" name="style.css" />
-	<ui:insert name="extraHeader" />
-</h:head>
+<f:view locale="#{localeTimeZoneHolderBean.locale}">
+	<f:loadBundle var="messages" basename="messages.CallerPages" />
+	<h:head>
+		<title><ui:insert name="windowTitle">
+				<h:outputText value="#{messages['default.windowsTitle']}" />
+			</ui:insert>
+		</title>
+		<h:outputStylesheet library="css" name="style.css" />
+		<ui:insert name="extraHeader" />
+	</h:head>
 
-<h:body>
-	<div id="bodyContainer" class="main-body">
-	<div id="headerContainer" class="title ui-widget-header ui-corner-top"><ui:insert
-		name="header">
-		<ui:include src="masterHeader.xhtml" />
-		<div id="headerMenu" class="ui-widget-header header-menu"><ui:insert
-			name="menu">
-			<ui:include src="/menu/headerMenu.xhtml" />
-		</ui:insert></div>
-	</ui:insert></div>
+	<h:body>
+		<div id="bodyContainer" class="main-body">
+			<div id="headerContainer"
+				class="title ui-widget-header ui-corner-top">
+				<ui:insert name="header">
+					<ui:include src="masterHeader.xhtml" />
+					<div id="headerMenu" class="ui-widget-header header-menu">
+						<ui:insert name="menu">
+							<ui:include src="/menu/headerMenu.xhtml" />
+						</ui:insert>
+					</div>
+				</ui:insert>
+			</div>
 
 
-	<div id="contentContainer"><ui:insert name="content" /></div>
-	<div id="footerContainer"
-		class="title ui-widget-header ui-corner-bottom"><ui:insert
-		name="footer">
-		<ui:include src="masterFooter.xhtml" />
-	</ui:insert></div>
-	</div>
-</h:body>
+			<div id="contentContainer">
+				<ui:insert name="content" />
+			</div>
+			<div id="footerContainer"
+				class="title ui-widget-header ui-corner-bottom">
+				<ui:insert name="footer">
+					<ui:include src="masterFooter.xhtml" />
+				</ui:insert>
+			</div>
+		</div>
+	</h:body>
+</f:view>
 </html>

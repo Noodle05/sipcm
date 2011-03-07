@@ -146,7 +146,7 @@ public class CallLogRecorder implements CallEventListener {
 		}
 		CallLog callLog = callLogService.createNewEntity();
 		callLog.setStartTime(event.getCallStartEvent().getStartTime());
-		callLog.setEndTime(event.getEndTime());
+		callLog.setDuration(event.getDuration());
 		callLog.setVoipAccount(event.getCallStartEvent().getAccount());
 		callLog.setStatus(CallStatus.SUCCESS);
 		callLog.setPartner(event.getCallStartEvent().getPartner());
@@ -177,7 +177,7 @@ public class CallLogRecorder implements CallEventListener {
 		}
 		CallLog callLog = callLogService.createNewEntity();
 		callLog.setStartTime(event.getCallStartEvent().getStartTime());
-		callLog.setEndTime(event.getEndTime());
+		callLog.setDuration(event.getDuration());
 		callLog.setVoipAccount(event.getCallStartEvent().getAccount());
 		callLog.setStatus(CallStatus.SUCCESS);
 		callLog.setPartner(event.getCallStartEvent().getPartner());
@@ -223,7 +223,7 @@ public class CallLogRecorder implements CallEventListener {
 		}
 		CallLog callLog = callLogService.createNewEntity();
 		callLog.setStartTime(event.getCallStartEvent().getStartTime());
-		callLog.setEndTime(event.getEndTime());
+		callLog.setDuration(event.getDuration());
 		callLog.setVoipAccount(event.getCallStartEvent().getAccount());
 		callLog.setStatus(CallStatus.FAILED);
 		callLog.setPartner(event.getCallStartEvent().getPartner());
@@ -268,7 +268,7 @@ public class CallLogRecorder implements CallEventListener {
 		}
 		CallLog callLog = callLogService.createNewEntity();
 		callLog.setStartTime(event.getCallStartEvent().getStartTime());
-		callLog.setEndTime(event.getEndTime());
+		callLog.setDuration(event.getDuration());
 		callLog.setVoipAccount(event.getCallStartEvent().getAccount());
 		callLog.setStatus(CallStatus.FAILED);
 		callLog.setPartner(event.getCallStartEvent().getPartner());
@@ -301,7 +301,7 @@ public class CallLogRecorder implements CallEventListener {
 		}
 		CallLog callLog = callLogService.createNewEntity();
 		callLog.setStartTime(event.getCallStartEvent().getStartTime());
-		callLog.setEndTime(event.getEndTime());
+		callLog.setDuration(event.getDuration());
 		callLog.setVoipAccount(event.getCallStartEvent().getAccount());
 		callLog.setStatus(CallStatus.CANCELLED);
 		callLog.setPartner(event.getCallStartEvent().getPartner());
@@ -334,7 +334,7 @@ public class CallLogRecorder implements CallEventListener {
 		}
 		CallLog callLog = callLogService.createNewEntity();
 		callLog.setStartTime(event.getCallStartEvent().getStartTime());
-		callLog.setEndTime(event.getEndTime());
+		callLog.setDuration(event.getDuration());
 		callLog.setVoipAccount(event.getCallStartEvent().getAccount());
 		callLog.setStatus(CallStatus.CANCELLED);
 		callLog.setPartner(event.getCallStartEvent().getPartner());

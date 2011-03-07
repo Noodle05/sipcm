@@ -4,7 +4,6 @@
 package com.sipcm.sip.model;
 
 import java.io.Serializable;
-import java.util.Calendar;
 import java.util.Date;
 
 import javax.persistence.Basic;
@@ -68,8 +67,8 @@ public class CallLog implements Serializable {
 	private Date startTime;
 
 	@Basic
-	@Column(name = "endtime")
-	private Date endTime;
+	@Column(name = "duration")
+	private Long duration;
 
 	/**
 	 * @param id
@@ -207,26 +206,17 @@ public class CallLog implements Serializable {
 	}
 
 	/**
-	 * @param endTime
-	 *            the endTime to set
+	 * @param duration
+	 *            the duration to set
 	 */
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
+	public void setDuration(Long duration) {
+		this.duration = duration;
 	}
 
 	/**
-	 * @return the endTime
+	 * @return the duration
 	 */
-	public Date getEndTime() {
-		return endTime;
-	}
-
-	public int getDureInSecond() {
-		Calendar c = Calendar.getInstance();
-		c.setTime(endTime);
-		long e = c.getTimeInMillis();
-		c.setTime(startTime);
-		long r = e - c.getTimeInMillis();
-		return (int) r;
+	public Long getDuration() {
+		return duration;
 	}
 }

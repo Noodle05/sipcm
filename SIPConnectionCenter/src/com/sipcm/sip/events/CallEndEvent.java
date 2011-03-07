@@ -3,7 +3,7 @@
  */
 package com.sipcm.sip.events;
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.EventObject;
 
 /**
@@ -13,7 +13,7 @@ import java.util.EventObject;
 public class CallEndEvent extends EventObject {
 	private static final long serialVersionUID = 369570856795151540L;
 
-	private final Date endTime;
+	private final Long duration;
 	private final int errorCode;
 	private final String errorMessage;
 
@@ -26,14 +26,17 @@ public class CallEndEvent extends EventObject {
 		super(startEvent);
 		this.errorCode = errorCode;
 		this.errorMessage = errorMessage;
-		this.endTime = new Date();
+		long now = System.currentTimeMillis();
+		Calendar c = Calendar.getInstance();
+		c.setTime(startEvent.getStartTime());
+		duration = now - c.getTimeInMillis();
 	}
 
 	/**
 	 * @return the endTime
 	 */
-	public Date getEndTime() {
-		return endTime;
+	public Long getDuration() {
+		return duration;
 	}
 
 	/**
