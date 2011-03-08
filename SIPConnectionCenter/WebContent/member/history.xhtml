@@ -62,35 +62,41 @@
 			</h:form>
 			<h:form id="callLogList">
 				<p:dataTable var="callLog" value="#{callLogBean.lazyModel}"
-					paginator="true" rows="30" lazy="true"
-					paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-					rowsPerPageTemplate="30,50,100"
+					paginator="true" rows="10" lazy="true"
+					paginatorTemplate="{FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
 					emptyMessage="#{messages['member.calllog.empty']}">
 					<f:facet name="header">
 						<h:outputText value="#{messages['member.call.log.list']}" />
 					</f:facet>
-					<p:column headerText="#{messages['member.calllog.start.date']}">
+					<p:column sortBy="#{callLog.startTime}"
+						headerText="#{messages['member.calllog.start.date']}">
 						<h:outputText value="#{callLog.startTime}">
 							<f:convertDateTime
 								pattern="#{messages['global.datetime.pattern']}"
 								timeZone="#{localeTimeZoneHolderBean.timeZone}" />
 						</h:outputText>
 					</p:column>
-					<p:column headerText="#{messages['member.calllog.dure']}">
+					<p:column sortBy="#{callLog.duration}"
+						headerText="#{messages['member.calllog.dure']}">
 						<h:outputText value="#{callLog.duration}"
 							converter="#{durationConverter}" />
 					</p:column>
-					<p:column headerText="#{messages['member.calllog.viop.account']}">
+					<p:column sortBy="#{callLog.voipAccount.name}"
+						filterBy="#{callLog.voipAccount.name}"
+						headerText="#{messages['member.calllog.viop.account']}">
 						<h:outputText
 							value="#{callLog.voipAccount == null ? '' : callLog.voipAccount.name}" />
 					</p:column>
-					<p:column headerText="#{messages['member.calllog.status']}">
+					<p:column sortBy="#{callLog.status}"
+						headerText="#{messages['member.calllog.status']}">
 						<h:outputText value="#{callLog.status}" />
 					</p:column>
-					<p:column headerText="#{messages['member.calllog.type']}">
+					<p:column sortBy="#{callLog.type}"
+						headerText="#{messages['member.calllog.type']}">
 						<h:outputText value="#{callLog.type}" />
 					</p:column>
-					<p:column headerText="#{messages['member.calllog.number']}">
+					<p:column sortBy="#{callLog.partner}" filterBy="#{callLog.partner}"
+						headerText="#{messages['member.calllog.number']}">
 						<h:outputText value="#{callLog.partner}" />
 					</p:column>
 				</p:dataTable>

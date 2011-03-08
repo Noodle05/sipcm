@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.primefaces.model.LazyDataModel;
 
@@ -113,6 +114,18 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 	@Override
 	public List<CallLog> load(int first, int pageSize, String sortField,
 			boolean sortOrder, Map<String, String> filters) {
+		Filter filter = baseFilter;
+		if (filters != null) {
+			for (Entry<String, String> entry : filters.entrySet()) {
+				String key = entry.getKey();
+				String value = entry.getValue();
+				if (key != null && value != null) {
+					Filter f1 = getFilterFactory().createSimpleFilter(key,
+							value + "%", Filter.Operator.ILIKE);
+					filter = filter.appendAnd(f1);
+				}
+			}
+		}
 		Page page = getFilterFactory().createPage();
 		page.setStartRowPosition(first);
 		page.setRecordsPerPage(pageSize);
@@ -124,7 +137,7 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 			sort = getFilterFactory().createSort("startTime", Direction.DESC);
 		}
 		FSP fsp = new FSP();
-		fsp.setFilter(baseFilter);
+		fsp.setFilter(filter);
 		fsp.setPage(page);
 		fsp.setSort(sort);
 		return getCallLogService().getEntities(fsp);
