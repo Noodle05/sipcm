@@ -11,7 +11,6 @@ import java.util.ResourceBundle;
 import javax.faces.application.Application;
 import javax.faces.application.FacesMessage;
 import javax.faces.application.FacesMessage.Severity;
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
 /**
@@ -46,7 +45,7 @@ public abstract class Messages {
 		FacesContext context = FacesContext.getCurrentInstance();
 		Application app = context.getApplication();
 		String appBundle = app.getMessageBundle();
-		Locale locale = getLocale(context);
+		Locale locale = JSFUtils.getCurrentLocale();
 		ClassLoader loader = getClassLoader();
 		String summary = getString(appBundle, bundleName, resourceId, locale,
 				loader, params);
@@ -67,7 +66,7 @@ public abstract class Messages {
 		FacesContext context = FacesContext.getCurrentInstance();
 		Application app = context.getApplication();
 		String appBundle = app.getMessageBundle();
-		Locale locale = getLocale(context);
+		Locale locale = JSFUtils.getCurrentLocale();
 		ClassLoader loader = getClassLoader();
 		return getString(appBundle, bundle, resourceId, locale, loader, params);
 	}
@@ -105,18 +104,6 @@ public abstract class Messages {
 		}
 		MessageFormat formatter = new MessageFormat(resource);
 		return formatter.format(params);
-	}
-
-	public static Locale getLocale(FacesContext context) {
-		Locale locale = null;
-		UIViewRoot viewRoot = context.getViewRoot();
-		if (viewRoot != null) {
-			locale = viewRoot.getLocale();
-		}
-		if (locale == null) {
-			locale = Locale.getDefault();
-		}
-		return locale;
 	}
 
 	public static ClassLoader getClassLoader() {

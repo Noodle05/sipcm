@@ -154,9 +154,12 @@ public class RegistrationBean implements Serializable {
 	public void validateUsername(FacesContext context,
 			UIComponent componentToValidate, Object value) {
 		String username = ((String) value).trim();
-		if (username.length() < 6 || username.length() > 32) {
+		if (username.length() < appConfig.getUsernameLengthMin()
+				|| username.length() > appConfig.getUsernameLengthMax()) {
 			FacesMessage message = Messages.getMessage(
 					"register.error.username.length",
+					new Object[] { appConfig.getUsernameLengthMin(),
+							appConfig.getUsernameLengthMax() },
 					FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}

@@ -11,7 +11,7 @@
 	<ui:define name="memberContent">
 		<f:view contentType="text/html">
 			<script type="text/javascript">
-				// <![CDATA[
+				//          
 				function handleSaveAccountRequest(xhr, status, args) {
 					if (args.validationFailed || !args.saved) {
 						jQuery('#accountDialog').parent().effect("shake", {
@@ -21,7 +21,7 @@
 						accountDialog.hide();
 					}
 				}
-				// ]]>
+				//
 			</script>
 			<p:growl id="growl" showDetail="true" />
 			<p:panel header="#{messages['member.voip.header']}">
@@ -33,7 +33,10 @@
 							value="#{voipAccountSettingBean.sipProfilePhoneNumber}"
 							mask="(999) 999-9999" required="true"
 							requiredMessage="#{messages['member.sipprofile.error.phonenumber.required']}"
-							converter="#{naPhoneNumberConverter}" />
+							converter="#{naPhoneNumberConverter}"
+							validator="#{voipAccountSettingBean.validatePhoneNumber}">
+							<f:ajax event="blur" update="growl" />
+						</p:inputMask>
 						<p:message id="sipProfilePhoneNumberError"
 							for="sipProfilePhoneNumber" />
 						<h:outputLabel for="sipProfileAreaCode"
@@ -122,7 +125,8 @@
 
 				<p:dialog id="accountDialog"
 					header="#{messages['member.voiop.account.edit.headers']}"
-					widgetVar="accountDialog" resizable="false" width="400" modal="true">
+					widgetVar="accountDialog" resizable="false" width="400"
+					modal="true">
 					<h:form id="accountEdit">
 						<h:panelGrid columns="3" cellpadding="4">
 							<h:outputLabel for="viopVendorEditor"
@@ -197,7 +201,8 @@
 					<h:form>
 						<p:commandButton
 							value="#{messages['member.voip.account.delete.yes']}"
-							update="voipAccountsForm, growl" oncomplete="removeAccountConfirmation.hide()"
+							update="voipAccountsForm, growl"
+							oncomplete="removeAccountConfirmation.hide()"
 							actionListener="#{voipAccountSettingBean.removeVoipAccount}" />
 						<p:commandButton
 							value="#{messages['member.voip.account.delete.no']}"

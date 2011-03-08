@@ -9,9 +9,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.el.ELContext;
 import javax.el.ELResolver;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.springframework.security.core.Authentication;
@@ -21,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.User;
 import com.sipcm.security.UserDetailsImpl;
+import com.sipcm.web.LocaleTimeZoneHolderBean;
 
 /**
  * @author wgao
@@ -123,6 +126,41 @@ public abstract class JSFUtils {
 			}
 		}
 		return user;
+	}
+
+	public static Locale getCurrentLocale() {
+		Locale locale = null;
+		LocaleTimeZoneHolderBean b = getManagedBean("localeTimeZoneHolderBean",
+				LocaleTimeZoneHolderBean.class);
+		if (b != null) {
+			locale = b.getLocale();
+		}
+		if (locale == null) {
+			FacesContext context = FacesContext.getCurrentInstance();
+			if (context != null) {
+				ExternalContext c = context.getExternalContext();
+				if (c != null && c.getRequestLocale() != null) {
+					locale = c.getRequestLocale();
+				}
+			}
+		}
+		if (locale == null) {
+			locale = Locale.getDefault();
+		}
+		return locale;
+	}
+
+	public static TimeZone getCurrentTimeZone() {
+		TimeZone timeZone = null;
+		LocaleTimeZoneHolderBean b = getManagedBean("localeTimeZoneHolderBean",
+				LocaleTimeZoneHolderBean.class);
+		if (b != null) {
+			timeZone = b.getTimeZone();
+		}
+		if (timeZone == null) {
+			timeZone = TimeZone.getDefault();
+		}
+		return timeZone;
 	}
 
 	public static List<String> getAvailableLocales() {

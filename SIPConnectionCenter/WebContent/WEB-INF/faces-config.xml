@@ -9,7 +9,7 @@
 		<variable-resolver>org.springframework.web.jsf.DelegatingVariableResolver</variable-resolver>
 		<locale-config>
 			<default-locale>en</default-locale>
-			<supported-locale>zh</supported-locale>
+			<supported-locale>zh_CN</supported-locale>
 		</locale-config>
 		<message-bundle>messages.CallerPages</message-bundle>
 	</application>

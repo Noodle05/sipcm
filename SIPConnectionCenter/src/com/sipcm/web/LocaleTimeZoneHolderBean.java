@@ -10,6 +10,8 @@ import java.util.TimeZone;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 
 import com.sipcm.common.model.User;
 import com.sipcm.web.util.JSFUtils;
@@ -30,15 +32,12 @@ public class LocaleTimeZoneHolderBean implements Serializable {
 	@PostConstruct
 	public void init() {
 		user = JSFUtils.getCurrentUser();
-		if (user != null && user.getLocale() != null) {
-			locale = user.getLocale();
+		if (user != null) {
+			setLocale(user.getLocale());
+			setTimeZone(user.getTimeZone());
 		} else {
-			locale = Locale.getDefault();
-		}
-		if (user != null && user.getTimeZone() != null) {
-			timeZone = user.getTimeZone();
-		} else {
-			timeZone = TimeZone.getDefault();
+			setLocale(null);
+			setTimeZone(null);
 		}
 	}
 
@@ -50,7 +49,16 @@ public class LocaleTimeZoneHolderBean implements Serializable {
 		if (locale != null) {
 			this.locale = locale;
 		} else {
-			this.locale = Locale.getDefault();
+			FacesContext context = FacesContext.getCurrentInstance();
+			if (context != null) {
+				ExternalContext c = context.getExternalContext();
+				if (c != null && c.getRequestLocale() != null) {
+					this.locale = c.getRequestLocale();
+				}
+			}
+			if (this.locale == null) {
+				this.locale = Locale.getDefault();
+			}
 		}
 	}
 

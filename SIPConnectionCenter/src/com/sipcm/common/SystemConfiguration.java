@@ -24,6 +24,9 @@ public class SystemConfiguration {
 	public static final String MAX_HTTP_CLIENT_TOTAL_CONNECTIONS = "com.sip.http.client.maxConnections";
 	public static final String PROCESS_PUBLIC_IP = "sip.publicIp.process";
 
+	public static final String USERNAME_LENGTH_MIN = "username.length.min";
+	public static final String USERNAME_LENGTH_MAX = "username.length.max";
+
 	public static final String SIP_DOS_PROTECT_INTERVAL = "sip.dos.protect.interval";
 	public static final String SIP_DOS_PROTECT_MAX_REQUESTS = "sip.dos.protect.max.requests";
 	public static final String SIP_DOS_PROTECT_BLOCK_TIME = "sip.dos.protect.block.time";
@@ -136,6 +139,14 @@ public class SystemConfiguration {
 
 	public int getStunServerPort() {
 		return appConfig.getInt(STUN_PORT, 3478);
+	}
+
+	public int getUsernameLengthMin() {
+		return appConfig.getInt(USERNAME_LENGTH_MIN, 6);
+	}
+
+	public int getUsernameLengthMax() {
+		return appConfig.getInt(USERNAME_LENGTH_MAX, 32);
 	}
 
 	public String getUsernamePattern() {

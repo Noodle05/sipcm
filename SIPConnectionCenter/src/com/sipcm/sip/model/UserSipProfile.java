@@ -183,7 +183,7 @@ public class UserSipProfile extends AbstractTrackableEntity implements
 
 	public String getDisplayName() {
 		if (owner != null) {
-			return owner.getDisplayName();
+			return owner.getUserDisplayName();
 		} else {
 			return null;
 		}

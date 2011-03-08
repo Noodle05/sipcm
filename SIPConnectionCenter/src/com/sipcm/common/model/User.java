@@ -172,6 +172,13 @@ public class User extends AbstractTrackableEntity implements
 	 * @return the displayName
 	 */
 	public String getDisplayName() {
+		return displayName;
+	}
+
+	/**
+	 * @return the displayName
+	 */
+	public String getUserDisplayName() {
 		if (displayName == null) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(firstName);
@@ -365,7 +372,7 @@ public class User extends AbstractTrackableEntity implements
 			sb.append("id=").append(id).append(",");
 		}
 		sb.append("username=").append(username).append(",displayname=")
-				.append(getDisplayName()).append(",email=").append(email)
+				.append(getUserDisplayName()).append(",email=").append(email)
 				.append("]");
 		return sb.toString();
 	}

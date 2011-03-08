@@ -15,8 +15,10 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.validator.ValidatorException;
 
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.RowEditEvent;
@@ -168,6 +170,20 @@ public class VoipAccountSettingBean implements Serializable {
 			FacesContext.getCurrentInstance().addMessage(null, message);
 		}
 		context.addCallbackParam("saved", saved);
+	}
+
+	public void validatePhoneNumber(FacesContext context,
+			UIComponent componentToValidate, Object value) {
+		String phoneNumber = (String) value;
+		User user = JSFUtils.getCurrentUser();
+		UserSipProfile userSipProfile = getUserSipProfileService()
+				.getUserSipProfileByPhoneNumber(phoneNumber);
+		if (user != null && !user.equals(userSipProfile.getOwner())) {
+			FacesMessage message = Messages.getMessage(
+					"member.sipprofile.error.phoneNumber.exists",
+					FacesMessage.SEVERITY_ERROR);
+			throw new ValidatorException(message);
+		}
 	}
 
 	private boolean validateUserVoipAccount(UserVoipAccount account) {
