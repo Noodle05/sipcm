@@ -43,6 +43,7 @@ public class SystemConfiguration {
 	public static final String STUN_SERVER = "sip.stun.server";
 	public static final String STUN_PORT = "sip.stun.port";
 
+	public static final String REGISTER_BY_INVITE_ONLY = "register.by.invite.only";
 	public static final String USERNAME_PATTERN = "register.username.pattern";
 	public static final String EMAIL_PATTERN = "register.email.pattern";
 	public static final String ACTIVE_METHOD = "register.active.method";
@@ -142,6 +143,10 @@ public class SystemConfiguration {
 
 	public int getStunServerPort() {
 		return appConfig.getInt(STUN_PORT, 3478);
+	}
+
+	public boolean isRegisterByInviteOnly() {
+		return appConfig.getBoolean(REGISTER_BY_INVITE_ONLY, true);
 	}
 
 	public int getUsernameLengthMin() {

@@ -4,6 +4,7 @@
 package com.sipcm.web.account;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -28,9 +29,11 @@ import org.slf4j.LoggerFactory;
 import com.sipcm.common.AccountStatus;
 import com.sipcm.common.ActiveMethod;
 import com.sipcm.common.SystemConfiguration;
+import com.sipcm.common.business.RegistrationInvitationService;
 import com.sipcm.common.business.RoleService;
 import com.sipcm.common.business.UserActivationService;
 import com.sipcm.common.business.UserService;
+import com.sipcm.common.model.RegistrationInvitation;
 import com.sipcm.common.model.Role;
 import com.sipcm.common.model.User;
 import com.sipcm.common.model.UserActivation;
@@ -68,6 +71,9 @@ public class RegistrationBean implements Serializable {
 	@ManagedProperty("#{userActivationService}")
 	private transient UserActivationService userActivationService;
 
+	@ManagedProperty("#{registrationInvitationService}")
+	private RegistrationInvitationService invitationService;
+
 	private String username;
 
 	private String email;
@@ -86,6 +92,8 @@ public class RegistrationBean implements Serializable {
 
 	private String timeZone;
 
+	private String invitationCode;
+
 	private Pattern usernamePattern;
 
 	private Pattern emailPattern;
@@ -101,6 +109,42 @@ public class RegistrationBean implements Serializable {
 
 	public String register() {
 		FacesContext context = FacesContext.getCurrentInstance();
+		RegistrationInvitation invitation = null;
+		if (appConfig.isRegisterByInviteOnly()) {
+			if (invitationCode == null) {
+				FacesMessage message = Messages.getMessage(
+						"register.error.by.invitation.only",
+						FacesMessage.SEVERITY_ERROR);
+				context.addMessage("registrationForm:invitationCode", message);
+				return null;
+			}
+			invitation = invitationService.getInvitationByCode(invitationCode);
+			if (invitation == null) {
+				FacesMessage message = Messages.getMessage(
+						"register.error.invalid.invitation.code",
+						FacesMessage.SEVERITY_ERROR);
+				context.addMessage("registrationForm:invitationCode", message);
+				return null;
+			}
+			if (invitation.getExpireDate() != null
+					&& invitation.getExpireDate().before(new Date())) {
+				getInvitationService().removeEntity(invitation);
+				FacesMessage message = Messages.getMessage(
+						"register.error.invitation.code.expired",
+						FacesMessage.SEVERITY_ERROR);
+				context.addMessage("registrationForm:invitationCode", message);
+				return null;
+			}
+			if (invitation.getCount() <= 0) {
+				getInvitationService().removeEntity(invitation);
+				FacesMessage message = Messages.getMessage(
+						"register.error.invitation.code.all.taken",
+						FacesMessage.SEVERITY_ERROR);
+				context.addMessage("registrationForm:invitationCode", message);
+				return null;
+			}
+			invitation.setCount(invitation.getCount() - 1);
+		}
 		User user = getUserService().createNewEntity();
 		user.setUsername(username);
 		user.setEmail(email);
@@ -127,6 +171,13 @@ public class RegistrationBean implements Serializable {
 		user.addRole(userRole);
 		getUserService().setPassword(user, password);
 		getUserService().saveEntity(user);
+		if (invitation != null) {
+			if (invitation.getCount() <= 0) {
+				getInvitationService().removeEntity(invitation);
+			} else {
+				getInvitationService().saveEntity(invitation);
+			}
+		}
 		FacesMessage message;
 		switch (getAppConfig().getActiveMethod()) {
 		case SELF:
@@ -299,6 +350,27 @@ public class RegistrationBean implements Serializable {
 	}
 
 	/**
+	 * @param invitationService
+	 *            the invitationService to set
+	 */
+	public void setInvitationService(
+			RegistrationInvitationService invitationService) {
+		this.invitationService = invitationService;
+	}
+
+	/**
+	 * @return the invitationService
+	 */
+	public RegistrationInvitationService getInvitationService() {
+		if (invitationService == null) {
+			invitationService = JSFUtils.getManagedBean(
+					"registrationInvitationService",
+					RegistrationInvitationService.class);
+		}
+		return invitationService;
+	}
+
+	/**
 	 * @param username
 	 *            the username to set
 	 */
@@ -431,6 +503,21 @@ public class RegistrationBean implements Serializable {
 	 */
 	public String getTimeZone() {
 		return timeZone;
+	}
+
+	/**
+	 * @param invitationCode
+	 *            the invitationCode to set
+	 */
+	public void setInvitationCode(String invitationCode) {
+		this.invitationCode = invitationCode;
+	}
+
+	/**
+	 * @return the invitationCode
+	 */
+	public String getInvitationCode() {
+		return invitationCode;
 	}
 
 	public List<String> getAvailableLocales() {

@@ -10,6 +10,10 @@
 	<ui:define name="windowTitle">#{messages['register.title']}</ui:define>
 	<ui:define name="content">
 		<f:view contentType="text/html">
+			<f:metadata>
+				<f:viewParam name="invitationCode"
+					value="#{registrationBean.invitationCode}" />
+			</f:metadata>
 			<h:form id="registrationForm">
 				<p:panel header="#{messages['register.header']}">
 					<h:panelGrid columns="3">
@@ -25,7 +29,7 @@
 							<f:validateLength minimum="6" maximum="32" />
 							<f:ajax event="blur" render="usernameError" />
 						</p:inputText>
-						<p:message id="usernameError" for="username" styleClass="error" />
+						<p:message id="usernameError" for="username" />
 						<h:outputLabel for="email" value="#{messages['register.email']}" />
 						<p:inputText label="#{messages['register.email']}"
 							value="#{registrationBean.email}" id="email" maxlength="255"
@@ -34,7 +38,7 @@
 							validator="#{registrationBean.validateEmail}">
 							<f:ajax event="blur" render="emailError" />
 						</p:inputText>
-						<p:message id="emailError" for="email" styleClass="error" />
+						<p:message id="emailError" for="email" />
 						<h:outputLabel for="password"
 							value="#{messages['register.password']}" />
 						<p:password id="password" label="#{messages['register.password']}"
@@ -48,7 +52,7 @@
 							strongLabel="#{messages['password.strong.label']}">
 							<f:validateLength minimum="6" maximum="32" />
 						</p:password>
-						<p:message id="passwordError" for="password" styleClass="error" />
+						<p:message id="passwordError" for="password" />
 						<h:outputLabel for="confirmPassword"
 							value="#{messages['register.confirmPassword']}" />
 						<p:password id="confirmPassword"
@@ -62,54 +66,57 @@
 							strongLabel="#{messages['password.strong.label']}">
 							<f:validateLength minimum="6" maximum="32" />
 						</p:password>
-						<p:message id="confirmPasswordError" for="confirmPassword"
-							styleClass="error" />
+						<p:message id="confirmPasswordError" for="confirmPassword" />
 						<h:outputLabel for="firstName"
 							value="#{messages['register.firstName']}" />
 						<p:inputText label="#{messages['register.firstName']}"
 							value="#{registrationBean.firstName}" id="firstName"
 							maxlength="64" required="true"
 							requiredMessage="#{messages['register.error.firstName.required']}" />
-						<p:message id="firstNameError" for="firstName" styleClass="error" />
+						<p:message id="firstNameError" for="firstName" />
 						<h:outputLabel for="middleName"
 							value="#{messages['register.middleName']}" />
 						<p:inputText label="#{messages['register.middleName']}"
 							value="#{registrationBean.middleName}" id="middleName"
 							maxlength="64" />
-						<p:message id="middleNameError" for="middleName"
-							styleClass="error" />
+						<p:message id="middleNameError" for="middleName" />
 						<h:outputLabel for="lastName"
 							value="#{messages['register.lastName']}" />
 						<p:inputText label="#{messages['register.lastName']}"
 							value="#{registrationBean.lastName}" id="lastName" maxlength="64"
 							required="true"
 							requiredMessage="#{messages['register.error.lastName.required']}" />
-						<p:message id="lastNameError" for="lastName" styleClass="error" />
+						<p:message id="lastNameError" for="lastName" />
 						<h:outputLabel for="displayName"
 							value="#{messages['register.displayName']}" />
 						<p:inputText label="#{messages['register.displayName']}"
 							value="#{registrationBean.displayName}" id="displayName"
 							maxlength="64" />
-						<p:message id="displayNameError" for="displayName"
-							styleClass="error" />
+						<p:message id="displayNameError" for="displayName" />
 						<h:outputLabel for="locale" value="#{messages['register.locale']}" />
 						<h:selectOneMenu id="locale" value="#{registrationBean.locale}">
 							<f:selectItems value="#{registrationBean.availableLocales}" />
 						</h:selectOneMenu>
-						<p:message id="localeError" for="locale" styleClass="error" />
+						<p:message id="localeError" for="locale" />
 						<h:outputLabel for="timeZone"
 							value="#{messages['register.timeZone']}" />
 						<h:selectOneMenu id="timeZone"
 							value="#{registrationBean.timeZone}">
 							<f:selectItems value="#{registrationBean.availableTimeZones}" />
 						</h:selectOneMenu>
-						<p:message id="timeZoneError" for="timeZone" styleClass="error" />
+						<p:message id="timeZoneError" for="timeZone" />
+						<h:outputLabel for="invitationCode"
+							value="#{messages['register.invitation.code']}" />
+						<p:inputText label="#{messages['register.invitation.code']}"
+							value="#{registrationBean.invitationCode}" id="invitationCode"
+							maxlength="36" />
+						<p:message id="invitationCodeError" for="invitationCode" />
 						<h:outputLabel for="captcha"
 							value="#{messages['register.captcha']}" />
 						<p:captcha id="captcha" label="#{messages['register.captcha']}"
 							secure="true" required="true" theme="white"
 							requiredMessage="#{messages['register.error.captcha.required']}" />
-						<p:message id="captchaError" for="captcha" styleClass="error" />
+						<p:message id="captchaError" for="captcha" />
 					</h:panelGrid>
 					<p:commandButton ajax="false" id="submit" styleClass="submit"
 						value="#{messages['register.submit']}"

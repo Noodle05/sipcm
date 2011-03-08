@@ -178,7 +178,7 @@ public class VoipAccountSettingBean implements Serializable {
 		User user = JSFUtils.getCurrentUser();
 		UserSipProfile userSipProfile = getUserSipProfileService()
 				.getUserSipProfileByPhoneNumber(phoneNumber);
-		if (user != null && !user.equals(userSipProfile.getOwner())) {
+		if (userSipProfile != null && !userSipProfile.getOwner().equals(user)) {
 			FacesMessage message = Messages.getMessage(
 					"member.sipprofile.error.phoneNumber.exists",
 					FacesMessage.SEVERITY_ERROR);

@@ -9,7 +9,7 @@ import java.util.Date;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -32,7 +32,7 @@ import com.sipcm.web.util.Messages;
  * 
  */
 @ManagedBean(name = "passwordResetBean")
-@SessionScoped
+@RequestScoped
 public class PasswordResetBean implements Serializable {
 	private static final long serialVersionUID = 5427030371221677230L;
 	private static final Logger logger = LoggerFactory

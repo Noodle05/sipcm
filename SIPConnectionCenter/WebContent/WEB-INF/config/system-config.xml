@@ -37,6 +37,7 @@
 	<entry key="firewall.password_phrase" />
 	<entry key="firewall.ssh.disconnect.delay">60</entry>
 
+	<entry key="register.by.invite.only">true</entry>
 	<entry key="register.active.method">SELF</entry>
 	<entry key="register.username.pattern"><![CDATA[^\p{Alpha}[\w|\.]{5,31}$]]></entry>
 	<entry key="register.email.pattern"><![CDATA[^[^@]+@[^@^\.]+\.[^@^\.]+$]]></entry>

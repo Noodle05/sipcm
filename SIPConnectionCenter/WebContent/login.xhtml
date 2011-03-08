@@ -19,24 +19,23 @@
 						<p:inputText label="#{messages['login.username']}" id="j_username"
 							value="#{loginBean.username}" maxlength="64" required="true"
 							requiredMessage="#{messages['login.error.username.required']}" />
-						<p:message id="usernameError" for="j_username" styleClass="error" />
+						<p:message id="usernameError" for="j_username" />
 						<h:outputLabel for="j_password"
 							value="#{messages['login.password']}" />
 						<p:password label="#{messages['login.password']}" id="j_password"
 							value="#{loginBean.password}" feedback="false" required="true"
 							requiredMessage="#{messages['login.error.password.required']}" />
-						<p:message id="passwordError" for="j_password" styleClass="error" />
+						<p:message id="passwordError" for="j_password" />
 						<h:outputLabel for="_spring_security_remember_me"
 							value="#{messages['login.remember_me']}" />
 						<h:selectBooleanCheckbox id="_spring_security_remember_me"
 							value="#{loginBean.rememberMe}" />
-						<p:message id="rememberMeError" for="_spring_security_remember_me"
-							styleClass="error" />
+						<p:message id="rememberMeError" for="_spring_security_remember_me" />
 						<h:outputLabel for="captcha" value="#{messages['login.captcha']}" />
 						<p:captcha id="captcha" label="#{messages['login.captcha']}"
 							secure="true" required="true" theme="white"
 							requiredMessage="#{messages['login.error.captcha.required']}" />
-						<p:message id="captchaError" for="captcha" styleClass="error" />
+						<p:message id="captchaError" for="captcha" />
 					</h:panelGrid>
 					<p:commandButton ajax="false" id="login" styleClass="submit"
 						value="#{messages['login.submit']}" action="#{loginBean.doLogin}" />

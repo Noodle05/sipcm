@@ -1,6 +1,6 @@
 <html>
 <body>
-<h3>Hi ${activation.owner.displayName},</h3>
+<h3>Hi ${activation.owner.userDisplayName},</h3>
 <h4>Welcome to the Gaofamily Call Center!</h4><br />
 <p> You are not done yet, please click <a href="${serverUrl}/account/activation.jsf?userId=${activation.owner.id}&activeCode=${activation.activeCode}">here</a> to active your account. Active code will be available for ${activeExpires} hours.
 </p>
