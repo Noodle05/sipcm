@@ -318,7 +318,7 @@ public class LocationServiceImpl implements LocationService {
 		if (logger.isDebugEnabled()) {
 			logger.debug("User changed! ids: " + Arrays.toString(userIds));
 		}
-		List<Long> ids = Arrays.asList(userIds);
+		List<Long> ids = new ArrayList<Long>(Arrays.asList(userIds));
 		Collections.sort(ids);
 		Iterator<Entry<UserSipProfile, List<AddressBinding>>> ite = cache
 				.entrySet().iterator();
