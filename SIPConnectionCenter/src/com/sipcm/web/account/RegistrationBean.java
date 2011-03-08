@@ -53,19 +53,19 @@ public class RegistrationBean implements Serializable {
 	public static final String SELF_ACTIVE_EMAIL_TEMPLATE = "/templates/self-active.vm";
 	public static final String ADMIN_ACTIVE_EMAIL_TEMPLATE = "/templates/admin-active.vm";
 
-	@ManagedProperty(value = "#{systemConfiguration}")
+	@ManagedProperty("#{systemConfiguration}")
 	private transient SystemConfiguration appConfig;
 
-	@ManagedProperty(value = "#{webEmailUtils}")
+	@ManagedProperty("#{webEmailUtils}")
 	private transient EmailUtils emailUtils;
 
-	@ManagedProperty(value = "#{userService}")
+	@ManagedProperty("#{userService}")
 	private transient UserService userService;
 
-	@ManagedProperty(value = "#{roleService}")
+	@ManagedProperty("#{roleService}")
 	private transient RoleService roleService;
 
-	@ManagedProperty(value = "#{userActivationService}")
+	@ManagedProperty("#{userActivationService}")
 	private transient UserActivationService userActivationService;
 
 	private String username;
@@ -154,12 +154,12 @@ public class RegistrationBean implements Serializable {
 	public void validateUsername(FacesContext context,
 			UIComponent componentToValidate, Object value) {
 		String username = ((String) value).trim();
-		if (username.length() < appConfig.getUsernameLengthMin()
-				|| username.length() > appConfig.getUsernameLengthMax()) {
+		if (username.length() < getAppConfig().getUsernameLengthMin()
+				|| username.length() > getAppConfig().getUsernameLengthMax()) {
 			FacesMessage message = Messages.getMessage(
-					"register.error.username.length",
-					new Object[] { appConfig.getUsernameLengthMin(),
-							appConfig.getUsernameLengthMax() },
+					"register.error.username.length", new Object[] {
+							getAppConfig().getUsernameLengthMin(),
+							getAppConfig().getUsernameLengthMax() },
 					FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
@@ -448,6 +448,7 @@ public class RegistrationBean implements Serializable {
 		getUserActivationService().saveEntity(userActivation);
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("activation", userActivation);
+		params.put("activeExpires", getAppConfig().getActiveExpires());
 
 		getEmailUtils().sendMail(
 				user.getEmail(),

@@ -239,6 +239,7 @@ public class ProfileBean implements Serializable {
 		getUserActivationService().saveEntity(userActivation);
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("activation", userActivation);
+		params.put("activeExpires", appConfig.getActiveExpires());
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("Sending confirm email");

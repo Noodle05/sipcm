@@ -1,7 +1,7 @@
 <html>
 <body>
 <h3>新用户注册</h3>
-<h4>新用户 ${activation.owner.displayName} 完成注册，并等待激活</h4><br />
+<h4>新用户 ${activation.owner.userDisplayName} 完成注册，并等待激活</h4><br />
 <p>请点击<a href="${serverUrl}/account/activation.jsf?userId=${activation.owner.id}">这里</a>激活这个帐户。
 </p>
 <p>

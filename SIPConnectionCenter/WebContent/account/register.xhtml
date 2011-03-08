@@ -41,7 +41,11 @@
 							value="#{registrationBean.password}" minLength="6" maxlength="32"
 							required="true"
 							requiredMessage="#{messages['register.error.password.required']}"
-							validatorMessage="#{messages['register.error.password.size']}">
+							validatorMessage="#{messages['register.error.password.size']}"
+							promptLabel="#{messages['password.prompt.label']}"
+							weakLabel="#{messages['password.weak.label']}"
+							goodLabel="#{messages['password.good.label']}"
+							strongLabel="#{messages['password.strong.label']}">
 							<f:validateLength minimum="6" maximum="32" />
 						</p:password>
 						<p:message id="passwordError" for="password" styleClass="error" />
@@ -51,7 +55,11 @@
 							label="#{messages['register.confirmPassword']}" minLength="6"
 							maxlength="32" required="true"
 							requiredMessage="#{messages['register.error.password.required']}"
-							validatorMessage="#{messages['register.error.password.size']}">
+							validatorMessage="#{messages['register.error.password.size']}"
+							promptLabel="#{messages['password.prompt.label']}"
+							weakLabel="#{messages['password.weak.label']}"
+							goodLabel="#{messages['password.good.label']}"
+							strongLabel="#{messages['password.strong.label']}">
 							<f:validateLength minimum="6" maximum="32" />
 						</p:password>
 						<p:message id="confirmPasswordError" for="confirmPassword"
@@ -98,8 +106,8 @@
 						<p:message id="timeZoneError" for="timeZone" styleClass="error" />
 						<h:outputLabel for="captcha"
 							value="#{messages['register.captcha']}" />
-						<p:captcha id="captcha" label="Captcha" secure="true"
-							required="true" theme="white"
+						<p:captcha id="captcha" label="#{messages['register.captcha']}"
+							secure="true" required="true" theme="white"
 							requiredMessage="#{messages['register.error.captcha.required']}" />
 						<p:message id="captchaError" for="captcha" styleClass="error" />
 					</h:panelGrid>

@@ -53,3 +53,8 @@ body {
 	text-decoration: none;
 	text-align: center;
 }
+
+.member-content-wrapper {
+	vertical-align: top;
+	height: 100%
+}

@@ -1,8 +1,8 @@
 <html>
 <body>
-<h3>Hi ${activation.owner.displayName},</h3>
+<h3>Hi ${activation.owner.userDisplayName},</h3>
 <h4>You need to confirm your email address</h4><br />
-<p>Since you changed your email address, you need to click <a href="${serverUrl}/member/confirm-email.jsf?userId=${activation.owner.id}&activeCode=${activation.activeCode}">here</a> to confirm your email address.
+<p>Since you changed your email address, you need to click <a href="${serverUrl}/member/confirm-email.jsf?userId=${activation.owner.id}&activeCode=${activation.activeCode}">here</a> to confirm your email address. Active code will be available for ${activeExpires} hours.
 </p>
 <p>
 If you are not able to click above link, please visit "${serverUrl}/member/confirm-email.jsf?userId=${activation.owner.id}&activeCode=${activation.activeCode}" from your browser to confirm your email address.

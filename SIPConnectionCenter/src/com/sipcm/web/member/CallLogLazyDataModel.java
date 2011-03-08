@@ -121,7 +121,7 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 				String value = entry.getValue();
 				if (key != null && value != null) {
 					Filter f1 = getFilterFactory().createSimpleFilter(key,
-							value + "%", Filter.Operator.ILIKE);
+							"%" + value + "%", Filter.Operator.ILIKE);
 					filter = filter.appendAnd(f1);
 				}
 			}

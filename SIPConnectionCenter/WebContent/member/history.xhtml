@@ -61,42 +61,65 @@
 				</p:panel>
 			</h:form>
 			<h:form id="callLogList">
-				<p:dataTable var="callLog" value="#{callLogBean.lazyModel}"
-					paginator="true" rows="10" lazy="true"
+				<p:dataTable id="callLogTbl" var="callLog"
+					value="#{callLogBean.lazyModel}" paginator="true" rows="10"
+					lazy="true"
 					paginatorTemplate="{FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
 					emptyMessage="#{messages['member.calllog.empty']}">
 					<f:facet name="header">
 						<h:outputText value="#{messages['member.call.log.list']}" />
+						<h:commandLink>
+							<h:graphicImage library="images" name="pdf.png" />
+							<p:dataExporter type="pdf" target="callLogTbl"
+								fileName="call-log" />
+						</h:commandLink>
+						<h:commandLink>
+							<h:graphicImage library="images" name="excel.png" />
+							<p:dataExporter type="xls" target="callLogTbl"
+								fileName="call-log" />
+						</h:commandLink>
 					</f:facet>
-					<p:column sortBy="#{callLog.startTime}"
-						headerText="#{messages['member.calllog.start.date']}">
+					<p:column sortBy="#{callLog.startTime}">
+						<f:facet name="header">
+							<h:outputText value="#{messages['member.calllog.start.date']}" />
+						</f:facet>
 						<h:outputText value="#{callLog.startTime}">
 							<f:convertDateTime
 								pattern="#{messages['global.datetime.pattern']}"
 								timeZone="#{localeTimeZoneHolderBean.timeZone}" />
 						</h:outputText>
 					</p:column>
-					<p:column sortBy="#{callLog.duration}"
-						headerText="#{messages['member.calllog.dure']}">
+					<p:column sortBy="#{callLog.duration}">
+						<f:facet name="header">
+							<h:outputText value="#{messages['member.calllog.dure']}" />
+						</f:facet>
 						<h:outputText value="#{callLog.duration}"
 							converter="#{durationConverter}" />
 					</p:column>
 					<p:column sortBy="#{callLog.voipAccount.name}"
-						filterBy="#{callLog.voipAccount.name}"
-						headerText="#{messages['member.calllog.viop.account']}">
+						filterBy="#{callLog.voipAccount.name}">
+						<f:facet name="header">
+							<h:outputText value="#{messages['member.calllog.viop.account']}" />
+						</f:facet>
 						<h:outputText
 							value="#{callLog.voipAccount == null ? '' : callLog.voipAccount.name}" />
 					</p:column>
-					<p:column sortBy="#{callLog.status}"
-						headerText="#{messages['member.calllog.status']}">
+					<p:column sortBy="#{callLog.status}">
+						<f:facet name="header">
+							<h:outputText value="#{messages['member.calllog.status']}" />
+						</f:facet>
 						<h:outputText value="#{callLog.status}" />
 					</p:column>
-					<p:column sortBy="#{callLog.type}"
-						headerText="#{messages['member.calllog.type']}">
+					<p:column sortBy="#{callLog.type}">
+						<f:facet name="header">
+							<h:outputText value="#{messages['member.calllog.type']}" />
+						</f:facet>
 						<h:outputText value="#{callLog.type}" />
 					</p:column>
-					<p:column sortBy="#{callLog.partner}" filterBy="#{callLog.partner}"
-						headerText="#{messages['member.calllog.number']}">
+					<p:column sortBy="#{callLog.partner}" filterBy="#{callLog.partner}">
+						<f:facet name="header">
+							<h:outputText value="#{messages['member.calllog.number']}" />
+						</f:facet>
 						<h:outputText value="#{callLog.partner}" />
 					</p:column>
 				</p:dataTable>

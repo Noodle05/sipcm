@@ -47,13 +47,15 @@ public class ForgetPasswordFormBean implements Serializable {
 
 	private String email;
 
-	public void action() {
+	public String action() {
 		User user = userService.getUserByEmail(email);
 		if (user == null) {
-			FacesMessage message = Messages.getMessage("",
+			FacesMessage message = Messages.getMessage(
+					"forget.password.error.user.not.found",
 					FacesMessage.SEVERITY_ERROR);
-			FacesContext.getCurrentInstance().addMessage(null, message);
-			return;
+			FacesContext.getCurrentInstance().addMessage(
+					"forgetPasswordForm:email", message);
+			return null;
 		}
 		UserActivation ua = userActivationService.getUserActivationByUser(user);
 		if (ua == null) {
@@ -61,22 +63,29 @@ public class ForgetPasswordFormBean implements Serializable {
 					ActiveMethod.SELF, appConfig.getActiveExpires());
 		} else {
 			if (ActiveMethod.ADMIN.equals(ua.getMethod())) {
-				FacesMessage message = Messages.getMessage("",
+				FacesMessage message = Messages.getMessage(
+						"forget.password.error.waiting.admin",
 						FacesMessage.SEVERITY_ERROR);
-				FacesContext.getCurrentInstance().addMessage(null, message);
-				return;
+				FacesContext.getCurrentInstance().addMessage(
+						"forgetPasswordForm:email", message);
+				return null;
 			}
 			userActivationService.updateExpires(ua,
 					appConfig.getActiveExpires());
 		}
 		userActivationService.saveEntity(ua);
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("", ua);
+		params.put("activation", ua);
+		params.put("activeExpires", appConfig.getActiveExpires());
 		emailUtils
 				.sendMail(user.getEmail(), Messages.getString(null,
 						"forget.password.email.subject", null),
 						FORGET_PASSWORD_EMAIL_TEMPLATE, params, user
 								.getLocale());
+		FacesMessage message = Messages.getMessage("forget.password.success",
+				FacesMessage.SEVERITY_INFO);
+		FacesContext.getCurrentInstance().addMessage(null, message);
+		return "success";
 	}
 
 	/**

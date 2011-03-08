@@ -7,16 +7,17 @@
 	xmlns:p="http://primefaces.prime.com.tr/ui"
 	template="/WEB-INF/templates/masterLayout.xhtml">
 	<ui:define name="content">
-		<h:panelGrid columns="2" style="width:100%">
+		<h:panelGrid columns="2" style="width:100%"
+			columnClasses="member-content-wrapper">
 			<h:panelGroup>
-				<div id="sideMenuContainer">
+				<div id="sideMenuContainer" style="width: 180px">
 					<ui:insert name="sideMenu">
 						<ui:include src="/member/sideMenu.xhtml" />
 					</ui:insert>
 				</div>
 			</h:panelGroup>
 			<h:panelGroup>
-				<div id="memberContent">
+				<div id="memberContent" style="width: 836px">
 					<ui:insert name="memberContent"></ui:insert>
 				</div>
 			</h:panelGroup>

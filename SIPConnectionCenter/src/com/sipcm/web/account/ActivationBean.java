@@ -64,7 +64,7 @@ public class ActivationBean implements Serializable {
 			return;
 		}
 		User user = userService.fullyLoadUser(userId);
-		if (user == null) {
+		if (user == null || user.getDeleteDate() != null) {
 			FacesMessage message = Messages.getMessage(
 					"account.active.error.invaliduserid",
 					FacesMessage.SEVERITY_ERROR);
@@ -93,7 +93,8 @@ public class ActivationBean implements Serializable {
 			fc.addMessage(null, message);
 			return;
 		}
-		if (ua.getExpireDate().before(new Date())) {
+		if (!fc.getExternalContext().isUserInRole(RoleService.ADMIN_ROLE)
+				&& ua.getExpireDate().before(new Date())) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("User active object alread expired");
 			}
