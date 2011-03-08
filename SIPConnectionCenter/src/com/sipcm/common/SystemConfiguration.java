@@ -48,6 +48,9 @@ public class SystemConfiguration {
 	public static final String ACTIVE_METHOD = "register.active.method";
 	public static final String ACTIVE_EXPIRES = "register.active.expires";
 	public static final String ADMIN_EMAIL = "global.admin.email";
+	public static final String FROM_EMAIL = "global.from.email";
+	public static final String ADMIN_EMAIL_PERSONAL = "global.admin.email.personal";
+	public static final String FROM_EMAIL_PERSONAL = "global.from.email.personal";
 
 	public static final String GV_TIMEOUT = "com.sipcm.googlevoice.timeout";
 
@@ -170,6 +173,18 @@ public class SystemConfiguration {
 
 	public String getAdminEmail() {
 		return appConfig.getString(ADMIN_EMAIL);
+	}
+
+	public String getAdminEmailPersonal() {
+		return appConfig.getString(ADMIN_EMAIL_PERSONAL);
+	}
+
+	public String getFromEmail() {
+		return appConfig.getString(FROM_EMAIL);
+	}
+
+	public String getFromEmailPersonal() {
+		return appConfig.getString(FROM_EMAIL_PERSONAL);
 	}
 
 	public int getActiveExpires() {

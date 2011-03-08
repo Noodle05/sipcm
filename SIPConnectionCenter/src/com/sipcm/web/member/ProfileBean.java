@@ -244,7 +244,7 @@ public class ProfileBean implements Serializable {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Sending confirm email");
 		}
-		getEmailUtils().sendMail(user.getEmail(),
+		getEmailUtils().sendMail(user.getEmail(), user.getUserDisplayName(),
 				Messages.getString(null, "member.email.confirm.subject", null),
 				CONFIRM_EMAIL_TEMPLATE, params, user.getLocale());
 	}

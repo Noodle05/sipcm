@@ -3,16 +3,16 @@
  */
 package com.sipcm.email;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Map.Entry;
 
 import javax.activation.DataSource;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class EmailService {
 			if (mailSender != null) {
 				MimeMessagePreparator preparator = new MimeMessagePreparator() {
 					public void prepare(MimeMessage mimeMessage)
-							throws MessagingException {
+							throws Exception {
 						prepareEmail(mimeMessage, emailBean);
 					}
 				};
@@ -60,7 +60,7 @@ public class EmailService {
 	}
 
 	private void prepareEmail(MimeMessage mimeMessage, EmailBean emailBean)
-			throws MessagingException {
+			throws MessagingException, UnsupportedEncodingException {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Preparing email");
 		}
@@ -70,19 +70,21 @@ public class EmailService {
 			}
 			throw new MessagingException("No email bean specified");
 		}
-		if (CollectionUtils.isEmpty(emailBean.getToAddress())) {
+		if (emailBean.getToAddress() == null
+				|| emailBean.getToAddress().isEmpty()) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Can not found to address from emailBean");
 			}
 			throw new MessagingException("No to address specified");
 		}
-		if (StringUtils.isEmpty(emailBean.getSubject())) {
+		if (emailBean.getSubject() == null
+				|| emailBean.getSubject().trim().isEmpty()) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Email subject is empty");
 			}
 			throw new MessagingException("No subject specified");
 		}
-		if (StringUtils.isEmpty(emailBean.getBody())) {
+		if (emailBean.getBody() == null || emailBean.getBody().trim().isEmpty()) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Email body is empty");
 			}
@@ -90,29 +92,93 @@ public class EmailService {
 		}
 
 		MimeMessageHelper helper;
-		if (StringUtils.isNotEmpty(emailBean.getCharSet())) {
-			helper = new MimeMessageHelper(mimeMessage, true,
-					emailBean.getCharSet());
+		if (emailBean.getCharSet() != null
+				&& !emailBean.getCharSet().trim().isEmpty()) {
+			helper = new MimeMessageHelper(mimeMessage, true, emailBean
+					.getCharSet().trim());
 		} else {
 			helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 		}
-		for (String address : emailBean.getToAddress()) {
-			helper.addTo(address);
+		boolean setTo = false;
+		for (Entry<String, String> entry : emailBean.getToAddress().entrySet()) {
+			String address = entry.getKey();
+			String personal = entry.getValue();
+			try {
+				if (personal != null) {
+					helper.addTo(address, personal);
+				} else {
+					helper.addTo(address);
+				}
+				setTo = true;
+			} catch (UnsupportedEncodingException e) {
+				if (logger.isWarnEnabled()) {
+					logger.warn(
+							"Invalid email To target. Address: \"{}\", Personal: \"{}\"",
+							address, personal);
+				}
+			}
 		}
 
-		if (CollectionUtils.isNotEmpty(emailBean.getCcAddress())) {
-			for (String address : emailBean.getCcAddress()) {
-				helper.addCc(address);
+		if (emailBean.getFromPersonal() != null) {
+			helper.setFrom(emailBean.getFromAddress(),
+					emailBean.getFromPersonal());
+		} else {
+			helper.setFrom(emailBean.getFromAddress());
+		}
+
+		if (!setTo) {
+			throw new MessagingException("No invalid to address provided.");
+		}
+
+		if (emailBean.getCcAddress() != null
+				&& !emailBean.getCcAddress().isEmpty()) {
+			for (Entry<String, String> entry : emailBean.getCcAddress()
+					.entrySet()) {
+				String address = entry.getKey();
+				String personal = entry.getValue();
+				try {
+					if (personal != null) {
+						helper.addCc(address, personal);
+					} else {
+						helper.addCc(address);
+					}
+				} catch (UnsupportedEncodingException e) {
+					if (logger.isWarnEnabled()) {
+						logger.warn(
+								"Invalid email Cc target. Address: \"{}\", Personal: \"{}\"",
+								address, personal);
+					}
+				}
 			}
 		}
-		if (CollectionUtils.isNotEmpty(emailBean.getBccAddress())) {
-			for (String address : emailBean.getBccAddress()) {
-				helper.addBcc(address);
+		if (emailBean.getBccAddress() != null
+				&& !emailBean.getBccAddress().isEmpty()) {
+			for (Entry<String, String> entry : emailBean.getBccAddress()
+					.entrySet()) {
+				String address = entry.getKey();
+				String personal = entry.getValue();
+				try {
+					if (personal != null) {
+						helper.addBcc(address, personal);
+					} else {
+						helper.addBcc(address);
+					}
+				} catch (UnsupportedEncodingException e) {
+					if (logger.isWarnEnabled()) {
+						logger.warn(
+								"Invalid email Bcc target. Address: \"{}\", Personal: \"{}\"",
+								address, personal);
+					}
+				}
 			}
 		}
-		helper.setFrom(emailBean.getFromAddress());
-		if (StringUtils.isNotEmpty(emailBean.getReplyAddress())) {
-			helper.setReplyTo(emailBean.getReplyAddress());
+		if (emailBean.getReplyAddress() != null) {
+			if (emailBean.getReplyPersonal() != null) {
+				helper.setReplyTo(emailBean.getReplyAddress(),
+						emailBean.getReplyPersonal());
+			} else {
+				helper.setReplyTo(emailBean.getReplyAddress());
+			}
 		}
 		helper.setSubject(emailBean.getSubject());
 		if (emailBean.getPriority() != null) {

@@ -452,6 +452,7 @@ public class RegistrationBean implements Serializable {
 
 		getEmailUtils().sendMail(
 				user.getEmail(),
+				user.getUserDisplayName(),
 				Messages.getString(null, "register.active.self.email.subject",
 						null), SELF_ACTIVE_EMAIL_TEMPLATE, params,
 				user.getLocale());
@@ -468,6 +469,7 @@ public class RegistrationBean implements Serializable {
 
 		getEmailUtils().sendMail(
 				getAppConfig().getAdminEmail(),
+				getAppConfig().getAdminEmailPersonal(),
 				Messages.getString(null, "register.active.admin.email.subject",
 						null), ADMIN_ACTIVE_EMAIL_TEMPLATE, params,
 				user.getLocale());

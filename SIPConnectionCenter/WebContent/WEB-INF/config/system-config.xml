@@ -4,7 +4,10 @@
 	<comment>Calling Center configuration file. This is just a template,
 		default location of this file should be: /usr/local/etc/sip-config.xml</comment>
 	<entry key="domainname">gaofamily.org</entry>
-	<entry key="global.admin.email">master@domain.name</entry>
+	<entry key="global.admin.email">admin@domain.name</entry>
+	<entry key="global.admin.email.personal">System Administrator</entry>
+	<entry key="global.from.email">noreply@domain.name</entry>
+	<entry key="global.from.email.personal">System Notifier</entry>
 
 	<entry key="sip.server.realm">gaofamily.org</entry>
 	<entry key="sip.publicIp.process">true</entry>

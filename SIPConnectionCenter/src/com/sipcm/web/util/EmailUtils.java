@@ -29,14 +29,15 @@ public class EmailUtils {
 	@Resource(name = "globalEmailer")
 	private Emailer emailer;
 
-	public void sendMail(String target, String subject, String template,
-			Map<String, Object> params, Locale locale) {
+	public void sendMail(String target, String targetPersonal, String subject,
+			String template, Map<String, Object> params, Locale locale) {
 		EmailBean emailBean = new EmailBean();
-		emailBean.addToAddress(target);
+		emailBean.addToAddress(target, targetPersonal);
 		params.put("serverUrl", getServerUrl());
 		emailBean.setTemplate(template, params);
 		emailBean.setParams(params);
-		emailBean.setFromAddress(appConfig.getAdminEmail());
+		emailBean.setFromAddress(appConfig.getFromEmail(),
+				appConfig.getFromEmailPersonal());
 		emailBean.setHtmlEncoded(true);
 		emailBean.setSubject(subject);
 		emailBean.setLocale(locale);

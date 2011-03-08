@@ -6,6 +6,7 @@ package com.sipcm.email;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -21,15 +22,19 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class EmailBean implements Serializable {
 	private static final long serialVersionUID = 6737369416708241669L;
 
-	private Collection<String> toAddress;
+	private Map<String, String> toAddress;
 
-	private Collection<String> ccAddress;
+	private Map<String, String> ccAddress;
 
-	private Collection<String> bccAddress;
+	private Map<String, String> bccAddress;
 
 	private String fromAddress;
 
+	private String fromPersonal;
+
 	private String replyAddress;
+
+	private String replyPersonal;
 
 	private String subject;
 
@@ -86,10 +91,11 @@ public class EmailBean implements Serializable {
 	 * Default constructor
 	 */
 	public EmailBean() {
-		toAddress = new ArrayList<String>();
-		ccAddress = new ArrayList<String>();
-		bccAddress = new ArrayList<String>();
+		toAddress = new HashMap<String, String>();
+		ccAddress = new HashMap<String, String>();
+		bccAddress = new HashMap<String, String>();
 		fromAddress = null;
+		fromPersonal = null;
 		replyAddress = null;
 		subject = null;
 		body = null;
@@ -104,7 +110,7 @@ public class EmailBean implements Serializable {
 	 * 
 	 * @return bcc address
 	 */
-	public Collection<String> getBccAddress() {
+	public Map<String, String> getBccAddress() {
 		return bccAddress;
 	}
 
@@ -120,8 +126,8 @@ public class EmailBean implements Serializable {
 	 * 
 	 * @param address
 	 */
-	public void addBccAddress(String address) {
-		bccAddress.add(address);
+	public void addBccAddress(String address, String person) {
+		bccAddress.put(address, person);
 	}
 
 	/**
@@ -145,7 +151,7 @@ public class EmailBean implements Serializable {
 	 * 
 	 * @return cc address
 	 */
-	public Collection<String> getCcAddress() {
+	public Map<String, String> getCcAddress() {
 		return ccAddress;
 	}
 
@@ -161,8 +167,8 @@ public class EmailBean implements Serializable {
 	 * 
 	 * @param address
 	 */
-	public void addCcAddress(String address) {
-		ccAddress.add(address);
+	public void addCcAddress(String address, String person) {
+		ccAddress.put(address, person);
 	}
 
 	/**
@@ -172,6 +178,13 @@ public class EmailBean implements Serializable {
 	 */
 	public String getFromAddress() {
 		return fromAddress;
+	}
+
+	/**
+	 * @return the fromPerson
+	 */
+	public String getFromPersonal() {
+		return fromPersonal;
 	}
 
 	/**
@@ -193,6 +206,15 @@ public class EmailBean implements Serializable {
 	}
 
 	/**
+	 * Get reply personal.
+	 * 
+	 * @return the reply personal
+	 */
+	public String getReplyPersonal() {
+		return replyPersonal;
+	}
+
+	/**
 	 * Get subject.
 	 * 
 	 * @return subject
@@ -206,7 +228,7 @@ public class EmailBean implements Serializable {
 	 * 
 	 * @return to address
 	 */
-	public Collection<String> getToAddress() {
+	public Map<String, String> getToAddress() {
 		return toAddress;
 	}
 
@@ -222,8 +244,8 @@ public class EmailBean implements Serializable {
 	 * 
 	 * @param address
 	 */
-	public void addToAddress(String address) {
-		toAddress.add(address);
+	public void addToAddress(String address, String person) {
+		toAddress.put(address, person);
 	}
 
 	/**
@@ -240,8 +262,9 @@ public class EmailBean implements Serializable {
 	 * 
 	 * @param replyAddress
 	 */
-	public void setReplyAddress(String replyAddress) {
+	public void setReplyAddress(String replyAddress, String replyPersonal) {
 		this.replyAddress = replyAddress;
+		this.replyPersonal = replyPersonal;
 	}
 
 	/**
@@ -254,7 +277,8 @@ public class EmailBean implements Serializable {
 	}
 
 	/**
-	 * @param locale the locale to set
+	 * @param locale
+	 *            the locale to set
 	 */
 	public void setLocale(Locale locale) {
 		this.locale = locale;
@@ -272,8 +296,9 @@ public class EmailBean implements Serializable {
 	 * 
 	 * @param fromAddress
 	 */
-	public void setFromAddress(String fromAddress) {
+	public void setFromAddress(String fromAddress, String fromPersonal) {
 		this.fromAddress = fromAddress;
+		this.fromPersonal = fromPersonal;
 	}
 
 	/**

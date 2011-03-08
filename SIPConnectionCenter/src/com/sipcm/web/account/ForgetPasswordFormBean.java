@@ -78,8 +78,9 @@ public class ForgetPasswordFormBean implements Serializable {
 		params.put("activation", ua);
 		params.put("activeExpires", appConfig.getActiveExpires());
 		emailUtils
-				.sendMail(user.getEmail(), Messages.getString(null,
-						"forget.password.email.subject", null),
+				.sendMail(user.getEmail(), user.getUserDisplayName(),
+						Messages.getString(null,
+								"forget.password.email.subject", null),
 						FORGET_PASSWORD_EMAIL_TEMPLATE, params, user
 								.getLocale());
 		FacesMessage message = Messages.getMessage("forget.password.success",

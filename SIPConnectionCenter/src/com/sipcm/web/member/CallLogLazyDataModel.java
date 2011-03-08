@@ -140,6 +140,7 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 		fsp.setFilter(filter);
 		fsp.setPage(page);
 		fsp.setSort(sort);
+		setRowCount(getCallLogService().getRowCount(filter));
 		return getCallLogService().getEntities(fsp);
 	}
 
