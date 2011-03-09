@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -22,8 +23,15 @@ import javax.faces.validator.ValidatorException;
 
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.RowEditEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.sipcm.common.PhoneNumberStatus;
 import com.sipcm.common.model.User;
+import com.sipcm.googlevoice.GoogleVoiceManager;
+import com.sipcm.googlevoice.GoogleVoiceSession;
+import com.sipcm.googlevoice.setting.GoogleVoiceConfig;
+import com.sipcm.googlevoice.setting.Phone;
 import com.sipcm.sip.VoipAccountType;
 import com.sipcm.sip.VoipVendorType;
 import com.sipcm.sip.business.UserSipProfileService;
@@ -44,6 +52,13 @@ import com.sipcm.web.util.Messages;
 public class VoipAccountSettingBean implements Serializable {
 	private static final long serialVersionUID = -4107844991260539763L;
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(VoipAccountSettingBean.class);
+
+	private static final int INVALID = 0;
+	private static final int VALID = 1;
+	private static final int VERIFIED = 2;
+
 	@ManagedProperty(value = "#{voipVendorService}")
 	private transient VoipVendorService voipVendorService;
 
@@ -53,15 +68,18 @@ public class VoipAccountSettingBean implements Serializable {
 	@ManagedProperty(value = "#{userVoipAccountService}")
 	private transient UserVoipAccountService userVoipAccountService;
 
+	@ManagedProperty(value = "#{googleVoiceManager}")
+	private transient GoogleVoiceManager gvManager;
+
 	private UserSipProfile userSipProfile;
 
 	private Map<Long, String> voipAccountPasswordMap;
 
 	private List<UserVoipAccount> voipAccounts;
 
-	private String sipProfilePhoneNumber = "";
+	private String sipProfilePhoneNumber;
 
-	private String sipProfileDefaultArea = "";
+	private String sipProfileDefaultArea;
 
 	private boolean sipProfileAllowInternal = true;
 
@@ -117,7 +135,7 @@ public class VoipAccountSettingBean implements Serializable {
 	public void accountRowEdit(RowEditEvent event) {
 		try {
 			UserVoipAccount account = (UserVoipAccount) event.getObject();
-			if (validateUserVoipAccount(account)) {
+			if (validateUserVoipAccount(account) != INVALID) {
 				if (account.getPassword() == null
 						&& voipAccountPasswordMap.get(account) != null) {
 					account.setPassword(voipAccountPasswordMap.get(account));
@@ -142,14 +160,14 @@ public class VoipAccountSettingBean implements Serializable {
 		RequestContext context = RequestContext.getCurrentInstance();
 		boolean saved = false;
 		try {
-			if (validateUserVoipAccount(selectedVoipAccount)) {
-				if (selectedVoipAccount.getPassword() == null
-						&& selectedVoipAccount.getId() != null
-						&& voipAccountPasswordMap.get(selectedVoipAccount
-								.getId()) != null) {
-					selectedVoipAccount.setPassword(voipAccountPasswordMap
-							.get(selectedVoipAccount.getId()));
-				}
+			if (selectedVoipAccount.getPassword() == null
+					&& selectedVoipAccount.getId() != null
+					&& voipAccountPasswordMap.get(selectedVoipAccount.getId()) != null) {
+				selectedVoipAccount.setPassword(voipAccountPasswordMap
+						.get(selectedVoipAccount.getId()));
+			}
+			int v = validateUserVoipAccount(selectedVoipAccount);
+			if (v != INVALID) {
 				Long id = selectedVoipAccount.getId();
 				getUserVoipAccountService().saveEntity(selectedVoipAccount);
 				voipAccountPasswordMap.put(selectedVoipAccount.getId(),
@@ -158,6 +176,11 @@ public class VoipAccountSettingBean implements Serializable {
 				if (id == null) {
 					voipAccounts.add(selectedVoipAccount);
 				}
+				if (v == VERIFIED) {
+					userSipProfile
+							.setPhoneNumberStatus(PhoneNumberStatus.GOOGLEVOICEVERIFIED);
+					getUserSipProfileService().saveEntity(userSipProfile);
+				}
 				FacesMessage message = Messages.getMessage(
 						"member.voip.accounts.save.success",
 						FacesMessage.SEVERITY_INFO);
@@ -165,6 +188,9 @@ public class VoipAccountSettingBean implements Serializable {
 				saved = true;
 			}
 		} catch (Exception e) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Error happened when save account.", e);
+			}
 			FacesMessage message = new FacesMessage(
 					FacesMessage.SEVERITY_ERROR, e.getLocalizedMessage(), null);
 			FacesContext.getCurrentInstance().addMessage(null, message);
@@ -186,15 +212,15 @@ public class VoipAccountSettingBean implements Serializable {
 		}
 	}
 
-	private boolean validateUserVoipAccount(UserVoipAccount account) {
-		boolean ret = true;
+	private int validateUserVoipAccount(UserVoipAccount account) {
+		int ret = VALID;
 		if (account.getPassword() == null
 				&& voipAccountPasswordMap.get(account.getId()) == null) {
 			FacesMessage message = Messages.getMessage(
 					"member.voip.error.password.required",
 					FacesMessage.SEVERITY_ERROR);
 			FacesContext.getCurrentInstance().addMessage(null, message);
-			ret = false;
+			ret = INVALID;
 		}
 		if (VoipVendorType.GOOGLE_VOICE.equals(account.getVoipVendor()
 				.getType())) {
@@ -203,21 +229,24 @@ public class VoipAccountSettingBean implements Serializable {
 						"member.voip.error.googlevoice.outgoing.only",
 						FacesMessage.SEVERITY_ERROR);
 				FacesContext.getCurrentInstance().addMessage(null, message);
-				ret = false;
+				ret = INVALID;
 			}
 			if (account.getPhoneNumber() == null) {
 				FacesMessage message = Messages.getMessage(
 						"member.voip.error.googlevoice.phonenumber.required",
 						FacesMessage.SEVERITY_ERROR);
 				FacesContext.getCurrentInstance().addMessage(null, message);
-				ret = false;
+				ret = INVALID;
 			}
 			if (account.getCallBackNumber() == null) {
 				FacesMessage message = Messages.getMessage(
 						"member.voip.error.googlevoice.callback.required",
 						FacesMessage.SEVERITY_ERROR);
 				FacesContext.getCurrentInstance().addMessage(null, message);
-				ret = false;
+				ret = INVALID;
+			}
+			if (ret == VALID && validateGoogleVoiceAccount(account)) {
+				ret = VERIFIED;
 			}
 		} else {
 			if (!VoipAccountType.OUTGOING.equals(account.getType())) {
@@ -226,7 +255,7 @@ public class VoipAccountSettingBean implements Serializable {
 							"member.voip.error.income.phonenumber.required",
 							FacesMessage.SEVERITY_ERROR);
 					FacesContext.getCurrentInstance().addMessage(null, message);
-					ret = false;
+					ret = INVALID;
 				}
 			}
 			if (account.getCallBackNumber() != null) {
@@ -234,8 +263,100 @@ public class VoipAccountSettingBean implements Serializable {
 						"member.voip.error.sip.no.callback",
 						FacesMessage.SEVERITY_ERROR);
 				FacesContext.getCurrentInstance().addMessage(null, message);
-				ret = false;
+				ret = INVALID;
 			}
+		}
+		return ret;
+	}
+
+	private boolean validateGoogleVoiceAccount(UserVoipAccount account) {
+		boolean ret = true;
+		GoogleVoiceSession session = getGvManager().getGoogleVoiceSession(
+				account.getAccount(), account.getPassword(), null);
+		try {
+			try {
+				session.login();
+			} catch (Exception e) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Error happened when login.", e);
+				}
+				FacesMessage message = Messages.getMessage(
+						"member.voip.warn.googlevoice.cannot.login",
+						FacesMessage.SEVERITY_WARN);
+				FacesContext.getCurrentInstance().addMessage(null, message);
+				return false;
+			}
+			try {
+				GoogleVoiceConfig conf = session.getGoogleVoiceSetting();
+				if (!account.getPhoneNumber().equals(
+						conf.getSettings().getPrimaryDid())) {
+					FacesMessage message = Messages.getMessage(
+							"member.voip.warn.googlevoice.number.not.match",
+							FacesMessage.SEVERITY_WARN);
+					FacesContext.getCurrentInstance().addMessage(null, message);
+					ret = false;
+				}
+				Map<Integer, Phone> phones = conf.getPhones();
+				if (phones == null) {
+					FacesMessage message = Messages.getMessage(
+							"member.voip.warn.googlevoice.no.callback.number",
+							FacesMessage.SEVERITY_WARN);
+					FacesContext.getCurrentInstance().addMessage(null, message);
+					return false;
+				}
+				Phone ph = null;
+				for (Entry<Integer, Phone> entry : phones.entrySet()) {
+					Phone p = entry.getValue();
+					if (p != null
+							&& account.getCallBackNumber().equals(
+									p.getPhoneNumber())) {
+						ph = p;
+						break;
+					}
+				}
+				if (ph == null) {
+					FacesMessage message = Messages.getMessage(
+							"member.voip.warn.googlevoice.callback.not.match",
+							FacesMessage.SEVERITY_WARN);
+					FacesContext.getCurrentInstance().addMessage(null, message);
+					ret = false;
+				} else {
+					if (ph.getType() != 1) {
+						FacesMessage message = Messages
+								.getMessage(
+										"member.voip.warn.googlevoice.callback.type.error",
+										FacesMessage.SEVERITY_WARN);
+						FacesContext.getCurrentInstance().addMessage(null,
+								message);
+						ret = false;
+					}
+					Map<Integer, Boolean> disids = conf.getSettings()
+							.getDisabledIdMap();
+					Boolean disabled = disids.get(ph.getId());
+					if (disabled != null && disabled) {
+						FacesMessage message = Messages
+								.getMessage(
+										"member.voip.warn.googlevoice.callback.disabled",
+										FacesMessage.SEVERITY_WARN);
+						FacesContext.getCurrentInstance().addMessage(null,
+								message);
+						ret = false;
+					}
+				}
+			} catch (Exception e) {
+				if (logger.isDebugEnabled()) {
+					logger.debug(
+							"Error happened when getting google voice setting",
+							e);
+					FacesMessage message = Messages.getMessage(
+							"member.voip.warn.googlevoice.cannot.get.setting",
+							FacesMessage.SEVERITY_WARN);
+					FacesContext.getCurrentInstance().addMessage(null, message);
+					ret = false;
+				}
+			}
+		} finally {
+			session.logout();
 		}
 		return ret;
 	}
@@ -335,6 +456,25 @@ public class VoipAccountSettingBean implements Serializable {
 					"userVoipAccountService", UserVoipAccountService.class);
 		}
 		return userVoipAccountService;
+	}
+
+	/**
+	 * @param gvManager
+	 *            the gvManager to set
+	 */
+	public void setGvManager(GoogleVoiceManager gvManager) {
+		this.gvManager = gvManager;
+	}
+
+	/**
+	 * @return the gvManager
+	 */
+	public GoogleVoiceManager getGvManager() {
+		if (gvManager == null) {
+			gvManager = JSFUtils.getManagedBean("googleVoiceManager",
+					GoogleVoiceManager.class);
+		}
+		return gvManager;
 	}
 
 	/**

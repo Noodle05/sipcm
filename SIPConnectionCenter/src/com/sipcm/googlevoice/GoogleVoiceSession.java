@@ -62,7 +62,7 @@ public class GoogleVoiceSession implements Serializable {
 	private static final String CALL_URL = "https://www.google.com/voice/call/connect/";
 	private static final String CONCEL_URL = "https://www.google.com/voice/call/cancel/";
 	private static final String LOGOUT_URL = "https://www.google.com/accounts/Logout";
-	private static final String PHONE_SETTING_URL = "https://www.google.com/voice/settings/tab/phones?v=514";
+	private static final String PHONE_SETTING_URL = "https://www.google.com/voice/settings/tab/phones?v=518";
 
 	private static Pattern galxPattern = Pattern.compile(
 			".*name=\"GALX\"\\s*value=\"([^\"]*)\".*", Pattern.DOTALL
@@ -80,7 +80,7 @@ public class GoogleVoiceSession implements Serializable {
 	private static final Pattern captchaUrlPattern = Pattern
 			.compile("^CaptchaUrl=(.*)$");
 	private static final Pattern phoneSettingPattern = Pattern
-			.compile("^<json><!\\[CDATA\\[(.*)\\]\\]></json>$");
+			.compile("^\\s*<json><!\\[CDATA\\[(.*)\\]\\]></json>\\s*$");
 
 	private String username;
 	private String password;

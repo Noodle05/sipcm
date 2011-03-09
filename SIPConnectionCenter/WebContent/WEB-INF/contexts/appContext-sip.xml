@@ -8,7 +8,7 @@
 		<lookup-method name="createLocalVoipVendorContext" bean="sipVoipLocalVendorContext" />
 	</bean>
 
-	<bean id="googleVoiceManager" class="com.sipcm.googlevoice.GoogleVoiceManager">
+	<bean id="googleVoiceManager" class="com.sipcm.googlevoice.GoogleVoiceManagerImpl">
 		<lookup-method name="getGoogleVoiceSession" bean="googleVoiceSession" />
 	</bean>
 

@@ -12,9 +12,9 @@ import java.util.Map;
  */
 public class GoogleVoiceConfig implements Serializable {
 	private static final long serialVersionUID = 4829353717172161920L;
-	public Map<Integer, Phone> phones;
-	public int[] phoneList;
-	public Settings settings;
+	private Map<Integer, Phone> phones;
+	private int[] phoneList;
+	private Settings settings;
 
 	/**
 	 * @return the phones
