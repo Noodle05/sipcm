@@ -11,8 +11,8 @@ import java.io.Serializable;
  */
 public class TimeRange implements Serializable {
 	private static final long serialVersionUID = 7935981654988757449L;
-	public boolean allDay;
-	public Time[] times;
+	private boolean allDay;
+	private Time[] times;
 
 	/**
 	 * @return the allDay

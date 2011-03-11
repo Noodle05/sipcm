@@ -9,7 +9,7 @@
 			url="#{request.contextPath}/member/profile.jsf" />
 		<sec:ifAllGranted roles="ROLE_CALLER">
 			<p:menuitem value="#{messages['member.menu.voip.profile']}"
-				url="#{request.contextPath}/member/voipprofile.jsf" />
+				url="#{request.contextPath}/member/voipsetting.jsf" />
 		</sec:ifAllGranted>
 		<p:menuitem value="#{messages['member.menu.history']}"
 			url="#{request.contextPath}/member/history.jsf" />

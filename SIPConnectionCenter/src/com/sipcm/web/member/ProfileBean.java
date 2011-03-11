@@ -21,6 +21,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
 import org.slf4j.Logger;
@@ -450,7 +451,7 @@ public class ProfileBean implements Serializable {
 		return JSFUtils.getAvailableLocales();
 	}
 
-	public String[] getAvailableTimeZones() {
+	public SelectItem[] getAvailableTimeZones() {
 		return JSFUtils.getAvailableTimeZones();
 	}
 }

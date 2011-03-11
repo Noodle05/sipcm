@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	template="/WEB-INF/templates/memberLayout.xhtml">
+	<ui:define name="windowTitle">#{messages['member.title']}</ui:define>
+	<ui:define name="memberContent">
+		<f:view contentType="text/html">
+			<h:form>
+				<p:wizard widgetVar="wiz"
+					flowListener="#{voipSettingWizardBean.onFlowProcess}"
+					nextLabel="#{messages['wizard.next']}"
+					backLabel="#{messages['wizard.back']}" showStepStatus="true">
+					<p:tab id="gv-initial"
+						title="#{messages['member.voip.wizard.gv.initial']}">
+						<p:panel
+							header="#{messages['member.voip.wizard.gv.initial.header']}">
+							<p:messages errorClass="error" showDetail="true" />
+							<h:panelGrid columns="2" columnClasses="label, value"
+								styleClass="grid">
+								<h:outputLabel for="gvAccount"
+									value="#{messages['member.voip.wizard.gv.account']}" />
+								<p:inputText id="gvAccount" required="true"
+									requiredMessage="#{messages['member.voip.wizard.error.gv.account.required']}"
+									label="#{messages['member.voip.wizard.gv.account']}"
+									value="#{voipSettingWizardBean.gvAccount}" />
+								<h:outputLabel for="gvPass"
+									value="#{messages['member.voip.wizard.gv.password']}" />
+								<p:password id="gvPass" feedback="false"
+									label="#{messages['member.voip.wizard.gv.password']}"
+									value="#{voipSettingWizardBean.gvPass}" />
+							</h:panelGrid>
+						</p:panel>
+					</p:tab>
+
+					<p:tab id="gv-setting"
+						title="#{messages['member.voip.wizard.basic.setting']}">
+						<p:panel
+							header="#{messages['member.voip.wizard.basic.setting.header']}">
+							<p:messages errorClass="error" />
+							<h:panelGrid columns="2" columnClasses="label, value"
+								styleClass="grid">
+								<h:outputLabel for="sipNumber"
+									value="#{messages['member.voip.wizard.phone.number']}" />
+								<p:inputMask id="sipNumber"
+									label="#{messages['member.voip.wizard.phone.number']}"
+									value="#{voipSettingWizardBean.sipNumber}" required="true"
+									mask="(999) 999-9999" converter="#{naPhoneNumberConverter}"
+									requiredMessage="#{messages['member.sipprofile.error.phonenumber.required']}" />
+								<h:outputLabel for="sipAreaCode"
+									value="#{messages['member.voip.wizard.area.code']}" />
+								<p:inputMask id="sipAreaCode"
+									label="#{messages['member.voip.wizard.area.code']}"
+									value="#{voipSettingWizardBean.sipAreaCode}" mask="999"
+									required="true"
+									requiredMessage="#{messages['member.sipprofile.error.areacode.required']}" />
+								<h:outputLabel for="sipAllowInternal"
+									value="#{messages['member.voip.wizard.allow.inernal']}" />
+								<h:selectBooleanCheckbox id="sipAllowInternal"
+									value="#{voipSettingWizardBean.sipAllowInternal}" />
+								<h:outputLabel for="gvName"
+									value="#{messages['member.voip.wizard.gv.name']}" />
+								<p:inputText id="gvName" required="true"
+									label="#{messages['member.voip.wizard.gv.name']}"
+									value="#{voipSettingWizardBean.gvName}"
+									requiredMessage="#{messages['member.voip.wizard.error.gv.name.required']}" />
+								<h:outputLabel for="gvNumber"
+									value="#{messages['member.voip.wizard.gv.number']}" />
+								<p:inputMask id="gvNumber"
+									label="#{messages['member.voip.wizard.gv.number']}"
+									value="#{voipSettingWizardBean.gvNumber}" required="true"
+									mask="(999) 999-9999" converter="#{naPhoneNumberConverter}"
+									requiredMessage="#{messages['member.voip.error.googlevoice.phonenumber.required']}" />
+								<h:outputLabel for="gvCallback"
+									value="#{messages['member.voip.wizard.gv.callback']}" />
+								<p:inputMask id="gvCallback"
+									label="#{messages['member.voip.wizard.gv.callback']}"
+									value="#{voipSettingWizardBean.gvCallback}" required="true"
+									mask="(999) 999-9999" converter="#{naPhoneNumberConverter}"
+									autocomplet="#{viopSettingWizardBean.completeCallback}"
+									requiredMessage="#{messages['member.voip.error.googlevoice.callback.required']}" />
+								<h:outputLabel for="gvCallbackType"
+									value="#{messages['member.voip.wizard.gv.callback.type']}" />
+								<h:selectOneMenu id="gvCallbackType"
+									value="#{voipSettingWizardBean.gvCallbackType}">
+									<f:selectItems value="#{voipSettingWizardBean.gvCallbackTypes}" />
+								</h:selectOneMenu>
+								<h:outputLabel for="inc"
+									value="#{messages['member.voip.wizard.has.income']}" />
+								<h:selectBooleanCheckbox id="inc"
+									value="#{voipSettingWizardBean.hasIncome}" />
+								<h:outputLabel for="out"
+									value="#{messages['member.voip.wizard.has.outgo']}" />
+								<h:selectBooleanCheckbox id="out"
+									value="#{voipSettingWizardBean.hasOutgo}" />
+							</h:panelGrid>
+						</p:panel>
+					</p:tab>
+
+					<p:tab id="incoming-setting"
+						title="#{messages['member.voip.wizard.income.setting']}">
+						<p:panel
+							header="#{messages['member.voip.wizard.income.setting.header']}">
+							<p:messages errorClass="error" />
+							<h:panelGrid columns="2" columnClasses="label, value"
+								styleClass="grid">
+								<h:outputLabel for="inVendor"
+									value="#{messages['member.voip.wizard.income.vendor']}" />
+								<h:selectOneMenu id="inVendor"
+									value="#{voipSettingWizardBean.inVendor}"
+									converter="#{voipVendorConverter}">
+									<f:selectItems value="#{voipSettingWizardBean.sipVendors}"
+										var="v" itemLabel="#{v.name}" />
+								</h:selectOneMenu>
+								<h:outputLabel for="inName"
+									value="#{messages['member.voip.wizard.income.name']}" />
+								<p:inputText id="inName" required="true"
+									label="#{messages['member.voip.wizard.income.name']}"
+									value="#{voipSettingWizardBean.inName}"
+									requiredMessage="#{messages['member.voip.wizard.error.in.name.required']}" />
+								<h:outputLabel for="inAccount"
+									value="#{messages['member.voip.wizard.income.account']}" />
+								<p:inputText id="inAccount" required="true"
+									label="#{messages['member.voip.wizard.income.name']}"
+									value="#{voipSettingWizardBean.inAccount}"
+									requiredMessage="#{messages['member.voip.wizard.error.in.account.required']}" />
+								<h:outputLabel for="inPass"
+									value="#{messages['member.voip.wizard.income.password']}" />
+								<p:password id="inPass" feedback="false"
+									label="#{messages['member.voip.wizard.income.password']}"
+									value="#{voipSettingWizardBean.inPass}" />
+								<h:outputLabel for="inNumber"
+									value="#{messages['member.voip.wizard.income.number']}" />
+								<p:inputMask id="inNumber" required="true"
+									label="#{messages['member.voip.wizard.income.number']}"
+									requiredMessage="#{messages['member.voip.wizard.error.in.number.required']}"
+									value="#{voipSettingWizardBean.inNumber}" mask="(999) 999-9999"
+									converter="#{naPhoneNumberConverter}" />
+								<h:outputLabel for="inOut"
+									value="#{messages['member.voip.wizard.income.outtoo']}" />
+								<h:selectBooleanCheckbox id="inOut"
+									value="#{voipSettingWizardBean.inOut}" />
+							</h:panelGrid>
+						</p:panel>
+					</p:tab>
+
+					<p:tab id="outgoing-setting"
+						title="#{messages['member.voip.wizard.outgo.setting']}">
+						<p:panel
+							header="#{messages['member.voip.wizard.outgo.setting.header']}">
+							<p:messages errorClass="error" />
+							<h:panelGrid columns="2" columnClasses="label, value"
+								styleClass="grid">
+								<h:outputLabel for="outVendor"
+									value="#{messages['member.voip.wizard.outgo.vendor']}" />
+								<h:selectOneMenu id="outVendor"
+									value="#{voipSettingWizardBean.outVendor}"
+									converter="#{voipVendorConverter}">
+									<f:selectItems value="#{voipSettingWizardBean.sipVendors}"
+										var="v" itemLabel="#{v.name}" />
+								</h:selectOneMenu>
+								<h:outputLabel for="outName"
+									value="#{messages['member.voip.wizard.outgo.name']}" />
+								<p:inputText id="outName" required="true"
+									label="#{messages['member.voip.wizard.outgo.name']}"
+									value="#{voipSettingWizardBean.outName}"
+									requiredMessage="#{messages['member.voip.wizard.error.out.name.required']}" />
+								<h:outputLabel for="outAccount"
+									value="#{messages['member.voip.wizard.outgo.account']}" />
+								<p:inputText id="outAccount" required="true"
+									label="#{messages['member.voip.wizard.outgo.account']}"
+									value="#{voipSettingWizardBean.outAccount}"
+									requiredMessage="#{messages['member.voip.wizard.error.out.account.required']}" />
+								<h:outputLabel for="outPass"
+									value="#{messages['member.voip.wizard.outgo.password']}" />
+								<p:password id="outPass" feedback="false"
+									label="#{messages['member.voip.wizard.outgo.password']}"
+									value="#{voipSettingWizardBean.outPass}" />
+								<h:outputLabel for="outNumber"
+									value="#{messages['member.voip.wizard.outgo.number']}" />
+								<p:inputMask id="outNumber"
+									label="#{messages['member.voip.wizard.outgo.number']}"
+									value="#{voipSettingWizardBean.outNumber}"
+									mask="(999) 999-9999" converter="#{naPhoneNumberConverter}" />
+							</h:panelGrid>
+						</p:panel>
+					</p:tab>
+
+					<p:tab id="confirm"
+						title="#{messages['member.voip.wizard.confirm']}">
+						<p:messages errorClass="error" />
+						<p:panel
+							header="#{messages['member.voip.wizard.sip.setting.header']}">
+							<h:panelGrid columns="2">
+								<h:outputText
+									value="#{messages['member.voip.wizard.phone.number']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.sipNumber}"
+									converter="#{naPhoneNumberConverter}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.area.code']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.sipAreaCode}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.allow.inernal']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.sipAllowInternal}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.gv.verified']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.gvVerified}" />
+							</h:panelGrid>
+						</p:panel>
+						<p:panel
+							header="#{messages['member.voip.wizard.gv.setting.header']}">
+							<h:panelGrid columns="2">
+								<h:outputText value="#{messages['member.voip.wizard.gv.name']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.gvName}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.gv.account']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.gvAccount}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.gv.number']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.gvNumber}"
+									converter="#{naPhoneNumberConverter}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.gv.callback']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.gvCallback}"
+									converter="#{naPhoneNumberConverter}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.gv.callback.type']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.gvCallbackType}" />
+							</h:panelGrid>
+						</p:panel>
+						<p:panel
+							header="#{messages['member.voip.wizard.income.setting.header']}"
+							rendered="#{voipSettingWizardBean.hasIncome}">
+							<h:panelGrid columns="2">
+								<h:outputText
+									value="#{messages['member.voip.wizard.income.vendor']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.inVendor.name}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.income.name']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.inName}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.income.account']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.inAccount}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.income.number']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.inNumber}"
+									converter="#{naPhoneNumberConverter}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.income.outtoo']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.inOut}" />
+							</h:panelGrid>
+						</p:panel>
+						<p:panel
+							header="#{messages['member.voip.wizard.outgo.setting.header']}"
+							rendered="#{voipSettingWizardBean.hasOutgo}">
+							<h:panelGrid columns="2">
+								<h:outputText
+									value="#{messages['member.voip.wizard.outgo.vendor']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.outVendor.name}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.outgo.name']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.outName}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.outgo.account']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.outAccount}" />
+								<h:outputText
+									value="#{messages['member.voip.wizard.outgo.number']}" />
+								<h:outputText styleClass="outputLabel"
+									value="#{voipSettingWizardBean.outNumber}"
+									converter="#{naPhoneNumberConverter}" />
+							</h:panelGrid>
+						</p:panel>
+						<p:commandButton ajax="true" id="submit" styleClass="submit"
+							value="#{messages['member.voip.wizard.submit']}"
+							action="#{voipSettingWizardBean.save}"
+							disabled="#{voipSettingWizardBean.saveDisabled}" immediate="true" />
+					</p:tab>
+				</p:wizard>
+
+				<p:ajaxStatus>
+					<f:facet name="start">
+						<h:graphicImage library="images" name="ajaxloading.gif" />
+					</f:facet>
+
+					<f:facet name="complete">
+						<h:outputText value=" " />
+					</f:facet>
+				</p:ajaxStatus>
+
+				<h:outputLink value="/member/voipprofile.jsf">
+					<h:outputText value="#{messages['member.voip.wizard.advance']}" />
+				</h:outputLink>
+
+			</h:form>
+		</f:view>
+	</ui:define>
+</ui:composition>

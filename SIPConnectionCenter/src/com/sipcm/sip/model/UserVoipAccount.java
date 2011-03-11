@@ -69,12 +69,16 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	@Column(name = "callback_number", length = 32)
 	private String callBackNumber;
 
+	@Basic
+	@Column(name = "callback_type")
+	private Integer callBackType;
+
 	@Enumerated
 	@Column(name = "type", nullable = false)
 	private VoipAccountType type;
 
 	@Basic
-	@Column(name = "online", nullable = false)
+	@Column(name = "online", insertable = false, updatable = false)
 	private boolean online;
 
 	/**
@@ -96,14 +100,14 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 
 	/**
 	 * @param owner
-	 *            the ownser to set
+	 *            the owner to set
 	 */
-	public void setOwnser(UserSipProfile owner) {
+	public void setOwner(UserSipProfile owner) {
 		this.owner = owner;
 	}
 
 	/**
-	 * @return the ownser
+	 * @return the owner
 	 */
 	public UserSipProfile getOwner() {
 		return owner;
@@ -197,6 +201,21 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	 */
 	public String getPhoneNumber() {
 		return phoneNumber;
+	}
+
+	/**
+	 * @param callBackType
+	 *            the callBackType to set
+	 */
+	public void setCallBackType(Integer callBackType) {
+		this.callBackType = callBackType;
+	}
+
+	/**
+	 * @return the callBackType
+	 */
+	public Integer getCallBackType() {
+		return callBackType;
 	}
 
 	/**

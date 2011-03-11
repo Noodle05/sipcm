@@ -41,8 +41,7 @@ body {
 }
 
 .nav-menu li a {
-	background: url("#{resource['images/background.png']}") #fff bottom left
-		repeat-x;
+	/*	background: url("#{resource['images/background.png']}") #fff bottom left repeat-x; */
 	height: 1.25em;
 	line-height: 1.25em;
 	float: left;

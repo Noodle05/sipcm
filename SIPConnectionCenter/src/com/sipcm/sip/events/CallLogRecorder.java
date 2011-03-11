@@ -303,7 +303,7 @@ public class CallLogRecorder implements CallEventListener {
 		callLog.setStartTime(event.getCallStartEvent().getStartTime());
 		callLog.setDuration(event.getDuration());
 		callLog.setVoipAccount(event.getCallStartEvent().getAccount());
-		callLog.setStatus(CallStatus.CANCELLED);
+		callLog.setStatus(CallStatus.CANCELED);
 		callLog.setPartner(event.getCallStartEvent().getPartner());
 		callLog.setOwner(event.getCallStartEvent().getUserSipProfile());
 		callLog.setErrorCode(event.getErrorCode());
@@ -336,7 +336,7 @@ public class CallLogRecorder implements CallEventListener {
 		callLog.setStartTime(event.getCallStartEvent().getStartTime());
 		callLog.setDuration(event.getDuration());
 		callLog.setVoipAccount(event.getCallStartEvent().getAccount());
-		callLog.setStatus(CallStatus.CANCELLED);
+		callLog.setStatus(CallStatus.CANCELED);
 		callLog.setPartner(event.getCallStartEvent().getPartner());
 		callLog.setOwner(event.getCallStartEvent().getUserSipProfile());
 		callLog.setErrorCode(event.getErrorCode());

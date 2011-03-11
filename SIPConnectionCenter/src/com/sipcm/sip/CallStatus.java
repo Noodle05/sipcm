@@ -8,5 +8,5 @@ package com.sipcm.sip;
  * 
  */
 public enum CallStatus {
-	SUCCESS, CANCELLED, FAILED;
+	SUCCESS, CANCELED, FAILED;
 }

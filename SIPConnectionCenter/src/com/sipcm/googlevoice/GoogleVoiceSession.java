@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -62,7 +63,7 @@ public class GoogleVoiceSession implements Serializable {
 	private static final String CALL_URL = "https://www.google.com/voice/call/connect/";
 	private static final String CONCEL_URL = "https://www.google.com/voice/call/cancel/";
 	private static final String LOGOUT_URL = "https://www.google.com/accounts/Logout";
-	private static final String PHONE_SETTING_URL = "https://www.google.com/voice/settings/tab/phones?v=518";
+	private static final String PHONE_SETTING_URL = "https://www.google.com/voice/settings/tab/phones?v={0}";
 
 	private static Pattern galxPattern = Pattern.compile(
 			".*name=\"GALX\"\\s*value=\"([^\"]*)\".*", Pattern.DOTALL
@@ -74,6 +75,8 @@ public class GoogleVoiceSession implements Serializable {
 
 	private static final Pattern rnr_sePattern = Pattern
 			.compile("^\\s*'_rnr_se':\\s*'(.*)',\\s*$");
+	private static final Pattern v_Pattern = Pattern
+			.compile("^\\s*'v':\\s*'(\\d+)',\\s*$");
 	private static final Pattern errorPattern = Pattern.compile("^Error=(.*)$");
 	private static final Pattern captchaTokenPattern = Pattern
 			.compile("^CaptchaToken=(.*)$");
@@ -87,6 +90,7 @@ public class GoogleVoiceSession implements Serializable {
 	private String myNumber;
 	private HttpClient httpClient;
 	private String rnrSe;
+	private int version = 518;
 	private int maxRetry = 1;
 	private volatile boolean cancelCall;
 	private volatile boolean loggedIn;
@@ -169,12 +173,27 @@ public class GoogleVoiceSession implements Serializable {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					response.getEntity().getContent()));
 			try {
+				boolean rnrSet = false;
+				boolean versionSet = false;
 				String tmp = null;
-				while ((tmp = reader.readLine()) != null) {
-					Matcher m = rnr_sePattern.matcher(tmp);
-					if (m.matches()) {
-						rnrSe = m.group(1);
-						break;
+				while (((tmp = reader.readLine()) != null)
+						&& (!rnrSet || !versionSet)) {
+					if (!rnrSet) {
+						Matcher m = rnr_sePattern.matcher(tmp);
+						if (m.matches()) {
+							rnrSe = m.group(1);
+							rnrSet = true;
+							continue;
+						}
+					}
+					if (!versionSet) {
+						Matcher m = v_Pattern.matcher(tmp);
+						if (m.matches()) {
+							String s = m.group(1);
+							version = Integer.parseInt(s);
+							versionSet = true;
+							continue;
+						}
 					}
 				}
 			} catch (IOException e) {
@@ -296,7 +315,9 @@ public class GoogleVoiceSession implements Serializable {
 
 	public GoogleVoiceConfig getGoogleVoiceSetting()
 			throws ClientProtocolException, IOException {
-		HttpGet request = new HttpGet(PHONE_SETTING_URL);
+		String phoneSettingUrl = MessageFormat.format(PHONE_SETTING_URL,
+				version);
+		HttpGet request = new HttpGet(phoneSettingUrl);
 		HttpResponse response = httpClient.execute(request);
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -431,6 +452,10 @@ public class GoogleVoiceSession implements Serializable {
 				"Error happened when parse error page. Cannot find error code.");
 	}
 
+	public boolean isLoggedIn() {
+		return loggedIn;
+	}
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
@@ -445,5 +470,12 @@ public class GoogleVoiceSession implements Serializable {
 
 	public String getMyNumber() {
 		return myNumber;
+	}
+
+	/**
+	 * @return the version
+	 */
+	public int getVersion() {
+		return version;
 	}
 }

@@ -11,32 +11,32 @@ import java.io.Serializable;
  */
 public class Phone implements Serializable {
 	private static final long serialVersionUID = 8492160082174038129L;
-	public int id;
-	public String name;
-	public String phoneNumber;
-	public int type;
-	public boolean verified;
-	public transient int policyBitmask;
-	public transient boolean dEPRECATEDDisabled;
-	public boolean telephonyVerified;
-	public transient boolean smsEnabled;
-	public transient String incomingAccessNumber;
-	public transient boolean voicemailForwardingVerified;
-	public transient int behaviorOnRedirect;
-	public transient String carrier;
-	public transient int customOverrideState;
-	public boolean inVerification;
-	public String formattedNumber;
-	public transient TimeRange wd;
-	public transient TimeRange we;
-	public transient String scheduleSet;
-	public transient boolean weekdayAllDay;
-	public transient Time[] weekdayTimes;
-	public transient boolean weekendAllDay;
-	public transient Time[] weekendTimes;
-	public transient boolean redirectToVoicemail;
-	public boolean active;
-	public boolean enabledForOthers;
+	private int id;
+	private String name;
+	private String phoneNumber;
+	private int type;
+	private boolean verified;
+	private transient int policyBitmask;
+	private transient boolean dEPRECATEDDisabled;
+	private boolean telephonyVerified;
+	private transient boolean smsEnabled;
+	private transient String incomingAccessNumber;
+	private transient boolean voicemailForwardingVerified;
+	private transient int behaviorOnRedirect;
+	private transient String carrier;
+	private transient int customOverrideState;
+	private boolean inVerification;
+	private String formattedNumber;
+	private transient TimeRange wd;
+	private transient TimeRange we;
+	private transient String scheduleSet;
+	private transient boolean weekdayAllDay;
+	private transient Time[] weekdayTimes;
+	private transient boolean weekendAllDay;
+	private transient Time[] weekendTimes;
+	private transient boolean redirectToVoicemail;
+	private boolean active;
+	private boolean enabledForOthers;
 
 	/**
 	 * @return the id

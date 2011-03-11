@@ -16,7 +16,6 @@ import javax.faces.component.UISelectBoolean;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ComponentSystemEvent;
-import javax.faces.model.SelectItem;
 
 import org.primefaces.model.LazyDataModel;
 
@@ -34,14 +33,6 @@ import com.sipcm.web.util.Messages;
 public class CallLogBean implements Serializable {
 	private static final long serialVersionUID = -5169706526984150588L;
 
-	public static final String CALLTYPE_INCOMING_KEY = "member.calllog.type.incoming";
-	public static final String CALLTYPE_OUTGOING_KEY = "member.calllog.type.outgoing";
-	public static final String CALLTYPE_BOTH_KEY = "member.calllog.type.both";
-
-	public static final String CALLTYPE_INCOMING = "Incoming";
-	public static final String CALLTYPE_OUTGOING = "Outgoing";
-	public static final String CALLTYPE_BOTH = "Both";
-
 	private CallLogLazyDataModel lazyModel = new CallLogLazyDataModel();
 
 	private CallLog selectedCallLog;
@@ -50,13 +41,17 @@ public class CallLogBean implements Serializable {
 
 	private Date endDate;
 
-	private boolean includeConnected;
+	private boolean includeInConnected;
 
-	private boolean includeFailed;
+	private boolean includeInFailed;
 
-	private boolean includeCancelled;
+	private boolean includeInCanceled;
 
-	private String callType;
+	private boolean includeOutConnected;
+
+	private boolean includeOutFailed;
+
+	private boolean includeOutCanceled;
 
 	@PostConstruct
 	public void init() {
@@ -69,17 +64,21 @@ public class CallLogBean implements Serializable {
 		c.set(Calendar.MILLISECOND, 0);
 		startDate = c.getTime();
 		endDate = null;
-		includeConnected = true;
-		includeFailed = false;
-		includeCancelled = false;
-		callType = CALLTYPE_BOTH;
-		lazyModel.init(user, startDate, endDate, includeConnected,
-				includeFailed, includeCancelled, callType);
+		includeInConnected = true;
+		includeInFailed = false;
+		includeInCanceled = true;
+		includeOutConnected = true;
+		includeOutFailed = true;
+		includeOutCanceled = false;
+		lazyModel.init(user, startDate, endDate, includeInConnected,
+				includeInFailed, includeInCanceled, includeOutConnected,
+				includeOutFailed, includeOutCanceled);
 	}
 
 	public void updateFilter(ActionEvent actionEvent) {
 		lazyModel.init(JSFUtils.getCurrentUser(), startDate, endDate,
-				includeConnected, includeFailed, includeCancelled, callType);
+				includeInConnected, includeInFailed, includeInCanceled,
+				includeOutConnected, includeOutFailed, includeOutCanceled);
 		FacesMessage message = Messages.getMessage(
 				"member.call.log.search.updated", FacesMessage.SEVERITY_INFO);
 		FacesContext.getCurrentInstance().addMessage(null, message);
@@ -87,14 +86,21 @@ public class CallLogBean implements Serializable {
 
 	public void validateStatus(ComponentSystemEvent event) {
 		UIComponent components = event.getComponent();
-		UISelectBoolean connected = (UISelectBoolean) components
-				.findComponent("includeConnected");
-		UISelectBoolean failed = (UISelectBoolean) components
-				.findComponent("includeFailed");
-		UISelectBoolean cancelled = (UISelectBoolean) components
-				.findComponent("includeCancelled");
-		if (!connected.isSelected() && !failed.isSelected()
-				&& !cancelled.isSelected()) {
+		UISelectBoolean inConnected = (UISelectBoolean) components
+				.findComponent("includeInConnected");
+		UISelectBoolean inFailed = (UISelectBoolean) components
+				.findComponent("includeInFailed");
+		UISelectBoolean inCanceled = (UISelectBoolean) components
+				.findComponent("includeInCanceled");
+		UISelectBoolean outConnected = (UISelectBoolean) components
+				.findComponent("includeOutConnected");
+		UISelectBoolean outFailed = (UISelectBoolean) components
+				.findComponent("includeOutFailed");
+		UISelectBoolean outCanceled = (UISelectBoolean) components
+				.findComponent("includeOutCanceled");
+		if (!inConnected.isSelected() && !inFailed.isSelected()
+				&& !inCanceled.isSelected() && !outConnected.isSelected()
+				&& !outFailed.isSelected() && !outCanceled.isSelected()) {
 			FacesMessage message = Messages.getMessage(
 					"member.call.log.status.required",
 					FacesMessage.SEVERITY_ERROR);
@@ -156,73 +162,92 @@ public class CallLogBean implements Serializable {
 	}
 
 	/**
-	 * @param includeConnected
-	 *            the includeConnected to set
+	 * @param includeInConnected
+	 *            the includeInConnected to set
 	 */
-	public void setIncludeConnected(boolean includeConnected) {
-		this.includeConnected = includeConnected;
+	public void setIncludeInConnected(boolean includeInConnected) {
+		this.includeInConnected = includeInConnected;
 	}
 
 	/**
-	 * @return the includeConnected
+	 * @return the includeInConnected
 	 */
-	public boolean isIncludeConnected() {
-		return includeConnected;
+	public boolean isIncludeInConnected() {
+		return includeInConnected;
 	}
 
 	/**
-	 * @param includeFailed
-	 *            the includeFailed to set
+	 * @param includeInFailed
+	 *            the includeInFailed to set
 	 */
-	public void setIncludeFailed(boolean includeFailed) {
-		this.includeFailed = includeFailed;
+	public void setIncludeInFailed(boolean includeInFailed) {
+		this.includeInFailed = includeInFailed;
 	}
 
 	/**
-	 * @return the includeFailed
+	 * @return the includeInFailed
 	 */
-	public boolean isIncludeFailed() {
-		return includeFailed;
+	public boolean isIncludeInFailed() {
+		return includeInFailed;
 	}
 
 	/**
-	 * @param includeCancelled
-	 *            the includeCancelled to set
+	 * @param includeInCanceled
+	 *            the includeInCanceled to set
 	 */
-	public void setIncludeCancelled(boolean includeCancelled) {
-		this.includeCancelled = includeCancelled;
+	public void setIncludeInCanceled(boolean includeInCanceled) {
+		this.includeInCanceled = includeInCanceled;
 	}
 
 	/**
-	 * @return the includeCancelled
+	 * @return the includeInCanceled
 	 */
-	public boolean isIncludeCancelled() {
-		return includeCancelled;
+	public boolean isIncludeInCanceled() {
+		return includeInCanceled;
 	}
 
 	/**
-	 * @param callType
-	 *            the callType to set
+	 * @param includeOutConnected
+	 *            the includeOutConnected to set
 	 */
-	public void setCallType(String callType) {
-		this.callType = callType;
+	public void setIncludeOutConnected(boolean includeOutConnected) {
+		this.includeOutConnected = includeOutConnected;
 	}
 
 	/**
-	 * @return the callType
+	 * @return the includeOutConnected
 	 */
-	public String getCallType() {
-		return callType;
+	public boolean isIncludeOutConnected() {
+		return includeOutConnected;
 	}
 
-	public SelectItem[] getCallTypes() {
-		SelectItem[] types = new SelectItem[3];
-		types[0] = new SelectItem(CALLTYPE_INCOMING, Messages.getString(null,
-				CALLTYPE_INCOMING_KEY, null));
-		types[1] = new SelectItem(CALLTYPE_OUTGOING, Messages.getString(null,
-				CALLTYPE_OUTGOING_KEY, null));
-		types[2] = new SelectItem(CALLTYPE_BOTH, Messages.getString(null,
-				CALLTYPE_BOTH_KEY, null));
-		return types;
+	/**
+	 * @param includeOutFailed
+	 *            the includeOutFailed to set
+	 */
+	public void setIncludeOutFailed(boolean includeOutFailed) {
+		this.includeOutFailed = includeOutFailed;
+	}
+
+	/**
+	 * @return the includeOutFailed
+	 */
+	public boolean isIncludeOutFailed() {
+		return includeOutFailed;
+	}
+
+	/**
+	 * @param includeOutCanceled
+	 *            the includeOutCanceled to set
+	 */
+	public void setIncludeOutCanceled(boolean includeOutCanceled) {
+		this.includeOutCanceled = includeOutCanceled;
+	}
+
+	/**
+	 * @return the includeOutCanceled
+	 */
+	public boolean isIncludeOutCanceled() {
+		return includeOutCanceled;
 	}
 }

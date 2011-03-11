@@ -16,11 +16,12 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ import com.sipcm.web.util.Messages;
  * 
  */
 @ManagedBean(name = "registrationBean")
-@SessionScoped
+@ViewScoped
 public class RegistrationBean implements Serializable {
 	private static final long serialVersionUID = -6419289187735553748L;
 
@@ -72,7 +73,7 @@ public class RegistrationBean implements Serializable {
 	private transient UserActivationService userActivationService;
 
 	@ManagedProperty("#{registrationInvitationService}")
-	private RegistrationInvitationService invitationService;
+	private transient RegistrationInvitationService invitationService;
 
 	private String username;
 
@@ -110,7 +111,7 @@ public class RegistrationBean implements Serializable {
 	public String register() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		RegistrationInvitation invitation = null;
-		if (appConfig.isRegisterByInviteOnly()) {
+		if (getAppConfig().isRegisterByInviteOnly()) {
 			if (invitationCode == null) {
 				FacesMessage message = Messages.getMessage(
 						"register.error.by.invitation.only",
@@ -118,7 +119,8 @@ public class RegistrationBean implements Serializable {
 				context.addMessage("registrationForm:invitationCode", message);
 				return null;
 			}
-			invitation = invitationService.getInvitationByCode(invitationCode);
+			invitation = getInvitationService().getInvitationByCode(
+					invitationCode);
 			if (invitation == null) {
 				FacesMessage message = Messages.getMessage(
 						"register.error.invalid.invitation.code",
@@ -198,8 +200,7 @@ public class RegistrationBean implements Serializable {
 			context.addMessage(null, message);
 			break;
 		}
-		context.getExternalContext().getSessionMap().remove("registrationBean");
-		return "success";
+		return "/success.jsf?faces-redirect=true";
 	}
 
 	public void validateUsername(FacesContext context,
@@ -361,7 +362,7 @@ public class RegistrationBean implements Serializable {
 	/**
 	 * @return the invitationService
 	 */
-	public RegistrationInvitationService getInvitationService() {
+	private RegistrationInvitationService getInvitationService() {
 		if (invitationService == null) {
 			invitationService = JSFUtils.getManagedBean(
 					"registrationInvitationService",
@@ -524,7 +525,7 @@ public class RegistrationBean implements Serializable {
 		return JSFUtils.getAvailableLocales();
 	}
 
-	public String[] getAvailableTimeZones() {
+	public SelectItem[] getAvailableTimeZones() {
 		return JSFUtils.getAvailableTimeZones();
 	}
 

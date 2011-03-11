@@ -203,7 +203,7 @@ public class VoipAccountSettingBean implements Serializable {
 		String phoneNumber = (String) value;
 		User user = JSFUtils.getCurrentUser();
 		UserSipProfile userSipProfile = getUserSipProfileService()
-				.getUserSipProfileByPhoneNumber(phoneNumber);
+				.getUserSipProfileByVerifiedPhoneNumber(phoneNumber);
 		if (userSipProfile != null && !userSipProfile.getOwner().equals(user)) {
 			FacesMessage message = Messages.getMessage(
 					"member.sipprofile.error.phoneNumber.exists",
@@ -365,7 +365,7 @@ public class VoipAccountSettingBean implements Serializable {
 		try {
 			UserVoipAccount account = getUserVoipAccountService()
 					.createNewEntity();
-			account.setOwnser(userSipProfile);
+			account.setOwner(userSipProfile);
 			selectedVoipAccount = account;
 		} catch (Exception e) {
 			FacesMessage message = new FacesMessage(

@@ -4,6 +4,7 @@
 package com.sipcm.sip.business.impl;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Resource;
 
@@ -81,8 +82,9 @@ public class UserSipProfileServiceImpl extends
 	 */
 	@Override
 	public UserSipProfile getUserSipProfileByUser(User user) {
-		Filter filter = filterFactory.createSimpleFilter("owner", user);
-		return dao.getUniqueEntity(filter);
+		// Filter filter = filterFactory.createSimpleFilter("owner", user);
+		// return dao.getUniqueEntity(filter);
+		return dao.getEntityById(user.getId());
 	}
 
 	/*
@@ -107,13 +109,19 @@ public class UserSipProfileServiceImpl extends
 	 * (java.lang.String)
 	 */
 	@Override
-	public UserSipProfile getUserSipProfileByPhoneNumber(String phoneNumber) {
+	public UserSipProfile getUserSipProfileByVerifiedPhoneNumber(
+			String phoneNumber) {
 		Filter f1 = filterFactory
 				.createSimpleFilter("phoneNumber", phoneNumber);
 		Filter f2 = filterFactory.createSimpleFilter("phoneNumberStatus",
 				PhoneNumberStatus.UNVERIFIED, Filter.Operator.NOT_EQ);
 		Filter filter = f1.appendAnd(f2);
-		return dao.getUniqueEntity(filter);
+		List<UserSipProfile> entities = dao.getEntities(filter, null, null);
+		if (entities != null && !entities.isEmpty()) {
+			return entities.iterator().next();
+		} else {
+			return null;
+		}
 	}
 
 	/*

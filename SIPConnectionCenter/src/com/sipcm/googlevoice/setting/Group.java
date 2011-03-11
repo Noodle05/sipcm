@@ -12,14 +12,14 @@ import java.util.Map;
  */
 public class Group implements Serializable {
 	private static final long serialVersionUID = -2719868681865504624L;
-	public int id;
-	public String name;
-	public Map<Integer, Boolean> disabledForwardingIds;
-	public boolean isCustomForwarding;
-	public boolean isCustomGreeting;
-	public boolean isCustomDirectConnect;
-	public boolean directConnection;
-	public int greetingId;
+	private int id;
+	private String name;
+	private Map<Integer, Boolean> disabledForwardingIds;
+	private boolean isCustomForwarding;
+	private boolean isCustomGreeting;
+	private boolean isCustomDirectConnect;
+	private boolean directConnection;
+	private int greetingId;
 
 	/**
 	 * @return the id

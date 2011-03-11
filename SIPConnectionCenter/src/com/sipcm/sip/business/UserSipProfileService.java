@@ -21,7 +21,8 @@ public interface UserSipProfileService extends Service<UserSipProfile, Long> {
 
 	public UserSipProfile getUserSipProfileByUsername(String username);
 
-	public UserSipProfile getUserSipProfileByPhoneNumber(String phoneNumber);
+	public UserSipProfile getUserSipProfileByVerifiedPhoneNumber(
+			String phoneNumber);
 
 	public void updateOnlineStatus(OnlineStatus onlineStatusm,
 			UserSipProfile... userSipProfiles);

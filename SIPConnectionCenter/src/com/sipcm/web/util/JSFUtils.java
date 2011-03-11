@@ -4,7 +4,7 @@
 package com.sipcm.web.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -15,6 +15,7 @@ import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -22,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.sipcm.common.business.UserService;
 import com.sipcm.common.model.User;
+import com.sipcm.googlevoice.setting.PhoneType;
 import com.sipcm.security.UserDetailsImpl;
 import com.sipcm.web.LocaleTimeZoneHolderBean;
 
@@ -32,35 +34,28 @@ import com.sipcm.web.LocaleTimeZoneHolderBean;
 public abstract class JSFUtils {
 	public static final String NA = "---";
 
-	public static final String[] availableTimeZones = new String[] { NA,
-			"Pacific/Midway", "US/Hawaii", "US/Alaska", "US/Pacific",
-			"America/Tijuana", "US/Arizona", "America/Chihuahua",
-			"US/Mountain", "America/Guatemala", "US/Central",
-			"America/Mexico_City", "Canada/Saskatchewan", "America/Bogota",
-			"US/Eastern", "US/East-Indiana", "Canada/Eastern",
-			"America/Caracas", "America/Manaus", "America/Santiago",
-			"Canada/Newfoundland", "Brazil/East", "America/Buenos_Aires",
-			"America/Godthab", "America/Montevideo", "Atlantic/South_Georgia",
-			"Atlantic/Azores", "Atlantic/Cape_Verde", "Africa/Casablanca",
-			"Europe/London", "Europe/Berlin", "Europe/Belgrade",
-			"Europe/Brussels", "Europe/Warsaw", "Africa/Algiers", "Asia/Amman",
-			"Europe/Athens", "Asia/Beirut", "Africa/Cairo", "Africa/Harare",
-			"Europe/Helsinki", "Asia/Jerusalem", "Europe/Minsk",
-			"Africa/Windhoek", "Asia/Baghdad", "Asia/Kuwait", "Europe/Moscow",
-			"Africa/Nairobi", "Asia/Tbilisi", "Asia/Tehran", "Asia/Muscat",
-			"Asia/Baku", "Asia/Yerevan", "Asia/Kabul", "Asia/Yekaterinburg",
-			"Asia/Karachi", "Asia/Calcutta", "Asia/Colombo", "Asia/Katmandu",
-			"Asia/Novosibirsk", "Asia/Dhaka", "Asia/Rangoon", "Asia/Bangkok",
-			"Asia/Krasnoyarsk", "Asia/Hong_Kong", "Asia/Irkutsk",
-			"Asia/Kuala_Lumpur", "Australia/Perth", "Asia/Taipei",
-			"Asia/Tokyo", "Asia/Seoul", "Asia/Yakutsk", "Australia/Adelaide",
-			"Australia/Darwin", "Australia/Brisbane", "Australia/Sydney",
-			"Pacific/Guam", "Australia/Hobart", "Asia/Vladivostok",
-			"Asia/Magadan", "Pacific/Auckland", "Pacific/Fiji",
-			"Pacific/Tongatapu" };
-	static {
-		Arrays.sort(availableTimeZones);
-	}
+	public static final Map<Locale, SelectItem[]> availableTimeZones = new HashMap<Locale, SelectItem[]>(
+			2);
+	public static final String[] tzids = new String[] { NA, "Pacific/Midway",
+			"US/Hawaii", "US/Alaska", "US/Pacific", "US/Mountain",
+			"US/Central", "America/Bogota", "US/Eastern", "America/Caracas",
+			"America/Manaus", "America/Santiago", "Canada/Newfoundland",
+			"Brazil/East", "America/Buenos_Aires", "America/Godthab",
+			"America/Montevideo", "Atlantic/South_Georgia", "Atlantic/Azores",
+			"Atlantic/Cape_Verde", "Africa/Casablanca", "Europe/London",
+			"Europe/Berlin", "Europe/Athens", "Europe/Moscow",
+			"Asia/Jerusalem", "Africa/Windhoek", "Africa/Harare",
+			"Africa/Nairobi", "Asia/Baghdad", "Asia/Tbilisi", "Asia/Tehran",
+			"Asia/Muscat", "Asia/Baku", "Asia/Yerevan", "Asia/Kabul",
+			"Asia/Yekaterinburg", "Asia/Karachi", "Asia/Calcutta",
+			"Asia/Katmandu", "Asia/Novosibirsk", "Asia/Dhaka", "Asia/Rangoon",
+			"Asia/Bangkok", "Asia/Krasnoyarsk", "Asia/Hong_Kong",
+			"Asia/Irkutsk", "Asia/Kuala_Lumpur", "Australia/Perth",
+			"Asia/Taipei", "Asia/Tokyo", "Asia/Seoul", "Asia/Yakutsk",
+			"Australia/Adelaide", "Australia/Darwin", "Australia/Brisbane",
+			"Australia/Sydney", "Pacific/Guam", "Australia/Hobart",
+			"Asia/Vladivostok", "Asia/Magadan", "Pacific/Auckland",
+			"Pacific/Fiji", "Pacific/Tongatapu" };
 
 	public static final Map<String, Locale> availableLocales = new LinkedHashMap<String, Locale>();
 	static {
@@ -69,6 +64,9 @@ public abstract class JSFUtils {
 		availableLocales.put(Locale.CHINA.getDisplayCountry(Locale.CHINA),
 				Locale.CHINA);
 	}
+
+	public static final Map<Locale, SelectItem[]> availableGvPhoneType = new HashMap<Locale, SelectItem[]>(
+			2);
 
 	public static <T> T getManagedBean(String managedBeanKey, Class<T> clazz)
 			throws IllegalArgumentException {
@@ -167,7 +165,49 @@ public abstract class JSFUtils {
 		return new ArrayList<String>(availableLocales.keySet());
 	}
 
-	public static String[] getAvailableTimeZones() {
-		return availableTimeZones;
+	public static SelectItem[] getAvailableTimeZones() {
+		Locale locale = getCurrentLocale();
+		SelectItem[] ret = availableTimeZones.get(locale);
+		if (ret == null) {
+			synchronized (availableTimeZones) {
+				ret = availableTimeZones.get(locale);
+				if (ret == null) {
+					ret = new SelectItem[tzids.length];
+					for (int i = 0; i < tzids.length; i++) {
+						if (NA.equals(tzids[i])) {
+							ret[i] = new SelectItem(NA, NA);
+						} else {
+							TimeZone t = TimeZone.getTimeZone(tzids[i]);
+							ret[i] = new SelectItem(tzids,
+									t.getDisplayName(locale));
+						}
+					}
+					availableTimeZones.put(locale, ret);
+				}
+			}
+		}
+		return ret;
+	}
+
+	public static SelectItem[] getAvailableGvPhoneType() {
+		Locale locale = getCurrentLocale();
+		SelectItem[] ret = availableGvPhoneType.get(locale);
+		if (ret == null) {
+			synchronized (availableGvPhoneType) {
+				ret = availableGvPhoneType.get(locale);
+				if (ret == null) {
+					ret = new SelectItem[PhoneType.values().length];
+					for (int i = 0; i < PhoneType.values().length; i++) {
+						PhoneType t = PhoneType.values()[i];
+						ret[i] = new SelectItem(t.getValue(),
+								Messages.getString(null,
+										PhoneType.class.getCanonicalName()
+												+ "." + t.name(), null));
+					}
+					availableGvPhoneType.put(locale, ret);
+				}
+			}
+		}
+		return ret;
 	}
 }

@@ -62,13 +62,24 @@ public class VoipVendorServiceImpl extends AbstractService<VoipVendor, Integer>
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.sipcm.sip.business.VoipVendorService#getVoipVendorByName(java.lang
-	 * .String)
+	 * @see com.sipcm.sip.business.VoipVendorService#getGoogleVoiceVendor()
 	 */
 	@Override
-	public VoipVendor getVoipVendorByName(String name) {
-		Filter filter = filterFactory.createSimpleFilter("name", name);
+	public VoipVendor getGoogleVoiceVendor() {
+		Filter filter = filterFactory.createSimpleFilter("type",
+				VoipVendorType.GOOGLE_VOICE);
 		return dao.getUniqueEntity(filter);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.business.VoipVendorService#getSIPVendors()
+	 */
+	@Override
+	public Collection<VoipVendor> getSIPVendors() {
+		Filter filter = filterFactory.createSimpleFilter("type",
+				VoipVendorType.SIP);
+		return dao.getEntities(filter, null, null);
 	}
 }

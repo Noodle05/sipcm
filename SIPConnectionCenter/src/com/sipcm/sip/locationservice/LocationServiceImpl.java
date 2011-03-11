@@ -258,7 +258,7 @@ public class LocationServiceImpl implements LocationService {
 		}
 		if (addresses == null) {
 			UserSipProfile usp = userSipProfileService
-					.getUserSipProfileByPhoneNumber(pn);
+					.getUserSipProfileByVerifiedPhoneNumber(pn);
 			if (usp != null) {
 				addresses = addressBindingService.getAddressBindings(usp);
 				if (addresses != null && !addresses.isEmpty() && !cacheBusy) {

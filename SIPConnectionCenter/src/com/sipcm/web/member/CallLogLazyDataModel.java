@@ -3,9 +3,7 @@
  */
 package com.sipcm.web.member;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -44,61 +42,112 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 	}
 
 	public void init(User user, Date startDate, Date endDate,
-			boolean includeConnected, boolean includeFailed,
-			boolean includeCancelled, String callType) {
+			boolean includeInConnected, boolean includeInFailed,
+			boolean includeInCanceled, boolean includeOutConnected,
+			boolean includeOutFailed, boolean includeOutCanceled) {
 		if (user == null) {
 			throw new NullPointerException("User is required.");
 		}
 		if (startDate == null) {
 			throw new NullPointerException("Start date is required.");
 		}
-		if (!includeConnected && !includeFailed && !includeCancelled) {
+		if (!includeInConnected && !includeInFailed && !includeInCanceled
+				&& !includeOutConnected && !includeOutFailed
+				&& !includeOutCanceled) {
 			throw new IllegalArgumentException("None data selected");
 		}
 		FilterFactory filterFactory = getFilterFactory();
-		Filter filter = filterFactory.createSimpleFilter("owner.owner", user);
-		if (endDate != null) {
-			Filter f = filterFactory.createBetweenFilter("startTime",
-					startDate, endDate);
-			filter = filter.appendAnd(f);
-		} else {
-			Filter f = filterFactory.createSimpleFilter("startTime", startDate,
-					Filter.Operator.GREATER_EQ);
-			filter = filter.appendAnd(f);
+		Filter filter = filterFactory.createSimpleFilter("owner.id",
+				user.getId());
+		Date ed = endDate;
+		if (endDate == null) {
+			Calendar c = Calendar.getInstance();
+			c.add(Calendar.DAY_OF_MONTH, 1);
+			c.set(Calendar.HOUR, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			ed = c.getTime();
 		}
-		List<CallStatus> cs = new ArrayList<CallStatus>();
-		if (includeConnected) {
-			cs.add(CallStatus.SUCCESS);
-		}
-		if (includeFailed) {
-			cs.add(CallStatus.FAILED);
-		}
-		if (includeCancelled) {
-			cs.add(CallStatus.CANCELLED);
-		}
-		if (cs.size() > 0) {
-			if (cs.size() == 1) {
-				Filter f = filterFactory.createSimpleFilter("status", cs
-						.iterator().next());
-				filter = filter.appendAnd(f);
-			} else if (cs.size() < 3) {
-				Collection<CallStatus> css = new ArrayList<CallStatus>(
-						Arrays.asList(CallStatus.values()));
-				css.removeAll(cs);
-				Filter f = filterFactory.createSimpleFilter("status", css
-						.iterator().next(), Filter.Operator.NOT_EQ);
-				filter = filter.appendAnd(f);
-			}
-		}
+		Filter f = filterFactory
+				.createBetweenFilter("startTime", startDate, ed);
+		filter = filter.appendAnd(f);
 
-		if (CallLogBean.CALLTYPE_INCOMING.equalsIgnoreCase(callType)) {
-			Filter f = filterFactory.createSimpleFilter("type",
-					CallType.INCOMING);
-			filter = filter.appendAnd(f);
-		} else if (CallLogBean.CALLTYPE_OUTGOING.equalsIgnoreCase(callType)) {
-			Filter f = filterFactory.createSimpleFilter("type",
-					CallType.OUTGOING);
-			filter = filter.appendAnd(f);
+		if (!includeInConnected || !includeInFailed || !includeInCanceled
+				|| !includeOutConnected || !includeOutFailed
+				|| !includeOutCanceled) {
+			Filter ff = null;
+			if (includeInConnected || includeInFailed || includeInCanceled) {
+				f = filterFactory.createSimpleFilter("type", CallType.INCOMING);
+				if (!includeInConnected || !includeInFailed
+						|| !includeInCanceled) {
+					Filter f1 = null;
+					if (includeInConnected) {
+						f1 = filterFactory.createSimpleFilter("status",
+								CallStatus.SUCCESS);
+					}
+					if (includeInFailed) {
+						if (f1 == null) {
+							f1 = filterFactory.createSimpleFilter("status",
+									CallStatus.FAILED);
+						} else {
+							f1 = f1.appendOr(filterFactory.createSimpleFilter(
+									"status", CallStatus.FAILED));
+						}
+					}
+					if (includeInCanceled) {
+						if (f1 == null) {
+							f1 = filterFactory.createSimpleFilter("status",
+									CallStatus.CANCELED);
+						} else {
+							f1 = f1.appendOr(filterFactory.createSimpleFilter(
+									"status", CallStatus.CANCELED));
+						}
+					}
+					f = f.appendAnd(f1);
+				}
+				ff = f;
+			}
+
+			if (includeOutConnected || includeOutFailed || includeOutCanceled) {
+				f = filterFactory.createSimpleFilter("type", CallType.OUTGOING);
+				if (!includeOutConnected || !includeOutFailed
+						|| !includeOutCanceled) {
+					Filter f1 = null;
+					if (includeOutConnected) {
+						f1 = filterFactory.createSimpleFilter("status",
+								CallStatus.SUCCESS);
+					}
+					if (includeOutFailed) {
+						if (f1 == null) {
+							f1 = filterFactory.createSimpleFilter("status",
+									CallStatus.FAILED);
+						} else {
+							f1 = f1.appendOr(filterFactory.createSimpleFilter(
+									"status", CallStatus.FAILED));
+						}
+					}
+					if (includeOutCanceled) {
+						if (f1 == null) {
+							f1 = filterFactory.createSimpleFilter("status",
+									CallStatus.CANCELED);
+						} else {
+							f1 = f1.appendOr(filterFactory.createSimpleFilter(
+									"status", CallStatus.CANCELED));
+						}
+					}
+					f = f.appendAnd(f1);
+				}
+				if (ff == null) {
+					ff = f;
+				} else {
+					ff = ff.appendOr(f);
+				}
+			}
+
+			if (ff != null) {
+				filter = filter.appendAnd(ff);
+			}
 		}
 
 		baseFilter = filter;
@@ -140,8 +189,9 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 		fsp.setFilter(filter);
 		fsp.setPage(page);
 		fsp.setSort(sort);
-		setRowCount(getCallLogService().getRowCount(filter));
-		return getCallLogService().getEntities(fsp);
+		List<CallLog> callLogs = getCallLogService().getEntities(fsp);
+		setRowCount(page.getTotalRecords());
+		return callLogs;
 	}
 
 	private CallLogService getCallLogService() {

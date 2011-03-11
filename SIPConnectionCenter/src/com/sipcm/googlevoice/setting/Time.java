@@ -11,8 +11,8 @@ import java.io.Serializable;
  */
 public class Time implements Serializable {
 	private static final long serialVersionUID = 5295679858736696007L;
-	public String startTime;
-	public String endTime;
+	private String startTime;
+	private String endTime;
 
 	/**
 	 * @return the startTime

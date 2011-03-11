@@ -15,5 +15,7 @@ import com.sipcm.sip.model.VoipVendor;
 public interface VoipVendorService extends Service<VoipVendor, Integer> {
 	public Collection<VoipVendor> getManagableVoipVendors();
 
-	public VoipVendor getVoipVendorByName(String name);
+	public VoipVendor getGoogleVoiceVendor();
+
+	public Collection<VoipVendor> getSIPVendors();
 }

@@ -11,19 +11,17 @@ import javax.persistence.ColumnResult;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedNativeQuery;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.QueryHint;
 import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 
-import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
 import com.sipcm.common.OnlineStatus;
 import com.sipcm.common.PhoneNumberStatus;
@@ -33,24 +31,21 @@ import com.sipcm.common.model.User;
  * @author wgao
  * 
  */
+@GenericGenerator(name = "userSipProfileGenerator", strategy = "foreign", parameters = @Parameter(name = "property", value = "owner"))
 @SqlResultSetMapping(name = "profileId", columns = @ColumnResult(name = "id"))
 @NamedNativeQuery(name = "checkAddressBindingExpires", query = "call AddressBindingExpires()", resultSetMapping = "profileId", hints = { @QueryHint(name = "org.hibernate.callable", value = "true") })
 @Entity
-@Table(name = "tbl_usersipprofile", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "phonenumber", "deletedate" }),
-		@UniqueConstraint(columnNames = { "user_id", "deletedate" }) })
-@SQLDelete(sql = "UPDATE tbl_usersipprofile SET deletedate = CURRENT_TIMESTAMP WHERE id = ?")
-public class UserSipProfile extends AbstractTrackableEntity implements
-		IdBasedEntity<Long>, Serializable {
+@Table(name = "tbl_usersipprofile")
+public class UserSipProfile implements IdBasedEntity<Long>, Serializable {
 	private static final long serialVersionUID = 6413404008060974272L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id")
+	@GeneratedValue(generator = "userSipProfileGenerator")
+	@Column(name = "id", unique = true, nullable = false)
 	private Long id;
 
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "user_id")
+	@OneToOne
+	@PrimaryKeyJoinColumn
 	private User owner;
 
 	@Enumerated

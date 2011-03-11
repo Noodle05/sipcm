@@ -118,7 +118,7 @@
 							requiredMessage="#{messages['register.error.captcha.required']}" />
 						<p:message id="captchaError" for="captcha" />
 					</h:panelGrid>
-					<p:commandButton ajax="false" id="submit" styleClass="submit"
+					<p:commandButton ajax="true" id="submit" styleClass="submit"
 						value="#{messages['register.submit']}"
 						action="#{registrationBean.register}" />
 				</p:panel>

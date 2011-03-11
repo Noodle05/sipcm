@@ -11,7 +11,7 @@
 	<ui:define name="memberContent">
 		<f:view contentType="text/html">
 			<script type="text/javascript">
-				//          
+				//<![CDATA[
 				function handleSaveAccountRequest(xhr, status, args) {
 					if (args.validationFailed || !args.saved) {
 						jQuery('#accountDialog').parent().effect("shake", {
@@ -21,7 +21,7 @@
 						accountDialog.hide();
 					}
 				}
-				//
+				]]>//
 			</script>
 			<p:growl id="growl" showDetail="true" />
 			<p:panel header="#{messages['member.voip.header']}">

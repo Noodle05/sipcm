@@ -198,7 +198,9 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 		appSession.setAttribute(GV_SESSION, gvSession);
 		try {
 			gvSession.login();
-			if (gvSession.call(phoneNumber, "1")) {
+			String type = account.getCallBackType() == null ? "1" : account
+					.getCallBackType().toString();
+			if (gvSession.call(phoneNumber, type)) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("{} is calling {} by google voice",
 							userSipProfile.getDisplayName(), phoneNumber);

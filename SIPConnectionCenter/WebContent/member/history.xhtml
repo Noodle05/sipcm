@@ -12,45 +12,64 @@
 		<p:growl id="growl" showDetail="true" />
 		<f:view contentType="text/html">
 			<h:form id="searchForm">
+				<f:event listener="#{callLogBean.validateStatus}"
+					type="postValidate" />
 				<p:panel header="#{messages['member.call.log.search.condition']}">
-					<h:panelGrid columns="4">
-						<f:event listener="#{callLogBean.validateStatus}"
-							type="postValidate" />
-						<h:outputLabel for="startDate"
-							value="#{messages['member.call.log.start.date']}" />
-						<p:calendar id="startDate" value="#{callLogBean.startDate}"
-							showOn="button" required="true"
-							requiredMessage="#{messages['member.call.log.start.date.required']}"
-							timeZone="#{localeTimeZoneHolderBean.timeZone}"
-							locale="#{localeTimeZoneHolderBean.locale}"
-							pattern="#{messages['global.date.pattern']}" />
-						<h:outputLabel for="endDate"
-							value="#{messages['member.call.log.end.date']}" />
-						<p:calendar id="endDate" value="#{callLogBean.endDate}"
-							showOn="button" timeZone="#{localeTimeZoneHolderBean.timeZone}"
-							locale="#{localeTimeZoneHolderBean.locale}"
-							pattern="#{messages['global.date.pattern']}" />
-						<h:outputLabel for="callStatus"
-							value="#{messages['member.call.log.status']}" />
-						<h:panelGroup id="callStatus">
-							<h:selectBooleanCheckbox id="includeConnected"
-								value="#{callLogBean.includeConnected}" />
-							<h:outputText
-								value="#{messages['member.call.log.status.connected']}" />
-							<h:selectBooleanCheckbox id="includeFailed"
-								value="#{callLogBean.includeFailed}" />
-							<h:outputText
-								value="#{messages['member.call.log.status.failed']}" />
-							<h:selectBooleanCheckbox id="includeCancelled"
-								value="#{callLogBean.includeCancelled}" />
-							<h:outputText
-								value="#{messages['member.call.log.status.cancelled']}" />
+					<h:panelGrid columns="1">
+						<h:panelGroup>
+							<h:panelGrid columns="4">
+								<h:outputLabel for="startDate"
+									value="#{messages['member.call.log.start.date']}" />
+								<p:calendar id="startDate" value="#{callLogBean.startDate}"
+									showOn="button" required="true"
+									requiredMessage="#{messages['member.call.log.start.date.required']}"
+									timeZone="#{localeTimeZoneHolderBean.timeZone}"
+									locale="#{localeTimeZoneHolderBean.locale}"
+									pattern="#{messages['global.date.pattern']}" />
+								<h:outputLabel for="endDate"
+									value="#{messages['member.call.log.end.date']}" />
+								<p:calendar id="endDate" value="#{callLogBean.endDate}"
+									showOn="button" timeZone="#{localeTimeZoneHolderBean.timeZone}"
+									locale="#{localeTimeZoneHolderBean.locale}"
+									pattern="#{messages['global.date.pattern']}" />
+							</h:panelGrid>
 						</h:panelGroup>
-						<h:outputLabel for="callType"
-							value="#{messages['member.call.log.type']}" />
-						<h:selectOneMenu id="callType" value="#{callLogBean.callType}">
-							<f:selectItems value="#{callLogBean.callTypes}" />
-						</h:selectOneMenu>
+						<h:panelGroup>
+							<h:panelGrid columns="2">
+								<h:outputLabel for="inCallStatus"
+									value="#{messages['member.call.log.in.status']}" />
+								<h:panelGroup id="inCallStatus">
+									<h:selectBooleanCheckbox id="includeInConnected"
+										value="#{callLogBean.includeInConnected}" />
+									<h:outputText
+										value="#{messages['member.call.log.status.connected']}" />
+									<h:selectBooleanCheckbox id="includeInFailed"
+										value="#{callLogBean.includeInFailed}" />
+									<h:outputText
+										value="#{messages['member.call.log.status.failed']}" />
+									<h:selectBooleanCheckbox id="includeInCanceled"
+										value="#{callLogBean.includeInCanceled}" />
+									<h:outputText
+										value="#{messages['member.call.log.status.canceled']}" />
+								</h:panelGroup>
+								<h:outputLabel for="outCallStatus"
+									value="#{messages['member.call.log.out.status']}" />
+								<h:panelGroup id="outCallStatus">
+									<h:selectBooleanCheckbox id="includeOutConnected"
+										value="#{callLogBean.includeOutConnected}" />
+									<h:outputText
+										value="#{messages['member.call.log.status.connected']}" />
+									<h:selectBooleanCheckbox id="includeOutFailed"
+										value="#{callLogBean.includeOutFailed}" />
+									<h:outputText
+										value="#{messages['member.call.log.status.failed']}" />
+									<h:selectBooleanCheckbox id="includeOutCanceled"
+										value="#{callLogBean.includeOutCanceled}" />
+									<h:outputText
+										value="#{messages['member.call.log.status.canceled']}" />
+								</h:panelGroup>
+							</h:panelGrid>
+						</h:panelGroup>
 					</h:panelGrid>
 					<f:facet name="footer">
 						<p:commandButton ajax="true" id="submit"
@@ -108,19 +127,23 @@
 						<f:facet name="header">
 							<h:outputText value="#{messages['member.calllog.status']}" />
 						</f:facet>
-						<h:outputText value="#{callLog.status}" />
+						<h:graphicImage title="#{callLog.status}" library="images"
+							name="#{callLog.status == 'SUCCESS' ? 'accept-icon.png' : (callLog.status == 'CANCELED' ? 'missed-call.jpg' : 'delete-icon.png')}" />
 					</p:column>
 					<p:column sortBy="#{callLog.type}">
 						<f:facet name="header">
 							<h:outputText value="#{messages['member.calllog.type']}" />
 						</f:facet>
-						<h:outputText value="#{callLog.type}" />
+						<h:graphicImage library="images"
+							name="#{callLog.type == 'INCOMING' ? 'incoming-icon.png' : 'outgoing-icon.png'}" />
 					</p:column>
-					<p:column sortBy="#{callLog.partner}" filterBy="#{callLog.partner}">
+					<p:column sortBy="#{callLog.partner}" filterBy="#{callLog.partner}"
+						filterEvent="blur">
 						<f:facet name="header">
 							<h:outputText value="#{messages['member.calllog.number']}" />
 						</f:facet>
-						<h:outputText value="#{callLog.partner}" />
+						<h:outputText value="#{callLog.partner}"
+							converter="#{naPhoneNumberConverter}" />
 					</p:column>
 				</p:dataTable>
 			</h:form>

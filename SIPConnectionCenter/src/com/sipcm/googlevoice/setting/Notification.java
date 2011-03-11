@@ -11,8 +11,8 @@ import java.io.Serializable;
  */
 public class Notification implements Serializable {
 	private static final long serialVersionUID = -8877201208509912016L;
-	public String address;
-	public boolean active;
+	private String address;
+	private boolean active;
 
 	/**
 	 * @return the address

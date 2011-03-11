@@ -32,6 +32,7 @@ errorMessage VARCHAR(2000),
 key (user_id, starttime),
 key (partner),
 key (voipaccount_id),
+key (type, status),
 PRIMARY KEY (id, starttime))
 PARTITION BY RANGE (YEAR(starttime))
 SUBPARTITION BY HASH (MONTH(starttime)) (
@@ -144,19 +145,14 @@ role_id INTEGER NOT NULL,
 PRIMARY KEY (user_id, role_id)) ENGINE=InnoDB;
 
 CREATE TABLE tbl_usersipprofile (
-id BIGINT NOT NULL AUTO_INCREMENT,
-createdate TIMESTAMP DEFAULT 0,
-lastmodify TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-deletedate DATETIME DEFAULT 0,
-user_id BIGINT NOT NULL,
+id BIGINT NOT NULL UNIQUE,
 allow_local_directly BIT(1) NOT NULL,
 area_code VARCHAR(10),
 phonenumber VARCHAR(32) NOT NULL,
 phonenumberstatus INTEGER NOT NULL DEFAULT 0,
 sipstatus INTEGER NOT NULL,
 PRIMARY KEY (id),
-UNIQUE (phonenumber, deletedate),
-UNIQUE (user_id, deletedate)) ENGINE=InnoDB;
+INDEX (phonenumber, phonenumberstatus)) ENGINE=InnoDB;
 
 CREATE TABLE tbl_uservoipaccount (
 id BIGINT NOT NULL AUTO_INCREMENT,
@@ -168,6 +164,7 @@ account VARCHAR(256) NOT NULL,
 password VARCHAR(256) NOT NULL,
 phone_number VARCHAR(32),
 callback_number VARCHAR(32),
+callback_type INTEGER,
 type INTEGER NOT NULL,
 user_id BIGINT NOT NULL,
 voipvendor_id INTEGER NOT NULL,
@@ -193,23 +190,11 @@ ALTER TABLE tbl_address
 ADD INDEX FK_ADDRESS_COUNTRY (country_id),
 ADD CONSTRAINT FK_ADDRESS_COUNTRY FOREIGN KEY (country_id) REFERENCES tbl_country (id);
 
---ALTER TABLE tbl_calllog
---ADD INDEX IDX_PARTNER (partner);
-
---ALTER TABLE tbl_calllog
---ADD INDEX FK_CALLLOG_USER (user_id),
---ADD CONSTRAINT FK_CALLLOG_USER FOREIGN KEY (user_id) REFERENCES tbl_usersipprofile (id);
-
---ALTER TABLE tbl_calllog
---ADD INDEX FK_CALLLOG_VOIPACCOUNT (voipaccount_id),
---ADD CONSTRAINT FK_CALLLOG_VOIPACCOUNT FOREIGN KEY (voipaccount_id) REFERENCES tbl_uservoipaccount (id);
-
 ALTER TABLE tbl_sipaddressbinding
 ADD INDEX FK_SIPADDRESSBINDING_USERSIPPROFILE (user_id),
 ADD CONSTRAINT FK_SIPADDRESSBINDING_USERSIPPROFILE FOREIGN KEY (user_id) REFERENCES tbl_usersipprofile (id);
 
 ALTER TABLE tbl_useractivation
-ADD INDEX FK_USERACTIVATION_USER (id),
 ADD CONSTRAINT FK_USERACTIVATION_USER FOREIGN KEY (id) REFERENCES tbl_user (id);
 
 ALTER TABLE tbl_userrole
@@ -221,12 +206,11 @@ ADD INDEX FK_USERROLE_USER (user_id),
 ADD CONSTRAINT FK_USERROLE_USER FOREIGN KEY (user_id) REFERENCES tbl_user (id);
 
 ALTER TABLE tbl_usersipprofile
-ADD INDEX FK_USERSIPPROFILE_USER (user_id),
-ADD CONSTRAINT FK_USERSIPPROFILE_USER FOREIGN KEY (user_id) REFERENCES tbl_user (id);
+ADD CONSTRAINT FK_USERSIPPROFILE_USER FOREIGN KEY (id) REFERENCES tbl_user (id);
 
 ALTER TABLE tbl_uservoipaccount
 ADD INDEX FK_USERVOIPACCOUNT_USERSIPPROFILE (user_id),
-ADD CONSTRAINT FK_USERVOIPACCOUNT_USER FOREIGN KEY (user_id) REFERENCES tbl_usersipprofile (id);
+ADD CONSTRAINT FK_USERVOIPACCOUNT_USERSIPPROFILE FOREIGN KEY (user_id) REFERENCES tbl_usersipprofile (id);
 
 ALTER TABLE tbl_uservoipaccount
 ADD INDEX FK_USERVOIPACCOUNT_VOIPVENDOR (voipvendor_id),
@@ -261,23 +245,25 @@ CREATE TRIGGER tgr_user_update BEFORE UPDATE ON tbl_user
 FOR EACH ROW BEGIN
   IF NEW.deletedate <> 0 THEN
     UPDATE tbl_uservoipaccount SET deletedate = NEW.deletedate WHERE user_id = NEW.id;
-    UPDATE tbl_usersipprofile SET deletedate = NEW.deletedate, sipstatus = 0 WHERE user_id = NEW.id;
+    UPDATE tbl_usersipprofile SET sipstatus = 0 WHERE id = NEW.id;
   ELSEIF NEW.status <> 1 THEN
-    UPDATE tbl_usersipprofile SET sipstatus = 0 WHERE user_id = NEW.id;
+    UPDATE tbl_usersipprofile SET sipstatus = 0 WHERE id = NEW.id;
   END IF;
 END;//
 
 DROP TRIGGER IF EXISTS tgr_user_delete//
 CREATE TRIGGER tgr_user_delete BEFORE DELETE ON tbl_user
 FOR EACH ROW BEGIN
-  DELETE FROM tbl_usersipprofile WHERE user_id = OLD.id;
-  DELETE FROM tbl_uservoipaccount WHERE user_id = OLD.id;
+  DELETE FROM tbl_usersipprofile WHERE id = OLD.id;
+  DELETE FROM tbl_useractivation WHERE id = OLD.id;
+  DELETE FROM tbl_userrole WHERE user_id = OLD.id;
 END;//
 
 DROP TRIGGER IF EXISTS tgr_usersipprofile_update //
 CREATE TRIGGER tgr_usersipprofile_update BEFORE UPDATE ON tbl_usersipprofile
 FOR EACH ROW BEGIN
-  IF NEW.deletedate <> 0 OR NEW.sipstatus = 0 THEN
+  IF NEW.sipstatus = 0 THEN
+    UPDATE tbl_uservoipaccount SET online = 0 WHERE user_id = NEW.id;
     DELETE FROM tbl_sipaddressbinding WHERE user_id = NEW.id;
   END IF;
 END;//
@@ -285,6 +271,7 @@ END;//
 DROP TRIGGER IF EXISTS tgr_usersipprofile_delete//
 CREATE TRIGGER tgr_usersipprofile_delete BEFORE DELETE ON tbl_usersipprofile
 FOR EACH ROW BEGIN
+  DELETE FROM tbl_uservoipaccount WHERE user_id = OLD.id;
   DELETE FROM tbl_sipaddressbinding WHERE user_id = OLD.id;
 END;//
 
