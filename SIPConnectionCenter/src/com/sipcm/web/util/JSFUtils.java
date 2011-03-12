@@ -199,10 +199,10 @@ public abstract class JSFUtils {
 					ret = new SelectItem[PhoneType.values().length];
 					for (int i = 0; i < PhoneType.values().length; i++) {
 						PhoneType t = PhoneType.values()[i];
-						ret[i] = new SelectItem(t.getValue(),
-								Messages.getString(null,
-										PhoneType.class.getCanonicalName()
-												+ "." + t.name(), null));
+						ret[i] = new SelectItem(t, Messages.getString(
+								null,
+								PhoneType.class.getCanonicalName() + "."
+										+ t.name(), null));
 					}
 					availableGvPhoneType.put(locale, ret);
 				}

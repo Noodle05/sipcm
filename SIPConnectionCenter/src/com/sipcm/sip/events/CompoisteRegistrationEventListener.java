@@ -80,4 +80,32 @@ public class CompoisteRegistrationEventListener implements
 			}
 		}
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.events.RegistrationEventListener#userRenewRegistration(
+	 * com.sipcm.sip.events.RegistrationEvent)
+	 */
+	@Override
+	@Async
+	public void userRenewRegistration(RegistrationEvent event) {
+		if (listeners != null && !listeners.isEmpty()) {
+			for (RegistrationEventListener listener : listeners) {
+				try {
+					listener.userRenewRegistration(event);
+				} catch (Throwable e) {
+					if (logger.isErrorEnabled()) {
+						logger.error(
+								"Error happened when notify listener \"{}\" on unregistration event: \"{}\", check debug log for exception stack.",
+								listener, event);
+						if (logger.isDebugEnabled()) {
+							logger.debug("Detail exception stack:", e);
+						}
+					}
+				}
+			}
+		}
+	}
 }

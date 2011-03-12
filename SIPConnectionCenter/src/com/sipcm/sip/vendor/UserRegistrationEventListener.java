@@ -56,4 +56,20 @@ public class UserRegistrationEventListener implements RegistrationEventListener 
 		}
 		voipVendorManager.unregisterForIncomingRequest(userSipProfile);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.events.RegistrationEventListener#userRenewRegistration(
+	 * com.sipcm.sip.events.RegistrationEvent)
+	 */
+	@Override
+	public void userRenewRegistration(RegistrationEvent event) {
+		UserSipProfile userSipProfile = event.getUserSipProfile();
+		if (logger.isDebugEnabled()) {
+			logger.debug("User: \"{}\" renewed registration.", userSipProfile);
+		}
+		voipVendorManager.renewForIncomingRequest(userSipProfile);
+	}
 }

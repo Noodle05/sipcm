@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ServletContextAware;
 
+import com.sipcm.common.SystemConfiguration;
 import com.sipcm.sip.business.UserVoipAccountService;
 import com.sipcm.sip.business.VoipVendorService;
 import com.sipcm.sip.locationservice.UserBindingInfo;
@@ -52,6 +53,9 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 
 	@Resource(name = "publicIpAddressHolder")
 	private PublicIpAddressHolder publicIpAddressHolder;
+
+	@Resource(name = "systemConfiguration")
+	private SystemConfiguration appConfig;
 
 	private SipFactory sipFactory;
 	private List<String> supportedMethods;
@@ -125,6 +129,7 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 				.getIncomingAccounts(userSipProfile);
 		if (accounts != null && !accounts.isEmpty()) {
 			for (UserVoipAccount account : accounts) {
+				account.setAuthResponse(null);
 				VoipVendorContext ctx = getVoipVendorContext(account);
 				if (ctx != null) {
 					ctx.registerForIncomingRequest(account);
@@ -155,6 +160,34 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 				VoipVendorContext ctx = getVoipVendorContext(account);
 				if (ctx != null) {
 					ctx.unregisterForIncomingRequest(account);
+				} else {
+					if (logger.isWarnEnabled()) {
+						logger.warn(
+								"Cannot find vendor context for vendor \"{}\"",
+								account.getVoipVendor());
+					}
+				}
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.vendor.VoipVendorManager#renewForIncomingRequest(com.sipcm
+	 * .sip.model.UserSipProfile)
+	 */
+	@Override
+	public void renewForIncomingRequest(UserSipProfile userSipProfile) {
+		Collection<UserVoipAccount> accounts = userVoipAccountService
+				.getOfflineIncomingAccounts(userSipProfile);
+		if (accounts != null && !accounts.isEmpty()) {
+			for (UserVoipAccount account : accounts) {
+				account.setAuthResponse(null);
+				VoipVendorContext ctx = getVoipVendorContext(account);
+				if (ctx != null) {
+					ctx.registerForIncomingRequest(account);
 				} else {
 					if (logger.isWarnEnabled()) {
 						logger.warn(
@@ -259,21 +292,43 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.vendor.VoipVendorManager#getSipFactory()
+	 */
 	@Override
 	public SipFactory getSipFactory() {
 		return sipFactory;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.vendor.VoipVendorManager#getSupportedMethods()
+	 */
 	@Override
 	public List<String> getSupportedMethods() {
 		return supportedMethods;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.vendor.VoipVendorManager#getContactHost()
+	 */
 	@Override
 	public String getContactHost() {
 		return contactHost;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.vendor.VoipVendorManager#handleRegisterResponse(javax.servlet
+	 * .sip.SipServletResponse)
+	 */
 	@Override
 	public void handleRegisterResponse(SipServletResponse resp)
 			throws ServletException, IOException {
@@ -286,6 +341,47 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 				if (ctx != null) {
 					ctx.handleRegisterResponse(resp, account);
 				}
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.vendor.VoipVendorManager#registerClientRenew()
+	 */
+	@Override
+	public void registerClientRenew() {
+		try {
+			Collection<Long> aids = userVoipAccountService
+					.checkRegisterExpires(appConfig
+							.getSipClientRenewBeforeExpires());
+			if (aids != null && !aids.isEmpty()) {
+				if (logger.isDebugEnabled()) {
+
+				}
+				for (Long id : aids) {
+					try {
+						UserVoipAccount account = userVoipAccountService
+								.getUserVoipAccountWithAuthResponse(id);
+						if (logger.isTraceEnabled()) {
+							logger.trace("{} is going to expire, renew it.",
+									account);
+						}
+						VoipVendorContext context = getVoipVendorContext(account);
+						context.registerForIncomingRequest(account);
+					} catch (Exception e) {
+						if (logger.isWarnEnabled()) {
+							logger.warn(
+									"Error happened when process register for accountId: \""
+											+ id + "\"", e);
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			if (logger.isErrorEnabled()) {
+				logger.error("Error happened when process binding expires.", e);
 			}
 		}
 	}

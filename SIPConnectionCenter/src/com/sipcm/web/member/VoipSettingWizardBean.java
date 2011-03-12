@@ -92,7 +92,7 @@ public class VoipSettingWizardBean implements Serializable {
 
 	private String gvCallback;
 
-	private Integer gvCallbackType;
+	private PhoneType gvCallbackType;
 
 	private GoogleVoiceConfig gvConfig;
 
@@ -163,8 +163,9 @@ public class VoipSettingWizardBean implements Serializable {
 						oriGvPass = account.getPassword();
 						oriGvNumber = gvNumber = account.getPhoneNumber();
 						gvCallback = account.getCallBackNumber();
-						gvCallbackType = account.getCallBackType() == null ? 1
-								: account.getCallBackType();
+						gvCallbackType = account.getCallBackType() == null ? PhoneType.HOME
+								: PhoneType.getTypeByValue(account
+										.getCallBackType());
 					} else if (!VoipAccountType.OUTGOING.equals(account
 							.getType()) && inId == null) {
 						hasIncome = true;
@@ -206,8 +207,7 @@ public class VoipSettingWizardBean implements Serializable {
 				FacesContext.getCurrentInstance().addMessage(null, message);
 				return "gv-initial";
 			}
-			if (!gvAccount.equals(oriGvAccount)
-					|| (gvPass != null && !gvPass.equals(oriGvPass))) {
+			if (!gvAccount.equals(oriGvAccount) || (gvPass != null)) {
 				validateGV();
 			}
 		}
@@ -306,9 +306,11 @@ public class VoipSettingWizardBean implements Serializable {
 						if (disabled == null || !disabled) {
 							callbackList.put(phone.getPhoneNumber(),
 									phone.getType());
-							if (phone.getType() == PhoneType.HOME.getValue()) {
+							if (gvCallback == null || gvCallbackType == null
+									|| gvCallbackType.lessThan(phone.getType())) {
 								gvCallback = phone.getPhoneNumber();
-								gvCallbackType = phone.getType();
+								gvCallbackType = PhoneType.getTypeByValue(phone
+										.getType());
 							}
 						}
 					}
@@ -381,7 +383,7 @@ public class VoipSettingWizardBean implements Serializable {
 		}
 		gvAccount.setPhoneNumber(gvNumber);
 		gvAccount.setCallBackNumber(gvCallback);
-		gvAccount.setCallBackType(gvCallbackType);
+		gvAccount.setCallBackType(gvCallbackType.getValue());
 		accounts.add(gvAccount);
 
 		UserVoipAccount inAcc = null;
@@ -682,14 +684,14 @@ public class VoipSettingWizardBean implements Serializable {
 	 * @param gvCallbackType
 	 *            the gvCallbackType to set
 	 */
-	public void setGvCallbackType(Integer gvCallbackType) {
+	public void setGvCallbackType(PhoneType gvCallbackType) {
 		this.gvCallbackType = gvCallbackType;
 	}
 
 	/**
 	 * @return the gvCallbackType
 	 */
-	public Integer getGvCallbackType() {
+	public PhoneType getGvCallbackType() {
 		return gvCallbackType;
 	}
 

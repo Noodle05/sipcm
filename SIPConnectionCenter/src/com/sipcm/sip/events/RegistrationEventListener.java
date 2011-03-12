@@ -13,4 +13,6 @@ public interface RegistrationEventListener extends EventListener {
 	public void userRegistered(RegistrationEvent event);
 
 	public void userUnregistered(RegistrationEvent event);
+
+	public void userRenewRegistration(RegistrationEvent event);
 }

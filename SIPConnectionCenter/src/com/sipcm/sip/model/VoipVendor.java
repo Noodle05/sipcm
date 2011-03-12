@@ -55,6 +55,10 @@ public class VoipVendor extends AbstractTrackableEntity implements
 	@Column(name = "type", nullable = false)
 	private VoipVendorType type;
 
+	@Basic
+	@Column(name = "expires")
+	private Integer defaultExpires;
+
 	/**
 	 * @param id
 	 *            the id to set
@@ -131,6 +135,21 @@ public class VoipVendor extends AbstractTrackableEntity implements
 	 */
 	public VoipVendorType getType() {
 		return type;
+	}
+
+	/**
+	 * @param defaultExpires
+	 *            the defaultExpires to set
+	 */
+	public void setDefaultExpires(Integer defaultExpires) {
+		this.defaultExpires = defaultExpires;
+	}
+
+	/**
+	 * @return the defaultExpires
+	 */
+	public Integer getDefaultExpires() {
+		return defaultExpires;
 	}
 
 	/*

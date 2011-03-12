@@ -27,11 +27,19 @@ public interface UserVoipAccountService extends Service<UserVoipAccount, Long> {
 
 	public Collection<UserVoipAccount> getOnlineIncomingAccounts(Long userId);
 
+	public Collection<UserVoipAccount> getOfflineIncomingAccounts(
+			UserSipProfile user);
+
 	public UserVoipAccount getUserVoipAccountByVendorAndAccount(
 			VoipVendor voipVender, String account);
 
-	public void updateOnlineStatus(UserVoipAccount account);
+	public void updateRegisterExpires(UserVoipAccount account);
 
-	public Collection<UserVoipAccount> getOnlineIncomingAccounts(
-			VoipVendor voipVendor);
+	public void updateAuthResponse(UserVoipAccount account);
+
+	public void updateRegisterExpiresAndAuthResonse(UserVoipAccount account);
+
+	public Collection<Long> checkRegisterExpires(int minExpires);
+
+	public UserVoipAccount getUserVoipAccountWithAuthResponse(Long id);
 }

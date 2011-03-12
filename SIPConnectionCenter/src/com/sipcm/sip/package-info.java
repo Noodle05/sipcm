@@ -12,4 +12,3 @@ import com.sipcm.sip.model.SipAddressType;
 
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
-

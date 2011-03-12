@@ -60,7 +60,7 @@ public class SystemConfiguration {
 
 	public static final String SIP_CLIENT_REGISTER_EXPIRES = "sip.client.register.expires";
 	public static final String SIP_CLIENT_REGISTER_ALLOW_METHODS = "sip.client.register.allow.methods";
-	public static final String SIP_CLIENT_REGISTER_MINIMUM_INTERVAL = "sip.client.register.interval.minimum";
+	public static final String SIP_CILENT_REGISTER_RENEW_EXPIRES = "sip.client.register.renew.before.expires";
 
 	@Resource(name = "applicationConfiguration")
 	private Configuration appConfig;
@@ -228,7 +228,7 @@ public class SystemConfiguration {
 		return ret;
 	}
 
-	public int getSipClientMinimumRenewInterval() {
-		return appConfig.getInt(SIP_CLIENT_REGISTER_MINIMUM_INTERVAL, 300);
+	public int getSipClientRenewBeforeExpires() {
+		return appConfig.getInt(SIP_CILENT_REGISTER_RENEW_EXPIRES, 60);
 	}
 }

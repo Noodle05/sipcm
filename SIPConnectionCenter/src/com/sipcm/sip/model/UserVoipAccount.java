@@ -7,18 +7,24 @@ import java.io.Serializable;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.ColumnResult;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedNativeQuery;
+import javax.persistence.QueryHint;
+import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
+import org.mobicents.servlet.sip.message.SipServletResponseImpl;
 
 import com.sipcm.base.model.AbstractTrackableEntity;
 import com.sipcm.base.model.IdBasedEntity;
@@ -28,6 +34,8 @@ import com.sipcm.sip.VoipAccountType;
  * @author wgao
  * 
  */
+@SqlResultSetMapping(name = "accountId", columns = @ColumnResult(name = "id"))
+@NamedNativeQuery(name = "registerClientExpires", query = "call RegisterClientExpires(:minExpires)", resultSetMapping = "accountId", hints = { @QueryHint(name = "org.hibernate.callable", value = "true") })
 @Entity
 @Table(name = "tbl_uservoipaccount", uniqueConstraints = { @UniqueConstraint(columnNames = {
 		"user_id", "name" }) })
@@ -78,8 +86,24 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	private VoipAccountType type;
 
 	@Basic
-	@Column(name = "online", insertable = false, updatable = false)
-	private boolean online;
+	@Column(name = "register_expires", insertable = false, updatable = false)
+	private Integer regExpires;
+
+	@Basic
+	@Column(name = "last_check", insertable = false, updatable = false)
+	private Integer lastCheck;
+
+	@Basic(fetch = FetchType.LAZY)
+	@Column(name = "auth_response", insertable = false, updatable = false)
+	private SipServletResponseImpl authResponse;
+
+	@Basic
+	@Column(name = "error_code", insertable = false, updatable = false)
+	private int errorCode;
+
+	@Basic
+	@Column(name = "error_message", insertable = false, updatable = false)
+	private String errorMessage;
 
 	/**
 	 * @param id
@@ -234,18 +258,90 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 	}
 
 	/**
-	 * @param online
-	 *            the online to set
+	 * @param regExpires
+	 *            the regExpires to set
 	 */
-	public void setOnline(boolean online) {
-		this.online = online;
+	public void setRegExpires(Integer regExpires) {
+		this.regExpires = regExpires;
 	}
 
 	/**
-	 * @return the online
+	 * @return the regExpires
 	 */
-	public boolean isOnline() {
-		return online;
+	public Integer getRegExpires() {
+		return regExpires;
+	}
+
+	/**
+	 * @param lastCheck
+	 *            the lastCheck to set
+	 */
+	public void setLastCheck(Integer lastCheck) {
+		this.lastCheck = lastCheck;
+	}
+
+	/**
+	 * @return the lastCheck
+	 */
+	public Integer getLastCheck() {
+		return lastCheck;
+	}
+
+	/**
+	 * @param authResponse
+	 *            the authResponse to set
+	 */
+	public void setAuthResponse(SipServletResponseImpl authResponse) {
+		this.authResponse = authResponse;
+	}
+
+	/**
+	 * @return the authResponse
+	 */
+	public SipServletResponseImpl getAuthResponse() {
+		return authResponse;
+	}
+
+	/**
+	 * @param errorCode
+	 *            the errorCode to set
+	 */
+	public void setErrorCode(int errorCode) {
+		this.errorCode = errorCode;
+	}
+
+	/**
+	 * @return the errorCode
+	 */
+	public int getErrorCode() {
+		return errorCode;
+	}
+
+	/**
+	 * @param errorMessage
+	 *            the errorMessage to set
+	 */
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+
+	/**
+	 * @return the errorMessage
+	 */
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public String getErrorInfo() {
+		if (errorCode != 0) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(errorCode);
+			if (errorMessage != null) {
+				sb.append(":").append(errorMessage);
+			}
+			return sb.toString();
+		}
+		return null;
 	}
 
 	@Override

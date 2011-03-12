@@ -93,7 +93,19 @@ public class UserVoipAccountServiceImpl extends
 				VoipVendorType.SIP);
 		Filter f3 = filterFactory.createInFilter("type",
 				VoipAccountType.INCOME, VoipAccountType.BOTH);
-		Filter f4 = filterFactory.createSimpleFilter("online", true);
+		Filter f4 = filterFactory.createIsNotNullFilter("regExpires");
+		Filter filter = f1.appendAnd(f2).appendAnd(f3).appendAnd(f4);
+		return dao.getEntities(filter, null, null);
+	}
+
+	public Collection<UserVoipAccount> getOfflineIncomingAccounts(
+			UserSipProfile user) {
+		Filter f1 = filterFactory.createSimpleFilter("owner", user);
+		Filter f2 = filterFactory.createSimpleFilter("voipVendor.type",
+				VoipVendorType.SIP);
+		Filter f3 = filterFactory.createInFilter("type",
+				VoipAccountType.INCOME, VoipAccountType.BOTH);
+		Filter f4 = filterFactory.createIsNullFilter("regExpires");
 		Filter filter = f1.appendAnd(f2).appendAnd(f3).appendAnd(f4);
 		return dao.getEntities(filter, null, null);
 	}
@@ -114,7 +126,7 @@ public class UserVoipAccountServiceImpl extends
 				OnlineStatus.ONLINE);
 		Filter f4 = filterFactory.createInFilter("type",
 				VoipAccountType.INCOME, VoipAccountType.BOTH);
-		Filter f5 = filterFactory.createSimpleFilter("online", true);
+		Filter f5 = filterFactory.createIsNotNullFilter("regExpires");
 		Filter filter = f1.appendAnd(f2).appendAnd(f3).appendAnd(f4)
 				.appendAnd(f5);
 		Collection<UserVoipAccount> accounts = dao.getEntities(filter, null,
@@ -136,19 +148,6 @@ public class UserVoipAccountServiceImpl extends
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.sipcm.sip.business.UserVoipAccountService#updateOnlineStatus(com.
-	 * sipcm.sip.model.UserVoipAccount)
-	 */
-	@Override
-	@Transactional(readOnly = false)
-	public void updateOnlineStatus(UserVoipAccount account) {
-		((UserVoipAccountDAO) dao).updateOnlineStatus(account);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
 	 * com.sipcm.sip.business.UserVoipAccountService#getOnlineIncomingAccounts
 	 * (java.lang.Long)
 	 */
@@ -159,26 +158,8 @@ public class UserVoipAccountServiceImpl extends
 				VoipVendorType.SIP);
 		Filter f3 = filterFactory.createInFilter("type",
 				VoipAccountType.INCOME, VoipAccountType.BOTH);
-		Filter f4 = filterFactory.createSimpleFilter("online", true);
+		Filter f4 = filterFactory.createIsNotNullFilter("regExpires");
 		Filter filter = f1.appendAnd(f2).appendAnd(f3).appendAnd(f4);
-		return dao.getEntities(filter, null, null);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.sipcm.sip.business.UserVoipAccountService#getOnlineIncomingAccounts
-	 * (com.sipcm.sip.model.VoipVendor)
-	 */
-	@Override
-	public Collection<UserVoipAccount> getOnlineIncomingAccounts(
-			VoipVendor voipVendor) {
-		Filter f1 = filterFactory.createSimpleFilter("voipVendor", voipVendor);
-		Filter f2 = filterFactory.createInFilter("type",
-				VoipAccountType.INCOME, VoipAccountType.BOTH);
-		Filter f3 = filterFactory.createSimpleFilter("online", true);
-		Filter filter = f1.appendAnd(f2).appendAnd(f3);
 		return dao.getEntities(filter, null, null);
 	}
 
@@ -195,5 +176,68 @@ public class UserVoipAccountServiceImpl extends
 		Filter filter = filterFactory.createSimpleFilter("owner",
 				userSipProfile);
 		return dao.getEntities(filter, null, null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.business.UserVoipAccountService#updateOnlineStatus(com.
+	 * sipcm.sip.model.UserVoipAccount)
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void updateRegisterExpires(UserVoipAccount account) {
+		((UserVoipAccountDAO) dao).updateRegisterExpires(account);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sipcm.sip.business.UserVoipAccountService#saveAuthResponse(com.sipcm
+	 * .sip.model.UserVoipAccount)
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void updateAuthResponse(UserVoipAccount account) {
+		((UserVoipAccountDAO) dao).updateAuthResponse(account);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.business.UserVoipAccountService#
+	 * updateRegisterExpiresAndAuthResonse(com.sipcm.sip.model.UserVoipAccount)
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void updateRegisterExpiresAndAuthResonse(UserVoipAccount account) {
+		((UserVoipAccountDAO) dao)
+				.updateRegisterExpiresAndAuthResponse(account);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.business.UserVoipAccountService#checkRegisterExpires()
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public Collection<Long> checkRegisterExpires(int minExpires) {
+		return ((UserVoipAccountDAO) dao).checkRegisterExpires(minExpires);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.business.UserVoipAccountService#
+	 * getUserVoipAccountWithAuthResponse(java.lang.Long)
+	 */
+	@Override
+	public UserVoipAccount getUserVoipAccountWithAuthResponse(Long id) {
+		UserVoipAccount entity = dao.getEntityById(id);
+		entity.getAuthResponse();
+		return entity;
 	}
 }

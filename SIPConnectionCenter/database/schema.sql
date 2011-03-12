@@ -27,8 +27,8 @@ partner VARCHAR(255) NOT NULL,
 starttime DATETIME NOT NULL,
 status INTEGER NOT NULL,
 duration BIGINT NOT NULL,
-errorcode INTEGER,
-errorMessage VARCHAR(2000),
+error_code INTEGER,
+error_message VARCHAR(2000),
 key (user_id, starttime),
 key (partner),
 key (voipaccount_id),
@@ -107,7 +107,7 @@ id BIGINT NOT NULL AUTO_INCREMENT,
 address VARCHAR(255) NOT NULL,
 expires INTEGER DEFAULT 3600,
 call_id VARCHAR(255),
-last_check INT,
+last_check INTEGER,
 remote_end VARCHAR(255),
 user_id BIGINT NOT NULL,
 PRIMARY KEY (id)) ENGINE=InnoDB;
@@ -168,7 +168,11 @@ callback_type INTEGER,
 type INTEGER NOT NULL,
 user_id BIGINT NOT NULL,
 voipvendor_id INTEGER NOT NULL,
-online BIT(1) NOT NULL DEFAULT b'0',
+last_check INTEGER,
+register_expires INTEGER,
+auth_response BLOB,
+error_code INTEGER NOT NULL DEFAULT 0,
+error_message VARCHAR(2000),
 PRIMARY KEY (id),
 KEY (voipvendor_id, account, deletedate),
 UNIQUE (user_id, name, deletedate)) ENGINE=InnoDB;
@@ -182,6 +186,7 @@ domainname VARCHAR(255) NOT NULL,
 name VARCHAR(64) NOT NULL,
 proxy VARCHAR(256),
 type INTEGER NOT NULL,
+expires INTEGER,
 PRIMARY KEY (id),
 UNIQUE (domainname, deletedate),
 UNIQUE (name, deletedate)) ENGINE=InnoDB;
@@ -263,7 +268,6 @@ DROP TRIGGER IF EXISTS tgr_usersipprofile_update //
 CREATE TRIGGER tgr_usersipprofile_update BEFORE UPDATE ON tbl_usersipprofile
 FOR EACH ROW BEGIN
   IF NEW.sipstatus = 0 THEN
-    UPDATE tbl_uservoipaccount SET online = 0 WHERE user_id = NEW.id;
     DELETE FROM tbl_sipaddressbinding WHERE user_id = NEW.id;
   END IF;
 END;//
@@ -308,6 +312,39 @@ BEGIN
 
   DROP TEMPORARY TABLE uspid;
 
+END//
+
+DROP PROCEDURE IF EXISTS RegisterClientExpires//
+
+CREATE PROCEDURE RegisterClientExpires(IN minExpires INT)
+  LANGUAGE SQL
+  NOT DETERMINISTIC
+  SQL SECURITY DEFINER
+  COMMENT ''
+BEGIN
+  DECLARE unix_now INT;
+  SELECT UNIX_TIMESTAMP() INTO unix_now;
+
+  UPDATE tbl_uservoipaccount
+  SET register_expires = register_expires - (unix_now - IFNULL(last_check, unix_now)),
+      last_check = unix_now
+  WHERE register_expires IS NOT NULL;
+
+  UPDATE tbl_uservoipaccount a,
+         tbl_usersipprofile u
+  SET a.register_expires = NULL,
+      a.last_check = NULL,
+      a.auth_response = NULL
+  WHERE a.user_id = u.id
+    AND u.sipstatus = 0
+    AND a.register_expires < 0;
+
+  SELECT a.id
+  FROM tbl_uservoipaccount a
+  CROSS JOIN tbl_usersipprofile u
+  WHERE u.id = a.user_id
+    AND u.sipstatus = 1
+    AND a.register_expires < minExpires;
 END//
 
 DELIMITER ;

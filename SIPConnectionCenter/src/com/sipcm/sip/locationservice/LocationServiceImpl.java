@@ -132,6 +132,8 @@ public class LocationServiceImpl implements LocationService {
 				addressBindingService.saveEntity(addressBinding);
 				Collections.sort(addresses);
 				cache.put(userSipProfile, addresses);
+				listener.userRenewRegistration(new RegistrationEvent(
+						userSipProfile));
 			}
 		} else {
 			if (expires > 0) {

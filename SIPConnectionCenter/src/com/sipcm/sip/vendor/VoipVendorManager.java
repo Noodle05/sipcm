@@ -17,6 +17,8 @@ public interface VoipVendorManager {
 
 	public void unregisterForIncomingRequest(UserSipProfile userSipProfile);
 
+	public void renewForIncomingRequest(UserSipProfile userSipProfile);
+
 	public void onUserDeleted(Long... userIds);
 
 	public UserBindingInfo isLocalUsr(String toHost, String toUser);
@@ -31,4 +33,6 @@ public interface VoipVendorManager {
 
 	public void handleRegisterResponse(SipServletResponse resp)
 			throws ServletException, IOException;
+
+	public void registerClientRenew();
 }

@@ -6,14 +6,10 @@ package com.sipcm.sip.vendor;
 import gov.nist.javax.sip.message.SIPRequest;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
-import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
@@ -26,8 +22,8 @@ import javax.servlet.sip.URI;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.ContactHeader;
 
+import org.mobicents.servlet.sip.message.SipServletResponseImpl;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import com.sipcm.sip.business.UserVoipAccountService;
@@ -47,61 +43,14 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	@Resource(name = "userVoipAccountService")
 	private UserVoipAccountService userVoipAccountService;
 
-	@Resource(name = "globalScheduler")
-	private TaskScheduler taskScheduler;
-
-	private ScheduledFuture<?> renewFuture;
-
-	private final RegisterRenewTask renewTask;
-
 	private String allowMethods;
 
 	private int expires;
-
-	public VoipVendorContextImpl() {
-		renewTask = new RegisterRenewTask(this);
-	}
 
 	@PostConstruct
 	public void init() {
 		allowMethods = appConfig.getSipClientAllowMethods();
 		expires = appConfig.getSipClientRegisterExpries();
-		scheduleRenewTask();
-	}
-
-	@PreDestroy
-	public void destroy() {
-		cancelRenewTask();
-	}
-
-	private void scheduleRenewTask() {
-		Date start = null;
-		if (cancelRenewTask()) {
-			Calendar c = Calendar.getInstance();
-			c.add(Calendar.SECOND, (expires - 30));
-			start = c.getTime();
-		}
-		long period = (expires - 30) * 1000L;
-		if (logger.isDebugEnabled()) {
-			logger.debug("Scheduling renew register task in period: {}ms",
-					period);
-		}
-		if (start != null) {
-			renewFuture = taskScheduler.scheduleAtFixedRate(renewTask, start,
-					period);
-		} else {
-			renewFuture = taskScheduler.scheduleAtFixedRate(renewTask, period);
-		}
-	}
-
-	private boolean cancelRenewTask() {
-		if (renewFuture != null && !renewFuture.isCancelled()
-				&& !renewFuture.isDone()) {
-			renewFuture.cancel(false);
-			renewFuture = null;
-			return true;
-		}
-		return false;
 	}
 
 	/*
@@ -116,13 +65,18 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 		String contactHost = voipVendorManager.getContactHost();
 		if (contactHost != null) {
 			try {
-				SipServletRequest register = generateRegisterRequest(null,
-						account, appConfig.getSipClientRegisterExpries());
+				if (account.getAuthResponse() != null) {
+					handleRegisterResponse(account.getAuthResponse(), account,
+							getExpires(), true);
+				} else {
+					SipServletRequest register = generateRegisterRequest(null,
+							account, getExpires());
 
-				if (logger.isTraceEnabled()) {
-					logger.trace("Sending register request: {}", register);
+					if (logger.isTraceEnabled()) {
+						logger.trace("Sending register request: {}", register);
+					}
+					register.send();
 				}
-				register.send();
 			} catch (Exception e) {
 				if (logger.isWarnEnabled()) {
 					logger.warn("Error happened when try to register account: "
@@ -191,12 +145,20 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	@Override
 	public void handleRegisterResponse(SipServletResponse resp,
 			UserVoipAccount account) throws ServletException, IOException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Get response: {}", resp);
+		handleRegisterResponse(resp, account, getExpires(), false);
+	}
+
+	private void handleRegisterResponse(SipServletResponse resp,
+			UserVoipAccount account, int expires, boolean withResponse)
+			throws ServletException, IOException {
+		if (!withResponse) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Get response: {}", resp);
+			}
 		}
 		if (resp.getStatus() == SipServletResponse.SC_UNAUTHORIZED
 				|| resp.getStatus() == SipServletResponse.SC_PROXY_AUTHENTICATION_REQUIRED) {
-			processAuthInfo(resp, account);
+			processAuthInfo(resp, account, expires, withResponse);
 		} else if (resp.getStatus() == SipServletResponse.SC_OK) {
 			Address ca = generateContact(account);
 			ca.setExpires(0);
@@ -213,17 +175,26 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 				}
 			}
 			if (e <= 0) {
-				account.setOnline(false);
-			} else {
-				account.setOnline(true);
-				if (e >= appConfig.getSipClientMinimumRenewInterval()
-						&& e <= appConfig.getSipClientRegisterExpries()
-						&& e < expires) {
-					expires = e;
-					scheduleRenewTask();
+				if (logger.isDebugEnabled()) {
+					logger.debug("{} deregistered.", account);
 				}
+				account.setAuthResponse(null);
+				account.setRegExpires(null);
+				account.setLastCheck(null);
+				account.setErrorCode(0);
+				account.setErrorMessage(null);
+				userVoipAccountService
+						.updateRegisterExpiresAndAuthResonse(account);
+			} else {
+				if (logger.isDebugEnabled()) {
+					logger.debug("{} registered.", account);
+				}
+				account.setRegExpires(e);
+				account.setLastCheck((int) (System.currentTimeMillis() / 1000L));
+				account.setErrorCode(0);
+				account.setErrorMessage(null);
+				userVoipAccountService.updateRegisterExpires(account);
 			}
-			userVoipAccountService.updateOnlineStatus(account);
 			SipApplicationSession appSession = resp
 					.getApplicationSession(false);
 			if (appSession != null) {
@@ -234,8 +205,11 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 				logger.info("Register account \"{}\" failed, response is: {}",
 						account, resp);
 			}
-			account.setOnline(false);
-			userVoipAccountService.updateOnlineStatus(account);
+			account.setRegExpires(null);
+			account.setAuthResponse(null);
+			account.setErrorCode(resp.getStatus());
+			account.setErrorMessage(resp.getReasonPhrase());
+			userVoipAccountService.updateRegisterExpiresAndAuthResonse(account);
 			SipApplicationSession appSession = resp
 					.getApplicationSession(false);
 			if (appSession != null) {
@@ -245,17 +219,19 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	}
 
 	private void processAuthInfo(javax.servlet.sip.SipServletResponse resp,
-			UserVoipAccount account) throws javax.servlet.ServletException,
-			java.io.IOException {
+			UserVoipAccount account, int expires, boolean withResponse)
+			throws javax.servlet.ServletException, java.io.IOException {
 		SipApplicationSession appSession = resp.getApplicationSession();
 		// Avoid re-sending if the auth repeatedly fails.
 		if (!"true".equals(appSession.getAttribute("FirstResponseRecieved"))) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("First try.");
 			}
-			appSession.setAttribute("FirstResponseRecieved", "true");
-			SipServletRequest or = resp.getRequest();
-			int expires = or.getExpires();
+			if (!withResponse) {
+				account.setAuthResponse((SipServletResponseImpl) resp);
+				userVoipAccountService.updateAuthResponse(account);
+				appSession.setAttribute("FirstResponseRecieved", "true");
+			}
 			SipServletRequest req = generateRegisterRequest(appSession,
 					account, expires);
 			req.addAuthHeader(resp, account.getAccount(), account.getPassword());
@@ -269,8 +245,12 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 				logger.warn("Authentication failed for account: \"{}\"",
 						account);
 			}
-			account.setOnline(false);
-			userVoipAccountService.updateOnlineStatus(account);
+			account.setAuthResponse(null);
+			account.setRegExpires(null);
+			account.setLastCheck(null);
+			account.setErrorCode(resp.getStatus());
+			account.setErrorMessage(resp.getReasonPhrase());
+			userVoipAccountService.updateRegisterExpiresAndAuthResonse(account);
 		}
 	}
 
@@ -286,13 +266,18 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 		String contactHost = voipVendorManager.getContactHost();
 		if (contactHost != null) {
 			try {
-				SipServletRequest register = generateRegisterRequest(null,
-						account, 0);
+				if (account.getAuthResponse() != null) {
+					handleRegisterResponse(account.getAuthResponse(), account,
+							0, true);
+				} else {
+					SipServletRequest register = generateRegisterRequest(null,
+							account, 0);
 
-				if (logger.isTraceEnabled()) {
-					logger.trace("Sending register request: {}", register);
+					if (logger.isTraceEnabled()) {
+						logger.trace("Sending register request: {}", register);
+					}
+					register.send();
 				}
-				register.send();
 			} catch (Exception e) {
 				if (logger.isWarnEnabled()) {
 					logger.warn(
@@ -323,34 +308,21 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 		return null;
 	}
 
-	private void renewRegister() {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Timeout, renew all registered accounts.");
-		}
-		Collection<UserVoipAccount> accounts = userVoipAccountService
-				.getOnlineIncomingAccounts(voipVendor);
-		if (accounts != null && !accounts.isEmpty()) {
-			for (UserVoipAccount account : accounts) {
-				registerForIncomingRequest(account);
-			}
-		}
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sipcm.sip.vendor.VoipLocalVendorContextImpl#toString()
+	 */
 	@Override
 	public String toString() {
 		return "Voip Vendor Context object for " + voipVendor;
 	}
 
-	private static class RegisterRenewTask implements Runnable {
-		private final VoipVendorContextImpl ctx;
-
-		public RegisterRenewTask(VoipVendorContextImpl ctx) {
-			this.ctx = ctx;
-		}
-
-		@Override
-		public void run() {
-			ctx.renewRegister();
+	private int getExpires() {
+		if (voipVendor.getDefaultExpires() != null) {
+			return voipVendor.getDefaultExpires();
+		} else {
+			return expires;
 		}
 	}
 }

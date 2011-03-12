@@ -127,7 +127,9 @@
 						<f:facet name="header">
 							<h:outputText value="#{messages['member.calllog.status']}" />
 						</f:facet>
-						<h:graphicImage title="#{callLog.status}" library="images"
+						<h:graphicImage
+							title="#{callLog.status == 'FAILED' ? callLog.errorInfo : callLog.type == 'INCOMING' ? callLog.status == 'CANCELED' ? 'Missing' : callLog.status : callLog.status}"
+							library="images"
 							name="#{callLog.status == 'SUCCESS' ? 'accept-icon.png' : (callLog.status == 'CANCELED' ? 'missed-call.jpg' : 'delete-icon.png')}" />
 					</p:column>
 					<p:column sortBy="#{callLog.type}">

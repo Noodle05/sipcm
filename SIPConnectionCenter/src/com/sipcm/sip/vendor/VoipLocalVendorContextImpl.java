@@ -115,6 +115,11 @@ public class VoipLocalVendorContextImpl implements VoipVendorContext {
 		// Do nothing
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "Voip vendor context for local domain.";

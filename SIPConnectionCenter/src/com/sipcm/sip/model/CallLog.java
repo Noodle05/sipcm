@@ -55,11 +55,11 @@ public class CallLog implements Serializable {
 	private CallStatus status;
 
 	@Basic
-	@Column(name = "errorcode")
+	@Column(name = "error_code")
 	private int errorCode;
 
 	@Basic
-	@Column(name = "errorMessage", length = 2000)
+	@Column(name = "error_message", length = 2000)
 	private String errorMessage;
 
 	@Basic
@@ -218,5 +218,17 @@ public class CallLog implements Serializable {
 	 */
 	public Long getDuration() {
 		return duration;
+	}
+
+	public String getErrorInfo() {
+		if (errorCode != 0) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(errorCode);
+			if (errorMessage != null) {
+				sb.append(":").append(errorMessage);
+			}
+			return sb.toString();
+		}
+		return null;
 	}
 }
