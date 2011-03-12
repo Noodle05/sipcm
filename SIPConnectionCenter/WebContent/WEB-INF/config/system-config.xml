@@ -41,4 +41,5 @@
 	<entry key="register.active.method">SELF</entry>
 	<entry key="register.username.pattern"><![CDATA[^\p{Alpha}[\w|\.]{5,31}$]]></entry>
 	<entry key="register.email.pattern"><![CDATA[^[^@]+@[^@^\.]+\.[^@^\.]+$]]></entry>
+	<entry key="username.blacklist">admin,system,fuck,superuser,mycallstation,gaofamily</entry>
 </properties>

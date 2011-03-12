@@ -221,6 +221,17 @@ public class RegistrationBean implements Serializable {
 					FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
+		String[] blackList = appConfig.getUsernameBlackList();
+		if (blackList != null) {
+			for (String black : blackList) {
+				if (username.toUpperCase().contains(black.toUpperCase())) {
+					FacesMessage message = Messages.getMessage(
+							"register.error.username.reserved",
+							FacesMessage.SEVERITY_ERROR);
+					throw new ValidatorException(message);
+				}
+			}
+		}
 		User user = getUserService().getUserByUsername(username);
 		if (user != null) {
 			FacesMessage message = Messages.getMessage(

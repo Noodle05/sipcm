@@ -26,6 +26,7 @@ public class SystemConfiguration {
 
 	public static final String USERNAME_LENGTH_MIN = "username.length.min";
 	public static final String USERNAME_LENGTH_MAX = "username.length.max";
+	public static final String USERNAME_BLACKLIST = "username.blacklist";
 
 	public static final String SIP_DOS_PROTECT_INTERVAL = "sip.dos.protect.interval";
 	public static final String SIP_DOS_PROTECT_MAX_REQUESTS = "sip.dos.protect.max.requests";
@@ -160,6 +161,10 @@ public class SystemConfiguration {
 	public String getUsernamePattern() {
 		return appConfig.getString(USERNAME_PATTERN,
 				"^\\p{Alpha}[\\w|\\.]{5,31}$");
+	}
+
+	public String[] getUsernameBlackList() {
+		return appConfig.getStringArray(USERNAME_BLACKLIST);
 	}
 
 	public String getEmailPattern() {
