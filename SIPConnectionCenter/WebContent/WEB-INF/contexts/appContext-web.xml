@@ -13,6 +13,8 @@
 		<intercept-url pattern="/member/voipprofile.jsf" access="ROLE_CALLER" />
 		<intercept-url pattern="/member/voipprofile-edit.jsf"
 			access="ROLE_CALLER" />
+		<intercept-url pattern="/member/voipsetting.jsf"
+			access="ROLE_CALLER" />
 		<intercept-url pattern="/member/**" access="ROLE_USER" />
 		<intercept-url pattern="/admin/**" access="ROLE_ADMIN" />
 		<form-login login-processing-url="/j_spring_security_check"

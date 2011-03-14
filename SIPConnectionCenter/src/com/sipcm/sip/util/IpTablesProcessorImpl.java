@@ -48,14 +48,11 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	private static final Pattern rule = Pattern.compile("(\\d+)\\:(" + IPADDR
 			+ ")");
 
-	private static final String LIST_ALL_BLOCK_COMMAND = "/usr/sbin/iptables -L FORWARD -n -v --line-numbers "
-			+ "| /bin/egrep \".*DROP.*udp dpt:5060\" "
-			+ "| /usr/bin/awk -F \" \" '{print $1 \":\" $9}'";
-	private static final String LIST_BLOCK_IP_COMMAND = "/usr/sbin/iptables -L FORWARD -n -v --line-numbers "
-			+ "| /bin/egrep \".*DROP.*{0}.*udp dpt:5060\" "
-			+ "| /usr/bin/awk -F \" \" '''{print $1 \":\" $9}'''";
-	private static final String REMOVE_BLOCK_COMMAND = "/usr/sbin/iptables -D FORWARD {0}";
-	private static final String ADD_BLOCK_IP_COMMAND = "/usr/sbin/iptables -I FORWARD 1 -p udp -s {0} --dport 5060 -j DROP";
+	private String listAllBlockingCommand;
+	private String listOneBlockingCommand;
+	private String unblockOneCommand;
+	private String blockOneCommand;
+	private boolean firewallEnabled = false;
 
 	@Resource(name = "systemConfiguration")
 	private SystemConfiguration appConfig;
@@ -86,6 +83,13 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 					appConfig.getPrivateKeyFile(),
 					appConfig.getPasswordPhrase(),
 					appConfig.getSshDisconnectDelay());
+			listAllBlockingCommand = appConfig.getFirewallCommandListAll();
+			listOneBlockingCommand = appConfig.getFirewallCommandListOne();
+			blockOneCommand = appConfig.getFirewallCommandBlockOne();
+			unblockOneCommand = appConfig.getFirewallCommandUnblockOne();
+			firewallEnabled = true;
+		} else {
+			firewallEnabled = false;
 		}
 	}
 
@@ -97,7 +101,7 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	 */
 	@Override
 	public boolean postBlockRequest(InetAddress ip) {
-		if (appConfig.isFirewallEnabled()) {
+		if (firewallEnabled) {
 			if (ip != null) {
 				requestsLock.lock();
 				try {
@@ -130,7 +134,7 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	 */
 	@Override
 	public boolean postUnblockIp(InetAddress ip) {
-		if (appConfig.isFirewallEnabled()) {
+		if (firewallEnabled) {
 			if (ip != null) {
 				requestsLock.lock();
 				try {
@@ -162,7 +166,7 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	 */
 	@Override
 	public boolean postRemoveAll() {
-		if (appConfig.isFirewallEnabled()) {
+		if (firewallEnabled) {
 			requestsLock.lock();
 			try {
 				if (logger.isTraceEnabled()) {
@@ -185,24 +189,22 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	@Override
 	@Async
 	public void process() {
-		if (appConfig.isFirewallEnabled()) {
-			if (running.compareAndSet(false, true)) {
-				try {
-					Request request;
-					while ((request = getNextRequest()) != null) {
-						try {
-							processRequest(request);
-						} catch (Exception e) {
-							if (logger.isErrorEnabled()) {
-								logger.error(
-										"Error happened when process request: "
-												+ request, e);
-							}
+		if (running.compareAndSet(false, true)) {
+			try {
+				Request request;
+				while ((request = getNextRequest()) != null) {
+					try {
+						processRequest(request);
+					} catch (Exception e) {
+						if (logger.isErrorEnabled()) {
+							logger.error(
+									"Error happened when process request: "
+											+ request, e);
 						}
 					}
-				} finally {
-					running.set(false);
 				}
+			} finally {
+				running.set(false);
 			}
 		}
 	}
@@ -262,7 +264,7 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	}
 
 	private void removeRule(int ruleNumber) throws JSchException, IOException {
-		String command = MessageFormat.format(REMOVE_BLOCK_COMMAND, ruleNumber);
+		String command = MessageFormat.format(unblockOneCommand, ruleNumber);
 		SshExecuteResult result = sshExecutor.executeCommand(command);
 		if (result.getExitStatus() == 0) {
 			if (logger.isInfoEnabled()) {
@@ -282,7 +284,7 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	private void blockIp(InetAddress ip) throws JSchException, IOException {
 		Map<Integer, InetAddress> existingRule = getRuleNumberByIp(ip);
 		if (existingRule == null || existingRule.isEmpty()) {
-			String command = MessageFormat.format(ADD_BLOCK_IP_COMMAND,
+			String command = MessageFormat.format(blockOneCommand,
 					ip.getHostAddress());
 			SshExecuteResult result = sshExecutor.executeCommand(command);
 			if (result.getExitStatus() == 0) {
@@ -311,9 +313,9 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 			throws JSchException, IOException {
 		String command;
 		if (ip == null) {
-			command = LIST_ALL_BLOCK_COMMAND;
+			command = listAllBlockingCommand;
 		} else {
-			command = MessageFormat.format(LIST_BLOCK_IP_COMMAND,
+			command = MessageFormat.format(listOneBlockingCommand,
 					ip.getHostAddress());
 		}
 		SshExecuteResult result = sshExecutor.executeCommand(command);

@@ -40,6 +40,11 @@ public class SystemConfiguration {
 	public static final String FIREWALL_PASSPHRASE = "firewall.password_phrase";
 	public static final String SSH_DISCONNECT_DELAY = "firewall.ssh.disconnect.delay";
 
+	public static final String FIREWALL_COMMAND_LISTALL_BLOCKING = "firewall.commands.list.all";
+	public static final String FIREWALL_COMMAND_LISTONE_BLOCKING = "firewall.commands.list.ip";
+	public static final String FIREWALL_COMMAND_BLOCK_ONE = "firewall.commands.block.ip";
+	public static final String FIREWALL_COMMAND_UNBLOCK_ONE = "firewall.commands.unblock.ip";
+
 	public static final String USE_STUN = "sip.useStun";
 	public static final String STUN_SERVER = "sip.stun.server";
 	public static final String STUN_PORT = "sip.stun.port";
@@ -120,6 +125,22 @@ public class SystemConfiguration {
 
 	public boolean isFirewallEnabled() {
 		return appConfig.getBoolean(FIREWALL_ENABLED);
+	}
+
+	public String getFirewallCommandListAll() {
+		return appConfig.getString(FIREWALL_COMMAND_LISTALL_BLOCKING);
+	}
+
+	public String getFirewallCommandListOne() {
+		return appConfig.getString(FIREWALL_COMMAND_BLOCK_ONE);
+	}
+
+	public String getFirewallCommandBlockOne() {
+		return appConfig.getString(FIREWALL_COMMAND_BLOCK_ONE);
+	}
+
+	public String getFirewallCommandUnblockOne() {
+		return appConfig.getString(FIREWALL_COMMAND_UNBLOCK_ONE);
 	}
 
 	public String getPasswordPhrase() {
