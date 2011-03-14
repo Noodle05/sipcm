@@ -146,10 +146,8 @@
 			conf="provided->default" />
 		<dependency org="org.mobicents.javax.sip" name="mobicents-jain-sip-ext"
 			rev="1.0.BETA1" conf="provided->default;foride->sources,javadoc" />
-		<dependency org="javax.mail" name="mail" rev="1.4.1"
-			conf="provided->default" />
-		<dependency org="javax.activation" name="activation" rev="1.1"
-			conf="provided->default" />
+		<dependency org="javax.mail" name="mail" rev="1.4.4"
+			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="com.google.guava" name="guava" rev="r08"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.apache.tomcat" name="catalina" rev="6.0.32"
