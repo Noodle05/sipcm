@@ -10,7 +10,7 @@
 	</appender -->
 
 	<appender name="RollingFileAppender" class="org.apache.log4j.RollingFileAppender">
-		<param name="File" value="${catalina.base}/logs/sipcm.log" />
+		<param name="File" value="${catalina.base}/logs/mycallstation.log" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="5" />
 		<param name="Append" value="true" />
@@ -25,7 +25,7 @@
 		<param name="LocationInfo" value="true" />
 	</appender -->
 
-	<logger name="com.sipcm" additivity="false">
+	<logger name="com.mycallstation" additivity="false">
 		<level value="info" />
 		<appender-ref ref="RollingFileAppender" />
 	</logger>

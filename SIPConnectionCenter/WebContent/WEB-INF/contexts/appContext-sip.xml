@@ -3,16 +3,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
-	<bean id="voipVendorManager" class="com.sipcm.sip.vendor.VoipVendorManagerImpl">
+	<bean id="voipVendorManager" class="com.mycallstation.sip.vendor.VoipVendorManagerImpl">
 		<lookup-method name="createSipVoipVendorContext" bean="sipVoipVendorContext" />
 		<lookup-method name="createLocalVoipVendorContext" bean="sipVoipLocalVendorContext" />
 	</bean>
 
-	<bean id="googleVoiceManager" class="com.sipcm.googlevoice.GoogleVoiceManagerImpl">
+	<bean id="googleVoiceManager" class="com.mycallstation.googlevoice.GoogleVoiceManagerImpl">
 		<lookup-method name="getGoogleVoiceSession" bean="googleVoiceSession" />
 	</bean>
 
-	<util:map id="voipVendorToServletMap" key-type="com.sipcm.sip.VoipVendorType"
+	<util:map id="voipVendorToServletMap" key-type="com.mycallstation.sip.VoipVendorType"
 		value-type="java.lang.String">
 		<entry key="SIP" value="DelegatedServlet" />
 		<entry key="GOOGLE_VOICE" value="GoogleVoiceServlet" />
@@ -26,7 +26,7 @@
 		<ref bean="sipCallLogRecorder" />
 	</util:list>
 
-	<bean id="userServiceEventListener" class="com.sipcm.base.CompositeServiceEventListener">
+	<bean id="userServiceEventListener" class="com.mycallstation.base.CompositeServiceEventListener">
 		<property name="listeners">
 			<util:list>
 				<ref bean="locationServiceUserEventListener" />

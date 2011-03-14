@@ -25,7 +25,7 @@
 		<param name="LocationInfo" value="true" />
 	</appender>
 
-	<logger name="com.sipcm" additivity="false">
+	<logger name="com.mycallstation" additivity="false">
 		<level value="info" />
 		<appender-ref ref="RollingFileAppender" />
 	</logger>

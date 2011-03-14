@@ -13,15 +13,14 @@
 		<intercept-url pattern="/member/voipprofile.jsf" access="ROLE_CALLER" />
 		<intercept-url pattern="/member/voipprofile-edit.jsf"
 			access="ROLE_CALLER" />
-		<intercept-url pattern="/member/voipsetting.jsf"
-			access="ROLE_CALLER" />
+		<intercept-url pattern="/member/voipsetting.jsf" access="ROLE_CALLER" />
 		<intercept-url pattern="/member/**" access="ROLE_USER" />
 		<intercept-url pattern="/admin/**" access="ROLE_ADMIN" />
 		<form-login login-processing-url="/j_spring_security_check"
 			login-page="/login.jsf" default-target-url="/index.jsf"
 			authentication-failure-url="/login.jsf" />
 		<logout logout-url="/logout" logout-success-url="/index.jsp" />
-		<remember-me key="gaofamily.org" data-source-ref="dataSource" />
+		<remember-me key="mycallstation.com" data-source-ref="dataSource" />
 	</http>
 
 	<authentication-manager>
