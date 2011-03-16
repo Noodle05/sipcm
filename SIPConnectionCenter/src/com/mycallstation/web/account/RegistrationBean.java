@@ -180,27 +180,21 @@ public class RegistrationBean implements Serializable {
 				getInvitationService().saveEntity(invitation);
 			}
 		}
-		FacesMessage message;
+		String message = null;
 		switch (getAppConfig().getActiveMethod()) {
 		case SELF:
 			selfActive(user);
-			message = Messages.getMessage("register.success.self.active",
-					FacesMessage.SEVERITY_INFO);
-			context.addMessage(null, message);
+			message = "register.success.self.active";
 			break;
 		case ADMIN:
 			adminActive(user);
-			message = Messages.getMessage("register.success.admin.active",
-					FacesMessage.SEVERITY_INFO);
-			context.addMessage(null, message);
+			message = "register.success.admin.active";
 			break;
 		default:
-			message = Messages.getMessage("register.success",
-					FacesMessage.SEVERITY_INFO);
-			context.addMessage(null, message);
+			message = "register.success";
 			break;
 		}
-		return "/success.jsf?faces-redirect=true";
+		return "register-success.jsf?faces-redirect=true&messageId=" + message;
 	}
 
 	public void validateUsername(FacesContext context,

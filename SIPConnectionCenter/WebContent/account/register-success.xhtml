@@ -12,6 +12,11 @@
 		<meta http-equiv="Refresh" content="5; URL=/index.jsp" />
 	</ui:define>
 	<ui:define name="content">
+		<f:metadata>
+			<f:viewParam name="messageId" value="#{successPageBean.messageId}" />
+			<f:event listener="#{successPageBean.prepareMessage}"
+				type="preRenderView" />
+		</f:metadata>
 		<p:panel header="#{messages['success.message.title']}">
 			<p:messages showSummary="true" showDetail="true" />
 			<br />
