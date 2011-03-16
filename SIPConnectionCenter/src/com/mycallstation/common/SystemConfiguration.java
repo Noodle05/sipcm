@@ -132,7 +132,7 @@ public class SystemConfiguration {
 	}
 
 	public String getFirewallCommandListOne() {
-		return appConfig.getString(FIREWALL_COMMAND_BLOCK_ONE);
+		return appConfig.getString(FIREWALL_COMMAND_LISTONE_BLOCKING);
 	}
 
 	public String getFirewallCommandBlockOne() {

@@ -47,6 +47,13 @@ public class PublicIpAddressHolder {
 		}
 	}
 
+	public void setPublicIp(InetAddress publicIp) {
+		if (this.publicIp == null && !publicIp.isSiteLocalAddress()
+				&& !publicIp.isLoopbackAddress()) {
+			this.publicIp = publicIp;
+		}
+	}
+
 	private void probePublicIp() {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Getting public IP address.");

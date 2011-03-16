@@ -14,6 +14,7 @@ import org.mobicents.servlet.sip.listener.SipConnectorListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mycallstation.sip.nat.PublicIpAddressHolder;
 import com.mycallstation.sip.vendor.VoipVendorManager;
 
 /**
@@ -27,6 +28,9 @@ public class SipConnectorListenerImpl implements SipConnectorListener {
 
 	@Resource(name = "voipVendorManager")
 	private VoipVendorManager voipVendorManager;
+
+	@Resource(name = "publicIpAddressHolder")
+	private PublicIpAddressHolder publicIpAddressHolder;
 
 	private volatile boolean setted;
 
@@ -67,6 +71,7 @@ public class SipConnectorListenerImpl implements SipConnectorListener {
 							}
 							voipVendorManager.setListeningAddress(listeningIp,
 									listeningPort);
+							publicIpAddressHolder.setPublicIp(listeningIp);
 							setted = true;
 						}
 					} catch (UnknownHostException e) {

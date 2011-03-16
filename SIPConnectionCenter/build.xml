@@ -80,8 +80,8 @@
 		<move todir="${dist.dir}/lib" file="${dist.dir}/${jar.filename}" />
 		<mkdir dir="${dist.dir}/webinf/contexts" />
 		<copy todir="${dist.dir}/webinf/contexts">
-			<fileset dir="${web.dir}/WEB-INF/contexts" excludes="appContext-datasource.xml,appContext-mailer.xml,appContext-config.xml" />
-			<fileset dir="${web.dir}/WEB-INF/deploy-confs" includes="appContext-datasource.xml,appContext-mailer.xml,appContext-config.xml" />
+			<fileset dir="${web.dir}/WEB-INF/contexts" excludes="appContext-datasource.xml,appContext-mailer.xml,appContext-config.xml appContext-web.xml" />
+			<fileset dir="${web.dir}/WEB-INF/deploy-confs" includes="appContext-datasource.xml,appContext-mailer.xml,appContext-config.xml appContext-web.xml" />
 		</copy>
 		<mkdir dir="${dist.dir}/webinf/config" />
 		<copy todir="${dist.dir}/webinf/config">

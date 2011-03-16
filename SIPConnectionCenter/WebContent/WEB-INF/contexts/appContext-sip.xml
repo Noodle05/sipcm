@@ -53,6 +53,7 @@
 				<entry key="sipDialplanExecutor" value-ref="sipDialplanExecutor" />
 				<entry key="sipLocationService" value-ref="sipLocationService" />
 				<entry key="mapHolderBean" value-ref="mapHolderBean" />
+				<entry key="publicIpAddressHolder" value-ref="publicIpAddressHolder" />
 			</util:map>
 		</property>
 	</bean>

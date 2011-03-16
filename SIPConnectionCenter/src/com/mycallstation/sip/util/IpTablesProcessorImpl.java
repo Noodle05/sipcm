@@ -267,6 +267,9 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 
 	private void removeRule(int ruleNumber) throws JSchException, IOException {
 		String command = MessageFormat.format(unblockOneCommand, ruleNumber);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Issue command to firewall: \"{}\"", command);
+		}
 		SshExecuteResult result = sshExecutor.executeCommand(command);
 		if (result.getExitStatus() == 0) {
 			if (logger.isInfoEnabled()) {
@@ -288,6 +291,9 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 		if (existingRule == null || existingRule.isEmpty()) {
 			String command = MessageFormat.format(blockOneCommand,
 					ip.getHostAddress());
+			if (logger.isTraceEnabled()) {
+				logger.trace("Issue command to firewall: \"{}\"", command);
+			}
 			SshExecuteResult result = sshExecutor.executeCommand(command);
 			if (result.getExitStatus() == 0) {
 				if (logger.isInfoEnabled()) {
@@ -373,9 +379,20 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 			this.ip = ip;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
 		public String toString() {
-			return "Request[type=" + requestType + ",ip=" + ip.getHostAddress()
-					+ "]";
+			StringBuilder sb = new StringBuilder();
+			sb = sb.append("Request[type=").append(requestType);
+			if (ip != null) {
+				sb = sb.append(",ip=").append(ip.getHostAddress());
+			}
+			sb = sb.append("]");
+			return sb.toString();
 		}
 	}
 }
