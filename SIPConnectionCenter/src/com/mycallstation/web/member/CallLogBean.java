@@ -56,7 +56,7 @@ public class CallLogBean implements Serializable {
 	@PostConstruct
 	public void init() {
 		User user = JSFUtils.getCurrentUser();
-		Calendar c = Calendar.getInstance();
+		Calendar c = Calendar.getInstance(JSFUtils.getCurrentTimeZone());
 		c.set(Calendar.DAY_OF_MONTH, 1);
 		c.set(Calendar.HOUR_OF_DAY, 0);
 		c.set(Calendar.MINUTE, 0);

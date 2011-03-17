@@ -59,16 +59,19 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 		FilterFactory filterFactory = getFilterFactory();
 		Filter filter = filterFactory.createSimpleFilter("owner.id",
 				user.getId());
-		Date ed = endDate;
+		Calendar c;
 		if (endDate == null) {
-			Calendar c = Calendar.getInstance();
-			c.add(Calendar.DAY_OF_MONTH, 1);
-			c.set(Calendar.HOUR, 0);
-			c.set(Calendar.MINUTE, 0);
-			c.set(Calendar.SECOND, 0);
-			c.set(Calendar.MILLISECOND, 0);
-			ed = c.getTime();
+			c = Calendar.getInstance(JSFUtils.getCurrentTimeZone());
+		} else {
+			c = Calendar.getInstance(JSFUtils.getCurrentTimeZone());
+			c.setTime(endDate);
 		}
+		c.add(Calendar.DAY_OF_MONTH, 1);
+		c.set(Calendar.HOUR, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		Date ed = c.getTime();
 		Filter f = filterFactory
 				.createBetweenFilter("startTime", startDate, ed);
 		filter = filter.appendAnd(f);

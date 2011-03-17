@@ -10,6 +10,10 @@
 	<ui:define name="windowTitle">#{messages['home.title']}</ui:define>
 	<ui:define name="content">
 		<f:view contentType="text/html">
+			<f:metadata>
+				<f:event listener="#{homePage.initSession}"
+					type="preRenderView" />
+			</f:metadata>
 			<p:panel header="#{messages['home.header']}">
 				<h:outputText value="#{messages['home.content']}" />
 			</p:panel>
