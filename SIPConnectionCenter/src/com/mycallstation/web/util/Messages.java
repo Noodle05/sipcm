@@ -42,18 +42,15 @@ public abstract class Messages {
 
 	public static FacesMessage getMessage(String bundleName, String resourceId,
 			Object[] params, FacesMessage.Severity severity) {
-		FacesContext context = FacesContext.getCurrentInstance();
-		Application app = context.getApplication();
-		String appBundle = app.getMessageBundle();
 		Locale locale = JSFUtils.getCurrentLocale();
 		ClassLoader loader = getClassLoader();
-		String summary = getString(appBundle, bundleName, resourceId, locale,
-				loader, params);
+		String summary = getString(bundleName, resourceId, locale, loader,
+				params);
 		if (summary == null) {
 			summary = "???" + resourceId + "???";
 		}
-		String detail = getString(appBundle, bundleName,
-				resourceId + "_detail", locale, loader, params);
+		String detail = getString(bundleName, resourceId + "_detail", locale,
+				loader, params);
 		if (severity != null) {
 			return new FacesMessage(severity, summary, detail);
 		} else {
@@ -63,32 +60,29 @@ public abstract class Messages {
 
 	public static String getString(String bundle, String resourceId,
 			Object[] params) {
-		FacesContext context = FacesContext.getCurrentInstance();
-		Application app = context.getApplication();
-		String appBundle = app.getMessageBundle();
 		Locale locale = JSFUtils.getCurrentLocale();
 		ClassLoader loader = getClassLoader();
-		return getString(appBundle, bundle, resourceId, locale, loader, params);
+		return getString(bundle, resourceId, locale, loader, params);
 	}
 
-	public static String getString(String bundle1, String bundle2,
-			String resourceId, Locale locale, ClassLoader loader,
-			Object[] params) {
+	public static String getString(String bundleStr, String resourceId,
+			Locale locale, ClassLoader loader, Object[] params) {
 		String resource = null;
 		ResourceBundle bundle;
 
-		if (bundle1 != null) {
-			bundle = ResourceBundle.getBundle(bundle1, locale, loader);
-			if (bundle != null) {
-				try {
-					resource = bundle.getString(resourceId);
-				} catch (MissingResourceException ex) {
-				}
+		FacesContext context = FacesContext.getCurrentInstance();
+		Application app = context.getApplication();
+		bundle = app.getResourceBundle(context, "messages");
+
+		if (bundle != null) {
+			try {
+				resource = bundle.getString(resourceId);
+			} catch (MissingResourceException ex) {
 			}
 		}
 
-		if (resource == null && bundle2 != null) {
-			bundle = ResourceBundle.getBundle(bundle2, locale, loader);
+		if (resource == null && bundleStr != null) {
+			bundle = ResourceBundle.getBundle(bundleStr, locale, loader);
 			if (bundle != null) {
 				try {
 					resource = bundle.getString(resourceId);

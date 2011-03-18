@@ -6,11 +6,11 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core">
 <f:view locale="#{localeTimeZoneHolderBean.locale}">
-	<f:loadBundle var="messages" basename="messages.CallerPages" />
 	<h:head>
 		<title><ui:insert name="windowTitle">
 				<h:outputText value="#{messages['default.windowsTitle']}" />
-			</ui:insert></title>
+			</ui:insert>
+		</title>
 		<h:outputStylesheet library="css" name="style.css" />
 		<ui:insert name="extraHeader" />
 	</h:head>

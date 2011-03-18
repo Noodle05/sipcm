@@ -120,7 +120,8 @@
 					</h:panelGrid>
 					<p:commandButton ajax="true" id="submit" styleClass="submit"
 						value="#{messages['register.submit']}"
-						action="#{registrationBean.register}" />
+						action="#{registrationBean.register}"
+						update="usernameError emailError passwordError confirmPasswordError firstNameError middleNameError lastNameError displayNameError localeError timeZoneError invitationCodeError captchaError" />
 				</p:panel>
 			</h:form>
 		</f:view>

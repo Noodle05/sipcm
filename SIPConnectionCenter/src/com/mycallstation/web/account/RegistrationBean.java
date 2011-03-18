@@ -16,7 +16,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -47,7 +47,7 @@ import com.mycallstation.web.util.Messages;
  * 
  */
 @ManagedBean(name = "registrationBean")
-@ViewScoped
+@RequestScoped
 public class RegistrationBean implements Serializable {
 	private static final long serialVersionUID = -6419289187735553748L;
 
@@ -180,7 +180,7 @@ public class RegistrationBean implements Serializable {
 				getInvitationService().saveEntity(invitation);
 			}
 		}
-		String message = null;
+		String message;
 		switch (getAppConfig().getActiveMethod()) {
 		case SELF:
 			selfActive(user);

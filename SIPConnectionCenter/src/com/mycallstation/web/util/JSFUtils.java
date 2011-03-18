@@ -178,7 +178,7 @@ public abstract class JSFUtils {
 							ret[i] = new SelectItem(NA, NA);
 						} else {
 							TimeZone t = TimeZone.getTimeZone(tzids[i]);
-							ret[i] = new SelectItem(tzids,
+							ret[i] = new SelectItem(tzids[i],
 									t.getDisplayName(locale));
 						}
 					}
