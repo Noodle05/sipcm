@@ -4,7 +4,7 @@
 	<bean id="globalMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
 		<property name="session">
 			<bean class="org.springframework.jndi.JndiObjectFactoryBean">
-				<property name="jndiName" value="java:/comp/env/mail/sipcmMS" />
+				<property name="jndiName" value="java:/comp/env/mail/Session" />
 			</bean>
 		</property>
 	</bean>

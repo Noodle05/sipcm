@@ -91,8 +91,8 @@
 		</copy>
 		<mkdir dir="${dist.dir}/webinf/config" />
 		<copy todir="${dist.dir}/webinf/config">
-			<fileset dir="${web.dir}/WEB-INF/config" excludes="config.properties,sipcm-log4j.xml,system-config.xml" />
-			<fileset dir="${web.dir}/WEB-INF/deploy-confs" includes="config.properties,sipcm-log4j.xml" />
+			<fileset dir="${web.dir}/WEB-INF/config" excludes="config.properties,log4j.xml,system-config.xml" />
+			<fileset dir="${web.dir}/WEB-INF/deploy-confs" includes="config.properties,log4j.xml" />
 		</copy>
 		<copy todir="${dist.dir}/webinf">
 			<fileset dir="${web.dir}/WEB-INF">
