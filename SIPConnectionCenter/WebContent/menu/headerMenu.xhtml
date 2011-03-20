@@ -4,37 +4,47 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:sec="http://www.springframework.org/security/facelets/tags">
 	<div class="header-menu-left">
-	<ul class="nav-menu">
-		<li><h:outputLink value="/index.jsf">
-			<h:outputText value="#{messages['header.menu.home']}" />
-		</h:outputLink></li>
-		<sec:ifAllGranted roles="ROLE_USER">
-			<li><h:outputLink value="/member/index.jsf">
-				<h:outputText value="#{messages['header.menu.member']}" />
-			</h:outputLink></li>
-		</sec:ifAllGranted>
-		<sec:ifAllGranted roles="ROLE_ADMIN">
-			<li><h:outputLink value="/admin/index.jsf">
-				<h:outputText value="#{messages['header.menu.admin']}" />
-			</h:outputLink></li>
-		</sec:ifAllGranted>
-	</ul>
+		<ul class="nav-menu">
+			<li><h:outputLink value="/index.jsf">
+					<h:outputText value="#{messages['header.menu.home']}" />
+				</h:outputLink>
+			</li>
+			<sec:ifAllGranted roles="ROLE_USER">
+				<li><h:outputLink value="/member/index.jsf">
+						<h:outputText value="#{messages['header.menu.member']}" />
+					</h:outputLink>
+				</li>
+			</sec:ifAllGranted>
+			<li><h:outputLink value="/forum/">
+					<h:outputText value="#{messages['header.menu.forum']}" />
+				</h:outputLink>
+			</li>
+			<sec:ifAllGranted roles="ROLE_ADMIN">
+				<li><h:outputLink value="/admin/index.jsf">
+						<h:outputText value="#{messages['header.menu.admin']}" />
+					</h:outputLink>
+				</li>
+			</sec:ifAllGranted>
+		</ul>
 	</div>
 	<div class="header-menu-right">
-	<ul class="nav-menu">
-		<sec:isAnonymous>
-			<li><h:outputLink value="/login.jsf">
-				<h:outputText value="#{messages['header.menu.login']}" />
-			</h:outputLink></li>
-			<li><h:outputLink value="/account/register.jsf">
-				<h:outputText value="#{messages['header.menu.register']}" />
-			</h:outputLink></li>
-		</sec:isAnonymous>
-		<sec:isAuthenticated>
-			<li><h:outputLink value="/logout">
-				<h:outputText value="#{messages['header.menu.logout']}" />
-			</h:outputLink></li>
-		</sec:isAuthenticated>
-	</ul>
+		<ul class="nav-menu">
+			<sec:isAnonymous>
+				<li><h:outputLink value="/login.jsf">
+						<h:outputText value="#{messages['header.menu.login']}" />
+					</h:outputLink>
+				</li>
+				<li><h:outputLink value="/account/register.jsf">
+						<h:outputText value="#{messages['header.menu.register']}" />
+					</h:outputLink>
+				</li>
+			</sec:isAnonymous>
+			<sec:isAuthenticated>
+				<li><h:outputLink value="/logout">
+						<h:outputText value="#{messages['header.menu.logout']}" />
+					</h:outputLink>
+				</li>
+			</sec:isAuthenticated>
+		</ul>
 	</div>
 </ui:composition>

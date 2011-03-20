@@ -373,7 +373,7 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 							}
 						}
 						if (callEventListener != null) {
-							callCancelled(req.getSession());
+							callCanceled(req.getSession());
 						}
 						appSession.invalidate();
 						return;

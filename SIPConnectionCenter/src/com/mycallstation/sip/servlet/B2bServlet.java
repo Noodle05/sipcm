@@ -95,7 +95,7 @@ public class B2bServlet extends AbstractSipServlet {
 			SipSession session = resp.getSession(false);
 			if (session != null && session.isValid()) {
 				if (callEventListener != null) {
-					callCancelled(session);
+					callCanceled(session);
 				}
 				if (logger.isTraceEnabled()) {
 					logger.trace("Invalidate session: {}", session.getId());
@@ -158,7 +158,7 @@ public class B2bServlet extends AbstractSipServlet {
 			} else if ("BYE".equalsIgnoreCase(resp.getRequest().getMethod())) {
 				callEnd(session, linkedSession);
 			} else if ("CANCEL".equalsIgnoreCase(resp.getRequest().getMethod())) {
-				callCancelled(session, linkedSession);
+				callCanceled(session, linkedSession);
 			}
 		}
 		SipServletResponse forkedResp = null;
@@ -283,7 +283,7 @@ public class B2bServlet extends AbstractSipServlet {
 				}
 				linkedSession.setAttribute(LINKED_SESSION_STATUS, "WAITING");
 				if (callEventListener != null) {
-					callCancelled(session);
+					callCanceled(session);
 				}
 				response(req, SipServletResponse.SC_OK);
 				break;
@@ -300,7 +300,7 @@ public class B2bServlet extends AbstractSipServlet {
 					logger.trace("And response bad request response to original request.");
 				}
 				if (callEventListener != null) {
-					callCancelled(session);
+					callCanceled(session);
 				}
 				response(req, SipServletResponse.SC_BAD_REQUEST,
 						"Use CANCEL next time.");
@@ -416,7 +416,7 @@ public class B2bServlet extends AbstractSipServlet {
 					linkedSession
 							.setAttribute(LINKED_SESSION_STATUS, "WAITING");
 					if (callEventListener != null) {
-						callCancelled(session);
+						callCanceled(session);
 					}
 					break;
 				case EARLY:
@@ -434,7 +434,7 @@ public class B2bServlet extends AbstractSipServlet {
 					linkedSession.setAttribute(LINKED_SESSION_STATUS,
 							"CANCELLED");
 					if (callEventListener != null) {
-						callCancelled(session);
+						callCanceled(session);
 					}
 					break;
 				case CONFIRMED:
@@ -512,45 +512,57 @@ public class B2bServlet extends AbstractSipServlet {
 	protected void callEnd(SipSession session, SipSession linkedSession) {
 		callEnd(session);
 		callEnd(linkedSession);
-
 	}
 
 	protected void callEnd(SipSession session) {
-		CallStartEvent startEvent = (CallStartEvent) session
-				.getAttribute(INCOMING_CALL_START);
-		if (startEvent != null) {
-			session.removeAttribute(INCOMING_CALL_START);
-			CallEndEvent endEvent = new CallEndEvent(startEvent);
-			callEventListener.incomingCallEnd(endEvent);
+		if (session != null) {
+			CallStartEvent startEvent = (CallStartEvent) session
+					.getAttribute(INCOMING_CALL_START);
+			if (startEvent != null) {
+				session.removeAttribute(INCOMING_CALL_START);
+				CallEndEvent endEvent = new CallEndEvent(startEvent);
+				callEventListener.incomingCallEnd(endEvent);
+			}
+			startEvent = (CallStartEvent) session
+					.getAttribute(OUTGOING_CALL_START);
+			if (startEvent != null) {
+				session.removeAttribute(OUTGOING_CALL_START);
+				CallEndEvent endEvent = new CallEndEvent(startEvent);
+				callEventListener.outgoingCallEnd(endEvent);
+			}
+		} else {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Calling \"{}\" with null session!", "callEnd");
+			}
 		}
-		startEvent = (CallStartEvent) session.getAttribute(OUTGOING_CALL_START);
-		if (startEvent != null) {
-			session.removeAttribute(OUTGOING_CALL_START);
-			CallEndEvent endEvent = new CallEndEvent(startEvent);
-			callEventListener.outgoingCallEnd(endEvent);
-		}
+	}
+
+	protected void callCanceled(SipSession session, SipSession linkedSession) {
+		callCanceled(session);
+		callCanceled(linkedSession);
 
 	}
 
-	protected void callCancelled(SipSession session, SipSession linkedSession) {
-		callCancelled(session);
-		callCancelled(linkedSession);
-
-	}
-
-	protected void callCancelled(SipSession session) {
-		CallStartEvent startEvent = (CallStartEvent) session
-				.getAttribute(INCOMING_CALL_START);
-		if (startEvent != null) {
-			session.removeAttribute(INCOMING_CALL_START);
-			CallEndEvent endEvent = new CallEndEvent(startEvent);
-			callEventListener.incomingCallCancelled(endEvent);
-		}
-		startEvent = (CallStartEvent) session.getAttribute(OUTGOING_CALL_START);
-		if (startEvent != null) {
-			session.removeAttribute(OUTGOING_CALL_START);
-			CallEndEvent endEvent = new CallEndEvent(startEvent);
-			callEventListener.outgoingCallCancelled(endEvent);
+	protected void callCanceled(SipSession session) {
+		if (session != null) {
+			CallStartEvent startEvent = (CallStartEvent) session
+					.getAttribute(INCOMING_CALL_START);
+			if (startEvent != null) {
+				session.removeAttribute(INCOMING_CALL_START);
+				CallEndEvent endEvent = new CallEndEvent(startEvent);
+				callEventListener.incomingCallCancelled(endEvent);
+			}
+			startEvent = (CallStartEvent) session
+					.getAttribute(OUTGOING_CALL_START);
+			if (startEvent != null) {
+				session.removeAttribute(OUTGOING_CALL_START);
+				CallEndEvent endEvent = new CallEndEvent(startEvent);
+				callEventListener.outgoingCallCancelled(endEvent);
+			}
+		} else {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Calling \"{}\" with null session!", "callCanceled");
+			}
 		}
 	}
 
@@ -560,16 +572,24 @@ public class B2bServlet extends AbstractSipServlet {
 	}
 
 	protected void callEstablished(SipSession session) {
-		CallStartEvent startEvent = (CallStartEvent) session
-				.getAttribute(INCOMING_CALL_START);
-		if (startEvent != null) {
-			startEvent.setStartTime(new Date());
-			callEventListener.incomingCallEstablished(startEvent);
-		}
-		startEvent = (CallStartEvent) session.getAttribute(OUTGOING_CALL_START);
-		if (startEvent != null) {
-			startEvent.setStartTime(new Date());
-			callEventListener.outgoingCallEstablished(startEvent);
+		if (session != null) {
+			CallStartEvent startEvent = (CallStartEvent) session
+					.getAttribute(INCOMING_CALL_START);
+			if (startEvent != null) {
+				startEvent.setStartTime(new Date());
+				callEventListener.incomingCallEstablished(startEvent);
+			}
+			startEvent = (CallStartEvent) session
+					.getAttribute(OUTGOING_CALL_START);
+			if (startEvent != null) {
+				startEvent.setStartTime(new Date());
+				callEventListener.outgoingCallEstablished(startEvent);
+			}
+		} else {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Calling \"{}\" with null session!",
+						"callEstablished");
+			}
 		}
 	}
 
@@ -580,20 +600,27 @@ public class B2bServlet extends AbstractSipServlet {
 	}
 
 	protected void callFailed(SipSession session, SipServletResponse resp) {
-		CallStartEvent startEvent = (CallStartEvent) session
-				.getAttribute(INCOMING_CALL_START);
-		if (startEvent != null) {
-			session.removeAttribute(INCOMING_CALL_START);
-			CallEndEvent endEvent = new CallEndEvent(startEvent,
-					resp.getStatus(), resp.getReasonPhrase());
-			callEventListener.incomingCallFailed(endEvent);
-		}
-		startEvent = (CallStartEvent) session.getAttribute(OUTGOING_CALL_START);
-		if (startEvent != null) {
-			session.removeAttribute(OUTGOING_CALL_START);
-			CallEndEvent endEvent = new CallEndEvent(startEvent,
-					resp.getStatus(), resp.getReasonPhrase());
-			callEventListener.outgoingCallFailed(endEvent);
+		if (session != null) {
+			CallStartEvent startEvent = (CallStartEvent) session
+					.getAttribute(INCOMING_CALL_START);
+			if (startEvent != null) {
+				session.removeAttribute(INCOMING_CALL_START);
+				CallEndEvent endEvent = new CallEndEvent(startEvent,
+						resp.getStatus(), resp.getReasonPhrase());
+				callEventListener.incomingCallFailed(endEvent);
+			}
+			startEvent = (CallStartEvent) session
+					.getAttribute(OUTGOING_CALL_START);
+			if (startEvent != null) {
+				session.removeAttribute(OUTGOING_CALL_START);
+				CallEndEvent endEvent = new CallEndEvent(startEvent,
+						resp.getStatus(), resp.getReasonPhrase());
+				callEventListener.outgoingCallFailed(endEvent);
+			}
+		} else {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Calling \"{}\" with null session!", "callFailed");
+			}
 		}
 	}
 }

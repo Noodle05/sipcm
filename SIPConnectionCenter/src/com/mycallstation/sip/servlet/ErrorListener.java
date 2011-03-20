@@ -7,6 +7,7 @@ import javax.servlet.sip.B2buaHelper;
 import javax.servlet.sip.SipErrorEvent;
 import javax.servlet.sip.SipErrorListener;
 import javax.servlet.sip.SipServletRequest;
+import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSession;
 import javax.servlet.sip.annotation.SipListener;
 
@@ -32,10 +33,13 @@ public class ErrorListener implements SipErrorListener {
 	 */
 	@Override
 	public void noAckReceived(SipErrorEvent ee) {
-		if (logger.isErrorEnabled()) {
-			logger.error("ACK is not received.");
-		}
 		SipServletRequest req = ee.getRequest();
+		SipServletResponse res = ee.getResponse();
+		if (logger.isWarnEnabled()) {
+			logger.warn(
+					"ACK is not received for original request: \"{}\", response: \"{}\"",
+					req, res);
+		}
 		SipSession session = req.getSession(false);
 		if (session != null) {
 			B2buaHelper helper = req.getB2buaHelper();
@@ -70,10 +74,13 @@ public class ErrorListener implements SipErrorListener {
 	 */
 	@Override
 	public void noPrackReceived(SipErrorEvent ee) {
-		if (logger.isErrorEnabled()) {
-			logger.error("PRACK is not received.");
-		}
 		SipServletRequest req = ee.getRequest();
+		SipServletResponse res = ee.getResponse();
+		if (logger.isWarnEnabled()) {
+			logger.warn(
+					"PRACK is not received for original request: \"{}\", response: \"{}\"",
+					req, res);
+		}
 		SipSession session = req.getSession(false);
 		if (session != null) {
 			B2buaHelper helper = req.getB2buaHelper();

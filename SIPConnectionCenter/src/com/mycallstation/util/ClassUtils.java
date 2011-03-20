@@ -220,9 +220,12 @@ public abstract class ClassUtils {
 			Class<?> theClass = null;
 			try {
 				theClass = Class.forName(className, false, classLoader);
-			} catch (Exception e) {
-				if (logger.isWarnEnabled()) {
-					logger.warn("Skipping class \"" + className + "\"", e);
+			} catch (Throwable e) {
+				if (logger.isInfoEnabled()) {
+					logger.info("Skipping class \"{}\"", className);
+					if (logger.isDebugEnabled()) {
+						logger.debug("", e);
+					}
 				}
 				return;
 			}

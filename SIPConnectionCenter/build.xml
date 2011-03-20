@@ -12,6 +12,7 @@
 	<property name="build.dir" location="${basedir}/build" />
 	<property name="dist.dir" location="${basedir}/dist" />
 	<property name="web.dir" location="${basedir}/WebContent" />
+	<property name="jforumintegration" value="${web.dir}/WEB-INF/lib/jforum_sso.1.0.jar" />
 	<property name="jar.filename" value="${ant.project.name}.jar" />
 	<property name="war.filename" value="${ant.project.name}.war" />
 
@@ -59,7 +60,11 @@
 		<echo message="Compile source code..." />
 		<ivy:cachepath pathid="lib.compile.path.id" conf="compile, provided" />
 		<!-- Compile the java code from ${src.dir} into ${build.dir} -->
-		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="lib.compile.path.id" debug="true" />
+		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="lib.compile.path.id" debug="true" includeantruntime="false">
+			<classpath>
+				<filelist files="${jforumintegration}" />
+			</classpath>
+		</javac>
 	</target>
 
 	<target name="jar" depends="compile" description="generate the distribution">
@@ -78,6 +83,7 @@
 		<!-- Stupid ivy cannot exclude commons-logging, so we need to delete it manually. -->
 		<delete file="${dist.dir}/lib/${commons-logging.filename}" />
 		<move todir="${dist.dir}/lib" file="${dist.dir}/${jar.filename}" />
+		<copy file="${jforumintegration}" todir="${dist.dir}/lib" />
 		<mkdir dir="${dist.dir}/webinf/contexts" />
 		<copy todir="${dist.dir}/webinf/contexts">
 			<fileset dir="${web.dir}/WEB-INF/contexts" excludes="appContext-datasource.xml,appContext-mailer.xml,appContext-config.xml appContext-web.xml" />

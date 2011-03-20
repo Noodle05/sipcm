@@ -30,7 +30,7 @@
 		<form-login login-processing-url="/j_spring_security_check"
 			login-page="/login.jsf" default-target-url="/index.jsf"
 			authentication-failure-url="/login.jsf" />
-		<logout logout-url="/logout" logout-success-url="/index.jsp" />
+		<logout logout-url="/logout" success-handler-ref="securityLogoutHandler" />
 		<remember-me key="mycallstation.com" data-source-ref="dataSource" />
 		<session-management session-fixation-protection="none" />
 	</http>
