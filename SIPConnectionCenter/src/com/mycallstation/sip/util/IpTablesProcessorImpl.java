@@ -79,7 +79,8 @@ public class IpTablesProcessorImpl implements IpTablesProcessor {
 	public void init() {
 		if (appConfig.isFirewallEnabled()) {
 			sshExecutor.init(appConfig.getFirewallHost(),
-					appConfig.getFirewallUser(), appConfig.getKnownHostsFile(),
+					appConfig.getFirewallPort(), appConfig.getFirewallUser(),
+					appConfig.getKnownHostsFile(),
 					appConfig.getPrivateKeyFile(),
 					appConfig.getPasswordPhrase(),
 					appConfig.getSshDisconnectDelay());

@@ -34,6 +34,7 @@ public class SystemConfiguration {
 
 	public static final String FIREWALL_ENABLED = "firewall.enable";
 	public static final String FIREWALL_HOST = "firewall.host";
+	public static final String FIREWALL_PORT = "firewall.port";
 	public static final String FIREWALL_USER = "firewall.user";
 	public static final String KNOWN_HOSTS = "firewall.known_hosts";
 	public static final String PRIVATE_KEY = "firewall.private_key";
@@ -109,6 +110,10 @@ public class SystemConfiguration {
 
 	public String getFirewallHost() {
 		return appConfig.getString(FIREWALL_HOST);
+	}
+
+	public int getFirewallPort() {
+		return appConfig.getInt(FIREWALL_PORT, 0);
 	}
 
 	public String getFirewallUser() {

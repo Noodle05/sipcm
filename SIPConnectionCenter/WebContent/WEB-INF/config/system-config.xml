@@ -31,6 +31,7 @@
 
 	<entry key="firewall.enable">false</entry>
 	<entry key="firewall.host">localhost</entry>
+	<entry key="firewall.port">22</entry>
 	<entry key="firewall.user">root</entry>
 	<entry key="firewall.known_hosts">/usr/local/etc/ssh/known_hosts</entry>
 	<entry key="firewall.private_key">/usr/local/etc/ssh/id_rsa</entry>

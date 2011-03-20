@@ -31,6 +31,8 @@
 			login-page="/login.jsf" default-target-url="/index.jsf"
 			authentication-failure-url="/login.jsf" />
 		<logout logout-url="/logout" success-handler-ref="securityLogoutHandler" />
+		<custom-filter ref="myRememberMeAuthenticationFilter"
+			after="REMEMBER_ME_FILTER" />
 		<remember-me key="mycallstation.com" data-source-ref="dataSource" />
 		<session-management session-fixation-protection="none" />
 	</http>

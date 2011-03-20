@@ -46,6 +46,7 @@ public class SshExecutor {
 	private volatile Future<Void> disconnectTaskFuture;
 
 	private String host;
+	private int port;
 	private String username;
 	private String knownHosts;
 	private String privateKey;
@@ -66,9 +67,10 @@ public class SshExecutor {
 		}
 	}
 
-	public void init(String host, String username, String knownHosts,
+	public void init(String host, int port, String username, String knownHosts,
 			String privateKey, String passwordPhrase, int disconnectDelay) {
 		this.host = host;
+		this.port = port;
 		this.username = username;
 		this.knownHosts = knownHosts;
 		this.privateKey = privateKey;
@@ -98,7 +100,11 @@ public class SshExecutor {
 	private void connectToHost() throws JSchException {
 		cancelDisconnectSessionTask();
 		if (jschSession == null) {
-			jschSession = jsch.getSession(username, host);
+			if (port > 0) {
+				jschSession = jsch.getSession(username, host, port);
+			} else {
+				jschSession = jsch.getSession(username, host);
+			}
 		}
 		if (!jschSession.isConnected()) {
 			if (logger.isDebugEnabled()) {
