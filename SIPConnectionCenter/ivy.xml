@@ -21,8 +21,6 @@
 		<conf name="foride" extends="compile" />
 	</configurations>
 	<dependencies>
-		<dependency org="c3p0" name="c3p0" rev="0.9.1.2"
-			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="commons-cli" name="commons-cli" rev="1.2"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.apache.httpcomponents" name="httpclient"
@@ -30,12 +28,9 @@
 			<exclude module="commons-logging" />
 			<exclude module="commons-codec" />
 		</dependency>
-		<dependency org="org.hibernate" name="hibernate-c3p0" rev="3.6.1.Final"
-			conf="runtime->default;foride->sources,javadoc">
-			<exclude module="slf4j-api" />
-			<exclude module="c3p0" />
-		</dependency>
-		<dependency org="mysql" name="mysql-connector-java" rev="5.1.14"
+		<!-- dependency org="org.apache.tomcat" name="jdbc-pool" rev="1.1.0.1"
+			conf="provided->default" / -->
+		<dependency org="mysql" name="mysql-connector-java" rev="5.1.15"
 			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="javax.validation" name="validation-api"
 			rev="1.0.0.GA" conf="compile->default;foride->sources,javadoc" />
@@ -154,9 +149,9 @@
 			conf="provided->default" />
 		<dependency org="jstl" name="jstl" rev="1.2"
 			conf="runtime->default;foride->sources,javadoc" />
-		<dependency org="com.sun.faces" name="jsf-api" rev="2.0.4-b09"
+		<dependency org="com.sun.faces" name="jsf-api" rev="2.1.0-b11"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="com.sun.faces" name="jsf-impl" rev="2.0.4-b09"
+		<dependency org="com.sun.faces" name="jsf-impl" rev="2.1.0-b11"
 			conf="runtime->default;foride->sources,javadoc" />
 		<!-- dependency org="net.schmizz" name="sshj" rev="0.3.0" conf="compile->default;foride->sources,javadoc" 
 			/ -->
@@ -167,7 +162,7 @@
 		<dependency org="org.primefaces" name="primefaces" rev="2.2.1"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.primefaces.themes" name="aristo"
-			rev="1.0.0" conf="runtime->default" />
+			rev="1.0.0" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.apache.velocity" name="velocity" rev="1.7"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework.security" name="facelets-taglib-jsf20-spring-3"
