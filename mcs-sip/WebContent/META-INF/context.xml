@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiResourceLocking="false" privileged="true"
+	className="org.mobicents.servlet.sip.startup.SipStandardContext">
+	<ResourceLink name="jdbc/mainDS" global="jdbc/mainDS"
+		type="javax.sql.DataSource" />
+	<Manager className="org.mobicents.servlet.sip.core.session.SipStandardManager" />
+</Context>

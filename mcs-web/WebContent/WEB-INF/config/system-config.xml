@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<comment>Calling Center configuration file. This is just a template,
+		default location of this file should be: /usr/local/etc/sip-config.xml</comment>
+	<entry key="domainname">mycallstation.com</entry>
+	<entry key="global.admin.email">admin@mycallstation.com</entry>
+	<entry key="global.admin.email.personal">System Administrator</entry>
+	<entry key="global.from.email">noreply@mycallstation</entry>
+	<entry key="global.from.email.personal">System Notifier</entry>
+
+	<entry key="sip.server.realm">mycallstation.com</entry>
+	<entry key="sip.publicIp.process">true</entry>
+
+	<entry key="sip.expirestime.min">120</entry>
+	<entry key="sip.expirestime.max">900</entry>
+	<entry key="com.sipcm.googlevoice.timeout">30</entry>
+	<entry key="com.sip.http.client.maxConnections">100</entry>
+
+	<entry key="sip.dos.protect.interval">60</entry>
+	<entry key="sip.dos.protect.max.requests">10</entry>
+	<entry key="sip.dos.protect.block.time">3600</entry>
+
+	<entry key="sip.useStun">false</entry>
+	<entry key="sip.stun.server">stun.counterpath.com</entry>
+	<entry key="sip.stun.port">3478</entry>
+
+	<entry key="sip.client.register.renew.before.expires">60</entry>
+	<entry key="sip.client.register.expires">3600</entry>
+	<entry key="sip.client.register.allow.methods">INVITE,ACK,CANCEL,BYE</entry>
+
+	<entry key="firewall.enable">false</entry>
+	<entry key="firewall.host">localhost</entry>
+	<entry key="firewall.port">22</entry>
+	<entry key="firewall.user">root</entry>
+	<entry key="firewall.known_hosts">/usr/local/etc/ssh/known_hosts</entry>
+	<entry key="firewall.private_key">/usr/local/etc/ssh/id_rsa</entry>
+	<entry key="firewall.password_phrase" />
+	<entry key="firewall.ssh.disconnect.delay">60</entry>
+
+	<entry key="firewall.commands.list.all"><![CDATA[/usr/bin/sudo /sbin/iptables -L RH-Firewall-1-INPUT -n -v --line-numbers | /bin/egrep ".*DROP.*udp dpt:5060" | /bin/awk -F " " '{print $1 ":" $9}']]></entry>
+	<entry key="firewall.commands.list.ip"><![CDATA[/usr/bin/sudo /sbin/iptables -L RH-Firewall-1-INPUT -n -v --line-numbers | /bin/egrep ".*DROP.*{0}.*udp dpt:5060" | /bin/awk -F " " '''{print $1 ":" $9}''']]></entry>
+	<entry key="firewall.commands.block.ip"><![CDATA[/usr/bin/sudo  /sbin/iptables -I RH-Firewall-1-INPUT 1 -p udp -s {0} --dport 5060 -j DROP]]></entry>
+	<entry key="firewall.commands.unblock.ip"><![CDATA[/usr/bin/sudo /sbin/iptables -D RH-Firewall-1-INPUT {0}]]></entry>
+
+	<entry key="register.by.invite.only">true</entry>
+	<entry key="register.active.method">SELF</entry>
+	<entry key="register.username.pattern"><![CDATA[^\p{Alpha}[\w|\.]{5,31}$]]></entry>
+	<entry key="register.email.pattern"><![CDATA[^[^@]+@[^@^\.]+\.[^@^\.]+$]]></entry>
+	<entry key="username.blacklist">admin,system,fuck,superuser,mycallstation,gaofamily</entry>
+</properties>

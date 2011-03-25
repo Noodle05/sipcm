@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+                http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+                http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+	<context:component-scan base-package="com.mycallstation" />
+
+	<aop:aspectj-autoproxy />
+
+	<tx:annotation-driven transaction-manager="txManager"
+		order="100" />
+
+	<task:annotation-driven executor="globalExecutor"
+		scheduler="globalScheduler" />
+
+	<task:executor id="globalExecutor" pool-size="10" />
+
+	<task:scheduler id="globalScheduler" pool-size="5" />
+
+	<bean id="placeholderConfig" class="com.mycallstation.spring.EncryptedPlaceholderConfigurer"
+		init-method="init">
+		<property name="location" value="/WEB-INF/config/config.properties" />
+	</bean>
+
+	<bean id="hibernateStringEncryptor"
+		class="org.jasypt.hibernate.encryptor.HibernatePBEStringEncryptor">
+		<property name="registeredName">
+			<value>sipHibernateStringEncryptor</value>
+		</property>
+		<property name="algorithm">
+			<value>PBEWithMD5AndTripleDES</value>
+		</property>
+		<property name="password">
+			<value>${string.encryptor.password.encrypted}</value>
+		</property>
+	</bean>
+
+	<bean id="globalEmailQueue" class="java.util.concurrent.LinkedBlockingQueue">
+		<constructor-arg index="0" value="500" />
+	</bean>
+
+	<bean id="globalStringDigester" class="org.jasypt.digest.StandardStringDigester">
+		<property name="stringOutputType" value="hexadecimal" />
+		<property name="saltSizeBytes" value="0" />
+		<property name="iterations" value="1" />
+	</bean>
+
+	<bean id="globalVelocityEngine"
+		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="velocityProperties">
+			<value>
+				resource.loader=class
+				class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+			</value>
+		</property>
+	</bean>
+</beans>

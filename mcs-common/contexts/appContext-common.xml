@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<bean id="googleVoiceManager" class="com.mycallstation.googlevoice.GoogleVoiceManagerImpl">
+		<lookup-method name="getGoogleVoiceSession" bean="googleVoiceSession" />
+	</bean>
+
+	<bean id="globalStringDigester" class="org.jasypt.digest.StandardStringDigester">
+		<property name="stringOutputType" value="hexadecimal" />
+		<property name="saltSizeBytes" value="0" />
+		<property name="iterations" value="1" />
+	</bean>
+</beans>

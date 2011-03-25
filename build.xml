@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="MyCallStation" basedir="." default="all">
+
+   <target name="build-common">
+        <ant dir="mcs-common" />
+   </target>
+
+   <target name="build-sip" depends="build-common">
+        <ant dir="mcs-sip" />
+   </target>
+
+   <target name="build-web" depends="build-common">
+        <ant dir="mcs-web" />
+   </target>
+
+   <target name="all" depends="build-sip,build-web" />
+
+   <target name="clean-common">
+      <ant target="clean" dir="mcs-common" />
+   </target>
+
+   <target name="clean-sip">
+      <ant target="clean" dir="mcs-sip" />
+   </target>
+
+   <target name="clean-web">
+      <ant target="clean" dir="mcs-web" />
+   </target>
+
+   <target name="clean-all" depends="clean-web,clean-sip,clean-common" />
+
+</project>

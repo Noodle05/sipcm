@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	you under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<ivy-module version="2.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+	<info organisation="com.mycallstation" module="SIPConnectionCenter" />
+	<configurations>
+		<conf name="provided" description="System provided" />
+		<conf name="compile" description="Build Time dependencies" />
+		<conf name="test" description="Test Time dependencies" extends="runtime" />
+		<conf name="runtime" description="Run Time dependencies" extends="compile" />
+		<conf name="foride" extends="compile" />
+	</configurations>
+	<dependencies>
+		<dependency org="org.apache.httpcomponents" name="httpclient"
+			rev="4.0.3" conf="compile->default;foride->sources,javadoc">
+			<exclude module="commons-logging" />
+			<exclude module="commons-codec" />
+		</dependency>
+		<dependency org="javax.validation" name="validation-api"
+			rev="1.0.0.GA" conf="compile->default;foride->sources,javadoc" />
+		<dependency org="javax.sip" name="jain-sip-api" rev="1.2"
+			conf="provided->default;foride->sources,javadoc" />
+		<dependency org="commons-beanutils" name="commons-beanutils-core"
+			rev="1.8.3" conf="runtime->default;foride->sources,javadoc">
+			<exclude module="commons-logging" />
+		</dependency>
+		<dependency org="commons-codec" name="commons-codec" rev="1.4"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="commons-collections" name="commons-collections"
+			rev="3.2.1" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="commons-configuration" name="commons-configuration"
+			rev="1.6" conf="compile->default;foride->sources,javadoc">
+			<exclude module="commons-beanutils-core" />
+			<exclude module="commons-digester" />
+			<exclude module="commons-logging" />
+		</dependency>
+		<dependency org="commons-digester" name="commons-digester"
+			rev="2.1" conf="runtime->default;foride->sources,javadoc">
+			<exclude module="commons-beanutils" />
+			<exclude module="commons-logging" />
+		</dependency>
+		<dependency org="commons-lang" name="commons-lang" rev="2.5"
+			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="javassist" name="javassist" rev="3.8.0.GA"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="log4j" name="log4j" rev="1.2.16"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="cglib" name="cglib-nodep" rev="2.2"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.jasypt" name="jasypt" rev="1.7"
+			conf="compile->default;foride->sources,javadoc">
+			<exclude module="commons-codec" />
+		</dependency>
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.1.Final"
+			conf="compile->default;foride->sources,javadoc">
+			<exclude module="slf4j-api" />
+		</dependency>
+		<dependency org="org.hibernate" name="hibernate-validator"
+			rev="4.1.0.Final" conf="runtime->default;foride->sources,javadoc">
+			<exclude module="slf4j-api" />
+		</dependency>
+		<dependency org="org.aspectj" name="aspectjrt" rev="1.6.9"
+			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.aspectj" name="aspectjweaver" rev="1.6.9"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.6.1"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1"
+			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1"
+			conf="runtime->default;foride->sources,javadoc">
+			<exclude module="log4j" />
+		</dependency>
+		<dependency org="org.springframework" name="spring-aop"
+			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-aspects"
+			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc">
+			<exclude module="spring-test" />
+		</dependency>
+		<dependency org="org.springframework" name="spring-beans"
+			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-context-support"
+			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-core"
+			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc">
+			<exclude module="commons-logging" />
+		</dependency>
+		<dependency org="org.springframework" name="spring-context"
+			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-jms"
+			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-orm"
+			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-web"
+			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.springframework.security" name="spring-security-core"
+			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc">
+			<exclude org="org.aspectj" />
+		</dependency>
+		<dependency org="org.springframework.security" name="spring-security-web"
+			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.springframework.security" name="spring-security-config"
+			rev="3.0.5.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.springframework" name="spring-test"
+			rev="3.0.5.RELEASE" conf="test->default;foride->sources,javadoc" />
+		<dependency org="javax.servlet" name="servlet-api" rev="2.5"
+			conf="provided->default;foride->sources,javadoc" />
+		<dependency org="javax.mail" name="mail" rev="1.4.4"
+			conf="provided->default;foride->sources,javadoc">
+			<exclude org="javax.activation" name="activation" />
+		</dependency>
+		<dependency org="com.google.guava" name="guava" rev="r08"
+			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="com.google.code.gson" name="gson" rev="1.6"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="jstl" name="jstl" rev="1.2"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="com.sun.faces" name="jsf-api" rev="2.0.4-b09"
+			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="com.sun.faces" name="jsf-impl" rev="2.0.4-b09"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="junit" name="junit" rev="4.8.1"
+			conf="test->default;foride->sources,javadoc" />
+		<dependency org="org.primefaces" name="primefaces" rev="2.2.1"
+			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.primefaces.themes" name="aristo"
+			rev="1.0.0" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.apache.velocity" name="velocity" rev="1.7"
+			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="org.springframework.security" name="facelets-taglib-jsf20-spring-3"
+			rev="0.5" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="javax.el" name="el-api" rev="2.1.2-b04"
+			conf="provided->default" />
+		<dependency org="com.lowagie" name="itext" rev="2.1.7"
+			conf="runtime->default">
+			<exclude org="org.bouncycastle" />
+			<exclude org="bouncycastle" />
+		</dependency>
+		<dependency org="org.apache.poi" name="poi" rev="3.2-FINAL"
+			conf="runtime->default">
+			<exclude org="log4j" />
+			<exclude org="commons-logging" />
+		</dependency>
+		<dependency org="org.apache.activemq" name="activemq-core" rev="5.4.2"
+			conf="compile->default;foride->sources,javadoc">
+			<exclude org="commons-logging" name="commons-logging-api" />
+		</dependency>
+		<dependency org="org.apache.xbean" name="xbean-spring" rev="3.7"
+			conf="runtime->default;foride->sources,javadoc" />
+	</dependencies>
+</ivy-module>

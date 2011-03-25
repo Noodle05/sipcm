@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiResourceLocking="false" privileged="true">
+	<ResourceLink name="mail/Session" global="mail/Session"
+		type="javax.mail.Session" />
+	<ResourceLink name="jdbc/mainDS" global="jdbc/mainDS"
+		type="javax.sql.DataSource" />
+</Context>
