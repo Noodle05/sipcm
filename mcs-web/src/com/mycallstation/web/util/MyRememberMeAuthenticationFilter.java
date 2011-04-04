@@ -32,9 +32,14 @@ public class MyRememberMeAuthenticationFilter extends GenericFilterBean {
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res,
 			FilterChain chain) throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
-		if (SecurityContextHolder.getContext().getAuthentication() != null) {
+		if (req != null
+				&& req instanceof HttpServletRequest
+				&& res != null
+				&& res instanceof HttpServletResponse
+				&& SecurityContextHolder.getContext() != null
+				&& SecurityContextHolder.getContext().getAuthentication() != null) {
+			HttpServletRequest request = (HttpServletRequest) req;
+			HttpServletResponse response = (HttpServletResponse) res;
 			boolean foundCookie = false;
 			for (Cookie c : request.getCookies()) {
 				if (SecurityTools.FORUM_COOKIE_NAME.equals(c.getName())) {

@@ -198,7 +198,9 @@ public class CallCenterServlet extends AbstractSipServlet {
 				}
 			} else {
 				if (logger.isWarnEnabled()) {
-					logger.warn("Cannot accept this INVITE");
+					logger.warn(
+							"Cannot accept this INVITE from ip: \"{}\". Request: \"{}\"",
+							req.getInitialRemoteAddr(), req);
 				}
 				response(req, SipServletResponse.SC_NOT_FOUND);
 				return;
