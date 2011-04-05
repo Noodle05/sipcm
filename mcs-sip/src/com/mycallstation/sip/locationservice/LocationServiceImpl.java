@@ -31,6 +31,7 @@ import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.sip.events.RegistrationEvent;
 import com.mycallstation.sip.events.RegistrationEventListener;
 import com.mycallstation.sip.util.SipAddressComparator;
+import com.mycallstation.sip.util.SipConfiguration;
 import com.mycallstation.sip.util.SipUtil;
 import com.mycallstation.util.PhoneNumberUtil;
 
@@ -61,11 +62,17 @@ public class LocationServiceImpl implements LocationService {
 	@Resource(name = "sipAddressComparator")
 	private SipAddressComparator sipAddressComparator;
 
+	@Resource(name = "systemConfiguration")
+	private SipConfiguration appConfig;
+
+	private int minimumExpires;
+
 	@PostConstruct
 	public void init() throws NoSuchAlgorithmException {
 		cache = new MapMaker().concurrencyLevel(32)
 				.expireAfterWrite(30, TimeUnit.MINUTES).softValues().makeMap();
 		cacheBusy = false;
+		minimumExpires = appConfig.getSipMinExpires() / 2;
 	}
 
 	/*
@@ -92,7 +99,8 @@ public class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public void updateRegistration(UserSipProfile userSipProfile,
-			Address address, int expires, Address remoteEnd, String callId) {
+			Address address, int expires, Address remoteEnd, String callId)
+			throws LocationServiceException {
 		List<AddressBinding> addresses = null;
 		AddressBinding addressBinding = null;
 		addresses = getUserBinding(userSipProfile, false);
@@ -126,6 +134,11 @@ public class LocationServiceImpl implements LocationService {
 			} else {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Update address addess {}", addressBinding);
+				}
+				int now = (int) (System.currentTimeMillis() / 1000L);
+				if ((addressBinding.getExpires() - (now - addressBinding
+						.getLastCheck())) > minimumExpires) {
+					throw new RegisterTooFrequentException();
 				}
 				addressBinding.setAddress(sipUtil.sipAddressToString(address));
 				addressBinding.setExpires(expires);

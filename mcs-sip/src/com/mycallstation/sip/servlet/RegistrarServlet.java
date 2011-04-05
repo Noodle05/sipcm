@@ -17,9 +17,11 @@ import javax.servlet.sip.SipURI;
 import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
 import javax.sip.header.ContactHeader;
+import javax.sip.header.MinExpiresHeader;
 
 import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.sip.locationservice.LocationService;
+import com.mycallstation.sip.locationservice.RegisterTooFrequentException;
 
 /**
  * @author wgao
@@ -106,9 +108,6 @@ public class RegistrarServlet extends AbstractSipServlet {
 			response(req, SipServletResponse.SC_UNSUPPORTED_URI_SCHEME);
 			return;
 		}
-		// if (logger.isTraceEnabled()) {
-		// logger.trace("Lookup based on key: {}", key);
-		// }
 		Iterator<Address> ite = req.getAddressHeaders(ContactHeader.NAME);
 		Collection<Address> contacts = new ArrayList<Address>();
 		boolean wildChar = false;
@@ -127,6 +126,14 @@ public class RegistrarServlet extends AbstractSipServlet {
 
 			int expiresTime = req.getExpires();
 			if (expiresTime > 0) {
+				if (expiresTime < appConfig.getSipMinExpires()) {
+					SipServletResponse resp = req
+							.createResponse(SipServletResponse.SC_INTERVAL_TOO_BRIEF);
+					resp.addHeader(MinExpiresHeader.NAME,
+							Integer.toString(appConfig.getSipMinExpires()));
+					resp.send();
+					return;
+				}
 				expiresTime = correctExpiresTime(expiresTime);
 			}
 			if (wildChar) {
@@ -170,8 +177,25 @@ public class RegistrarServlet extends AbstractSipServlet {
 					}
 
 					String callId = req.getCallId();
-					locationService.updateRegistration(userSipProfile, b,
-							contactExpiresTime, remoteEnd, callId);
+					try {
+						locationService.updateRegistration(userSipProfile, b,
+								contactExpiresTime, remoteEnd, callId);
+					} catch (RegisterTooFrequentException e) {
+						if (logger.isDebugEnabled()) {
+							logger.debug(
+									"This user register too frequently. Request: \"{}\"",
+									req);
+						}
+						if (appConfig.isRefuseBriefRegister()) {
+							response(req,
+									SipServletResponse.SC_BUSY_EVERYWHERE,
+									"Register too frequent.");
+						} else {
+							response(req, SipServletResponse.SC_BUSY_HERE,
+									"Register too frequent, try later.");
+						}
+						return;
+					}
 				}
 			}
 		}

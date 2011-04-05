@@ -12,7 +12,8 @@ public interface LocationService {
 	public void removeAllBinding(UserSipProfile userSipProfile);
 
 	public void updateRegistration(UserSipProfile userSipProfile,
-			Address address, int expires, Address remoteEnd, String callId);
+			Address address, int expires, Address remoteEnd, String callId)
+			throws LocationServiceException;
 
 	public Collection<Address> getAddresses(UserSipProfile userSipProfile);
 

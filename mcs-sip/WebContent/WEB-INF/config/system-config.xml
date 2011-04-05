@@ -12,8 +12,9 @@
 	<entry key="sip.server.realm">mycallstation.com</entry>
 	<entry key="sip.publicIp.process">true</entry>
 
-	<entry key="sip.expirestime.min">120</entry>
-	<entry key="sip.expirestime.max">900</entry>
+	<entry key="sip.expirestime.min">300</entry>
+	<entry key="sip.expirestime.max">3600</entry>
+	<entry key="sip.refuse.brief.register.request">false</entry>
 	<entry key="com.sipcm.googlevoice.timeout">30</entry>
 	<entry key="com.sip.http.client.maxConnections">100</entry>
 

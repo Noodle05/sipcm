@@ -48,6 +48,7 @@ public class SipConfiguration extends BaseConfiguration {
 
 	public static final String SIP_MIN_EXPIRESTIME = "sip.expirestime.min";
 	public static final String SIP_MAX_EXPIRESTIME = "sip.expirestime.max";
+	public static final String SIP_REFUSE_BRIEF_REGISTER_REQUEST = "sip.refuse.brief.register.request";
 
 	public static final String SIP_CLIENT_REGISTER_EXPIRES = "sip.client.register.expires";
 	public static final String SIP_CLIENT_REGISTER_ALLOW_METHODS = "sip.client.register.allow.methods";
@@ -178,5 +179,9 @@ public class SipConfiguration extends BaseConfiguration {
 
 	public int getSipClientRenewBeforeExpires() {
 		return appConfig.getInt(SIP_CILENT_REGISTER_RENEW_EXPIRES, 60);
+	}
+
+	public boolean isRefuseBriefRegister() {
+		return appConfig.getBoolean(SIP_REFUSE_BRIEF_REGISTER_REQUEST, true);
 	}
 }
