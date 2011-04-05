@@ -7,3 +7,4 @@ INSERT INTO tbl_voipvendor (createdate, name, domainname, type) VALUES (NULL, 'G
 INSERT INTO tbl_voipvendor (createdate, name, domainname, type) VALUES (NULL, 'SipGate', 'sipgate.com', 1);
 INSERT INTO tbl_voipvendor (createdate, name, domainname, type) VALUES (NULL, 'Nonoh', 'nonoh.net', 1);
 INSERT INTO tbl_voipvendor (createdate, name, domainname, type) VALUES (NULL, 'LocalPhone', 'localphone.com', 1);
+INSERT INTO tbl_voipvendor (createdate, name, domainname, type, proxy) VALUES (NULL, 'VoIP.ms', 'voip.ms', 1, 'chicago.voip.ms');
