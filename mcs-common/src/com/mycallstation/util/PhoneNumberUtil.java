@@ -36,7 +36,7 @@ public abstract class PhoneNumberUtil {
 				.replaceAll("[^\\d]", ""));
 		if (PHONE_NUMBER.matcher(newNumber).matches()) {
 			if (INTERNATIONAL_NUMBER_PATTERN.matcher(newNumber).matches()) {
-				// If using "011" international prefix, replace with "+"
+				// If using "011" or "00" international prefix, replace with "+"
 				if (newNumber.startsWith("011")) {
 					newNumber = "+" + newNumber.substring(3);
 				} else if (newNumber.startsWith("00")) {
@@ -51,6 +51,40 @@ public abstract class PhoneNumberUtil {
 				}
 				if (newNumber.length() == 11) {
 					newNumber = "+" + newNumber;
+				}
+			}
+			return newNumber;
+		}
+		return phoneNumber;
+	}
+
+	public static String getDigitalPhoneNumber(String phoneNumber) {
+		return getDigitalPhoneNumber(phoneNumber, null);
+	}
+
+	public static String getDigitalPhoneNumber(String phoneNumber,
+			String defaultAreaCode) {
+		// Remove any no "+" or no digital characters.
+		String newNumber = phoneNumber.replaceAll("[^\\+|^\\d]", "");
+		String ndfa = (defaultAreaCode == null ? null : defaultAreaCode
+				.replaceAll("[^\\d]", ""));
+		if (PHONE_NUMBER.matcher(newNumber).matches()) {
+			if (INTERNATIONAL_NUMBER_PATTERN.matcher(newNumber).matches()) {
+				// If using "+" or "00" international prefix, replace with "+"
+				if (newNumber.startsWith("+")) {
+					newNumber = "011" + newNumber.substring(1);
+				} else if (newNumber.startsWith("00")) {
+					newNumber = "011" + newNumber.substring(2);
+				}
+			} else if (US_CA_NUMBER_PATTERN.matcher(newNumber).matches()) {
+				if (newNumber.length() == 7 && ndfa != null) {
+					newNumber = ndfa + newNumber;
+				}
+				if (newNumber.length() == 10) {
+					newNumber = "1" + newNumber;
+				}
+				if (newNumber.startsWith("+")) {
+					newNumber = newNumber.substring(1);
 				}
 			}
 			return newNumber;

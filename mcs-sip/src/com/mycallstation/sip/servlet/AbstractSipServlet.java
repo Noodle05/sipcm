@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.sip.events.CallEventListener;
 import com.mycallstation.sip.util.SipConfiguration;
+import com.mycallstation.sip.vendor.VoipVendorManager;
 
 /**
  * @author wgao
@@ -62,6 +63,9 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 
 	@Resource(name = "systemConfiguration")
 	protected SipConfiguration appConfig;
+
+	@Resource(name = "voipVendorManager")
+	protected VoipVendorManager vendorManager;
 
 	@Override
 	public void init() throws ServletException {

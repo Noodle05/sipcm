@@ -8,6 +8,7 @@ import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -82,24 +83,34 @@ public class DelegatedServlet extends B2bServlet {
 			}
 			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 		}
+
+		String rmaddr = req.getInitialRemoteAddr();
+		int rport = req.getInitialRemotePort();
+		String rt = req.getInitialTransport();
+		Address fa = req.getFrom();
+		Address fb = (Address) fa.clone();
+		Iterator<String> pns = fa.getParameterNames();
+		while (pns.hasNext()) {
+			fb.removeParameter(pns.next());
+		}
+		Address remoteEnd = sipFactory.createAddress(fb.getURI().clone());
+		URI ruri = remoteEnd.getURI();
+		if (ruri.isSipURI()) {
+			final SipURI sruri = (SipURI) ruri;
+			sruri.setHost(rmaddr);
+			sruri.setTransportParam(rt);
+			sruri.setPort(rport);
+			remoteEnd.setURI(sruri);
+		}
+		URI remoteUri = sipUtil.getCanonicalizedURI(remoteEnd.getURI());
+
+		req.getSession().setAttribute(REMOTE_URI, remoteUri);
 		final SipURI toSipURI = (SipURI) req.getTo().getURI();
 		VoipVendor vendor = account.getVoipVendor();
-		URI toURI = sipFactory
-				.createSipURI(PhoneNumberUtil
-						.getCanonicalizedPhoneNumber(toSipURI.getUser()),
-						vendor.getDomain());
-		SipURI fromURI = sipFactory.createSipURI(account.getAccount(),
-				vendor.getDomain());
-		Address toAddress = sipFactory.createAddress(toURI);
-		String fromDisplayName;
-		if (account.getPhoneNumber() != null) {
-			fromDisplayName = PhoneNumberUtil
-					.getCanonicalizedPhoneNumber(account.getPhoneNumber());
-		} else {
-			fromDisplayName = req.getFrom().getDisplayName();
-		}
-		Address fromAddress = sipFactory
-				.createAddress(fromURI, fromDisplayName);
+		Address toAddress = vendorManager.createToAddress(toSipURI.getUser(),
+				account);
+		Address fromAddress = vendorManager.createFromAddress(req.getFrom()
+				.getDisplayName(), account);
 
 		Map<String, List<String>> headers = new HashMap<String, List<String>>();
 		List<String> address = new ArrayList<String>(1);
@@ -118,7 +129,7 @@ public class DelegatedServlet extends B2bServlet {
 					+ vendor.getProxy());
 			forkedRequest.pushRoute(routeAddress);
 		}
-		forkedRequest.setRequestURI(toURI);
+		forkedRequest.setRequestURI(toAddress.getURI());
 		// Remove original authentication headers.
 		forkedRequest.removeHeader(AuthorizationHeader.NAME);
 		forkedRequest.removeHeader(PAssertedIdentityHeader.NAME);

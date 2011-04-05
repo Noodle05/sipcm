@@ -28,6 +28,7 @@ import com.mycallstation.dataaccess.business.UserVoipAccountService;
 import com.mycallstation.dataaccess.model.AddressBinding;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
+import com.mycallstation.dataaccess.model.VoipVendor;
 import com.mycallstation.sip.locationservice.UserBindingInfo;
 import com.mycallstation.sip.servlet.AbstractSipServlet;
 import com.mycallstation.sip.util.SipUtil;
@@ -45,6 +46,11 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	@Resource(name = "sipUtil")
 	private SipUtil sipUtil;
 
+	@Resource(name = "voipVendorUtilManager")
+	private VoipVendorUtilManager utilManager;
+
+	private VoipVendorUtil util;
+
 	private String allowMethods;
 
 	private int expires;
@@ -53,6 +59,19 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	public void init() {
 		allowMethods = appConfig.getSipClientAllowMethods();
 		expires = appConfig.getSipClientRegisterExpries();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.sip.vendor.VoipLocalVendorContextImpl#initialize(com
+	 * .mycallstation.dataaccess.model.VoipVendor)
+	 */
+	@Override
+	public void initialize(VoipVendor voipVendor) {
+		super.initialize(voipVendor);
+		util = utilManager.getVoipVendorUtil(voipVendor);
 	}
 
 	/*
@@ -310,6 +329,30 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 			}
 		}
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.sip.vendor.VoipLocalVendorContextImpl#createToURI(java
+	 * .lang.String, com.mycallstation.dataaccess.model.UserVoipAccount)
+	 */
+	@Override
+	public Address createToAddress(String toAddress, UserVoipAccount account) {
+		return util.createToAddress(toAddress, account);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.sip.vendor.VoipLocalVendorContextImpl#createFromURI
+	 * (com.mycallstation.dataaccess.model.UserVoipAccount)
+	 */
+	@Override
+	public Address createFromAddress(String displayName, UserVoipAccount account) {
+		return util.createFromAddress(displayName, account);
 	}
 
 	/*

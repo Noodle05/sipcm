@@ -5,10 +5,12 @@ import java.net.InetAddress;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.sip.Address;
 import javax.servlet.sip.SipFactory;
 import javax.servlet.sip.SipServletResponse;
 
 import com.mycallstation.dataaccess.model.UserSipProfile;
+import com.mycallstation.dataaccess.model.UserVoipAccount;
 import com.mycallstation.sip.locationservice.UserBindingInfo;
 
 public interface VoipVendorManager {
@@ -35,4 +37,8 @@ public interface VoipVendorManager {
 			throws ServletException, IOException;
 
 	public void registerClientRenew();
+
+	public Address createToAddress(String toAddress, UserVoipAccount account);
+
+	public Address createFromAddress(String displayName, UserVoipAccount account);
 }

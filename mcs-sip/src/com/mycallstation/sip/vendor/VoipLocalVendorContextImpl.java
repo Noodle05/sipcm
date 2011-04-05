@@ -8,6 +8,7 @@ import java.util.Collection;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
+import javax.servlet.sip.Address;
 import javax.servlet.sip.SipServletResponse;
 
 import org.slf4j.Logger;
@@ -116,6 +117,30 @@ public class VoipLocalVendorContextImpl implements VoipVendorContext {
 	public void handleRegisterResponse(SipServletResponse resp,
 			UserVoipAccount account) throws ServletException, IOException {
 		// Do nothing
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.sip.vendor.VoipVendorContext#createToURI(java.lang.
+	 * String, com.mycallstation.dataaccess.model.UserVoipAccount)
+	 */
+	@Override
+	public Address createToAddress(String toAddress, UserVoipAccount account) {
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.sip.vendor.VoipVendorContext#createFromAddress(java
+	 * .lang.String, com.mycallstation.dataaccess.model.UserVoipAccount)
+	 */
+	@Override
+	public Address createFromAddress(String displayName, UserVoipAccount account) {
+		return null;
 	}
 
 	/*

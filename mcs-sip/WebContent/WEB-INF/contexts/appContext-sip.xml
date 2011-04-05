@@ -28,12 +28,18 @@
 			</util:list>
 		</property>
 	</bean>
+
 	<bean id="userSipProfileServiceEventListener" class="com.mycallstation.base.CompositeServiceEventListener">
 		<property name="listeners">
 			<util:list>
 			</util:list>
 		</property>
 	</bean>
+
+	<util:map id="voipVendorUtils">
+		<entry key="Nonoh" value-ref="nonoh.net.voipVendorUtil" />
+		<entry key="VoIP.ms" value-ref="voip.ms.voipVendorUtil" />
+	</util:map>
 
 	<!-- Define ServletContextAttributeExporter to make spring beans available 
 		to servlet context, so they can inject by @Resource annontation, this will 

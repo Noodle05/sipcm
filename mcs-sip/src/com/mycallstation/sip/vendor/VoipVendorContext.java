@@ -3,6 +3,7 @@ package com.mycallstation.sip.vendor;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.sip.Address;
 import javax.servlet.sip.SipServletResponse;
 
 import com.mycallstation.dataaccess.model.UserVoipAccount;
@@ -21,4 +22,8 @@ public interface VoipVendorContext {
 
 	public void handleRegisterResponse(SipServletResponse resp,
 			UserVoipAccount account) throws ServletException, IOException;
+
+	public Address createToAddress(String toAddress, UserVoipAccount account);
+
+	public Address createFromAddress(String displayName, UserVoipAccount account);
 }

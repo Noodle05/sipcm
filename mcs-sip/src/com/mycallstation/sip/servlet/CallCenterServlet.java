@@ -23,7 +23,6 @@ import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.sip.locationservice.UserBindingInfo;
 import com.mycallstation.sip.util.DosProtector;
 import com.mycallstation.sip.util.ServerAuthenticationHelper;
-import com.mycallstation.sip.vendor.VoipVendorManager;
 import com.mycallstation.util.PhoneNumberUtil;
 
 /**
@@ -42,9 +41,6 @@ public class CallCenterServlet extends AbstractSipServlet {
 
 	@Resource(name = "sipDosProtector")
 	private DosProtector dosProtector;
-
-	@Resource(name = "voipVendorManager")
-	private VoipVendorManager vendorManager;
 
 	@Override
 	protected void doResponse(javax.servlet.sip.SipServletResponse resp)

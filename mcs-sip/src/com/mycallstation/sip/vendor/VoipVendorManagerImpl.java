@@ -15,6 +15,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.sip.Address;
 import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipFactory;
 import javax.servlet.sip.SipServlet;
@@ -56,6 +57,9 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 
 	@Resource(name = "systemConfiguration")
 	private SipConfiguration appConfig;
+
+	@Resource(name = "defaultVoipVendorUtil")
+	private VoipVendorUtil defaultVoipVendorUtil;
 
 	private SipFactory sipFactory;
 	private List<String> supportedMethods;
@@ -387,6 +391,40 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 			if (logger.isErrorEnabled()) {
 				logger.error("Error happened when process binding expires.", e);
 			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.sip.vendor.VoipVendorManager#createToURI(java.lang.
+	 * String, com.mycallstation.dataaccess.model.UserVoipAccount)
+	 */
+	@Override
+	public Address createToAddress(String toAddress, UserVoipAccount account) {
+		VoipVendorContext ctx = getVoipVendorContext(account);
+		if (ctx != null) {
+			return ctx.createToAddress(toAddress, account);
+		} else {
+			return defaultVoipVendorUtil.createToAddress(toAddress, account);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.mycallstation.sip.vendor.VoipVendorManager#createFromURI(com.
+	 * mycallstation.dataaccess.model.UserVoipAccount)
+	 */
+	@Override
+	public Address createFromAddress(String displayName, UserVoipAccount account) {
+		VoipVendorContext ctx = getVoipVendorContext(account);
+		if (ctx != null) {
+			return ctx.createFromAddress(displayName, account);
+		} else {
+			return defaultVoipVendorUtil
+					.createFromAddress(displayName, account);
 		}
 	}
 }
