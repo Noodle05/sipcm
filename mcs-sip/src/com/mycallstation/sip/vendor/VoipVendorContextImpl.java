@@ -217,7 +217,7 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 			}
 			SipApplicationSession appSession = resp
 					.getApplicationSession(false);
-			if (appSession != null) {
+			if (appSession != null && appSession.isValid()) {
 				appSession.invalidate();
 			}
 		} else {
