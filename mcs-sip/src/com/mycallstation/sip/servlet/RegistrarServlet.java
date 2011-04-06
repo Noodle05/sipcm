@@ -160,6 +160,14 @@ public class RegistrarServlet extends AbstractSipServlet {
 						contactExpiresTime = expiresTime;
 					}
 					if (contactExpiresTime > 0) {
+						if (contactExpiresTime < appConfig.getSipMinExpires()) {
+							SipServletResponse resp = req
+									.createResponse(SipServletResponse.SC_INTERVAL_TOO_BRIEF);
+							resp.addHeader(MinExpiresHeader.NAME, Integer
+									.toString(appConfig.getSipMinExpires()));
+							resp.send();
+							return;
+						}
 						contactExpiresTime = correctExpiresTime(contactExpiresTime);
 					}
 					if (logger.isTraceEnabled()) {
@@ -187,11 +195,12 @@ public class RegistrarServlet extends AbstractSipServlet {
 									req);
 						}
 						if (appConfig.isRefuseBriefRegister()) {
-							response(req,
+							responseWithContact(userSipProfile, req,
 									SipServletResponse.SC_BUSY_EVERYWHERE,
 									"Register too frequent.");
 						} else {
-							response(req, SipServletResponse.SC_BUSY_HERE,
+							responseWithContact(userSipProfile, req,
+									SipServletResponse.SC_BUSY_HERE,
 									"Register too frequent, try later.");
 						}
 						return;
@@ -199,26 +208,37 @@ public class RegistrarServlet extends AbstractSipServlet {
 				}
 			}
 		}
-		contacts = locationService.getAddresses(userSipProfile);
+		responseWithContact(userSipProfile, req, SipServletResponse.SC_OK);
+	}
+
+	private void responseWithContact(UserSipProfile userSipProfile,
+			SipServletRequest req, int statuscode) throws IOException {
+		responseWithContact(userSipProfile, req, statuscode, null);
+	}
+
+	private void responseWithContact(UserSipProfile userSipProfile,
+			SipServletRequest req, int statuscode, String reasonPhrase)
+			throws IOException {
+		SipServletResponse resp = req.createResponse(statuscode, reasonPhrase);
+		Collection<Address> contacts = locationService
+				.getAddresses(userSipProfile);
 		if (logger.isTraceEnabled()) {
 			logger.trace("After register, contacts still contains:");
 			for (Address a : contacts) {
 				logger.trace("\t{}", a);
 			}
 		}
-		SipServletResponse response = req
-				.createResponse(SipServletResponse.SC_OK);
 		boolean first = true;
 		for (Address c : contacts) {
-			response.addAddressHeader(ContactHeader.NAME, c, first);
+			resp.addAddressHeader(ContactHeader.NAME, c, first);
 			if (first) {
 				first = false;
 			}
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("Sending response {}", response);
+			logger.debug("Sending response: {}", resp);
 		}
-		response.send();
+		resp.send();
 	}
 
 	private int correctExpiresTime(int expiresTime) {
