@@ -50,18 +50,17 @@ public class DefaultVoipVendorUtil implements VoipVendorUtil {
 	 * .dataaccess.model.UserVoipAccount)
 	 */
 	@Override
-	public Address createFromAddress(String displayName, UserVoipAccount account) {
+	public Address createFromAddress(UserVoipAccount account) {
 		URI fromURI = voipVendorManager.getSipFactory().createSipURI(
-				account.getAccount(), account.getVoipVendor().getDomain());
-		String fromDisplayName;
-		if (account.getPhoneNumber() != null) {
-			fromDisplayName = PhoneNumberUtil.getFullDigitalPhoneNumber(account
-					.getPhoneNumber());
+				(account.getPhoneNumber() == null ? account.getAccount()
+						: PhoneNumberUtil.getFullDigitalPhoneNumber(account
+								.getPhoneNumber())),
+				account.getVoipVendor().getDomain());
+		if (account.getOwner().isCallAnonymously()) {
+			return voipVendorManager.getSipFactory().createAddress(fromURI);
 		} else {
-			fromDisplayName = displayName;
+			return voipVendorManager.getSipFactory().createAddress(fromURI,
+					account.getOwner().getDisplayName());
 		}
-		Address fromAddress = voipVendorManager.getSipFactory().createAddress(
-				fromURI, fromDisplayName);
-		return fromAddress;
 	}
 }

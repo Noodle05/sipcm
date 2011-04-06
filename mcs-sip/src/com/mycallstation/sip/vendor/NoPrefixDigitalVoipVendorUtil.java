@@ -33,27 +33,4 @@ public class NoPrefixDigitalVoipVendorUtil extends DefaultVoipVendorUtil {
 				toURI);
 		return toAddress;
 	}
-
-	/*
-	 * Format from display name as 011xxxxxxx too
-	 * 
-	 * @see
-	 * com.mycallstation.sip.vendor.VoipVendorUtil#createFromURI(com.mycallstation
-	 * .dataaccess.model.UserVoipAccount)
-	 */
-	@Override
-	public Address createFromAddress(String displayName, UserVoipAccount account) {
-		URI fromURI = voipVendorManager.getSipFactory().createSipURI(
-				account.getAccount(), account.getVoipVendor().getDomain());
-		String fromDisplayName;
-		if (account.getPhoneNumber() != null) {
-			fromDisplayName = PhoneNumberUtil
-					.getNoPrefixDigitalPhoneNumber(account.getPhoneNumber());
-		} else {
-			fromDisplayName = displayName;
-		}
-		Address fromAddress = voipVendorManager.getSipFactory().createAddress(
-				fromURI, fromDisplayName);
-		return fromAddress;
-	}
 }

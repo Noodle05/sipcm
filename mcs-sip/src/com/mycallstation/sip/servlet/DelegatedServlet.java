@@ -109,8 +109,7 @@ public class DelegatedServlet extends B2bServlet {
 		VoipVendor vendor = account.getVoipVendor();
 		Address toAddress = vendorManager.createToAddress(toSipURI.getUser(),
 				account);
-		Address fromAddress = vendorManager.createFromAddress(req.getFrom()
-				.getDisplayName(), account);
+		Address fromAddress = vendorManager.createFromAddress(account);
 
 		Map<String, List<String>> headers = new HashMap<String, List<String>>();
 		List<String> address = new ArrayList<String>(1);

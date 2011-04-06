@@ -29,5 +29,5 @@ public interface VoipVendorUtil {
 	 * @param account
 	 * @return
 	 */
-	public Address createFromAddress(String displayName, UserVoipAccount account);
+	public Address createFromAddress(UserVoipAccount account);
 }

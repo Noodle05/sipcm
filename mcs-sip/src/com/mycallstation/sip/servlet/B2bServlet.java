@@ -223,14 +223,19 @@ public class B2bServlet extends AbstractSipServlet {
 			if (userSipProfile.getPhoneNumber() == null
 					|| PhoneNumberStatus.UNVERIFIED.equals(userSipProfile
 							.getPhoneNumberStatus())) {
-				userName = "";
+				userName = "Unknown";
 			} else {
 				userName = userSipProfile.getPhoneNumber();
 			}
 			SipURI fromUri = sipFactory.createSipURI(userName,
 					appConfig.getDomain());
-			Address fromAddr = sipFactory.createAddress(fromUri,
-					userSipProfile.getDisplayName());
+			Address fromAddr;
+			if (userSipProfile.isCallAnonymously()) {
+				fromAddr = sipFactory.createAddress(fromUri);
+			} else {
+				fromAddr = sipFactory.createAddress(fromUri,
+						userSipProfile.getDisplayName());
+			}
 			Map<String, List<String>> headers = new HashMap<String, List<String>>();
 			List<String> froms = new ArrayList<String>(1);
 			froms.add(fromAddr.toString());

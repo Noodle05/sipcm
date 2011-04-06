@@ -135,11 +135,11 @@ public class VoipLocalVendorContextImpl implements VoipVendorContext {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.mycallstation.sip.vendor.VoipVendorContext#createFromAddress(java
-	 * .lang.String, com.mycallstation.dataaccess.model.UserVoipAccount)
+	 * com.mycallstation.sip.vendor.VoipVendorContext#createFromAddress(com.
+	 * mycallstation.dataaccess.model.UserVoipAccount)
 	 */
 	@Override
-	public Address createFromAddress(String displayName, UserVoipAccount account) {
+	public Address createFromAddress(UserVoipAccount account) {
 		return null;
 	}
 

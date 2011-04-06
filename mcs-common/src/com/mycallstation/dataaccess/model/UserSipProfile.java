@@ -67,6 +67,10 @@ public class UserSipProfile implements IdBasedEntity<Long>, Serializable {
 	@Column(name = "allow_local_directly", nullable = false)
 	private boolean allowLocalDirectly;
 
+	@Basic
+	@Column(name = "call_anonymously", nullable = false)
+	private boolean isCallAnonymously;
+
 	/**
 	 * @param id
 	 *            the id to set
@@ -173,6 +177,21 @@ public class UserSipProfile implements IdBasedEntity<Long>, Serializable {
 	 */
 	public boolean isAllowLocalDirectly() {
 		return allowLocalDirectly;
+	}
+
+	/**
+	 * @param isCallAnonymously
+	 *            the isCallAnonymously to set
+	 */
+	public void setCallAnonymously(boolean isCallAnonymously) {
+		this.isCallAnonymously = isCallAnonymously;
+	}
+
+	/**
+	 * @return the isCallAnonymously
+	 */
+	public boolean isCallAnonymously() {
+		return isCallAnonymously;
 	}
 
 	public String getDisplayName() {

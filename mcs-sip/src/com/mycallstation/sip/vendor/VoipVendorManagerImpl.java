@@ -418,13 +418,13 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 	 * mycallstation.dataaccess.model.UserVoipAccount)
 	 */
 	@Override
-	public Address createFromAddress(String displayName, UserVoipAccount account) {
+	public Address createFromAddress(UserVoipAccount account) {
 		VoipVendorContext ctx = getVoipVendorContext(account);
 		if (ctx != null) {
-			return ctx.createFromAddress(displayName, account);
+			return ctx.createFromAddress(account);
 		} else {
 			return defaultVoipVendorUtil
-					.createFromAddress(displayName, account);
+					.createFromAddress(account);
 		}
 	}
 }

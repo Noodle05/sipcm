@@ -40,5 +40,5 @@ public interface VoipVendorManager {
 
 	public Address createToAddress(String toAddress, UserVoipAccount account);
 
-	public Address createFromAddress(String displayName, UserVoipAccount account);
+	public Address createFromAddress(UserVoipAccount account);
 }

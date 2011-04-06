@@ -351,8 +351,8 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	 * (com.mycallstation.dataaccess.model.UserVoipAccount)
 	 */
 	@Override
-	public Address createFromAddress(String displayName, UserVoipAccount account) {
-		return util.createFromAddress(displayName, account);
+	public Address createFromAddress(UserVoipAccount account) {
+		return util.createFromAddress(account);
 	}
 
 	/*
