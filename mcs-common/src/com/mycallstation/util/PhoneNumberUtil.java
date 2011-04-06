@@ -58,11 +58,11 @@ public abstract class PhoneNumberUtil {
 		return phoneNumber;
 	}
 
-	public static String getDigitalPhoneNumber(String phoneNumber) {
-		return getDigitalPhoneNumber(phoneNumber, null);
+	public static String getFullDigitalPhoneNumber(String phoneNumber) {
+		return getFullDigitalPhoneNumber(phoneNumber, null);
 	}
 
-	public static String getDigitalPhoneNumber(String phoneNumber,
+	public static String getFullDigitalPhoneNumber(String phoneNumber,
 			String defaultAreaCode) {
 		// Remove any no "+" or no digital characters.
 		String newNumber = phoneNumber.replaceAll("[^\\+|^\\d]", "");
@@ -75,6 +75,42 @@ public abstract class PhoneNumberUtil {
 					newNumber = "011" + newNumber.substring(1);
 				} else if (newNumber.startsWith("00")) {
 					newNumber = "011" + newNumber.substring(2);
+				}
+			} else if (US_CA_NUMBER_PATTERN.matcher(newNumber).matches()) {
+				if (newNumber.length() == 7 && ndfa != null) {
+					newNumber = ndfa + newNumber;
+				}
+				if (newNumber.length() == 10) {
+					newNumber = "1" + newNumber;
+				}
+				if (newNumber.startsWith("+")) {
+					newNumber = newNumber.substring(1);
+				}
+			}
+			return newNumber;
+		}
+		return phoneNumber;
+	}
+
+	public static String getNoPrefixDigitalPhoneNumber(String phoneNumber) {
+		return getNoPrefixDigitalPhoneNumber(phoneNumber, null);
+	}
+
+	public static String getNoPrefixDigitalPhoneNumber(String phoneNumber,
+			String defaultAreaCode) {
+		// Remove any no "+" or no digital characters.
+		String newNumber = phoneNumber.replaceAll("[^\\+|^\\d]", "");
+		String ndfa = (defaultAreaCode == null ? null : defaultAreaCode
+				.replaceAll("[^\\d]", ""));
+		if (PHONE_NUMBER.matcher(newNumber).matches()) {
+			if (INTERNATIONAL_NUMBER_PATTERN.matcher(newNumber).matches()) {
+				// Remove any prefix, "011" or "00" or "+"
+				if (newNumber.startsWith("+")) {
+					newNumber = newNumber.substring(1);
+				} else if (newNumber.startsWith("00")) {
+					newNumber = newNumber.substring(2);
+				} else if (newNumber.startsWith("011")) {
+					newNumber = newNumber.substring(3);
 				}
 			} else if (US_CA_NUMBER_PATTERN.matcher(newNumber).matches()) {
 				if (newNumber.length() == 7 && ndfa != null) {

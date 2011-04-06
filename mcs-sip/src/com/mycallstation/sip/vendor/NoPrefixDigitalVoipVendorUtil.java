@@ -12,13 +12,11 @@ import com.mycallstation.dataaccess.model.UserVoipAccount;
 import com.mycallstation.util.PhoneNumberUtil;
 
 /**
- * VoIP vendor utility implementation for voip.ms
- * 
  * @author wgao
+ * 
  */
-@Component("voip.ms.voipVendorUtil")
-public class VoipMSVoipVendorUtil extends DefaultVoipVendorUtil {
-
+@Component("noprefix.digital.voipVendorUtil")
+public class NoPrefixDigitalVoipVendorUtil extends DefaultVoipVendorUtil {
 	/*
 	 * voip.ms use phone number format 011xxxxxxx
 	 * 
@@ -29,7 +27,7 @@ public class VoipMSVoipVendorUtil extends DefaultVoipVendorUtil {
 	@Override
 	public Address createToAddress(String toUser, UserVoipAccount account) {
 		URI toURI = voipVendorManager.getSipFactory().createSipURI(
-				PhoneNumberUtil.getDigitalPhoneNumber(toUser),
+				PhoneNumberUtil.getNoPrefixDigitalPhoneNumber(toUser),
 				account.getVoipVendor().getDomain());
 		Address toAddress = voipVendorManager.getSipFactory().createAddress(
 				toURI);
@@ -49,8 +47,8 @@ public class VoipMSVoipVendorUtil extends DefaultVoipVendorUtil {
 				account.getAccount(), account.getVoipVendor().getDomain());
 		String fromDisplayName;
 		if (account.getPhoneNumber() != null) {
-			fromDisplayName = PhoneNumberUtil.getDigitalPhoneNumber(account
-					.getPhoneNumber());
+			fromDisplayName = PhoneNumberUtil
+					.getNoPrefixDigitalPhoneNumber(account.getPhoneNumber());
 		} else {
 			fromDisplayName = displayName;
 		}

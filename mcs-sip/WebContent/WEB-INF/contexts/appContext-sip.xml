@@ -37,8 +37,7 @@
 	</bean>
 
 	<util:map id="voipVendorUtils">
-		<entry key="Nonoh" value-ref="nonoh.net.voipVendorUtil" />
-		<entry key="VoIP.ms" value-ref="voip.ms.voipVendorUtil" />
+		<entry key="LocalPhone" value-ref="noprefix.digital.voipVendorUtil" />
 	</util:map>
 
 	<!-- Define ServletContextAttributeExporter to make spring beans available 

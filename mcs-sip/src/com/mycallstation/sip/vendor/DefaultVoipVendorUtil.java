@@ -33,7 +33,7 @@ public class DefaultVoipVendorUtil implements VoipVendorUtil {
 	@Override
 	public Address createToAddress(String toUser, UserVoipAccount account) {
 		URI toURI = voipVendorManager.getSipFactory().createSipURI(
-				PhoneNumberUtil.getCanonicalizedPhoneNumber(toUser),
+				PhoneNumberUtil.getFullDigitalPhoneNumber(toUser),
 				account.getVoipVendor().getDomain());
 		Address toAddress = voipVendorManager.getSipFactory().createAddress(
 				toURI);
@@ -55,8 +55,8 @@ public class DefaultVoipVendorUtil implements VoipVendorUtil {
 				account.getAccount(), account.getVoipVendor().getDomain());
 		String fromDisplayName;
 		if (account.getPhoneNumber() != null) {
-			fromDisplayName = PhoneNumberUtil
-					.getCanonicalizedPhoneNumber(account.getPhoneNumber());
+			fromDisplayName = PhoneNumberUtil.getFullDigitalPhoneNumber(account
+					.getPhoneNumber());
 		} else {
 			fromDisplayName = displayName;
 		}
