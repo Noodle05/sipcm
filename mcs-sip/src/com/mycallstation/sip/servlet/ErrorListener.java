@@ -9,18 +9,16 @@ import javax.servlet.sip.SipErrorListener;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSession;
-import javax.servlet.sip.annotation.SipListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * @author wgao
  * 
  */
-@Configurable
-@SipListener(applicationName = "com.mycallstation.CallCenter")
+// @Configurable
+// @SipListener(applicationName = "com.mycallstation.CallCenter")
 public class ErrorListener implements SipErrorListener {
 	public static final Logger logger = LoggerFactory
 			.getLogger(ErrorListener.class);

@@ -38,6 +38,7 @@
 
 	<util:map id="voipVendorUtils">
 		<entry key="SipGate" value-ref="sipgate.voipVendorUtil" />
+		<entry key="VoIP.ms" value-ref="sipgate.voipVendorUtil" />
 		<entry key="LocalPhone" value-ref="noprefix.digital.voipVendorUtil" />
 	</util:map>
 
