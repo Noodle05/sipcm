@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mycallstation.base.business.impl.AbstractService;
 import com.mycallstation.base.dao.DAO;
 import com.mycallstation.base.filter.Filter;
-import com.mycallstation.constant.OnlineStatus;
 import com.mycallstation.constant.VoipAccountType;
 import com.mycallstation.constant.VoipVendorType;
 import com.mycallstation.dataaccess.business.UserVoipAccountService;
@@ -81,22 +80,10 @@ public class UserVoipAccountServiceImpl extends
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.mycallstation.sip.business.UserVoipAccountService#
-	 * getOnlineIncomingAccounts (com.mycallstation.sip.model.UserSipProfile)
+	 * @see com.mycallstation.dataaccess.business.UserVoipAccountService#
+	 * getOfflineIncomingAccounts
+	 * (com.mycallstation.dataaccess.model.UserSipProfile)
 	 */
-	@Override
-	public Collection<UserVoipAccount> getOnlineIncomingAccounts(
-			UserSipProfile user) {
-		Filter f1 = filterFactory.createSimpleFilter("owner", user);
-		Filter f2 = filterFactory.createSimpleFilter("voipVendor.type",
-				VoipVendorType.SIP);
-		Filter f3 = filterFactory.createInFilter("type",
-				VoipAccountType.INCOME, VoipAccountType.BOTH);
-		Filter f4 = filterFactory.createIsNotNullFilter("regExpires");
-		Filter filter = f1.appendAnd(f2).appendAnd(f3).appendAnd(f4);
-		return dao.getEntities(filter, null, null);
-	}
-
 	@Override
 	public Collection<UserVoipAccount> getOfflineIncomingAccounts(
 			UserSipProfile user) {
@@ -122,13 +109,9 @@ public class UserVoipAccountServiceImpl extends
 			VoipVendor voipVender, String account) {
 		Filter f1 = filterFactory.createSimpleFilter("voipVendor", voipVender);
 		Filter f2 = filterFactory.createSimpleFilter("account", account);
-		Filter f3 = filterFactory.createSimpleFilter("owner.sipStatus",
-				OnlineStatus.ONLINE);
-		Filter f4 = filterFactory.createInFilter("type",
+		Filter f3 = filterFactory.createInFilter("type",
 				VoipAccountType.INCOME, VoipAccountType.BOTH);
-		Filter f5 = filterFactory.createIsNotNullFilter("regExpires");
-		Filter filter = f1.appendAnd(f2).appendAnd(f3).appendAnd(f4)
-				.appendAnd(f5);
+		Filter filter = f1.appendAnd(f2).appendAnd(f3);
 		Collection<UserVoipAccount> accounts = dao.getEntities(filter, null,
 				null);
 		if (accounts != null && !accounts.isEmpty()) {

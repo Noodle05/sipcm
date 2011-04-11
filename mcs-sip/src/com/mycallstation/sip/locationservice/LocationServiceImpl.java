@@ -338,6 +338,9 @@ public class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public void onUserChanged(Long... userIds) {
+		if (userIds == null) {
+			throw new NullPointerException("User ids cannot be null.");
+		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("User changed! ids: " + Arrays.toString(userIds));
 		}

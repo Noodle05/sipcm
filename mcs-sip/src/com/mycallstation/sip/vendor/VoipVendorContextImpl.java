@@ -313,11 +313,11 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.mycallstation.sip.vendor.VoipVendorContext#isLocalUser(java.lang.
-	 * String)
+	 * com.mycallstation.sip.vendor.VoipLocalVendorContextImpl#handleInvite(
+	 * javax.servlet.sip.SipServletRequest, java.lang.String)
 	 */
 	@Override
-	public UserBindingInfo isLocalUser(String toUser) {
+	public boolean handleInvite(SipServletRequest req, String toUser) {
 		UserVoipAccount account = userVoipAccountService
 				.getUserVoipAccountByVendorAndAccount(voipVendor, toUser);
 		if (account != null) {
@@ -325,10 +325,13 @@ public class VoipVendorContextImpl extends VoipLocalVendorContextImpl {
 			Collection<AddressBinding> abs = locationService
 					.getUserBinding(profile);
 			if (abs != null && !abs.isEmpty()) {
-				return new UserBindingInfo(account, abs);
+				UserBindingInfo ubi = new UserBindingInfo(null, abs);
+				req.setAttribute(AbstractSipServlet.TARGET_USERSIPBINDING, ubi);
 			}
+			return true;
+		} else {
+			return false;
 		}
-		return null;
 	}
 
 	/*

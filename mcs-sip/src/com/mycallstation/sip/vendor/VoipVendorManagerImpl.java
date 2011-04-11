@@ -19,6 +19,7 @@ import javax.servlet.sip.Address;
 import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipFactory;
 import javax.servlet.sip.SipServlet;
+import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 
 import org.slf4j.Logger;
@@ -30,7 +31,6 @@ import com.mycallstation.dataaccess.business.VoipVendorService;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
 import com.mycallstation.dataaccess.model.VoipVendor;
-import com.mycallstation.sip.locationservice.UserBindingInfo;
 import com.mycallstation.sip.nat.PublicIpAddressHolder;
 import com.mycallstation.sip.servlet.AbstractSipServlet;
 import com.mycallstation.sip.util.SipConfiguration;
@@ -158,7 +158,7 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 	@Override
 	public void unregisterForIncomingRequest(UserSipProfile userSipProfile) {
 		Collection<UserVoipAccount> accounts = userVoipAccountService
-				.getOnlineIncomingAccounts(userSipProfile);
+				.getOnlineIncomingAccounts(userSipProfile.getId());
 		if (accounts != null && !accounts.isEmpty()) {
 			for (UserVoipAccount account : accounts) {
 				VoipVendorContext ctx = getVoipVendorContext(account);
@@ -221,6 +221,9 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 	 */
 	@Override
 	public void onUserDeleted(Long... userIds) {
+		if (userIds == null) {
+			throw new NullPointerException("User ids cannot be null.");
+		}
 		for (Long id : userIds) {
 			Collection<UserVoipAccount> accounts = userVoipAccountService
 					.getOnlineIncomingAccounts(id);
@@ -239,20 +242,21 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.mycallstation.sip.vendor.VoipVendorManager#isLocalUsr(java.lang.String
-	 * , java.lang.String)
+	 * com.mycallstation.sip.vendor.VoipVendorManager#handleInvite(javax.servlet
+	 * .sip.SipServletRequest, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public UserBindingInfo isLocalUsr(String toHost, String toUser) {
+	public boolean handleInvite(SipServletRequest req, String toHost,
+			String toUser) {
 		for (Entry<VoipVendor, VoipVendorContext> entry : voipVendors
 				.entrySet()) {
 			VoipVendor vendor = entry.getKey();
 			if (toHost.toUpperCase().endsWith(vendor.getDomain().toUpperCase())) {
 				VoipVendorContext ctx = entry.getValue();
-				return ctx.isLocalUser(toUser);
+				return ctx.handleInvite(req, toUser);
 			}
 		}
-		return null;
+		return false;
 	}
 
 	/*
@@ -423,8 +427,7 @@ public abstract class VoipVendorManagerImpl implements VoipVendorManager,
 		if (ctx != null) {
 			return ctx.createFromAddress(account);
 		} else {
-			return defaultVoipVendorUtil
-					.createFromAddress(account);
+			return defaultVoipVendorUtil.createFromAddress(account);
 		}
 	}
 }

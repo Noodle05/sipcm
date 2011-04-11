@@ -9,6 +9,7 @@ import java.util.Collection;
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
+import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import com.mycallstation.dataaccess.model.UserVoipAccount;
 import com.mycallstation.dataaccess.model.VoipVendor;
 import com.mycallstation.sip.locationservice.LocationService;
 import com.mycallstation.sip.locationservice.UserBindingInfo;
+import com.mycallstation.sip.servlet.AbstractSipServlet;
 import com.mycallstation.sip.util.SipConfiguration;
 
 /**
@@ -76,21 +78,24 @@ public class VoipLocalVendorContextImpl implements VoipVendorContext {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.mycallstation.sip.vendor.VoipVendorContext#isLocalUser(java.lang.
-	 * String)
+	 * com.mycallstation.sip.vendor.VoipVendorContext#handleInvite(javax.servlet
+	 * .sip.SipServletRequest, java.lang.String)
 	 */
 	@Override
-	public UserBindingInfo isLocalUser(String toUser) {
+	public boolean handleInvite(SipServletRequest req, String toUser) {
 		UserSipProfile usp = userSipProfileService
 				.getUserSipProfileByUsername(toUser);
 		if (usp != null) {
 			Collection<AddressBinding> abs = locationService
 					.getUserBinding(usp);
 			if (abs != null && !abs.isEmpty()) {
-				return new UserBindingInfo(null, abs);
+				UserBindingInfo ubi = new UserBindingInfo(null, abs);
+				req.setAttribute(AbstractSipServlet.TARGET_USERSIPBINDING, ubi);
 			}
+			return true;
+		} else {
+			return false;
 		}
-		return null;
 	}
 
 	/*

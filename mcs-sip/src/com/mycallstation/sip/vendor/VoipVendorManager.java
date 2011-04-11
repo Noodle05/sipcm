@@ -7,11 +7,11 @@ import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
 import javax.servlet.sip.SipFactory;
+import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 
 import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
-import com.mycallstation.sip.locationservice.UserBindingInfo;
 
 public interface VoipVendorManager {
 
@@ -23,7 +23,8 @@ public interface VoipVendorManager {
 
 	public void onUserDeleted(Long... userIds);
 
-	public UserBindingInfo isLocalUsr(String toHost, String toUser);
+	public boolean handleInvite(SipServletRequest req, String toHost,
+			String toUser);
 
 	public SipFactory getSipFactory();
 

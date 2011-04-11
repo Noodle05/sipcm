@@ -20,7 +20,6 @@ import javax.sip.message.Request;
 import com.mycallstation.dataaccess.business.RoleService;
 import com.mycallstation.dataaccess.business.UserSipProfileService;
 import com.mycallstation.dataaccess.model.UserSipProfile;
-import com.mycallstation.sip.locationservice.UserBindingInfo;
 import com.mycallstation.sip.util.DosProtector;
 import com.mycallstation.sip.util.ServerAuthenticationHelper;
 import com.mycallstation.util.PhoneNumberUtil;
@@ -145,23 +144,29 @@ public class CallCenterServlet extends AbstractSipServlet {
 				}
 				req.setAttribute(USER_ATTRIBUTE, userSipProfile);
 			}
-			UserBindingInfo ubi = null;
-			if ((ubi = vendorManager.isLocalUsr(toHost, toUser)) != null) {
-				req.setAttribute(TARGET_USERSIPBINDING, ubi);
+			if (vendorManager.handleInvite(req, toHost, toUser)) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("This is a incoming invite to local user.");
 				}
-				RequestDispatcher dispatcher = req
-						.getRequestDispatcher("IncomingInviteServlet");
-				if (dispatcher != null) {
-					dispatcher.forward(req, null);
-					return;
-				} else {
-					if (logger.isErrorEnabled()) {
-						logger.error("Cannot find incoming invite servlet, response server internal error.");
+				if (req.getAttribute(TARGET_USERSIPBINDING) != null) {
+					RequestDispatcher dispatcher = req
+							.getRequestDispatcher("IncomingInviteServlet");
+					if (dispatcher != null) {
+						dispatcher.forward(req, null);
+						return;
+					} else {
+						if (logger.isErrorEnabled()) {
+							logger.error("Cannot find incoming invite servlet, response server internal error.");
+						}
+						response(req,
+								SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+						return;
 					}
-					response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-					return;
+				} else {
+					if (logger.isDebugEnabled()) {
+						logger.debug("However user is not registered yet, response temporarly unavaliable.");
+					}
+					response(req, SipServletResponse.SC_TEMPORARLY_UNAVAILABLE);
 				}
 			} else if (PhoneNumberUtil.isValidPhoneNumber(toUser)) {
 				UserSipProfile user = (UserSipProfile) req
@@ -198,7 +203,7 @@ public class CallCenterServlet extends AbstractSipServlet {
 							"Cannot accept this INVITE from ip: \"{}\". Request: \"{}\"",
 							req.getInitialRemoteAddr(), req);
 				}
-				response(req, SipServletResponse.SC_NOT_FOUND);
+				response(req, SipServletResponse.SC_FORBIDDEN);
 				return;
 			}
 		} else {
