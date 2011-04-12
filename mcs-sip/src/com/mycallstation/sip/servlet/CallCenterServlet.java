@@ -20,6 +20,9 @@ import javax.sip.message.Request;
 import com.mycallstation.dataaccess.business.RoleService;
 import com.mycallstation.dataaccess.business.UserSipProfileService;
 import com.mycallstation.dataaccess.model.UserSipProfile;
+import com.mycallstation.dataaccess.model.UserVoipAccount;
+import com.mycallstation.sip.events.CallEndEvent;
+import com.mycallstation.sip.events.CallStartEvent;
 import com.mycallstation.sip.util.DosProtector;
 import com.mycallstation.sip.util.ServerAuthenticationHelper;
 import com.mycallstation.util.PhoneNumberUtil;
@@ -167,6 +170,19 @@ public class CallCenterServlet extends AbstractSipServlet {
 						logger.debug("However user is not registered yet, response temporarly unavaliable.");
 					}
 					response(req, SipServletResponse.SC_TEMPORARLY_UNAVAILABLE);
+					String fromUser = fromSipUri.getUser();
+					if (PhoneNumberUtil.isValidPhoneNumber(fromUser)) {
+						callFailed(
+								((UserSipProfile) req
+										.getAttribute(USER_ATTRIBUTE)),
+								((UserVoipAccount) req
+										.getAttribute(USER_VOIP_ACCOUNT)),
+								PhoneNumberUtil
+										.getCanonicalizedPhoneNumber(fromUser),
+								SipServletResponse.SC_TEMPORARLY_UNAVAILABLE,
+								"User not logged in");
+					}
+					return;
 				}
 			} else if (PhoneNumberUtil.isValidPhoneNumber(toUser)) {
 				UserSipProfile user = (UserSipProfile) req
@@ -262,5 +278,19 @@ public class CallCenterServlet extends AbstractSipServlet {
 			dosProtector.countAttack(req);
 		}
 		return userSipProfile;
+	}
+
+	protected void callFailed(UserSipProfile usp, UserVoipAccount account,
+			String partner, int status, String reason) {
+		CallStartEvent se = null;
+		if (usp != null) {
+			se = new CallStartEvent(usp, partner);
+		} else if (account != null) {
+			se = new CallStartEvent(account, partner);
+		}
+		if (se != null) {
+			CallEndEvent ee = new CallEndEvent(se, status, reason);
+			callEventListener.incomingCallFailed(ee);
+		}
 	}
 }

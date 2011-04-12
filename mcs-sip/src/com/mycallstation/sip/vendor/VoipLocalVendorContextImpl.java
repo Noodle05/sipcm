@@ -91,6 +91,8 @@ public class VoipLocalVendorContextImpl implements VoipVendorContext {
 			if (abs != null && !abs.isEmpty()) {
 				UserBindingInfo ubi = new UserBindingInfo(null, abs);
 				req.setAttribute(AbstractSipServlet.TARGET_USERSIPBINDING, ubi);
+			} else {
+				req.setAttribute(AbstractSipServlet.USER_ATTRIBUTE, usp);
 			}
 			return true;
 		} else {
