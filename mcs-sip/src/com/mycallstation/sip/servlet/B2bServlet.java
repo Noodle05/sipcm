@@ -168,18 +168,22 @@ public class B2bServlet extends AbstractSipServlet {
 		} else {
 			SipServletRequest forkedReq = helper
 					.getLinkedSipServletRequest(resp.getRequest());
-			forkedResp = forkedReq.createResponse(resp.getStatus(),
-					resp.getReasonPhrase());
+			if (forkedReq != null) {
+				forkedResp = forkedReq.createResponse(resp.getStatus(),
+						resp.getReasonPhrase());
+			}
 		}
-		copyContent(resp, forkedResp);
-		if ("INVITE".equals(resp.getRequest().getMethod())
-				&& (resp.getStatus() >= 200 && resp.getStatus() < 300)) {
-			sipUtil.processingAddressInSDP(forkedResp, resp);
+		if (forkedResp != null) {
+			copyContent(resp, forkedResp);
+			if ("INVITE".equals(resp.getRequest().getMethod())
+					&& (resp.getStatus() >= 200 && resp.getStatus() < 300)) {
+				sipUtil.processingAddressInSDP(forkedResp, resp);
+			}
+			if (logger.isTraceEnabled()) {
+				logger.trace("Sending forked response: {}", forkedResp);
+			}
+			forkedResp.send();
 		}
-		if (logger.isTraceEnabled()) {
-			logger.trace("Sending forked response: {}", forkedResp);
-		}
-		forkedResp.send();
 	}
 
 	/*
