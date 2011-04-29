@@ -17,6 +17,7 @@
 	<entry key="sip.refuse.brief.register.request">false</entry>
 	<entry key="com.sipcm.googlevoice.timeout">30</entry>
 	<entry key="com.sip.http.client.maxConnections">100</entry>
+	<entry key="com.sip.http.client.getConnectionTimeout">10000</entry>
 
 	<entry key="sip.dos.protect.interval">60</entry>
 	<entry key="sip.dos.protect.max.requests">10</entry>

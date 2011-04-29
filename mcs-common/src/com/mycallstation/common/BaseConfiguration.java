@@ -19,6 +19,7 @@ public abstract class BaseConfiguration {
 	public static final String DOMAIN_NAME = "domainname";
 	public static final String REALM_NAME = "sip.server.realm";
 	public static final String MAX_HTTP_CLIENT_TOTAL_CONNECTIONS = "com.sip.http.client.maxConnections";
+	public static final String HTTP_CLIENT_GET_CONNECTION_TIMEOUT = "com.sip.http.client.getConnectionTimeout";
 
 	@Resource(name = "applicationConfiguration")
 	protected Configuration appConfig;
@@ -41,5 +42,9 @@ public abstract class BaseConfiguration {
 
 	public int getMaxHttpClientTotalConnections() {
 		return appConfig.getInt(MAX_HTTP_CLIENT_TOTAL_CONNECTIONS, 50);
+	}
+
+	public long getHttpClientConnectionTimeout() {
+		return appConfig.getLong(HTTP_CLIENT_GET_CONNECTION_TIMEOUT, 5000L);
 	}
 }

@@ -3,6 +3,8 @@
  */
 package com.mycallstation.googlevoice;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
@@ -19,6 +21,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import com.mycallstation.common.BaseConfiguration;
 
@@ -33,18 +36,20 @@ public abstract class GoogleVoiceManagerImpl implements GoogleVoiceManager {
 	@Resource(name = "systemConfiguration")
 	private BaseConfiguration appConfig;
 
-	private ClientConnectionManager connMgr;
+	private ThreadSafeClientConnManager connMgr;
 
 	protected abstract GoogleVoiceSession getGoogleVoiceSession();
 
 	@PostConstruct
 	public void init() {
 		int maxConnections = appConfig.getMaxHttpClientTotalConnections();
+		long connTimeout = appConfig.getHttpClientConnectionTimeout();
 		HttpParams params = new BasicHttpParams();
 		params.setIntParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS,
 				maxConnections);
 		params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE,
 				new ConnPerRouteBean(maxConnections));
+		params.setLongParameter(ConnManagerPNames.TIMEOUT, connTimeout);
 		Scheme http = new Scheme("http", PlainSocketFactory.getSocketFactory(),
 				80);
 		Scheme https = new Scheme("https", SSLSocketFactory.getSocketFactory(),
@@ -83,6 +88,32 @@ public abstract class GoogleVoiceManagerImpl implements GoogleVoiceManager {
 	@PreDestroy
 	public void destroy() {
 		connMgr.shutdown();
+	}
+
+	@Scheduled(fixedRate = 60000L)
+	public void checkHttpConnection() {
+		try {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Closing expired and idle connections.");
+			}
+			if (logger.isTraceEnabled()) {
+				logger.trace("{} connections in pool before close.",
+						connMgr.getConnectionsInPool());
+			}
+			connMgr.closeExpiredConnections();
+			connMgr.closeIdleConnections(30, TimeUnit.SECONDS);
+			if (logger.isTraceEnabled()) {
+				logger.trace("{} connections in pool after close.",
+						connMgr.getConnectionsInPool());
+			}
+		} catch (Exception e) {
+			if (logger.isErrorEnabled()) {
+				logger.error("Error happened when close expired and idle connection");
+				if (logger.isDebugEnabled()) {
+					logger.debug("Exception stack: ", e);
+				}
+			}
+		}
 	}
 
 	/*
