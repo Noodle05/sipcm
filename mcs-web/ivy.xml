@@ -22,7 +22,7 @@
 	</configurations>
 	<dependencies>
 		<dependency org="org.apache.httpcomponents" name="httpclient"
-			rev="4.0.3" conf="compile->default;foride->sources,javadoc">
+			rev="4.1.1" conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
 			<exclude module="commons-codec" />
 		</dependency>
@@ -119,9 +119,9 @@
 			conf="provided->default;foride->sources,javadoc">
 			<exclude org="javax.activation" name="activation" />
 		</dependency>
-		<dependency org="com.google.guava" name="guava" rev="r08"
+		<dependency org="com.google.guava" name="guava" rev="r09"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="com.google.code.gson" name="gson" rev="1.6"
+		<dependency org="com.google.code.gson" name="gson" rev="1.7.1"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="jstl" name="jstl" rev="1.2"
 			conf="runtime->default;foride->sources,javadoc" />
@@ -151,9 +151,9 @@
 			<exclude org="log4j" />
 			<exclude org="commons-logging" />
 		</dependency>
-		<dependency org="org.apache.activemq" name="activemq-core" rev="5.4.2"
+		<dependency org="org.apache.activemq" name="activemq-core" rev="5.5.0"
 			conf="compile->default;foride->sources,javadoc">
-			<exclude org="commons-logging" name="commons-logging-api" />
+			<exclude module="slf4j-api" />
 		</dependency>
 		<dependency org="org.apache.xbean" name="xbean-spring" rev="3.7"
 			conf="runtime->default;foride->sources,javadoc" />

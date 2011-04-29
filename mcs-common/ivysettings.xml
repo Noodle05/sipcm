@@ -4,6 +4,8 @@
 	<include url="${ivy.default.settings.dir}/ivysettings-local.xml" />
 	<resolvers>
 		<chain name="public">
+			<ibiblio name="jsch" m2compatible="true" checksums=""
+				root="http://jsch.sourceforge.net/maven2" />
 			<!-- official maven2 repo -->
 			<ibiblio name="maven2" m2compatible="true" />
 

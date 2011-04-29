@@ -22,7 +22,7 @@
 	</configurations>
 	<dependencies>
 		<dependency org="org.apache.httpcomponents" name="httpclient"
-			rev="4.0.3" conf="compile->default;foride->sources,javadoc">
+			rev="4.1.1" conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
 			<exclude module="commons-codec" />
 		</dependency>
@@ -121,15 +121,15 @@
 			rev="1.0.BETA1" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.apache.tomcat" name="catalina" rev="6.0.32"
 			conf="provided->default" />
-		<dependency org="com.google.guava" name="guava" rev="r08"
+		<dependency org="com.google.guava" name="guava" rev="r09"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="com.jcraft" name="jsch" rev="0.1.42"
+		<dependency org="com.jcraft" name="jsch" rev="0.1.44"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="junit" name="junit" rev="4.8.1"
 			conf="test->default;foride->sources,javadoc" />
-		<dependency org="org.apache.activemq" name="activemq-core" rev="5.4.2"
+		<dependency org="org.apache.activemq" name="activemq-core" rev="5.5.0"
 			conf="runtime->default;foride->sources,javadoc">
-			<exclude org="commons-logging" name="commons-logging-api" />
+			<exclude module="slf4j-api" />
 		</dependency>
 		<dependency org="org.apache.xbean" name="xbean-spring" rev="3.7"
 			conf="runtime->default;foride->sources,javadoc" />

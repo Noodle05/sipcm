@@ -65,12 +65,12 @@
 			rev="3.0.5.RELEASE" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-test"
 			rev="3.0.5.RELEASE" conf="test->default;foride->sources,javadoc" />
-		<dependency org="com.google.guava" name="guava" rev="r08"
+		<dependency org="com.google.guava" name="guava" rev="r09"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="com.google.code.gson" name="gson" rev="1.6"
+		<dependency org="com.google.code.gson" name="gson" rev="1.7.1"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.apache.httpcomponents" name="httpclient"
-			rev="4.0.3" conf="compile->default;foride->sources,javadoc">
+			rev="4.1.1" conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
 			<exclude module="commons-codec" />
 		</dependency>
