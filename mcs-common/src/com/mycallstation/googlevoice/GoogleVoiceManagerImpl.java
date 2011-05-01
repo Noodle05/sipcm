@@ -10,15 +10,7 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.params.ConnManagerPNames;
-import org.apache.http.conn.params.ConnPerRouteBean;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -43,22 +35,9 @@ public abstract class GoogleVoiceManagerImpl implements GoogleVoiceManager {
 	@PostConstruct
 	public void init() {
 		int maxConnections = appConfig.getMaxHttpClientTotalConnections();
-		long connTimeout = appConfig.getHttpClientConnectionTimeout();
-		HttpParams params = new BasicHttpParams();
-		params.setIntParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS,
-				maxConnections);
-		params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE,
-				new ConnPerRouteBean(maxConnections));
-		params.setLongParameter(ConnManagerPNames.TIMEOUT, connTimeout);
-		Scheme http = new Scheme("http", PlainSocketFactory.getSocketFactory(),
-				80);
-		Scheme https = new Scheme("https", SSLSocketFactory.getSocketFactory(),
-				443);
-		SchemeRegistry sr = new SchemeRegistry();
-		sr.register(http);
-		sr.register(https);
-		ThreadSafeClientConnManager connMgr = new ThreadSafeClientConnManager(
-				params, sr);
+		ThreadSafeClientConnManager connMgr = new ThreadSafeClientConnManager();
+		connMgr.setMaxTotal(maxConnections);
+		connMgr.setDefaultMaxPerRoute(maxConnections);
 		this.connMgr = connMgr;
 	}
 

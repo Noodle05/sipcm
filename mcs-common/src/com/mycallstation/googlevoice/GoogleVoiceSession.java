@@ -32,6 +32,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
@@ -42,6 +43,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 import com.mycallstation.common.AuthenticationException;
+import com.mycallstation.common.BaseConfiguration;
 import com.mycallstation.googlevoice.setting.GoogleVoiceConfig;
 
 /**
@@ -95,11 +97,17 @@ public class GoogleVoiceSession implements Serializable {
 	private volatile boolean cancelCall;
 	private volatile boolean loggedIn;
 
+	@Resource(name = "systemConfiguration")
+	private BaseConfiguration appConfig;
+
 	@Resource(name = "googleVoiceManager")
 	private GoogleVoiceManager manager;
 
 	public void init() {
 		HttpParams params = new BasicHttpParams();
+		int connTimeout = appConfig.getHttpClientConnectionTimeout();
+		params.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,
+				connTimeout);
 		DefaultHttpClient client = new DefaultHttpClient(
 				manager.getConnectionManager(), params);
 		client.addRequestInterceptor(new HttpRequestInterceptor() {
