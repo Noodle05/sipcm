@@ -44,7 +44,7 @@ public abstract class BaseConfiguration {
 		return appConfig.getInt(MAX_HTTP_CLIENT_TOTAL_CONNECTIONS, 50);
 	}
 
-	public long getHttpClientConnectionTimeout() {
-		return appConfig.getLong(HTTP_CLIENT_GET_CONNECTION_TIMEOUT, 5000L);
+	public int getHttpClientConnectionTimeout() {
+		return appConfig.getInt(HTTP_CLIENT_GET_CONNECTION_TIMEOUT, 5000);
 	}
 }
