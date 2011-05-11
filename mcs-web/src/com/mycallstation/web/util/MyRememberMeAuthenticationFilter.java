@@ -41,10 +41,12 @@ public class MyRememberMeAuthenticationFilter extends GenericFilterBean {
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
 			boolean foundCookie = false;
-			for (Cookie c : request.getCookies()) {
-				if (SecurityTools.FORUM_COOKIE_NAME.equals(c.getName())) {
-					foundCookie = true;
-					break;
+			if (request.getCookies() != null) {
+				for (Cookie c : request.getCookies()) {
+					if (SecurityTools.FORUM_COOKIE_NAME.equals(c.getName())) {
+						foundCookie = true;
+						break;
+					}
 				}
 			}
 			if (!foundCookie) {
