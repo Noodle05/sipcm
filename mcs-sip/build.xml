@@ -93,9 +93,7 @@
 		<copy todir="${self.dist.dir}/webinf/config">
 			<fileset dir="${web.dir}/WEB-INF/config" excludes="system-config.xml" />
 		</copy>
-		<copy todir="${self.dist.dir}/webinf">
-			<fileset dir="${web.dir}/WEB-INF" />
-		</copy>
+		<copy file="${web.dir}/WEB-INF/web.xml" todir="${self.dist.dir}/webinf" />
 		<war destfile="${dist.dir}/${war.filename}" webxml="${web.dir}/WEB-INF/web.xml">
 			<lib dir="${self.dist.dir}/lib" />
 			<webinf dir="${self.dist.dir}/webinf" includes="config/*,contexts/*" />

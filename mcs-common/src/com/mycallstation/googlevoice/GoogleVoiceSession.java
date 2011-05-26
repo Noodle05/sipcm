@@ -259,7 +259,11 @@ public class GoogleVoiceSession implements Serializable {
 		if (loggedIn) {
 			try {
 				HttpGet callGet = new HttpGet(LOGOUT_URL);
-				httpClient.execute(callGet);
+				HttpResponse resp = httpClient.execute(callGet);
+				HttpEntity entity = resp.getEntity();
+				if (entity != null) {
+					EntityUtils.consume(entity);
+				}
 			} catch (Exception e) {
 				if (logger.isWarnEnabled()) {
 					logger.warn(
