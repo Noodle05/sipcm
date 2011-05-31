@@ -254,6 +254,9 @@ public class GoogleVoiceSession implements Serializable {
 					.getStatusCode(), error == null ? "No content in page"
 					: error);
 		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Google voice session for \"{}\" logged in.", username);
+		}
 	}
 
 	public void logout() {
@@ -261,10 +264,20 @@ public class GoogleVoiceSession implements Serializable {
 			try {
 				HttpGet callGet = new HttpGet(LOGOUT_URL);
 				HttpResponse resp = httpClient.execute(callGet);
-				HttpEntity entity = resp.getEntity();
-				if (entity != null) {
-					EntityUtils.consume(entity);
+				if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+					if (logger.isWarnEnabled()) {
+						logger.warn(
+								"Error happened when logout google voice session. Response status: {}",
+								resp.getStatusLine().getStatusCode());
+					}
+				} else {
+					if (logger.isDebugEnabled()) {
+						logger.debug(
+								"Google voice session for \"{}\" logged out.",
+								username);
+					}
 				}
+				callGet.abort();
 			} catch (Exception e) {
 				if (logger.isWarnEnabled()) {
 					logger.warn(
