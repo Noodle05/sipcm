@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -65,7 +64,8 @@ public class GoogleVoiceSession implements Serializable {
 	private static final String CALL_URL = "https://www.google.com/voice/call/connect/";
 	private static final String CONCEL_URL = "https://www.google.com/voice/call/cancel/";
 	private static final String LOGOUT_URL = "https://www.google.com/accounts/Logout";
-	private static final String PHONE_SETTING_URL = "https://www.google.com/voice/settings/tab/phones?v={0}";
+	private static final String PHONE_SETTING_URL = "https://www.google.com/voice/settings/tab/phones";
+	private static final String GV_SERVICE = "grandcentral";
 
 	private static Pattern galxPattern = Pattern.compile(
 			".*name=\"GALX\"\\s*value=\"([^\"]*)\".*", Pattern.DOTALL
@@ -154,6 +154,7 @@ public class GoogleVoiceSession implements Serializable {
 		ps.add(new BasicNameValuePair("Passwd", password));
 		ps.add(new BasicNameValuePair("continue", CONTINUE_URL));
 		ps.add(new BasicNameValuePair("GALX", galx));
+		ps.add(new BasicNameValuePair("service", GV_SERVICE));
 		HttpEntity oe = new UrlEncodedFormEntity(ps);
 		login.setEntity(oe);
 		if (logger.isTraceEnabled()) {
@@ -327,9 +328,11 @@ public class GoogleVoiceSession implements Serializable {
 
 	public GoogleVoiceConfig getGoogleVoiceSetting()
 			throws ClientProtocolException, IOException {
-		String phoneSettingUrl = MessageFormat.format(PHONE_SETTING_URL,
-				version);
+		String phoneSettingUrl = PHONE_SETTING_URL;
 		HttpGet request = new HttpGet(phoneSettingUrl);
+		HttpParams params = new BasicHttpParams();
+		params.setIntParameter("v", version);
+		request.setParams(params);
 		HttpResponse response = httpClient.execute(request);
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
