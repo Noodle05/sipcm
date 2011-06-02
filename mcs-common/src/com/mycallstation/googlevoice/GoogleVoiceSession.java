@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
+import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
@@ -27,7 +27,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
@@ -58,41 +57,39 @@ public class GoogleVoiceSession implements Serializable {
 
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.A.B.C Safari/525.13";
 
-	private static final String LOGIN_PAGE_URL = "https://www.google.com/accounts/ServiceLogin";
-	private static final String LOGIN_URL = "https://www.google.com/accounts/ServiceLoginAuth";
-	private static final String CONTINUE_URL = "https://www.google.com/voice/account/signin";
+	private static final String LOGIN_URL = "https://www.google.com/accounts/ClientLogin";
+	private static final String GV_URL = "https://www.google.com/voice/";
 	private static final String CALL_URL = "https://www.google.com/voice/call/connect/";
 	private static final String CONCEL_URL = "https://www.google.com/voice/call/cancel/";
-	private static final String LOGOUT_URL = "https://www.google.com/accounts/Logout";
 	private static final String PHONE_SETTING_URL = "https://www.google.com/voice/settings/tab/phones";
 	private static final String GV_SERVICE = "grandcentral";
 
-	private static Pattern galxPattern = Pattern.compile(
-			".*name=\"GALX\"\\s*value=\"([^\"]*)\".*", Pattern.DOTALL
-					+ Pattern.CASE_INSENSITIVE);
+	private static final Pattern authTokenPattern = Pattern
+			.compile("^Auth=(.+)$");
 
 	private static final Pattern resultPattern = Pattern.compile(
 			"^\\{\"ok\"\\s*\\:\\s*(false|true).*\\}$", Pattern.DOTALL
 					+ Pattern.CASE_INSENSITIVE);
 
 	private static final Pattern rnr_sePattern = Pattern
-			.compile("^\\s*'_rnr_se':\\s*'(.*)',\\s*$");
+			.compile("^\\s*'_rnr_se':\\s*'(.+)',\\s*$");
 	private static final Pattern v_Pattern = Pattern
 			.compile("^\\s*'v':\\s*'(\\d+)',\\s*$");
 	private static final Pattern errorPattern = Pattern.compile("^Error=(.*)$");
 	private static final Pattern captchaTokenPattern = Pattern
-			.compile("^CaptchaToken=(.*)$");
+			.compile("^CaptchaToken=(.+)$");
 	private static final Pattern captchaUrlPattern = Pattern
-			.compile("^CaptchaUrl=(.*)$");
+			.compile("^CaptchaUrl=(.+)$");
 	private static final Pattern phoneSettingPattern = Pattern
-			.compile("^\\s*<json><!\\[CDATA\\[(.*)\\]\\]></json>\\s*$");
+			.compile("^\\s*<json><!\\[CDATA\\[(.+)\\]\\]></json>\\s*$");
 
 	private String username;
 	private String password;
 	private String myNumber;
 	private HttpClient httpClient;
+	private String authToken;
 	private String rnrSe;
-	private int version = 518;
+	private int version = 590;
 	private int maxRetry = 1;
 	private volatile boolean cancelCall;
 	private volatile boolean loggedIn;
@@ -125,169 +122,116 @@ public class GoogleVoiceSession implements Serializable {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Trying to login.");
 		}
-		HttpGet loginPage = new HttpGet(LOGIN_PAGE_URL);
-		if (logger.isTraceEnabled()) {
-			logger.trace("Trying to get galx.");
-		}
-		HttpResponse response = httpClient.execute(loginPage);
-		String loginBody = response.getEntity() == null ? null : EntityUtils
-				.toString(response.getEntity());
-		String galx = null;
-		if (loginBody != null) {
-			Matcher m = galxPattern.matcher(loginBody);
-			if (m.matches()) {
-				galx = m.group(1);
-				if (logger.isTraceEnabled()) {
-					logger.trace("Get galx: {}", galx);
-				}
-			}
-		}
-		if (galx == null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("I cannot find galx for this login.");
-			}
-			throw new NoAuthTokenException();
-		}
 		HttpPost login = new HttpPost(LOGIN_URL);
 		List<NameValuePair> ps = new ArrayList<NameValuePair>();
 		ps.add(new BasicNameValuePair("Email", username));
 		ps.add(new BasicNameValuePair("Passwd", password));
-		ps.add(new BasicNameValuePair("continue", CONTINUE_URL));
-		ps.add(new BasicNameValuePair("GALX", galx));
 		ps.add(new BasicNameValuePair("service", GV_SERVICE));
+		ps.add(new BasicNameValuePair("accountType", "HOSTED_OR_GOOGLE"));
+		ps.add(new BasicNameValuePair("source", appConfig
+				.getGoogleAuthenticationAppname()));
 		HttpEntity oe = new UrlEncodedFormEntity(ps);
 		login.setEntity(oe);
-		if (logger.isTraceEnabled()) {
-			logger.trace("Trying to get rnrse token.");
-		}
-		HttpRequestBase request = login;
-		response = httpClient.execute(request);
-		while (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY
-				|| response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_PERMANENTLY
-				|| response.getStatusLine().getStatusCode() == HttpStatus.SC_TEMPORARY_REDIRECT) {
-			Header locationHeader = response.getFirstHeader("location");
-			if (locationHeader == null) {
-				request.abort();
-				// got a redirect response, but no location header
-				throw new ClientProtocolException("Received redirect response "
-						+ response.getStatusLine() + " but no location header");
-			}
-			String location = locationHeader.getValue();
-			request.abort();
-			request = new HttpGet(location);
-			response = httpClient.execute(request);
-		}
-		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-			loggedIn = true;
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					response.getEntity().getContent()));
-			try {
-				boolean rnrSet = false;
-				boolean versionSet = false;
-				String tmp = null;
-				while (((tmp = reader.readLine()) != null)
-						&& (!rnrSet || !versionSet)) {
-					if (!rnrSet) {
-						Matcher m = rnr_sePattern.matcher(tmp);
-						if (m.matches()) {
-							rnrSe = m.group(1);
-							rnrSet = true;
-							continue;
-						}
-					}
-					if (!versionSet) {
-						Matcher m = v_Pattern.matcher(tmp);
-						if (m.matches()) {
-							String s = m.group(1);
-							version = Integer.parseInt(s);
-							versionSet = true;
-							continue;
-						}
-					}
-				}
-			} catch (IOException e) {
+		HttpResponse response = httpClient.execute(login);
+		try {
+			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(response.getEntity().getContent()));
 				try {
-					reader.close();
-				} catch (IOException ee) {
-					if (logger.isWarnEnabled()) {
-						logger.warn(
-								"Error happened when close reader during IO exception handling, ignore it.",
-								ee);
+					String tmp = null;
+					while ((tmp = reader.readLine()) != null && !loggedIn) {
+						Matcher m = authTokenPattern.matcher(tmp);
+						if (m.matches()) {
+							authToken = m.group(1);
+							loggedIn = true;
+						}
 					}
 				} finally {
-					reader = null;
-					logout();
+					reader.close();
 				}
-				throw e;
-			} finally {
-				if (reader != null) {
-					try {
-						reader.close();
-					} catch (IOException e) {
-						if (logger.isWarnEnabled()) {
-							logger.warn(
-									"Error happened when close reader, ignore it.",
-									e);
+			} else {
+				parseError(response.getEntity());
+			}
+		} finally {
+			login.abort();
+		}
+		if (!loggedIn) {
+			throw new AuthenticationException("Not able to login");
+		}
+		if (logger.isTraceEnabled()) {
+			logger.trace("Logged in.");
+		}
+		HttpGet gvPage = new HttpGet(GV_URL);
+		prepairAuthToken(gvPage);
+		response = httpClient.execute(gvPage);
+		try {
+			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(response.getEntity().getContent()));
+				try {
+					boolean rnrSet = false;
+					boolean versionSet = false;
+					String tmp = null;
+					while (((tmp = reader.readLine()) != null)
+							&& (!rnrSet || !versionSet)) {
+						if (!rnrSet) {
+							Matcher m = rnr_sePattern.matcher(tmp);
+							if (m.matches()) {
+								rnrSe = m.group(1);
+								rnrSet = true;
+								continue;
+							}
+						}
+						if (!versionSet) {
+							Matcher m = v_Pattern.matcher(tmp);
+							if (m.matches()) {
+								String s = m.group(1);
+								version = Integer.parseInt(s);
+								versionSet = true;
+								continue;
+							}
 						}
 					}
+				} finally {
+					reader.close();
 				}
-			}
-			if (rnrSe == null) {
-				logout();
+				if (rnrSe == null) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Cannot find rnr.");
+					}
+					throw new NoRnrSeException();
+				}
+				if (logger.isTraceEnabled()) {
+					logger.trace("Find rnr: {}", rnrSe);
+				}
+			} else {
+				String error = response.getEntity() == null ? null
+						: EntityUtils.toString(response.getEntity());
 				if (logger.isDebugEnabled()) {
-					logger.debug("Cannot find rnr.");
+					logger.debug("Login page return error {}", response
+							.getStatusLine().getStatusCode());
 				}
-				throw new NoRnrSeException();
+				throw new HttpResponseException(response.getStatusLine()
+						.getStatusCode(), error == null ? "No content in page"
+						: error);
 			}
-			if (logger.isTraceEnabled()) {
-				logger.trace("Find rnr: {}", rnrSe);
-			}
-		} else {
-			String error = response.getEntity() == null ? null : EntityUtils
-					.toString(response.getEntity());
-			request.abort();
-			if (logger.isDebugEnabled()) {
-				logger.debug("Login page return error {}", response
-						.getStatusLine().getStatusCode());
-			}
-			throw new HttpResponseException(response.getStatusLine()
-					.getStatusCode(), error == null ? "No content in page"
-					: error);
+		} finally {
+			gvPage.abort();
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("Google voice session for \"{}\" logged in.", username);
 		}
 	}
 
+	private void prepairAuthToken(HttpMessage message) {
+		message.setHeader("Authorization", "GoogleLogin auth=" + authToken);
+	}
+
 	public void logout() {
 		if (loggedIn) {
-			try {
-				HttpGet callGet = new HttpGet(LOGOUT_URL);
-				HttpResponse resp = httpClient.execute(callGet);
-				if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-					if (logger.isWarnEnabled()) {
-						logger.warn(
-								"Error happened when logout google voice session. Response status: {}",
-								resp.getStatusLine().getStatusCode());
-					}
-				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug(
-								"Google voice session for \"{}\" logged out.",
-								username);
-					}
-				}
-				callGet.abort();
-			} catch (Exception e) {
-				if (logger.isWarnEnabled()) {
-					logger.warn(
-							"Error happened when try to logout, will ignore it.",
-							e);
-				}
-			} finally {
-				rnrSe = null;
-				loggedIn = false;
-			}
+			authToken = null;
+			rnrSe = null;
+			loggedIn = false;
 		}
 	}
 
@@ -305,6 +249,7 @@ public class GoogleVoiceSession implements Serializable {
 			ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
 			HttpEntity en = new UrlEncodedFormEntity(ps);
 			callPost.setEntity(en);
+			prepairAuthToken(callPost);
 			if (logger.isTraceEnabled()) {
 				logger.trace(
 						"Calling \"call\" method with target number {}, callback number {}, phone type {}",
@@ -333,6 +278,7 @@ public class GoogleVoiceSession implements Serializable {
 		ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
 		HttpEntity en = new UrlEncodedFormEntity(ps);
 		callPost.setEntity(en);
+		prepairAuthToken(callPost);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Call \"cancel\" method.");
 		}
@@ -346,6 +292,7 @@ public class GoogleVoiceSession implements Serializable {
 		HttpParams params = new BasicHttpParams();
 		params.setIntParameter("v", version);
 		request.setParams(params);
+		prepairAuthToken(request);
 		HttpResponse response = httpClient.execute(request);
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(

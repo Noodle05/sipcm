@@ -20,6 +20,7 @@ public abstract class BaseConfiguration {
 	public static final String REALM_NAME = "sip.server.realm";
 	public static final String MAX_HTTP_CLIENT_TOTAL_CONNECTIONS = "com.sip.http.client.maxConnections";
 	public static final String HTTP_CLIENT_GET_CONNECTION_TIMEOUT = "com.sip.http.client.getConnectionTimeout";
+	public static final String GOOGLE_AUTH_APPNAME = "google.authentication.appname";
 
 	@Resource(name = "applicationConfiguration")
 	protected Configuration appConfig;
@@ -46,5 +47,9 @@ public abstract class BaseConfiguration {
 
 	public int getHttpClientConnectionTimeout() {
 		return appConfig.getInt(HTTP_CLIENT_GET_CONNECTION_TIMEOUT, 5000);
+	}
+
+	public String getGoogleAuthenticationAppname() {
+		return appConfig.getString(GOOGLE_AUTH_APPNAME, "MyCallStation-1.0");
 	}
 }
