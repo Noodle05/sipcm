@@ -375,7 +375,6 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 						if (callEventListener != null) {
 							callCanceled(req.getSession());
 						}
-						appSession.invalidate();
 						return;
 					} else {
 						if (logger.isWarnEnabled()) {
