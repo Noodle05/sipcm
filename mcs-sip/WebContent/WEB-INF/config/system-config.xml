@@ -9,6 +9,8 @@
 	<entry key="global.from.email">noreply@mycallstation</entry>
 	<entry key="global.from.email.personal">System Notifier</entry>
 
+	<entry key="google.authentication.appname">MyCallStation-v1.0</entry>
+
 	<entry key="sip.server.realm">mycallstation.com</entry>
 	<entry key="sip.publicIp.process">true</entry>
 
