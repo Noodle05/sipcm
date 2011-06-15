@@ -3,9 +3,7 @@
  */
 package com.mycallstation.web.util;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
 
 import javax.faces.context.FacesContext;
@@ -16,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import com.mycallstation.dataaccess.model.User;
-import com.mycallstation.jforumintegration.SecurityTools;
 import com.mycallstation.security.UserDetailsImpl;
 import com.mycallstation.web.LocaleTimeZoneHolderBean;
 
@@ -47,15 +44,6 @@ public class ApplicationSecurityListener implements
 				timeZone = user.getTimeZone();
 				FacesContext ctx = FacesContext.getCurrentInstance();
 				if (ctx != null) {
-					String encryptData = SecurityTools.getInstance()
-							.encryptCookieValues(user.getEmail(),
-									user.getUsername());
-					Map<String, Object> props = new HashMap<String, Object>(2);
-					props.put("maxAge", -1);
-					props.put("path", "/");
-					ctx.getExternalContext()
-							.addResponseCookie(SecurityTools.FORUM_COOKIE_NAME,
-									encryptData, props);
 					if (locale != null || timeZone != null) {
 						LocaleTimeZoneHolderBean bean = JSFUtils
 								.getManagedBean("localeTimeZoneHolderBean",

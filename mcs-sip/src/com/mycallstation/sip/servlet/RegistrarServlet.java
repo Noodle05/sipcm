@@ -194,15 +194,9 @@ public class RegistrarServlet extends AbstractSipServlet {
 									"This user register too frequently. Request: \"{}\"",
 									req);
 						}
-						if (appConfig.isRefuseBriefRegister()) {
-							responseWithContact(userSipProfile, req,
-									SipServletResponse.SC_BUSY_EVERYWHERE,
-									"Register too frequent.");
-						} else {
-							responseWithContact(userSipProfile, req,
-									SipServletResponse.SC_BUSY_HERE,
-									"Register too frequent, try later.");
-						}
+						responseWithContact(userSipProfile, req,
+								SipServletResponse.SC_BUSY_HERE,
+								"Register too frequent, try later.");
 						return;
 					}
 				}

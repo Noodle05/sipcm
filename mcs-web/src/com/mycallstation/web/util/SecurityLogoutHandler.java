@@ -5,6 +5,7 @@ package com.mycallstation.web.util;
 
 import java.io.IOException;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +23,9 @@ import com.mycallstation.jforumintegration.SecurityTools;
  */
 @Component("securityLogoutHandler")
 public class SecurityLogoutHandler implements LogoutSuccessHandler {
+	@Resource
+	private WebConfiguration appConfig;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -35,10 +39,15 @@ public class SecurityLogoutHandler implements LogoutSuccessHandler {
 	public void onLogoutSuccess(HttpServletRequest request,
 			HttpServletResponse response, Authentication authentication)
 			throws IOException, ServletException {
-		Cookie c = new Cookie(SecurityTools.FORUM_COOKIE_NAME, "");
-		c.setPath("/");
-		c.setMaxAge(0);
-		response.addCookie(c);
+		if (request.getCookies() != null) {
+			for (Cookie c : request.getCookies()) {
+				if (c.getName().equals(SecurityTools.FORUM_COOKIE_NAME)) {
+					c.setMaxAge(0);
+					c.setDomain("." + appConfig.getDomain());
+					response.addCookie(c);
+				}
+			}
+		}
 		response.sendRedirect("/");
 	}
 }

@@ -5,6 +5,7 @@ package com.mycallstation.web.util;
 
 import java.io.IOException;
 
+import javax.annotation.Resource;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -28,6 +29,8 @@ import com.mycallstation.security.UserDetailsImpl;
  */
 @Component("myRememberMeAuthenticationFilter")
 public class MyRememberMeAuthenticationFilter extends GenericFilterBean {
+	@Resource
+	public WebConfiguration appConfig;
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res,
@@ -63,6 +66,11 @@ public class MyRememberMeAuthenticationFilter extends GenericFilterBean {
 								encryptData);
 						c.setMaxAge(-1);
 						c.setPath("/");
+						c.setDomain(appConfig.getDomain());
+						if (logger.isTraceEnabled()) {
+							logger.trace("Adding cookie for jforum SSO. domain: "
+									+ c.getDomain());
+						}
 						response.addCookie(c);
 					}
 				}

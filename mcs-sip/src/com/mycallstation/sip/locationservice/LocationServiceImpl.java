@@ -136,8 +136,9 @@ public class LocationServiceImpl implements LocationService {
 					logger.trace("Update address addess {}", addressBinding);
 				}
 				int now = (int) (System.currentTimeMillis() / 1000L);
-				if ((addressBinding.getExpires() - (now - addressBinding
-						.getLastCheck())) > minimumExpires) {
+				if (appConfig.isRefuseBriefRegister()
+						&& (addressBinding.getExpires() - (now - addressBinding
+								.getLastCheck())) > minimumExpires) {
 					throw new RegisterTooFrequentException();
 				}
 				addressBinding.setAddress(sipUtil.sipAddressToString(address));
