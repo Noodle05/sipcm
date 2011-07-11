@@ -3,6 +3,8 @@
  */
 package com.mycallstation.sip.util;
 
+import java.util.Arrays;
+
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.Configuration;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.mycallstation.common.BaseConfiguration;
 import com.mycallstation.util.CodecTool;
+import com.mycallstation.util.PhoneNumberUtil;
 
 /**
  * @author wgao
@@ -45,6 +48,7 @@ public class SipConfiguration extends BaseConfiguration {
 	public static final String STUN_PORT = "sip.stun.port";
 
 	public static final String GV_TIMEOUT = "com.mycallstation.googlevoice.timeout";
+	public static final String GV_GENERIC_CALLBACK_NUMBER = "com.mycallstation.googlevoice.generic.callback.number";
 
 	public static final String SIP_MIN_EXPIRESTIME = "sip.expirestime.min";
 	public static final String SIP_MAX_EXPIRESTIME = "sip.expirestime.max";
@@ -147,6 +151,21 @@ public class SipConfiguration extends BaseConfiguration {
 
 	public int getGoogleVoiceCallTimeout() {
 		return appConfig.getInt(GV_TIMEOUT, 60);
+	}
+
+	public String[] getGoogleVoiceGenericCallbackNumber() {
+		String str = appConfig.getString(GV_GENERIC_CALLBACK_NUMBER, "");
+		String[] s = null;
+		if (str != null && str.length() > 0) {
+			s = str.split("\\s*,\\s*");
+			if (s.length > 0) {
+				for (int i = 0; i < s.length; i++) {
+					s[i] = PhoneNumberUtil.getCanonicalizedPhoneNumber(s[i]);
+				}
+			}
+			Arrays.sort(s);
+		}
+		return s;
 	}
 
 	public int getSipMinExpires() {

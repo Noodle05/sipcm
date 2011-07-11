@@ -4,6 +4,7 @@
 package com.mycallstation.sip.servlet;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -28,6 +29,21 @@ import com.mycallstation.util.PhoneNumberUtil;
 @SipServlet(name = "IncomingInviteServlet", applicationName = "com.mycallstation.CallCenter", loadOnStartup = 1)
 public class IncomingInviteServlet extends AbstractSipServlet {
 	private static final long serialVersionUID = 4938128598461987936L;
+
+	private volatile String[] genericGVCallbackNumber;
+	private volatile boolean gvCallbackNumberInitialized = false;
+
+	private void initGVCallbackNumber() {
+		if (!gvCallbackNumberInitialized) {
+			synchronized (this) {
+				if (!gvCallbackNumberInitialized) {
+					genericGVCallbackNumber = appConfig
+							.getGoogleVoiceGenericCallbackNumber();
+					gvCallbackNumberInitialized = true;
+				}
+			}
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -65,9 +81,7 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Found application session for this to user, this probably a google voice call back.");
 				}
-				if (PhoneNumberUtil.getCanonicalizedPhoneNumber(fromUser)
-						.equals(appSession
-								.getAttribute(GV_WAITING_FOR_CALLBACK))) {
+				if (checkCallbackNumber(fromUser, appSession)) {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Call back number match too, forward to google voice servlet.");
 					}
@@ -112,5 +126,20 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 			}
 		}
 		dispatcher.forward(req, null);
+	}
+
+	private boolean checkCallbackNumber(String fromUser,
+			SipApplicationSession appSession) {
+		String pn = PhoneNumberUtil.getCanonicalizedPhoneNumber(fromUser);
+		if (pn.equals(appSession.getAttribute(GV_WAITING_FOR_CALLBACK))) {
+			return true;
+		}
+		initGVCallbackNumber();
+		if (genericGVCallbackNumber != null) {
+			if (Arrays.binarySearch(genericGVCallbackNumber, pn) >= 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
