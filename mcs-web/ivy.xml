@@ -34,7 +34,7 @@
 			rev="1.8.3" conf="runtime->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
 		</dependency>
-		<dependency org="commons-codec" name="commons-codec" rev="1.4"
+		<dependency org="commons-codec" name="commons-codec" rev="1.5"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="commons-collections" name="commons-collections"
 			rev="3.2.1" conf="runtime->default;foride->sources,javadoc" />
@@ -49,7 +49,7 @@
 			<exclude module="commons-beanutils" />
 			<exclude module="commons-logging" />
 		</dependency>
-		<dependency org="commons-lang" name="commons-lang" rev="2.5"
+		<dependency org="commons-lang" name="commons-lang" rev="2.6"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="javassist" name="javassist" rev="3.8.0.GA"
 			conf="runtime->default;foride->sources,javadoc" />
@@ -61,12 +61,12 @@
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-codec" />
 		</dependency>
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.1.Final"
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.6.Final"
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
 		<dependency org="org.hibernate" name="hibernate-validator"
-			rev="4.1.0.Final" conf="runtime->default;foride->sources,javadoc">
+			rev="4.2.0.Final" conf="runtime->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
 		<dependency org="org.aspectj" name="aspectjrt" rev="1.6.9"

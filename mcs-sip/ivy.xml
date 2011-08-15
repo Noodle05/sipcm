@@ -30,13 +30,13 @@
 			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="javax.sip" name="jain-sip-ri" rev="1.2.161"
 			conf="provided->default;foride->sources,javadoc" />
-		<dependency org="org.dnsjava" name="dnsjava" rev="2.0.6"
+		<dependency org="dnsjava" name="dnsjava" rev="2.1.1"
 			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="commons-beanutils" name="commons-beanutils-core"
 			rev="1.8.3" conf="runtime->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
 		</dependency>
-		<dependency org="commons-codec" name="commons-codec" rev="1.4"
+		<dependency org="commons-codec" name="commons-codec" rev="1.5"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="commons-collections" name="commons-collections"
 			rev="3.2.1" conf="runtime->default;foride->sources,javadoc" />
@@ -51,7 +51,7 @@
 			<exclude module="commons-beanutils" />
 			<exclude module="commons-logging" />
 		</dependency>
-		<dependency org="commons-lang" name="commons-lang" rev="2.5"
+		<dependency org="commons-lang" name="commons-lang" rev="2.6"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="javassist" name="javassist" rev="3.8.0.GA"
 			conf="runtime->default;foride->sources,javadoc" />
@@ -61,12 +61,12 @@
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-codec" />
 		</dependency>
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.1.Final"
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.6.Final"
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
 		<dependency org="org.hibernate" name="hibernate-validator"
-			rev="4.1.0.Final" conf="runtime->default;foride->sources,javadoc">
+			rev="4.2.0.Final" conf="runtime->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
 		<dependency org="org.aspectj" name="aspectjrt" rev="1.6.9"
@@ -106,19 +106,19 @@
 		<dependency org="org.springframework" name="spring-test"
 			rev="3.0.5.RELEASE" conf="test->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.servlet.sip" name="sip-servlets-impl"
-			rev="1.5.0.FINAL" conf="provided->default;foride->sources,javadoc" />
+			rev="1.6.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.ha.javax.sip" name="mobicents-jain-sip-ha-core"
-			rev="1.0.0.FINAL" conf="provided->default;foride->sources,javadoc" />
+			rev="1.3.0" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.servlet.sip" name="sip-servlets-tomcat-jboss4"
-			rev="1.5.0.FINAL" conf="provided->default;foride->sources,javadoc" />
+			rev="1.6.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.servlet.sip" name="sip-servlets-application-router"
-			rev="1.5.0.FINAL" conf="provided->default;foride->sources,javadoc" />
+			rev="1.6.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.servlet.sip" name="sip-servlets-jruby"
-			rev="1.5.0.FINAL" conf="provided->default;foride->sources,javadoc" />
+			rev="1.6.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="net.java.stun4j" name="stun4j" rev="1.0.MOBICENTS"
 			conf="provided->default" />
 		<dependency org="org.mobicents.javax.sip" name="mobicents-jain-sip-ext"
-			rev="1.0.BETA1" conf="provided->default;foride->sources,javadoc" />
+			rev="1.0" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.apache.tomcat" name="catalina" rev="6.0.32"
 			conf="provided->default" />
 		<dependency org="com.google.guava" name="guava" rev="r09"

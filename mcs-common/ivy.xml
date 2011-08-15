@@ -31,7 +31,7 @@
 			<exclude module="commons-digester" />
 			<exclude module="commons-logging" />
 		</dependency>
-		<dependency org="commons-lang" name="commons-lang" rev="2.5"
+		<dependency org="commons-lang" name="commons-lang" rev="2.6"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="javassist" name="javassist" rev="3.8.0.GA"
 			conf="runtime->default;foride->sources,javadoc" />
@@ -39,7 +39,7 @@
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-codec" />
 		</dependency>
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.1.Final"
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.6.Final"
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
