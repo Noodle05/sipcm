@@ -38,8 +38,10 @@ public class LastReceivedCallUpdator implements CallEventListener {
 
 	@Override
 	public void incomingCallEstablished(CallStartEvent event) {
-		userSipProfileService.updateLastReceiveCallTime(event
-				.getUserSipProfile());
+		if (!event.isFromLocal()) {
+			userSipProfileService.updateLastReceiveCallTime(event
+					.getUserSipProfile());
+		}
 	}
 
 	@Override

@@ -73,8 +73,12 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 			response(req, SipServletResponse.SC_SERVER_INTERNAL_ERROR);
 			return;
 		}
-		Collection<AddressBinding> addresses = locationService
-				.getUserSipBindingByPhoneNumber(phoneNumber);
+		Collection<AddressBinding> addresses = null;
+		// Only if user is not calling himself.
+		if (!phoneNumber.equals(userSipProfile.getPhoneNumber())) {
+			addresses = locationService
+					.getUserSipBindingByPhoneNumber(phoneNumber);
+		}
 		if (addresses != null && !addresses.isEmpty()) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Found local user with this phone number, will forward to local user directly.");
@@ -111,10 +115,10 @@ public class OutgoingPhoneInviteServlet extends AbstractSipServlet {
 			req.setAttribute(USER_VOIP_ACCOUNT, voipAccount);
 			String servlet = voipVendorToServletMap.get(voipAccount
 					.getVoipVendor().getType());
-			if (logger.isDebugEnabled()) {
-				logger.debug("Forward to servlet: {}", servlet);
-			}
 			if (servlet != null) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Forward to servlet: {}", servlet);
+				}
 				RequestDispatcher dispatcher = req
 						.getRequestDispatcher(servlet);
 				if (dispatcher != null) {

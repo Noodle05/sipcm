@@ -19,6 +19,7 @@ public class CallStartEvent extends EventObject {
 	private volatile Date startTime;
 	private final UserSipProfile userSipProfile;
 	private final UserVoipAccount account;
+	private boolean fromLocal;
 
 	public CallStartEvent(UserSipProfile userSipProfile, String partner) {
 		this(userSipProfile, null, partner);
@@ -35,6 +36,7 @@ public class CallStartEvent extends EventObject {
 				: account.getOwner()) : userSipProfile;
 		this.account = account;
 		this.startTime = new Date();
+		this.fromLocal = false;
 	}
 
 	/**
@@ -71,6 +73,20 @@ public class CallStartEvent extends EventObject {
 	 */
 	public UserVoipAccount getAccount() {
 		return account;
+	}
+
+	/**
+	 * @return the fromLocal
+	 */
+	public boolean isFromLocal() {
+		return fromLocal;
+	}
+
+	/**
+	 * @param fromLocal the fromLocal to set
+	 */
+	public void setFromLocal(boolean fromLocal) {
+		this.fromLocal = fromLocal;
 	}
 
 	/*

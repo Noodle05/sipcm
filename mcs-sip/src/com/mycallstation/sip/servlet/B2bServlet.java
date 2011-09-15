@@ -146,21 +146,6 @@ public class B2bServlet extends AbstractSipServlet {
 		B2buaHelper helper = resp.getRequest().getB2buaHelper();
 		SipSession session = resp.getSession();
 		SipSession linkedSession = helper.getLinkedSession(session);
-		if (callEventListener != null) {
-			if ("INVITE".equalsIgnoreCase(resp.getRequest().getMethod())) {
-				if (resp.getStatus() >= 200) {
-					if (resp.getStatus() < 300) {
-						callEstablished(session, linkedSession);
-					} else {
-						callFailed(session, linkedSession, resp);
-					}
-				}
-			} else if ("BYE".equalsIgnoreCase(resp.getRequest().getMethod())) {
-				callEnd(session, linkedSession);
-			} else if ("CANCEL".equalsIgnoreCase(resp.getRequest().getMethod())) {
-				callCanceled(session, linkedSession);
-			}
-		}
 		SipServletResponse forkedResp = null;
 		if (resp.getRequest().isInitial()) {
 			forkedResp = helper.createResponseToOriginalRequest(linkedSession,
@@ -183,6 +168,21 @@ public class B2bServlet extends AbstractSipServlet {
 				logger.trace("Sending forked response: {}", forkedResp);
 			}
 			forkedResp.send();
+		}
+		if (callEventListener != null) {
+			if ("INVITE".equalsIgnoreCase(resp.getRequest().getMethod())) {
+				if (resp.getStatus() >= 200) {
+					if (resp.getStatus() < 300) {
+						callEstablished(session, linkedSession);
+					} else {
+						callFailed(session, linkedSession, resp);
+					}
+				}
+			} else if ("BYE".equalsIgnoreCase(resp.getRequest().getMethod())) {
+				callEnd(session, linkedSession);
+			} else if ("CANCEL".equalsIgnoreCase(resp.getRequest().getMethod())) {
+				callCanceled(session, linkedSession);
+			}
 		}
 	}
 
@@ -583,17 +583,20 @@ public class B2bServlet extends AbstractSipServlet {
 
 	protected void callEstablished(SipSession session) {
 		if (session != null) {
-			CallStartEvent startEvent = (CallStartEvent) session
+			CallStartEvent incomingStartEvent = (CallStartEvent) session
 					.getAttribute(INCOMING_CALL_START);
-			if (startEvent != null) {
-				startEvent.setStartTime(new Date());
-				callEventListener.incomingCallEstablished(startEvent);
-			}
-			startEvent = (CallStartEvent) session
+			CallStartEvent outgoingStartEvent = (CallStartEvent) session
 					.getAttribute(OUTGOING_CALL_START);
-			if (startEvent != null) {
-				startEvent.setStartTime(new Date());
-				callEventListener.outgoingCallEstablished(startEvent);
+			if (incomingStartEvent != null) {
+				incomingStartEvent.setStartTime(new Date());
+				if (outgoingStartEvent != null) {
+					incomingStartEvent.setFromLocal(true);
+				}
+				callEventListener.incomingCallEstablished(incomingStartEvent);
+			}
+			if (outgoingStartEvent != null) {
+				outgoingStartEvent.setStartTime(new Date());
+				callEventListener.outgoingCallEstablished(outgoingStartEvent);
 			}
 		} else {
 			if (logger.isWarnEnabled()) {
