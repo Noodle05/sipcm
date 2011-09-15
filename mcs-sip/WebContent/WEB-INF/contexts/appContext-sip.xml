@@ -20,6 +20,7 @@
 
 	<util:list id="sipCallEventListeners">
 		<ref bean="sipCallLogRecorder" />
+		<ref bean="sipLastReceivedCallUpdator" />
 	</util:list>
 
 	<bean id="userServiceEventListener" class="com.mycallstation.base.CompositeServiceEventListener">

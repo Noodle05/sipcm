@@ -55,6 +55,7 @@ public class UserSipProfileServiceImpl extends
 		entity.setSipStatus(OnlineStatus.OFFLINE);
 		entity.setPhoneNumberStatus(PhoneNumberStatus.UNVERIFIED);
 		entity.setAllowLocalDirectly(true);
+		entity.setKeepAlive(false);
 		return entity;
 	}
 
@@ -136,6 +137,19 @@ public class UserSipProfileServiceImpl extends
 			UserSipProfile... userSipProfiles) {
 		((UserSipProfileDAO) dao).updateOnlineStatus(onlineStatus,
 				userSipProfiles);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.mycallstation.dataaccess.business.UserSipProfileService#
+	 * updateLastReceiveCallTime
+	 * (com.mycallstation.dataaccess.model.UserSipProfile[])
+	 */
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS)
+	public void updateLastReceiveCallTime(UserSipProfile... userSipProfiles) {
+		((UserSipProfileDAO) dao).updateLastReceiveCallTime(userSipProfiles);
 	}
 
 	/*

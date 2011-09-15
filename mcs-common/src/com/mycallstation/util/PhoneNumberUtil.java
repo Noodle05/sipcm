@@ -10,8 +10,6 @@ import java.util.regex.Pattern;
  * 
  */
 public abstract class PhoneNumberUtil {
-	private static final long serialVersionUID = -4401623664272801936L;
-
 	public static final String US_CA_NUMBER = "\\d{7}|(?:\\+1|1)?\\d{10}";
 	public static final String INTERNATIONAL_NUMBER = "(?:\\+|011|00)[^1]\\d{7,}";
 

@@ -6,6 +6,7 @@ package com.mycallstation.dataaccess.dao.hibernate;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.HibernateException;
@@ -46,6 +47,32 @@ public class UserSipProfileDAOImpl extends AbstractDAO<UserSipProfile, Long>
 				for (UserSipProfile userSipProfile : userSipProfiles) {
 					query.setLong("id", userSipProfile.getId());
 					query.setParameter("sipStatus", onlineStatus);
+					ret += query.executeUpdate();
+				}
+				return ret;
+			}
+		});
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.dataaccess.dao.UserSipProfileDAO#updateLastReceiveCallTime
+	 * (com.mycallstation.dataaccess.model.UserSipProfile[])
+	 */
+	@Override
+	public void updateLastReceiveCallTime(final UserSipProfile... userSipProfiles) {
+		getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				int ret = 0;
+				String queryStr = "UPDATE UserSipProfile usp SET usp.lastReceiveCallTime = :lastReceiveCallTime WHERE id = :id";
+				Query query = session.createQuery(queryStr);
+				for (UserSipProfile userSipProfile : userSipProfiles) {
+					query.setLong("id", userSipProfile.getId());
+					query.setTimestamp("lastReceiveCallTime", new Date());
 					ret += query.executeUpdate();
 				}
 				return ret;

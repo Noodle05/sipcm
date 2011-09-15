@@ -4,6 +4,7 @@
 package com.mycallstation.dataaccess.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -70,6 +71,14 @@ public class UserSipProfile implements IdBasedEntity<Long>, Serializable {
 	@Basic
 	@Column(name = "call_anonymously", nullable = false)
 	private boolean isCallAnonymously;
+
+	@Basic
+	@Column(name = "last_receive_call_time")
+	private Date lastReceiveCallTime;
+
+	@Basic
+	@Column(name = "keep_alive", nullable = false)
+	private boolean keepAlive;
 
 	/**
 	 * @param id
@@ -192,6 +201,36 @@ public class UserSipProfile implements IdBasedEntity<Long>, Serializable {
 	 */
 	public boolean isCallAnonymously() {
 		return isCallAnonymously;
+	}
+
+	/**
+	 * @return the lastReceiveCallTime
+	 */
+	public Date getLastReceiveCallTime() {
+		return lastReceiveCallTime;
+	}
+
+	/**
+	 * @param lastReceiveCallTime
+	 *            the lastReceiveCallTime to set
+	 */
+	public void setLastReceiveCallTime(Date lastReceiveCallTime) {
+		this.lastReceiveCallTime = lastReceiveCallTime;
+	}
+
+	/**
+	 * @return the keepAlive
+	 */
+	public boolean isKeepAlive() {
+		return keepAlive;
+	}
+
+	/**
+	 * @param keepAlive
+	 *            the keepAlive to set
+	 */
+	public void setKeepAlive(boolean keepAlive) {
+		this.keepAlive = keepAlive;
 	}
 
 	public String getDisplayName() {
