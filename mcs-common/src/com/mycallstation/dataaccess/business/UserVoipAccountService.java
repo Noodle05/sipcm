@@ -39,4 +39,6 @@ public interface UserVoipAccountService extends Service<UserVoipAccount, Long> {
 	public Collection<Long> checkRegisterExpires(int minExpires);
 
 	public UserVoipAccount getUserVoipAccountWithAuthResponse(Long id);
+
+	public UserVoipAccount getUserGoogleVoiceAccount(UserSipProfile user);
 }

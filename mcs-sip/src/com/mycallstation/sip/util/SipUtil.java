@@ -100,6 +100,7 @@ public class SipUtil {
 				c.setAddress(oip.getHostAddress());
 				str = sd.toString();
 				forkedMessage.setContent(str, contentType);
+				forkedMessage.setContentLength(str.length());
 			}
 		} catch (Exception e) {
 			if (logger.isWarnEnabled()) {

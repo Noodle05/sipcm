@@ -225,4 +225,32 @@ public class UserVoipAccountServiceImpl extends
 		entity.getAuthResponse();
 		return entity;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.mycallstation.dataaccess.business.UserVoipAccountService#
+	 * getUserGoogleVoiceAccount
+	 * (com.mycallstation.dataaccess.model.UserSipProfile)
+	 */
+	@Override
+	public UserVoipAccount getUserGoogleVoiceAccount(UserSipProfile user) {
+		Filter filter = filterFactory.createSimpleFilter("owner", user);
+		Filter f1 = filterFactory.createSimpleFilter("voipVendor.type",
+				VoipVendorType.GOOGLE_VOICE);
+		filter = filter.appendAnd(f1);
+		Collection<UserVoipAccount> accounts = dao.getEntities(filter, null,
+				null);
+		if (accounts != null && !accounts.isEmpty()) {
+			if (accounts.size() > 1) {
+				if (logger.isWarnEnabled()) {
+					logger.warn(
+							"User {} get multiple google voice account, will use first one.",
+							user);
+				}
+			}
+			return accounts.iterator().next();
+		}
+		return null;
+	}
 }

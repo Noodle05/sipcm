@@ -27,6 +27,15 @@ public interface DAO<Entity extends Serializable, ID extends Serializable> {
 	public List<Entity> getEntities(Filter filter, Sort sort, Page page);
 
 	/**
+	 * Generic method used to get entities list of a particular type by filter.
+	 * 
+	 * @param filter
+	 *            filter object used to query entities.
+	 * @return list of populated entity ids
+	 */
+	public List<ID> getEntityIds(Filter filter, Sort sort, Page page);
+
+	/**
 	 * Generic method used to get entities list of a particular type by FSP.
 	 * 
 	 * @param fsp
@@ -36,11 +45,27 @@ public interface DAO<Entity extends Serializable, ID extends Serializable> {
 	public List<Entity> getEntities(FSP fsp);
 
 	/**
+	 * Generic method used to get entities list of a particular type by FSP.
+	 * 
+	 * @param fsp
+	 *            FSP object used to query entities.
+	 * @return list of entity ids
+	 */
+	public List<ID> getEntityIds(FSP fsp);
+
+	/**
 	 * Generic method used to get all entities list of a particular type.
 	 * 
 	 * @return list of entities
 	 */
 	public List<Entity> getEntities();
+
+	/**
+	 * Generic method used to get all entities list of a particular type.
+	 * 
+	 * @return list of entity ids
+	 */
+	public List<ID> getEntityIds();
 
 	/**
 	 * Generic method used to get unique entity of a particular type. Be careful

@@ -58,6 +58,13 @@ public class SipConfiguration extends BaseConfiguration {
 	public static final String SIP_CLIENT_REGISTER_ALLOW_METHODS = "sip.client.register.allow.methods";
 	public static final String SIP_CILENT_REGISTER_RENEW_EXPIRES = "sip.client.register.renew.before.expires";
 
+	public static final String KEEP_ALIVE_TASK_INTERVAL = "phonenumber.keepalive.task.interval";
+	public static final String KEEP_ALIVE_TIMEOUT = "phonenumber.keepalive.timeout";
+	public static final String KEEP_ALIVE_CONCURRENCY = "phonenumber.keepalive.concurrency";
+	public static final String KEEP_ALIVE_ONLINE_ONLY = "phonenumber.keepalive.onlineonly";
+	public static final String KEEP_ALIVE_CHAT_TIME = "phonenumber.keepalive.chattime";
+	public static final String KEEP_ALIVE_GOOGLEVOICE_TIMEOUT = "phonenumber.keepalive.googlevoicetimeout";
+
 	@Resource(name = "applicationConfiguration")
 	private Configuration appConfig;
 
@@ -202,5 +209,29 @@ public class SipConfiguration extends BaseConfiguration {
 
 	public boolean isRefuseBriefRegister() {
 		return appConfig.getBoolean(SIP_REFUSE_BRIEF_REGISTER_REQUEST, true);
+	}
+
+	public long getKeepAliveTaskInterval() {
+		return appConfig.getLong(KEEP_ALIVE_TASK_INTERVAL, 3600000L);
+	}
+
+	public int getKeepAliveTimeout() {
+		return appConfig.getInt(KEEP_ALIVE_TIMEOUT, 25);
+	}
+
+	public int getKeepAliveConcurrency() {
+		return appConfig.getInt(KEEP_ALIVE_CONCURRENCY, 5);
+	}
+
+	public boolean isKeepAliveOnlineOnly() {
+		return appConfig.getBoolean(KEEP_ALIVE_ONLINE_ONLY, true);
+	}
+
+	public int getKeepAliveChatTime() {
+		return appConfig.getInt(KEEP_ALIVE_CHAT_TIME, 5);
+	}
+
+	public int getKeepAliveGoogleVoiceTimeout() {
+		return appConfig.getInt(KEEP_ALIVE_GOOGLEVOICE_TIMEOUT, 30);
 	}
 }

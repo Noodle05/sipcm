@@ -23,6 +23,8 @@ import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
 import com.mycallstation.sip.events.CallEndEvent;
 import com.mycallstation.sip.events.CallStartEvent;
+import com.mycallstation.sip.keepalive.PhoneNumberKeepAlive;
+import com.mycallstation.sip.locationservice.UserBindingInfo;
 import com.mycallstation.sip.util.DosProtector;
 import com.mycallstation.sip.util.ServerAuthenticationHelper;
 import com.mycallstation.util.PhoneNumberUtil;
@@ -43,6 +45,9 @@ public class CallCenterServlet extends AbstractSipServlet {
 
 	@Resource(name = "sipDosProtector")
 	private DosProtector dosProtector;
+
+	@Resource(name = "phoneNumberKeepAlive")
+	private PhoneNumberKeepAlive keepAlive;
 
 	@Override
 	protected void doResponse(javax.servlet.sip.SipServletResponse resp)
@@ -138,12 +143,12 @@ public class CallCenterServlet extends AbstractSipServlet {
 				UserSipProfile userSipProfile = checkAuthentication(req);
 				if (userSipProfile == null) {
 					if (logger.isTraceEnabled()) {
-						logger.trace("Not passing authentication, response should already send, just return.");
+						logger.trace("Authentication failed, response should already send, just return.");
 					}
 					return;
 				}
 				if (logger.isTraceEnabled()) {
-					logger.trace("Authentication pass, set user to request.");
+					logger.trace("Authentication success, set user to request.");
 				}
 				req.setAttribute(USER_ATTRIBUTE, userSipProfile);
 			}
@@ -151,20 +156,56 @@ public class CallCenterServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("This is a incoming invite to local user.");
 				}
+				UserSipProfile userSipProfile = null;
+				if (req.getAttribute(TARGET_USERSIPBINDING) != null) {
+					UserBindingInfo ubi = (UserBindingInfo) req
+							.getAttribute(TARGET_USERSIPBINDING);
+					if (ubi.getAccount() != null) {
+						userSipProfile = ubi.getAccount().getOwner();
+					} else {
+						userSipProfile = ubi.getBindings().iterator().next()
+								.getUserSipProfile();
+					}
+				} else if (req.getAttribute(USER_VOIP_ACCOUNT) != null) {
+					userSipProfile = ((UserVoipAccount) req
+							.getAttribute(USER_VOIP_ACCOUNT)).getOwner();
+				} else if (req.getAttribute(USER_ATTRIBUTE) != null) {
+					userSipProfile = (UserSipProfile) req
+							.getAttribute(USER_ATTRIBUTE);
+				}
+				if (userSipProfile != null
+						&& keepAlive.receiveCall(userSipProfile,
+								fromSipUri.getUser())) {
+					// This incoming invite is the response of keep alive
+					// request, forward to keep alive servlet.
+					RequestDispatcher dispatcher = req
+							.getRequestDispatcher("KeepAliveServlet");
+					if (dispatcher != null) {
+						req.setAttribute(USER_ATTRIBUTE, userSipProfile);
+						dispatcher.forward(req, null);
+					} else {
+						if (logger.isErrorEnabled()) {
+							logger.error("Cannot find keep alive servlet, response server internal error.");
+						}
+						response(req,
+								SipServletResponse.SC_SERVER_INTERNAL_ERROR);
+					}
+					return;
+				}
+
 				if (req.getAttribute(TARGET_USERSIPBINDING) != null) {
 					RequestDispatcher dispatcher = req
 							.getRequestDispatcher("IncomingInviteServlet");
 					if (dispatcher != null) {
 						dispatcher.forward(req, null);
-						return;
 					} else {
 						if (logger.isErrorEnabled()) {
 							logger.error("Cannot find incoming invite servlet, response server internal error.");
 						}
 						response(req,
 								SipServletResponse.SC_SERVER_INTERNAL_ERROR);
-						return;
 					}
+					return;
 				} else {
 					if (logger.isDebugEnabled()) {
 						logger.debug("However user is not registered yet, response temporarly unavaliable.");

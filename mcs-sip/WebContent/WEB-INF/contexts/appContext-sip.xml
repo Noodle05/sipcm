@@ -62,6 +62,7 @@
 				<entry key="sipLocationService" value-ref="sipLocationService" />
 				<entry key="mapHolderBean" value-ref="mapHolderBean" />
 				<entry key="publicIpAddressHolder" value-ref="publicIpAddressHolder" />
+				<entry key="phoneNumberKeepAlive" value-ref="phoneNumberKeepAlive" />
 			</util:map>
 		</property>
 	</bean>

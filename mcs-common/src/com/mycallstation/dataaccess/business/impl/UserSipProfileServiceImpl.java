@@ -3,7 +3,9 @@
  */
 package com.mycallstation.dataaccess.business.impl;
 
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mycallstation.base.business.impl.AbstractService;
 import com.mycallstation.base.dao.DAO;
 import com.mycallstation.base.filter.Filter;
+import com.mycallstation.constant.KeepAlivePingType;
 import com.mycallstation.constant.OnlineStatus;
 import com.mycallstation.constant.PhoneNumberStatus;
 import com.mycallstation.dataaccess.business.UserSipProfileService;
@@ -55,7 +58,7 @@ public class UserSipProfileServiceImpl extends
 		entity.setSipStatus(OnlineStatus.OFFLINE);
 		entity.setPhoneNumberStatus(PhoneNumberStatus.UNVERIFIED);
 		entity.setAllowLocalDirectly(true);
-		entity.setKeepAlive(false);
+		entity.setKeepAliveType(KeepAlivePingType.NO);
 		return entity;
 	}
 
@@ -162,5 +165,38 @@ public class UserSipProfileServiceImpl extends
 	@Transactional(readOnly = false)
 	public Collection<Long> checkAddressBindingExpires() {
 		return ((UserSipProfileDAO) dao).checkAddressBindingExpires();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.mycallstation.dataaccess.business.UserSipProfileService#
+	 * getNeedPingUserSipProfile(int, boolean)
+	 */
+	@Override
+	public Collection<Long> getNeedPingUserSipProfile(int timeout,
+			boolean onlineOnly) {
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.DATE, (0 - timeout));
+		Date o = c.getTime();
+		Filter filter = filterFactory.createSimpleFilter("keepAliveType",
+				KeepAlivePingType.PING);
+		if (onlineOnly) {
+			Filter f1 = filterFactory.createSimpleFilter("sipStatus",
+					OnlineStatus.ONLINE);
+			filter = filter.appendAnd(f1);
+		}
+		Filter f1 = filterFactory.createSimpleFilter("keepAliveType",
+				KeepAlivePingType.ALWAYS_PING);
+		filter = filter.appendOr(f1);
+		f1 = filterFactory.createSimpleFilter("phoneNumberStatus",
+				PhoneNumberStatus.GOOGLEVOICEVERIFIED);
+		filter = filter.appendAnd(f1);
+		f1 = filterFactory.createIsNullFilter("lastReceiveCallTime");
+		Filter f2 = filterFactory.createSimpleFilter("lastReceiveCallTime", o,
+				Filter.Operator.LESS_THAN);
+		f1 = f1.appendOr(f2);
+		filter = filter.appendAnd(f1);
+		return dao.getEntityIds(filter, null, null);
 	}
 }

@@ -43,8 +43,8 @@
 		<dependency org="commons-collections" name="commons-collections"
 			rev="3.2.1" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="commons-configuration" name="commons-configuration"
-			rev="1.6" conf="compile->default;foride->sources,javadoc">
-			<exclude module="commons-beanutils-core" />
+			rev="1.7" conf="compile->default;foride->sources,javadoc">
+			<exclude module="commons-beanutils" />
 			<exclude module="commons-digester" />
 			<exclude module="commons-logging" />
 		</dependency>

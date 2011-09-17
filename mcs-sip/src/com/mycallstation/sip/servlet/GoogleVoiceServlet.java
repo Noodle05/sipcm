@@ -21,9 +21,7 @@ import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSession;
 import javax.servlet.sip.SipSession.State;
 import javax.servlet.sip.SipURI;
-import javax.servlet.sip.TimerListener;
 import javax.servlet.sip.URI;
-import javax.servlet.sip.annotation.SipListener;
 import javax.servlet.sip.annotation.SipServlet;
 import javax.sip.header.ContactHeader;
 
@@ -45,8 +43,7 @@ import com.mycallstation.util.PhoneNumberUtil;
  * 
  */
 @SipServlet(name = "GoogleVoiceServlet", applicationName = "com.mycallstation.CallCenter", loadOnStartup = 1)
-@SipListener
-public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
+public class GoogleVoiceServlet extends B2bServlet {
 	private static final long serialVersionUID = 1812855574907498697L;
 
 	public static final String ORIGINAL_SESSION = "com.mycallstation.original.session";
@@ -109,7 +106,8 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 			// This is call back.
 			UserSipProfile userSipProfile = (UserSipProfile) req
 					.getAttribute(USER_ATTRIBUTE);
-			String appSessionIdKey = generateAppSessionKey(userSipProfile);
+			String appSessionIdKey = AbstractSipServlet
+					.generateAppSessionKey(userSipProfile);
 			String appSessionId = (String) getServletContext().getAttribute(
 					appSessionIdKey);
 			if (appSessionId == null) {
@@ -204,7 +202,8 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 					logger.debug("{} is calling {} by google voice",
 							userSipProfile.getDisplayName(), phoneNumber);
 				}
-				String appSessionIdKey = generateAppSessionKey(userSipProfile);
+				String appSessionIdKey = AbstractSipServlet
+						.generateAppSessionKey(userSipProfile);
 				appSession.setAttribute(
 						GV_WAITING_FOR_CALLBACK,
 						PhoneNumberUtil.getCanonicalizedPhoneNumber(
@@ -217,8 +216,8 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 				session.setAttribute(ORIGINAL_REQUEST, req);
 				appSession.setAttribute(ORIGINAL_SESSION, session);
 				ServletTimer st = timeService.createTimer(appSession,
-						appConfig.getGoogleVoiceCallTimeout() * 1000L, false,
-						(SipServletRequestImpl) req);
+						appConfig.getGoogleVoiceCallTimeout() * 1000L, true,
+						new GoogleVoiceTimeoutProcessor(req, userSipProfile));
 				appSession.setAttribute(GV_TIMEOUT, st.getId());
 				response(req, SipServletResponse.SC_SESSION_PROGRESS,
 						"Waiting for callback.");
@@ -416,23 +415,19 @@ public class GoogleVoiceServlet extends B2bServlet implements TimerListener {
 		}
 	}
 
-	@Override
-	public void timeout(ServletTimer timer) {
+	public void timeout(SipApplicationSession appSession,
+			SipServletRequest req, UserSipProfile user) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Timeout, google voice didn't go though in time, cancel it.");
 		}
-		SipServletRequest req = (SipServletRequest) timer.getInfo();
 		if (req == null) {
 			if (logger.isWarnEnabled()) {
 				logger.warn("Google voice timeout, but request object is null?");
 			}
 			return;
 		}
-		UserSipProfile userSipProfile = (UserSipProfile) req
-				.getAttribute(USER_ATTRIBUTE);
-		String appSessionIdKey = generateAppSessionKey(userSipProfile);
+		String appSessionIdKey = AbstractSipServlet.generateAppSessionKey(user);
 		getServletContext().removeAttribute(appSessionIdKey);
-		SipApplicationSession appSession = timer.getApplicationSession();
 		GoogleVoiceSession gvSession = (GoogleVoiceSession) appSession
 				.getAttribute(GV_SESSION);
 		if (gvSession != null) {

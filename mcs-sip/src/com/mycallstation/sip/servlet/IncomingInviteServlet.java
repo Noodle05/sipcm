@@ -71,7 +71,7 @@ public class IncomingInviteServlet extends AbstractSipServlet {
 			UserSipProfile userSipProfile = ubi.getBindings().iterator().next()
 					.getUserSipProfile();
 			String appSessionId = (String) getServletContext().getAttribute(
-					generateAppSessionKey(userSipProfile));
+					AbstractSipServlet.generateAppSessionKey(userSipProfile));
 			SipApplicationSession appSession = null;
 			if (appSessionId != null) {
 				appSession = sipSessionsUtil

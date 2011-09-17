@@ -153,7 +153,7 @@ phonenumberstatus INTEGER NOT NULL DEFAULT 0,
 call_anonymously BIT(1) NOT NULL DEFAULT 0,
 sipstatus INTEGER NOT NULL,
 last_receive_call_time DATETIME,
-keep_alive BIT(1) NOT NULL DEFAULT 0,
+keep_alive INTEGER NOT NULL DEFAULT 0,
 PRIMARY KEY (id),
 INDEX (phonenumber, phonenumberstatus)) ENGINE=InnoDB;
 

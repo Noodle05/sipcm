@@ -8,6 +8,7 @@
 	<entry key="global.admin.email.personal">System Administrator</entry>
 	<entry key="global.from.email">noreply@mycallstation</entry>
 	<entry key="global.from.email.personal">System Notifier</entry>
+	<entry key="global.batchsize">500</entry>
 
 	<entry key="google.authentication.appname">MyCallStation-v1.0</entry>
 
@@ -20,6 +21,8 @@
 	<entry key="com.sipcm.googlevoice.timeout">30</entry>
 	<entry key="com.sip.http.client.maxConnections">100</entry>
 	<entry key="com.sip.http.client.getConnectionTimeout">10000</entry>
+
+	<entry key="com.mycallstation.googlevoice.generic.callback.number">+12064200990</entry>
 
 	<entry key="sip.dos.protect.interval">60</entry>
 	<entry key="sip.dos.protect.max.requests">10</entry>
@@ -52,4 +55,11 @@
 	<entry key="register.username.pattern"><![CDATA[^\p{Alpha}[\w|\.]{5,31}$]]></entry>
 	<entry key="register.email.pattern"><![CDATA[^[^@]+@[^@^\.]+\.[^@^\.]+$]]></entry>
 	<entry key="username.blacklist">admin,system,fuck,superuser,mycallstation,gaofamily</entry>
+
+	<entry key="phonenumber.keepalive.task.interval">3600000</entry>
+	<entry key="phonenumber.keepalive.timeout">25</entry>
+	<entry key="phonenumber.keepalive.concurrency">5</entry>
+	<entry key="phonenumber.keepalive.onlineonly">true</entry>
+	<entry key="phonenumber.keepalive.chattime">5</entry>
+	<entry key="phonenumber.keepalive.googlevoicetimeout">30</entry>
 </properties>

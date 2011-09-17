@@ -357,6 +357,12 @@ public class B2bServlet extends AbstractSipServlet {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * javax.servlet.sip.SipServlet#doAck(javax.servlet.sip.SipServletRequest)
+	 */
 	@Override
 	protected void doAck(SipServletRequest req) throws ServletException,
 			IOException {

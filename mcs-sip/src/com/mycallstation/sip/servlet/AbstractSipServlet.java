@@ -90,7 +90,7 @@ public abstract class AbstractSipServlet extends SipServlet implements Servlet {
 		response.send();
 	}
 
-	protected String generateAppSessionKey(UserSipProfile userSipProfile) {
+	public static String generateAppSessionKey(UserSipProfile userSipProfile) {
 		if (userSipProfile == null) {
 			throw new NullPointerException("UserSipProfile is null.");
 		}

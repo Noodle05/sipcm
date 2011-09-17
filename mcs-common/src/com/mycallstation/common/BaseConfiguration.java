@@ -18,6 +18,7 @@ import com.mycallstation.util.CodecTool;
 public abstract class BaseConfiguration {
 	public static final String DOMAIN_NAME = "domainname";
 	public static final String REALM_NAME = "sip.server.realm";
+	public static final String GLOBAL_BATCH_SIZE = "global.batchsize";
 	public static final String MAX_HTTP_CLIENT_TOTAL_CONNECTIONS = "com.sip.http.client.maxConnections";
 	public static final String HTTP_CLIENT_GET_CONNECTION_TIMEOUT = "com.sip.http.client.getConnectionTimeout";
 	public static final String GOOGLE_AUTH_APPNAME = "google.authentication.appname";
@@ -31,6 +32,10 @@ public abstract class BaseConfiguration {
 		StrongTextEncryptor encryptor = new StrongTextEncryptor();
 		encryptor.setPassword(CodecTool.PASSWORD);
 		textEncryptor = encryptor;
+	}
+
+	public int getGlobalBatchSize() {
+		return appConfig.getInt(GLOBAL_BATCH_SIZE, 500);
 	}
 
 	public String getDomain() {

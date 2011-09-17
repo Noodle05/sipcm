@@ -24,6 +24,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import com.mycallstation.base.model.IdBasedEntity;
+import com.mycallstation.constant.KeepAlivePingType;
 import com.mycallstation.constant.OnlineStatus;
 import com.mycallstation.constant.PhoneNumberStatus;
 
@@ -76,9 +77,9 @@ public class UserSipProfile implements IdBasedEntity<Long>, Serializable {
 	@Column(name = "last_receive_call_time")
 	private Date lastReceiveCallTime;
 
-	@Basic
+	@Enumerated
 	@Column(name = "keep_alive", nullable = false)
-	private boolean keepAlive;
+	private KeepAlivePingType keepAliveType;
 
 	/**
 	 * @param id
@@ -219,18 +220,18 @@ public class UserSipProfile implements IdBasedEntity<Long>, Serializable {
 	}
 
 	/**
-	 * @return the keepAlive
+	 * @return the keepAliveType
 	 */
-	public boolean isKeepAlive() {
-		return keepAlive;
+	public KeepAlivePingType getKeepAlive() {
+		return keepAliveType;
 	}
 
 	/**
-	 * @param keepAlive
-	 *            the keepAlive to set
+	 * @param keepAliveType
+	 *            the keepAliveType to set
 	 */
-	public void setKeepAlive(boolean keepAlive) {
-		this.keepAlive = keepAlive;
+	public void setKeepAliveType(KeepAlivePingType keepAliveType) {
+		this.keepAliveType = keepAliveType;
 	}
 
 	public String getDisplayName() {

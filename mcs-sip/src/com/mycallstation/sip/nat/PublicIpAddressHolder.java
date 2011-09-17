@@ -48,8 +48,7 @@ public class PublicIpAddressHolder {
 	}
 
 	public void setPublicIp(InetAddress publicIp) {
-		if (this.publicIp == null && !publicIp.isSiteLocalAddress()
-				&& !publicIp.isLoopbackAddress()) {
+		if (this.publicIp == null && !publicIp.isLoopbackAddress()) {
 			this.publicIp = publicIp;
 		}
 	}

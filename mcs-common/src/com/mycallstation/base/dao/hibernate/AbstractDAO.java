@@ -101,6 +101,16 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.mycallstation.base.dao.DAO#getEntityIds()
+	 */
+	@Override
+	public List<ID> getEntityIds() {
+		return getEntityIds(null, null, null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * com.mycallstation.base.dao.DAO#getEntities(com.mycallstation.base.filter
 	 * .FSP)
@@ -116,6 +126,26 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 			page = fsp.getPage();
 		}
 		return getEntities(filter, sort, page);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.base.dao.DAO#getEntityIds(com.mycallstation.base.filter
+	 * .FSP)
+	 */
+	@Override
+	public List<ID> getEntityIds(final FSP fsp) {
+		Filter filter = null;
+		Sort sort = null;
+		Page page = null;
+		if (fsp != null) {
+			filter = fsp.getFilter();
+			sort = fsp.getSort();
+			page = fsp.getPage();
+		}
+		return getEntityIds(filter, sort, page);
 	}
 
 	/*
@@ -140,15 +170,43 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 						if (hasDefaultFilter) {
 							session.enableFilter(DEFAULT_FILTER);
 						}
-						return processFind(session, filter, sort, page);
+						return processFindEntities(session, filter, sort, page);
+					}
+				});
+		return ret;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.base.dao.DAO#getEntityIds(com.mycallstation.base.filter
+	 * .Filter, com.mycallstation.base.filter.Sort,
+	 * com.mycallstation.base.filter.Page)
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<ID> getEntityIds(final Filter filter, final Sort sort,
+			final Page page) {
+		preSessionOperation();
+
+		List<ID> ret = getHibernateTemplate().executeFind(
+				new HibernateCallback<List<ID>>() {
+					@Override
+					public List<ID> doInHibernate(Session session)
+							throws HibernateException, SQLException {
+						if (hasDefaultFilter) {
+							session.enableFilter(DEFAULT_FILTER);
+						}
+						return processFindIds(session, filter, sort, page);
 					}
 				});
 		return ret;
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Entity> processFind(Session session, Filter filter, Sort sort,
-			Page page) {
+	private List<Entity> processFindEntities(Session session, Filter filter,
+			Sort sort, Page page) {
 		if (logger.isTraceEnabled()) {
 			logger.trace(
 					"Processing find for page: \"{}\", sort: \"{}\", filter: \"{}\"",
@@ -174,6 +232,42 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 		}
 		long begin = System.currentTimeMillis();
 		List<Entity> ret = query.list();
+		long end = System.currentTimeMillis();
+		if (logger.isTraceEnabled()) {
+			logger.trace("Query string \"{}\" use {}ms",
+					query.getQueryString(), (end - begin));
+		}
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<ID> processFindIds(Session session, Filter filter, Sort sort,
+			Page page) {
+		if (logger.isTraceEnabled()) {
+			logger.trace(
+					"Processing find for page: \"{}\", sort: \"{}\", filter: \"{}\"",
+					new Object[] { page, sort, filter });
+		}
+		Query[] queries = setupQuery(session, filter, sort, page, false, true);
+		Query query = queries[0];
+		Query countQuery = queries[1];
+		if (page != null && countQuery != null) {
+			long begin = System.currentTimeMillis();
+			Number size = (Number) countQuery.uniqueResult();
+			long end = System.currentTimeMillis();
+			if (logger.isTraceEnabled()) {
+				logger.trace("Query count string: \"{}\" use {}ms",
+						countQuery.getQueryString(), (end - begin));
+			}
+			if (size != null) {
+				page.setTotalRecords(size.intValue());
+			}
+			query.setFirstResult(page.getStartRowPosition());
+			if (page.getRecordsPerPage() > 0)
+				query.setMaxResults(page.getRecordsPerPage());
+		}
+		long begin = System.currentTimeMillis();
+		List<ID> ret = query.list();
 		long end = System.currentTimeMillis();
 		if (logger.isTraceEnabled()) {
 			logger.trace("Query string \"{}\" use {}ms",
@@ -253,7 +347,7 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 		if (logger.isTraceEnabled()) {
 			logger.trace("Processing row count for filter: \"{}\"", filter);
 		}
-		Query[] queries = setupQuery(session, filter, null, null, true);
+		Query[] queries = setupQuery(session, filter, null, null, true, true);
 		Query countQuery = queries[1];
 		Number size = (Number) countQuery.uniqueResult();
 		return size;
@@ -419,11 +513,12 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 
 	private Query[] setupQuery(Session session, Filter filter, Sort sort,
 			Page page) throws HibernateException {
-		return setupQuery(session, filter, sort, page, false);
+		return setupQuery(session, filter, sort, page, false, false);
 	}
 
 	private Query[] setupQuery(Session session, Filter filter, Sort sort,
-			Page page, boolean alwaysSetupCountQuery) throws HibernateException {
+			Page page, boolean alwaysSetupCountQuery, boolean idOnly)
+			throws HibernateException {
 		if (logger.isTraceEnabled()) {
 			logger.trace(
 					"Setting up query for page: \"{}\", sort: \"{}\", filter: \"{}\"",
@@ -443,10 +538,24 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 				sortString = sort.toString();
 			}
 
+			ClassMetadata cm = session.getSessionFactory().getClassMetadata(
+					getEntityName());
+			String idName = cm.getIdentifierPropertyName();
+
+			if (idOnly && idName == null) {
+				throw new IllegalStateException(
+						"Cannot found id property name.");
+			}
+
 			StringBuilder countSb = new StringBuilder();
 			StringBuilder mainSb = new StringBuilder();
 			StringBuilder orderSb = new StringBuilder();
-			countSb.append("select count(*) ");
+			if (idOnly) {
+				countSb.append("select count(").append(idName).append(") ");
+				mainSb.append("select ").append(idName).append(" ");
+			} else {
+				countSb.append("select count(*) ");
+			}
 			mainSb.append("from ").append(getEntityName()).append(" ")
 					.append(aliasName);
 

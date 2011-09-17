@@ -30,4 +30,6 @@ public interface UserSipProfileService extends Service<UserSipProfile, Long> {
 	public Collection<Long> checkAddressBindingExpires();
 
 	public void updateLastReceiveCallTime(UserSipProfile... userSipProfiles);
+
+	public Collection<Long> getNeedPingUserSipProfile(int timeout, boolean onlineOnly);
 }
