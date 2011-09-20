@@ -549,6 +549,7 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 
 			StringBuilder countSb = new StringBuilder();
 			StringBuilder mainSb = new StringBuilder();
+			StringBuilder bodySb = new StringBuilder();
 			StringBuilder orderSb = new StringBuilder();
 			if (idOnly) {
 				countSb.append("select count(").append(idName).append(") ");
@@ -556,18 +557,18 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 			} else {
 				countSb.append("select count(*) ");
 			}
-			mainSb.append("from ").append(getEntityName()).append(" ")
+			bodySb.append("from ").append(getEntityName()).append(" ")
 					.append(aliasName);
 
 			if (filterString != null && filterString.trim().length() > 0) {
-				mainSb.append(" where ").append(filterString);
+				bodySb.append(" where ").append(filterString);
 			}
 			if (sortString != null && sortString.length() > 0) {
 				orderSb.append(" order by ").append(sortString);
 			}
 			Query countQuery = null, query = null;
 			if (alwaysSetupCountQuery || page != null) {
-				String sql = countSb.append(mainSb).toString();
+				String sql = countSb.append(bodySb).toString();
 				if (logger.isTraceEnabled()) {
 					logger.trace(
 							"Creating row count query. Query string: \"{}\"",
@@ -575,7 +576,7 @@ public abstract class AbstractDAO<Entity extends Serializable, ID extends Serial
 				}
 				countQuery = session.createQuery(sql).setCacheable(true);
 			}
-			String sql = mainSb.append(orderSb).toString();
+			String sql = mainSb.append(bodySb).append(orderSb).toString();
 			if (logger.isTraceEnabled()) {
 				logger.trace("Creating query. Query string: \"{}\"", sql);
 			}
