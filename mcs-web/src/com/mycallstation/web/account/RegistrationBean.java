@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -30,14 +29,14 @@ import org.slf4j.LoggerFactory;
 import com.mycallstation.constant.AccountStatus;
 import com.mycallstation.constant.ActiveMethod;
 import com.mycallstation.dataaccess.business.RegistrationInvitationService;
-import com.mycallstation.dataaccess.business.RoleService;
 import com.mycallstation.dataaccess.business.UserActivationService;
 import com.mycallstation.dataaccess.business.UserService;
+import com.mycallstation.dataaccess.business.UserSipProfileService;
 import com.mycallstation.dataaccess.model.RegistrationInvitation;
 import com.mycallstation.dataaccess.model.Role;
 import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.dataaccess.model.UserActivation;
-import com.mycallstation.web.util.EmailUtils;
+import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.web.util.JSFUtils;
 import com.mycallstation.web.util.Messages;
 import com.mycallstation.web.util.WebConfiguration;
@@ -56,24 +55,6 @@ public class RegistrationBean implements Serializable {
 
 	public static final String SELF_ACTIVE_EMAIL_TEMPLATE = "/templates/self-active.vm";
 	public static final String ADMIN_ACTIVE_EMAIL_TEMPLATE = "/templates/admin-active.vm";
-
-	@ManagedProperty("#{systemConfiguration}")
-	private transient WebConfiguration appConfig;
-
-	@ManagedProperty("#{webEmailUtils}")
-	private transient EmailUtils emailUtils;
-
-	@ManagedProperty("#{userService}")
-	private transient UserService userService;
-
-	@ManagedProperty("#{roleService}")
-	private transient RoleService roleService;
-
-	@ManagedProperty("#{userActivationService}")
-	private transient UserActivationService userActivationService;
-
-	@ManagedProperty("#{registrationInvitationService}")
-	private transient RegistrationInvitationService invitationService;
 
 	private String username;
 
@@ -95,23 +76,23 @@ public class RegistrationBean implements Serializable {
 
 	private String invitationCode;
 
-	private Pattern usernamePattern;
-
-	private Pattern emailPattern;
-
 	@PostConstruct
 	public void init() {
 		if (logger.isDebugEnabled()) {
 			logger.debug("A new registration bean been created.");
 		}
-		usernamePattern = Pattern.compile(getAppConfig().getUsernamePattern());
-		emailPattern = Pattern.compile(getAppConfig().getEmailPattern());
 	}
 
 	public String register() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		RegistrationInvitation invitation = null;
-		if (getAppConfig().isRegisterByInviteOnly()) {
+		RegistrationInvitationService registrationInvitationService = JSFUtils
+				.getRegistrationInvitationService();
+		UserSipProfileService userSipProfileService = JSFUtils
+				.getUserSipProfileService();
+		UserService userService = JSFUtils.getUserService();
+		WebConfiguration appConfig = JSFUtils.getAppConfig();
+		if (appConfig.isRegisterByInviteOnly()) {
 			if (invitationCode == null) {
 				FacesMessage message = Messages.getMessage(
 						"register.error.by.invitation.only",
@@ -119,8 +100,8 @@ public class RegistrationBean implements Serializable {
 				context.addMessage("registrationForm:invitationCode", message);
 				return null;
 			}
-			invitation = getInvitationService().getInvitationByCode(
-					invitationCode);
+			invitation = registrationInvitationService
+					.getInvitationByCode(invitationCode);
 			if (invitation == null) {
 				FacesMessage message = Messages.getMessage(
 						"register.error.invalid.invitation.code",
@@ -130,7 +111,7 @@ public class RegistrationBean implements Serializable {
 			}
 			if (invitation.getExpireDate() != null
 					&& invitation.getExpireDate().before(new Date())) {
-				getInvitationService().removeEntity(invitation);
+				registrationInvitationService.removeEntity(invitation);
 				FacesMessage message = Messages.getMessage(
 						"register.error.invitation.code.expired",
 						FacesMessage.SEVERITY_ERROR);
@@ -138,7 +119,7 @@ public class RegistrationBean implements Serializable {
 				return null;
 			}
 			if (invitation.getCount() <= 0) {
-				getInvitationService().removeEntity(invitation);
+				registrationInvitationService.removeEntity(invitation);
 				FacesMessage message = Messages.getMessage(
 						"register.error.invitation.code.all.taken",
 						FacesMessage.SEVERITY_ERROR);
@@ -147,7 +128,7 @@ public class RegistrationBean implements Serializable {
 			}
 			invitation.setCount(invitation.getCount() - 1);
 		}
-		User user = getUserService().createNewEntity();
+		User user = userService.createNewEntity();
 		user.setUsername(username);
 		user.setEmail(email);
 		user.setFirstName(firstName);
@@ -166,22 +147,25 @@ public class RegistrationBean implements Serializable {
 		} else {
 			user.setTimeZone(null);
 		}
-		if (ActiveMethod.NONE.equals(getAppConfig().getActiveMethod())) {
+		if (ActiveMethod.NONE.equals(appConfig.getActiveMethod())) {
 			user.setStatus(AccountStatus.ACTIVE);
 		}
-		Role userRole = getRoleService().getUserRole();
+		Role userRole = JSFUtils.getRoleService().getUserRole();
 		user.addRole(userRole);
-		getUserService().setPassword(user, password);
-		getUserService().saveEntity(user);
+		userService.setPassword(user, password);
+		userService.saveEntity(user);
+		UserSipProfile profile = userSipProfileService
+				.createUserSipProfile(user);
+		userSipProfileService.saveEntity(profile);
 		if (invitation != null) {
 			if (invitation.getCount() <= 0) {
-				getInvitationService().removeEntity(invitation);
+				registrationInvitationService.removeEntity(invitation);
 			} else {
-				getInvitationService().saveEntity(invitation);
+				registrationInvitationService.saveEntity(invitation);
 			}
 		}
 		String message;
-		switch (getAppConfig().getActiveMethod()) {
+		switch (appConfig.getActiveMethod()) {
 		case SELF:
 			selfActive(user);
 			message = "register.success.self.active";
@@ -199,23 +183,24 @@ public class RegistrationBean implements Serializable {
 
 	public void validateUsername(FacesContext context,
 			UIComponent componentToValidate, Object value) {
+		WebConfiguration appConfig = JSFUtils.getAppConfig();
 		String username = ((String) value).trim();
-		if (username.length() < getAppConfig().getUsernameLengthMin()
-				|| username.length() > getAppConfig().getUsernameLengthMax()) {
+		if (username.length() < appConfig.getUsernameLengthMin()
+				|| username.length() > appConfig.getUsernameLengthMax()) {
 			FacesMessage message = Messages.getMessage(
-					"register.error.username.length", new Object[] {
-							getAppConfig().getUsernameLengthMin(),
-							getAppConfig().getUsernameLengthMax() },
+					"register.error.username.length",
+					new Object[] { appConfig.getUsernameLengthMin(),
+							appConfig.getUsernameLengthMax() },
 					FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
-		if (!usernamePattern.matcher(username).matches()) {
+		if (!getUsernamePattern().matcher(username).matches()) {
 			FacesMessage message = Messages.getMessage(
 					"register.error.username.pattern",
 					FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
-		String[] blackList = appConfig.getUsernameBlackList();
+		String[] blackList = JSFUtils.getAppConfig().getUsernameBlackList();
 		if (blackList != null) {
 			for (String black : blackList) {
 				if (username.toUpperCase().contains(black.toUpperCase())) {
@@ -226,7 +211,7 @@ public class RegistrationBean implements Serializable {
 				}
 			}
 		}
-		User user = getUserService().getUserByUsername(username);
+		User user = JSFUtils.getUserService().getUserByUsername(username);
 		if (user != null) {
 			FacesMessage message = Messages.getMessage(
 					"register.error.username.exists",
@@ -238,13 +223,13 @@ public class RegistrationBean implements Serializable {
 	public void validateEmail(FacesContext context,
 			UIComponent componentToValidate, Object value) {
 		String email = ((String) value).trim();
-		if (!emailPattern.matcher(email).matches()) {
+		if (!getEmailPattern().matcher(email).matches()) {
 			FacesMessage message = Messages
 					.getMessage("register.error.email.pattern",
 							FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
-		User user = getUserService().getUserByEmail(email);
+		User user = JSFUtils.getUserService().getUserByEmail(email);
 		if (user != null) {
 			FacesMessage message = Messages.getMessage(
 					"register.error.email.exists", FacesMessage.SEVERITY_ERROR);
@@ -272,108 +257,6 @@ public class RegistrationBean implements Serializable {
 				}
 			}
 		}
-	}
-
-	/**
-	 * @param appConfig
-	 *            the appConfig to set
-	 */
-	public void setAppConfig(WebConfiguration appConfig) {
-		this.appConfig = appConfig;
-	}
-
-	private WebConfiguration getAppConfig() {
-		if (appConfig == null) {
-			appConfig = JSFUtils.getManagedBean("systemConfiguration",
-					WebConfiguration.class);
-		}
-		return appConfig;
-	}
-
-	/**
-	 * @param emailUtils
-	 *            the emailUtils to set
-	 */
-	public void setEmailUtils(EmailUtils emailUtils) {
-		this.emailUtils = emailUtils;
-	}
-
-	private EmailUtils getEmailUtils() {
-		if (emailUtils == null) {
-			emailUtils = JSFUtils.getManagedBean("webEmailUtils",
-					EmailUtils.class);
-		}
-		return emailUtils;
-	}
-
-	/**
-	 * @param userService
-	 *            the userService to set
-	 */
-	public void setUserService(UserService userService) {
-		this.userService = userService;
-	}
-
-	private UserService getUserService() {
-		if (userService == null) {
-			userService = JSFUtils.getManagedBean("userService",
-					UserService.class);
-		}
-		return userService;
-	}
-
-	/**
-	 * @param roleService
-	 *            the roleService to set
-	 */
-	public void setRoleService(RoleService roleService) {
-		this.roleService = roleService;
-	}
-
-	private RoleService getRoleService() {
-		if (roleService == null) {
-			roleService = JSFUtils.getManagedBean("roleService",
-					RoleService.class);
-		}
-		return roleService;
-	}
-
-	/**
-	 * @param userActivationService
-	 *            the userActivationService to set
-	 */
-	public void setUserActivationService(
-			UserActivationService userActivationService) {
-		this.userActivationService = userActivationService;
-	}
-
-	private UserActivationService getUserActivationService() {
-		if (userActivationService == null) {
-			userActivationService = JSFUtils.getManagedBean(
-					"userActivationService", UserActivationService.class);
-		}
-		return userActivationService;
-	}
-
-	/**
-	 * @param invitationService
-	 *            the invitationService to set
-	 */
-	public void setInvitationService(
-			RegistrationInvitationService invitationService) {
-		this.invitationService = invitationService;
-	}
-
-	/**
-	 * @return the invitationService
-	 */
-	private RegistrationInvitationService getInvitationService() {
-		if (invitationService == null) {
-			invitationService = JSFUtils.getManagedBean(
-					"registrationInvitationService",
-					RegistrationInvitationService.class);
-		}
-		return invitationService;
 	}
 
 	/**
@@ -534,16 +417,27 @@ public class RegistrationBean implements Serializable {
 		return JSFUtils.getAvailableTimeZones();
 	}
 
+	private Pattern getUsernamePattern() {
+		return Pattern.compile(JSFUtils.getAppConfig().getUsernamePattern());
+	}
+
+	private Pattern getEmailPattern() {
+		return Pattern.compile(JSFUtils.getAppConfig().getEmailPattern());
+	}
+
 	private void selfActive(User user) {
-		UserActivation userActivation = getUserActivationService()
+		UserActivationService userActivationService = JSFUtils
+				.getUserActivationService();
+		WebConfiguration appConfig = JSFUtils.getAppConfig();
+		UserActivation userActivation = userActivationService
 				.createUserActivation(user, ActiveMethod.SELF,
-						getAppConfig().getActiveExpires());
-		getUserActivationService().saveEntity(userActivation);
+						appConfig.getActiveExpires());
+		userActivationService.saveEntity(userActivation);
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("activation", userActivation);
-		params.put("activeExpires", getAppConfig().getActiveExpires());
+		params.put("activeExpires", appConfig.getActiveExpires());
 
-		getEmailUtils().sendMail(
+		JSFUtils.getEmailUtils().sendMail(
 				user.getEmail(),
 				user.getUserDisplayName(),
 				Messages.getString(null, "register.active.self.email.subject",
@@ -552,17 +446,20 @@ public class RegistrationBean implements Serializable {
 	}
 
 	private void adminActive(User user) {
-		UserActivation userActivation = getUserActivationService()
+		UserActivationService userActivationService = JSFUtils
+				.getUserActivationService();
+		WebConfiguration appConfig = JSFUtils.getAppConfig();
+		UserActivation userActivation = userActivationService
 				.createUserActivation(user, ActiveMethod.ADMIN,
-						getAppConfig().getActiveExpires());
-		getUserActivationService().saveEntity(userActivation);
+						appConfig.getActiveExpires());
+		userActivationService.saveEntity(userActivation);
 
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("activation", userActivation);
 
-		getEmailUtils().sendMail(
-				getAppConfig().getAdminEmail(),
-				getAppConfig().getAdminEmailPersonal(),
+		JSFUtils.getEmailUtils().sendMail(
+				appConfig.getAdminEmail(),
+				appConfig.getAdminEmailPersonal(),
 				Messages.getString(null, "register.active.admin.email.subject",
 						null), ADMIN_ACTIVE_EMAIL_TEMPLATE, params,
 				user.getLocale());

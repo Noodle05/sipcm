@@ -51,7 +51,7 @@ public class SecurityAuthenticationProvider extends
 
 			throw new BadCredentialsException(messages.getMessage(
 					"AbstractUserDetailsAuthenticationProvider.badCredentials",
-					"Bad credentials"), userDetails);
+					"Bad credentials"));
 		}
 
 		String presentedPassword = authentication.getCredentials().toString();
@@ -62,7 +62,7 @@ public class SecurityAuthenticationProvider extends
 
 			throw new BadCredentialsException(messages.getMessage(
 					"AbstractUserDetailsAuthenticationProvider.badCredentials",
-					"Bad credentials"), userDetails);
+					"Bad credentials"));
 		}
 	}
 

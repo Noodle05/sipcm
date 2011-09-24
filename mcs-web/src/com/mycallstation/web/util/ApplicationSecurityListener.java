@@ -46,8 +46,7 @@ public class ApplicationSecurityListener implements
 				if (ctx != null) {
 					if (locale != null || timeZone != null) {
 						LocaleTimeZoneHolderBean bean = JSFUtils
-								.getManagedBean("localeTimeZoneHolderBean",
-										LocaleTimeZoneHolderBean.class);
+								.getLocaleTimeZoneHolderBean();
 						if (bean != null) {
 							if (locale != null
 									&& !bean.getLocale().equals(locale)) {

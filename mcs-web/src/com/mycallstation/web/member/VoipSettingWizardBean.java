@@ -13,7 +13,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -27,12 +26,10 @@ import com.mycallstation.constant.VoipAccountType;
 import com.mycallstation.constant.VoipVendorType;
 import com.mycallstation.dataaccess.business.UserSipProfileService;
 import com.mycallstation.dataaccess.business.UserVoipAccountService;
-import com.mycallstation.dataaccess.business.VoipVendorService;
 import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
 import com.mycallstation.dataaccess.model.VoipVendor;
-import com.mycallstation.googlevoice.GoogleVoiceManager;
 import com.mycallstation.googlevoice.GoogleVoiceSession;
 import com.mycallstation.googlevoice.setting.GoogleVoiceConfig;
 import com.mycallstation.googlevoice.setting.Phone;
@@ -51,18 +48,6 @@ public class VoipSettingWizardBean implements Serializable {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(VoipSettingWizardBean.class);
-
-	@ManagedProperty(value = "#{userSipProfileService}")
-	private transient UserSipProfileService userSipProfileService;
-
-	@ManagedProperty(value = "#{userVoiopAccountService}")
-	private transient UserVoipAccountService userVoipAccountService;
-
-	@ManagedProperty(value = "#{voipVendorService}")
-	private transient VoipVendorService voipVendorService;
-
-	@ManagedProperty(value = "#{googleVoiceManager}")
-	private transient GoogleVoiceManager googleVoiceManager;
 
 	private String oriSipNumber;
 
@@ -141,7 +126,7 @@ public class VoipSettingWizardBean implements Serializable {
 			throw new IllegalStateException(
 					"Access this page without user? Can't be!");
 		}
-		UserSipProfile userSipProfile = getUserSipProfileService()
+		UserSipProfile userSipProfile = JSFUtils.getUserSipProfileService()
 				.getUserSipProfileByUser(user);
 		if (userSipProfile != null) {
 			oriSipNumber = sipNumber = userSipProfile.getPhoneNumber();
@@ -149,8 +134,9 @@ public class VoipSettingWizardBean implements Serializable {
 			sipAllowInternal = userSipProfile.isAllowLocalDirectly();
 			sipNumberVerified = userSipProfile.getPhoneNumberStatus()
 					.isVerified();
-			Collection<UserVoipAccount> accounts = getUserVoipAccountService()
-					.getUserVoipAccount(userSipProfile);
+			Collection<UserVoipAccount> accounts = JSFUtils
+					.getUserVoipAccountService().getUserVoipAccount(
+							userSipProfile);
 			hasIncome = false;
 			hasOutgo = false;
 			if (accounts != null) {
@@ -264,8 +250,8 @@ public class VoipSettingWizardBean implements Serializable {
 	private void validateGV() {
 		gvConfig = null;
 		String pass = gvPass == null ? oriGvPass : gvPass;
-		GoogleVoiceSession gvs = getGoogleVoiceManager().getGoogleVoiceSession(
-				gvAccount, pass, null);
+		GoogleVoiceSession gvs = JSFUtils.getGoogleVoiceManager()
+				.getGoogleVoiceSession(gvAccount, pass, null);
 		try {
 			try {
 				gvs.login();
@@ -322,7 +308,7 @@ public class VoipSettingWizardBean implements Serializable {
 	}
 
 	private void validatePhoneNumber() {
-		UserSipProfile userSipProfile = getUserSipProfileService()
+		UserSipProfile userSipProfile = JSFUtils.getUserSipProfileService()
 				.getUserSipProfileByVerifiedPhoneNumber(sipNumber);
 		if (gvName.equalsIgnoreCase(inName) || inName.equalsIgnoreCase(outName)
 				|| outName.equalsIgnoreCase(gvName)) {
@@ -349,11 +335,12 @@ public class VoipSettingWizardBean implements Serializable {
 			throw new IllegalStateException(
 					"Access this page without user? Can't be!");
 		}
-		UserSipProfile userSipProfile = getUserSipProfileService()
+		UserSipProfileService userSipProfileService = JSFUtils
+				.getUserSipProfileService();
+		UserSipProfile userSipProfile = userSipProfileService
 				.getUserSipProfileByUser(user);
 		if (userSipProfile == null) {
-			userSipProfile = getUserSipProfileService().createUserSipProfile(
-					user);
+			userSipProfile = userSipProfileService.createUserSipProfile(user);
 		}
 		userSipProfile.setPhoneNumber(sipNumber);
 		userSipProfile.setAllowLocalDirectly(sipAllowInternal);
@@ -365,14 +352,16 @@ public class VoipSettingWizardBean implements Serializable {
 		Collection<UserVoipAccount> accounts = new ArrayList<UserVoipAccount>(3);
 		Collection<UserVoipAccount> removeAccs = new ArrayList<UserVoipAccount>();
 
+		UserVoipAccountService userVoipAccountService = JSFUtils
+				.getUserVoipAccountService();
 		UserVoipAccount gvAccount = null;
 		if (gvId != null) {
-			gvAccount = getUserVoipAccountService().getEntityById(gvId);
+			gvAccount = userVoipAccountService.getEntityById(gvId);
 		}
 		if (gvAccount == null) {
-			gvAccount = getUserVoipAccountService().createNewEntity();
+			gvAccount = userVoipAccountService.createNewEntity();
 			gvAccount.setOwner(userSipProfile);
-			gvAccount.setVoipVendor(getVoipVendorService()
+			gvAccount.setVoipVendor(JSFUtils.getVoipVendorService()
 					.getGoogleVoiceVendor());
 			gvAccount.setType(VoipAccountType.OUTGOING);
 		}
@@ -388,11 +377,11 @@ public class VoipSettingWizardBean implements Serializable {
 
 		UserVoipAccount inAcc = null;
 		if (inId != null) {
-			inAcc = getUserVoipAccountService().getEntityById(inId);
+			inAcc = userVoipAccountService.getEntityById(inId);
 		}
 		if (hasIncome) {
 			if (inAcc == null) {
-				inAcc = getUserVoipAccountService().createNewEntity();
+				inAcc = userVoipAccountService.createNewEntity();
 				inAcc.setOwner(userSipProfile);
 			}
 			inAcc.setName(inName);
@@ -416,11 +405,11 @@ public class VoipSettingWizardBean implements Serializable {
 
 		UserVoipAccount outAcc = null;
 		if (outId != null) {
-			outAcc = getUserVoipAccountService().getEntityById(outId);
+			outAcc = userVoipAccountService.getEntityById(outId);
 		}
 		if (hasOutgo) {
 			if (outAcc == null) {
-				outAcc = getUserVoipAccountService().createNewEntity();
+				outAcc = userVoipAccountService.createNewEntity();
 				outAcc.setOwner(userSipProfile);
 			}
 			outAcc.setName(outName);
@@ -438,12 +427,12 @@ public class VoipSettingWizardBean implements Serializable {
 			}
 		}
 
-		getUserSipProfileService().saveEntity(userSipProfile);
+		userSipProfileService.saveEntity(userSipProfile);
 		if (!removeAccs.isEmpty()) {
-			getUserVoipAccountService().removeEntities(removeAccs);
+			userVoipAccountService.removeEntities(removeAccs);
 		}
 		if (!accounts.isEmpty()) {
-			getUserVoipAccountService().saveEntities(accounts);
+			userVoipAccountService.saveEntities(accounts);
 		}
 
 		return "/member/index.jsf?faces-redirect=true";
@@ -463,86 +452,8 @@ public class VoipSettingWizardBean implements Serializable {
 		return result;
 	}
 
-	/**
-	 * @param userSipProfileService
-	 *            the userSipProfileService to set
-	 */
-	public void setUserSipProfileService(
-			UserSipProfileService userSipProfileService) {
-		this.userSipProfileService = userSipProfileService;
-	}
-
-	/**
-	 * @return the userSipProfileService
-	 */
-	public UserSipProfileService getUserSipProfileService() {
-		if (userSipProfileService == null) {
-			userSipProfileService = JSFUtils.getManagedBean(
-					"userSipProfileService", UserSipProfileService.class);
-		}
-		return userSipProfileService;
-	}
-
-	/**
-	 * @param userVoipAccountService
-	 *            the userVoipAccountService to set
-	 */
-	public void setUserVoipAccountService(
-			UserVoipAccountService userVoipAccountService) {
-		this.userVoipAccountService = userVoipAccountService;
-	}
-
-	/**
-	 * @return the userVoipAccountService
-	 */
-	public UserVoipAccountService getUserVoipAccountService() {
-		if (userVoipAccountService == null) {
-			userVoipAccountService = JSFUtils.getManagedBean(
-					"userVoipAccountService", UserVoipAccountService.class);
-		}
-		return userVoipAccountService;
-	}
-
-	/**
-	 * @param voipVendorService
-	 *            the voipVendorService to set
-	 */
-	public void setVoipVendorService(VoipVendorService voipVendorService) {
-		this.voipVendorService = voipVendorService;
-	}
-
-	/**
-	 * @return the voipVendorService
-	 */
-	public VoipVendorService getVoipVendorService() {
-		if (voipVendorService == null) {
-			voipVendorService = JSFUtils.getManagedBean("voipVendorService",
-					VoipVendorService.class);
-		}
-		return voipVendorService;
-	}
-
-	/**
-	 * @param googleVoiceManager
-	 *            the googleVoiceManager to set
-	 */
-	public void setGoogleVoiceManager(GoogleVoiceManager googleVoiceManager) {
-		this.googleVoiceManager = googleVoiceManager;
-	}
-
-	/**
-	 * @return the googleVoiceManager
-	 */
-	public GoogleVoiceManager getGoogleVoiceManager() {
-		if (googleVoiceManager == null) {
-			googleVoiceManager = JSFUtils.getManagedBean("googleVoiceManager",
-					GoogleVoiceManager.class);
-		}
-		return googleVoiceManager;
-	}
-
 	public Collection<VoipVendor> getSipVendors() {
-		return getVoipVendorService().getSIPVendors();
+		return JSFUtils.getVoipVendorService().getSIPVendors();
 	}
 
 	/**

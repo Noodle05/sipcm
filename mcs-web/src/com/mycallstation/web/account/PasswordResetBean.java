@@ -8,7 +8,6 @@ import java.util.Date;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -38,12 +37,6 @@ public class PasswordResetBean implements Serializable {
 	private static final Logger logger = LoggerFactory
 			.getLogger(PasswordResetBean.class);
 
-	@ManagedProperty(value = "#{userService}")
-	private transient UserService userService;
-
-	@ManagedProperty(value = "#{userActivationService}")
-	private transient UserActivationService userActivationService;
-
 	private String activeCode;
 	private Long userId;
 	private String password;
@@ -54,6 +47,9 @@ public class PasswordResetBean implements Serializable {
 					"Resetting password for user id: {}, with active code: \"{}\"",
 					userId, activeCode);
 		}
+		UserService userService = JSFUtils.getUserService();
+		UserActivationService userActivationService = JSFUtils
+				.getUserActivationService();
 		FacesContext fc = FacesContext.getCurrentInstance();
 		if (userId == null) {
 			FacesMessage message = Messages.getMessage(
@@ -73,8 +69,7 @@ public class PasswordResetBean implements Serializable {
 		if (logger.isTraceEnabled()) {
 			logger.trace("User object: \"{}\"", user);
 		}
-		UserActivation ua = getUserActivationService().getUserActivationByUser(
-				user);
+		UserActivation ua = userActivationService.getUserActivationByUser(user);
 		if (ua == null) {
 			FacesMessage message = Messages.getMessage(
 					"password.reset.error.invaliduserid",
@@ -125,11 +120,11 @@ public class PasswordResetBean implements Serializable {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Remove user activation object.");
 		}
-		getUserActivationService().removeEntity(ua);
+		userActivationService.removeEntity(ua);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Reseting user password");
 		}
-		getUserService().setPassword(user, password);
+		userService.setPassword(user, password);
 		userService.saveEntity(user);
 		FacesMessage message = Messages.getMessage("password.reset.success",
 				FacesMessage.SEVERITY_INFO);
@@ -202,44 +197,5 @@ public class PasswordResetBean implements Serializable {
 	 */
 	public String getPassword() {
 		return password;
-	}
-
-	/**
-	 * @param userService
-	 *            the userService to set
-	 */
-	public void setUserService(UserService userService) {
-		this.userService = userService;
-	}
-
-	/**
-	 * @return the userService
-	 */
-	public UserService getUserService() {
-		if (userService == null) {
-			userService = JSFUtils.getManagedBean("userService",
-					UserService.class);
-		}
-		return userService;
-	}
-
-	/**
-	 * @param userActivationService
-	 *            the userActivationService to set
-	 */
-	public void setUserActivationService(
-			UserActivationService userActivationService) {
-		this.userActivationService = userActivationService;
-	}
-
-	/**
-	 * @return the userActivationService
-	 */
-	public UserActivationService getUserActivationService() {
-		if (userActivationService == null) {
-			userActivationService = JSFUtils.getManagedBean(
-					"userActivationService", UserActivationService.class);
-		}
-		return userActivationService;
 	}
 }

@@ -8,7 +8,6 @@ import java.util.Date;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
@@ -23,6 +22,7 @@ import com.mycallstation.dataaccess.business.UserActivationService;
 import com.mycallstation.dataaccess.business.UserService;
 import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.dataaccess.model.UserActivation;
+import com.mycallstation.web.util.JSFUtils;
 import com.mycallstation.web.util.Messages;
 
 /**
@@ -37,15 +37,6 @@ public class ActivationBean implements Serializable {
 	private static final Logger logger = LoggerFactory
 			.getLogger(ActivationBean.class);
 
-	@ManagedProperty(value = "#{userActivationService}")
-	private transient UserActivationService userActivationService;
-
-	@ManagedProperty(value = "#{userService}")
-	private transient UserService userService;
-
-	@ManagedProperty(value = "#{roleService}")
-	private transient RoleService roleService;
-
 	private Long userId;
 
 	private String activeCode;
@@ -56,6 +47,10 @@ public class ActivationBean implements Serializable {
 					userId, activeCode);
 		}
 		FacesContext fc = FacesContext.getCurrentInstance();
+		UserService userService = JSFUtils.getUserService();
+		UserActivationService userActivationService = JSFUtils
+				.getUserActivationService();
+		RoleService roleService = JSFUtils.getRoleService();
 		if (userId == null) {
 			FacesMessage message = Messages.getMessage(
 					"account.active.error.invaliduserid",
@@ -146,31 +141,6 @@ public class ActivationBean implements Serializable {
 		FacesMessage message = Messages.getMessage("activation.success",
 				FacesMessage.SEVERITY_INFO);
 		fc.addMessage(null, message);
-	}
-
-	/**
-	 * @param userActivationService
-	 *            the userActivationService to set
-	 */
-	public void setUserActivationService(
-			UserActivationService userActivationService) {
-		this.userActivationService = userActivationService;
-	}
-
-	/**
-	 * @param userService
-	 *            the userService to set
-	 */
-	public void setUserService(UserService userService) {
-		this.userService = userService;
-	}
-
-	/**
-	 * @param roleService
-	 *            the roleService to set
-	 */
-	public void setRoleService(RoleService roleService) {
-		this.roleService = roleService;
 	}
 
 	/**

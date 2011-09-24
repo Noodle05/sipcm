@@ -21,8 +21,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.mycallstation.base.filter.FilterFactory;
+import com.mycallstation.dataaccess.business.CallLogService;
+import com.mycallstation.dataaccess.business.RegistrationInvitationService;
+import com.mycallstation.dataaccess.business.RoleService;
+import com.mycallstation.dataaccess.business.UserActivationService;
 import com.mycallstation.dataaccess.business.UserService;
+import com.mycallstation.dataaccess.business.UserSipProfileService;
+import com.mycallstation.dataaccess.business.UserVoipAccountService;
+import com.mycallstation.dataaccess.business.VoipVendorService;
 import com.mycallstation.dataaccess.model.User;
+import com.mycallstation.googlevoice.GoogleVoiceManager;
 import com.mycallstation.googlevoice.setting.PhoneType;
 import com.mycallstation.security.UserDetailsImpl;
 import com.mycallstation.web.LocaleTimeZoneHolderBean;
@@ -68,7 +77,7 @@ public abstract class JSFUtils {
 	public static final Map<Locale, SelectItem[]> availableGvPhoneType = new HashMap<Locale, SelectItem[]>(
 			2);
 
-	public static <T> T getManagedBean(String managedBeanKey, Class<T> clazz)
+	private static <T> T getManagedBean(String managedBeanKey, Class<T> clazz)
 			throws IllegalArgumentException {
 		if (managedBeanKey == null) {
 			throw new NullPointerException("Managed Bean Key is null.");
@@ -209,5 +218,62 @@ public abstract class JSFUtils {
 			}
 		}
 		return ret;
+	}
+
+	public static WebConfiguration getAppConfig() {
+		return getManagedBean("systemConfiguration", WebConfiguration.class);
+	}
+
+	public static UserService getUserService() {
+		return getManagedBean("userService", UserService.class);
+	}
+
+	public static UserSipProfileService getUserSipProfileService() {
+		return getManagedBean("userSipProfileService",
+				UserSipProfileService.class);
+	}
+
+	public static UserActivationService getUserActivationService() {
+		return getManagedBean("userActivationService",
+				UserActivationService.class);
+	}
+
+	public static VoipVendorService getVoipVendorService() {
+		return getManagedBean("voipVendorService", VoipVendorService.class);
+	}
+
+	public static UserVoipAccountService getUserVoipAccountService() {
+		return getManagedBean("userVoipAccountService",
+				UserVoipAccountService.class);
+	}
+
+	public static RoleService getRoleService() {
+		return getManagedBean("roleService", RoleService.class);
+	}
+
+	public static CallLogService getCallLogService() {
+		return getManagedBean("callLogService", CallLogService.class);
+	}
+
+	public static RegistrationInvitationService getRegistrationInvitationService() {
+		return getManagedBean("registrationInvitationService",
+				RegistrationInvitationService.class);
+	}
+
+	public static FilterFactory getFilterFactory() {
+		return getManagedBean("filterFactory", FilterFactory.class);
+	}
+
+	public static LocaleTimeZoneHolderBean getLocaleTimeZoneHolderBean() {
+		return getManagedBean("localeTimeZoneHolderBean",
+				LocaleTimeZoneHolderBean.class);
+	}
+
+	public static EmailUtils getEmailUtils() {
+		return getManagedBean("webEmailUtils", EmailUtils.class);
+	}
+
+	public static GoogleVoiceManager getGoogleVoiceManager() {
+		return getManagedBean("googleVoiceManager", GoogleVoiceManager.class);
 	}
 }

@@ -19,7 +19,6 @@ import com.mycallstation.base.filter.Sort;
 import com.mycallstation.base.filter.Sort.Direction;
 import com.mycallstation.constant.CallStatus;
 import com.mycallstation.constant.CallType;
-import com.mycallstation.dataaccess.business.CallLogService;
 import com.mycallstation.dataaccess.model.CallLog;
 import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.web.util.JSFUtils;
@@ -30,10 +29,6 @@ import com.mycallstation.web.util.JSFUtils;
  */
 public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 	private static final long serialVersionUID = 6187662282080590301L;
-
-	private transient CallLogService callLogService;
-
-	private transient FilterFactory filterFactory;
 
 	private Filter baseFilter;
 
@@ -56,7 +51,7 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 				&& !includeOutCanceled) {
 			throw new IllegalArgumentException("None data selected");
 		}
-		FilterFactory filterFactory = getFilterFactory();
+		FilterFactory filterFactory = JSFUtils.getFilterFactory();
 		Filter filter = filterFactory.createSimpleFilter("owner.id",
 				user.getId());
 		Calendar c;
@@ -154,7 +149,7 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 		}
 
 		baseFilter = filter;
-		setRowCount(getCallLogService().getRowCount(baseFilter));
+		setRowCount(JSFUtils.getCallLogService().getRowCount(baseFilter));
 	}
 
 	/*
@@ -166,50 +161,35 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 	@Override
 	public List<CallLog> load(int first, int pageSize, String sortField,
 			boolean sortOrder, Map<String, String> filters) {
+		FilterFactory filterFactory = JSFUtils.getFilterFactory();
 		Filter filter = baseFilter;
 		if (filters != null) {
 			for (Entry<String, String> entry : filters.entrySet()) {
 				String key = entry.getKey();
 				String value = entry.getValue();
 				if (key != null && value != null) {
-					Filter f1 = getFilterFactory().createSimpleFilter(key,
-							"%" + value + "%", Filter.Operator.ILIKE);
+					Filter f1 = filterFactory.createSimpleFilter(key, "%"
+							+ value + "%", Filter.Operator.ILIKE);
 					filter = filter.appendAnd(f1);
 				}
 			}
 		}
-		Page page = getFilterFactory().createPage();
+		Page page = filterFactory.createPage();
 		page.setStartRowPosition(first);
 		page.setRecordsPerPage(pageSize);
 		Sort sort = null;
 		if (sortField != null) {
-			sort = getFilterFactory().createSort(sortField,
+			sort = filterFactory.createSort(sortField,
 					sortOrder ? Direction.ASC : Direction.DESC);
 		} else {
-			sort = getFilterFactory().createSort("startTime", Direction.DESC);
+			sort = filterFactory.createSort("startTime", Direction.DESC);
 		}
 		FSP fsp = new FSP();
 		fsp.setFilter(filter);
 		fsp.setPage(page);
 		fsp.setSort(sort);
-		List<CallLog> callLogs = getCallLogService().getEntities(fsp);
+		List<CallLog> callLogs = JSFUtils.getCallLogService().getEntities(fsp);
 		setRowCount(page.getTotalRecords());
 		return callLogs;
-	}
-
-	private CallLogService getCallLogService() {
-		if (callLogService == null) {
-			callLogService = JSFUtils.getManagedBean("callLogService",
-					CallLogService.class);
-		}
-		return callLogService;
-	}
-
-	private FilterFactory getFilterFactory() {
-		if (filterFactory == null) {
-			filterFactory = JSFUtils.getManagedBean("filterFactory",
-					FilterFactory.class);
-		}
-		return filterFactory;
 	}
 }

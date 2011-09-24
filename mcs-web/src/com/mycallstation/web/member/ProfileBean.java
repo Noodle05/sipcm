@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -29,16 +28,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.mycallstation.constant.ActiveMethod;
-import com.mycallstation.dataaccess.business.RoleService;
 import com.mycallstation.dataaccess.business.UserActivationService;
 import com.mycallstation.dataaccess.business.UserService;
 import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.dataaccess.model.UserActivation;
 import com.mycallstation.web.LocaleTimeZoneHolderBean;
-import com.mycallstation.web.util.EmailUtils;
 import com.mycallstation.web.util.JSFUtils;
 import com.mycallstation.web.util.Messages;
-import com.mycallstation.web.util.WebConfiguration;
 
 /**
  * @author wgao
@@ -53,21 +49,6 @@ public class ProfileBean implements Serializable {
 			.getLogger(ProfileBean.class);
 
 	public static final String CONFIRM_EMAIL_TEMPLATE = "/templates/email-confirm.vm";
-
-	@ManagedProperty(value = "#{systemConfiguration}")
-	private transient WebConfiguration appConfig;
-
-	@ManagedProperty(value = "#{webEmailUtils}")
-	private transient EmailUtils emailUtils;
-
-	@ManagedProperty(value = "#{userService}")
-	private transient UserService userService;
-
-	@ManagedProperty(value = "#{roleService}")
-	private transient RoleService roleService;
-
-	@ManagedProperty(value = "#{userActivationService}")
-	private transient UserActivationService userActivationService;
 
 	private String email;
 
@@ -89,7 +70,8 @@ public class ProfileBean implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		emailPattern = Pattern.compile(getAppConfig().getEmailPattern());
+		emailPattern = Pattern.compile(JSFUtils.getAppConfig()
+				.getEmailPattern());
 		User user = JSFUtils.getCurrentUser();
 		if (user == null) {
 			throw new IllegalStateException(
@@ -120,6 +102,7 @@ public class ProfileBean implements Serializable {
 	}
 
 	public void save() {
+		UserService userService = JSFUtils.getUserService();
 		User user = JSFUtils.getCurrentUser();
 		if (logger.isDebugEnabled()) {
 			logger.debug("Saving user profile for \"{}\"", user);
@@ -128,7 +111,7 @@ public class ProfileBean implements Serializable {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Password changed.");
 			}
-			getUserService().setPassword(user, password);
+			userService.setPassword(user, password);
 		}
 		user.setFirstName(firstName);
 		user.setMiddleName(middleName);
@@ -153,12 +136,11 @@ public class ProfileBean implements Serializable {
 				logger.trace("Email changed, remove caller role.");
 			}
 			user.setEmail(email);
-			user.removeRole(getRoleService().getCallerRole());
+			user.removeRole(JSFUtils.getRoleService().getCallerRole());
 			suspend = true;
 		}
-		getUserService().saveEntity(user);
-		LocaleTimeZoneHolderBean b = JSFUtils.getManagedBean(
-				"localeTimeZoneHolderBean", LocaleTimeZoneHolderBean.class);
+		userService.saveEntity(user);
+		LocaleTimeZoneHolderBean b = JSFUtils.getLocaleTimeZoneHolderBean();
 		if (b != null) {
 			b.setLocale(user.getLocale());
 			b.setTimeZone(user.getTimeZone());
@@ -193,7 +175,7 @@ public class ProfileBean implements Serializable {
 							FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
-		User user = getUserService().getUserByEmail(email);
+		User user = JSFUtils.getUserService().getUserByEmail(email);
 		if (user != null && !user.equals(JSFUtils.getCurrentUser())) {
 			FacesMessage message = Messages.getMessage(
 					"register.error.email.exists", FacesMessage.SEVERITY_ERROR);
@@ -234,97 +216,23 @@ public class ProfileBean implements Serializable {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Create user activation object.");
 		}
-		UserActivation userActivation = getUserActivationService()
-				.createUserActivation(user, ActiveMethod.SELF,
-						getAppConfig().getActiveExpires());
-		getUserActivationService().saveEntity(userActivation);
+		UserActivationService userActivationService = JSFUtils
+				.getUserActivationService();
+		UserActivation userActivation = userActivationService
+				.createUserActivation(user, ActiveMethod.SELF, JSFUtils
+						.getAppConfig().getActiveExpires());
+		userActivationService.saveEntity(userActivation);
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("activation", userActivation);
-		params.put("activeExpires", appConfig.getActiveExpires());
+		params.put("activeExpires", JSFUtils.getAppConfig().getActiveExpires());
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("Sending confirm email");
 		}
-		getEmailUtils().sendMail(user.getEmail(), user.getUserDisplayName(),
+		JSFUtils.getEmailUtils().sendMail(user.getEmail(),
+				user.getUserDisplayName(),
 				Messages.getString(null, "member.email.confirm.subject", null),
 				CONFIRM_EMAIL_TEMPLATE, params, user.getLocale());
-	}
-
-	/**
-	 * @param appConfig
-	 *            the appConfig to set
-	 */
-	public void setAppConfig(WebConfiguration appConfig) {
-		this.appConfig = appConfig;
-	}
-
-	private WebConfiguration getAppConfig() {
-		if (appConfig == null) {
-			appConfig = JSFUtils.getManagedBean("systemConfiguration",
-					WebConfiguration.class);
-		}
-		return appConfig;
-	}
-
-	/**
-	 * @param emailUtils
-	 *            the emailUtils to set
-	 */
-	public void setEmailUtils(EmailUtils emailUtils) {
-		this.emailUtils = emailUtils;
-	}
-
-	private EmailUtils getEmailUtils() {
-		if (emailUtils == null) {
-			emailUtils = JSFUtils.getManagedBean("webEmailUtils",
-					EmailUtils.class);
-		}
-		return emailUtils;
-	}
-
-	/**
-	 * @param userService
-	 *            the userService to set
-	 */
-	public void setUserService(UserService userService) {
-		this.userService = userService;
-	}
-
-	private UserService getUserService() {
-		if (userService == null) {
-			userService = JSFUtils.getManagedBean("userService",
-					UserService.class);
-		}
-		return userService;
-	}
-
-	public void setRoleService(RoleService roleService) {
-		this.roleService = roleService;
-	}
-
-	private RoleService getRoleService() {
-		if (roleService == null) {
-			roleService = JSFUtils.getManagedBean("roleService",
-					RoleService.class);
-		}
-		return roleService;
-	}
-
-	/**
-	 * @param userActivationService
-	 *            the userActivationService to set
-	 */
-	public void setUserActivationService(
-			UserActivationService userActivationService) {
-		this.userActivationService = userActivationService;
-	}
-
-	private UserActivationService getUserActivationService() {
-		if (userActivationService == null) {
-			userActivationService = JSFUtils.getManagedBean(
-					"userActivationService", UserActivationService.class);
-		}
-		return userActivationService;
 	}
 
 	/**

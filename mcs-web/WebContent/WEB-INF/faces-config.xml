@@ -12,7 +12,7 @@
 			<supported-locale>zh_CN</supported-locale>
 		</locale-config>
 		<resource-bundle>
-			<base-name>messages.CallerPages</base-name>
+			<base-name>com.mycallstation.i18n.UTF8Message</base-name>
 			<var>messages</var>
 		</resource-bundle>
 	</application>
