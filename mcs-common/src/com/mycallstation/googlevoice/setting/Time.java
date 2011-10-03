@@ -14,6 +14,11 @@ public class Time implements Serializable {
 	private String startTime;
 	private String endTime;
 
+	public Time() {
+		startTime = "9:00am";
+		endTime = "5:00pm";
+	}
+
 	/**
 	 * @return the startTime
 	 */
@@ -42,5 +47,18 @@ public class Time implements Serializable {
 	 */
 	public void setEndTime(String endTime) {
 		this.endTime = endTime;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[start time=").append(startTime).append(",end time=")
+				.append(endTime).append("]");
+		return sb.toString();
 	}
 }

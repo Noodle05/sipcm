@@ -176,7 +176,7 @@ public class KeepAliveServlet extends AbstractSipServlet {
 			c.setAddress(origin.getAddress());
 		}
 		MediaDescription md = sdpFactory.createMediaDescription("audio",
-				nextPort(), 1, "RTP/AVP", new int[] { 0, 8, 18, 101 });
+				nextPort(), 1, "RTP/AVP", new int[] { 0, 8, 101 });
 		Attribute rtpmap_0 = sdpFactory.createAttribute("rtpmap", "0 PCMU/8000");
 		Attribute rtpmap_8 = sdpFactory.createAttribute("rtpmap", "8 PCMA/8000");
 		Attribute rtpmap_18 = sdpFactory.createAttribute("rtpmap", "18 G729/8000");
@@ -191,15 +191,7 @@ public class KeepAliveServlet extends AbstractSipServlet {
 		md.addAttribute((AttributeField) rtpmap_101);
 		md.addAttribute((AttributeField) fmtp_101);
 		md.addAttribute((AttributeField) sendrecv);
-//		@SuppressWarnings("unchecked")
-//		Vector<String> formats = md.getMedia().getMediaFormats(true);
-//		formats.add("a=rtpmap:0 PCMU/8000");
-//		formats.add("a=rtpmap:8 PCMA/8000");
-//		formats.add("a=rtpmap:18 G729/8000");
-//		formats.add("a=fmtp:18 annexb=no");
-//		formats.add("a=rtpmap:101 telephone-event/8000");
-//		formats.add("a=fmtp:101 0-15");
-//		formats.add("a=sendrecv");
+
 		Vector<MediaDescription> mds = new Vector<MediaDescription>();
 		mds.add(md);
 		sdp.setMediaDescriptions(mds);
@@ -207,6 +199,8 @@ public class KeepAliveServlet extends AbstractSipServlet {
 	}
 
 	private int nextPort() {
-		return random.nextInt(maxPort - minPort) + minPort;
+		int ret = random.nextInt(maxPort - minPort) + minPort;
+		ret += (ret % 2);
+		return ret;
 	}
 }

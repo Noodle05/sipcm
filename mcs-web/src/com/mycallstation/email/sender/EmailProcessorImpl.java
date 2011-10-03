@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.mycallstation.email;
+package com.mycallstation.email.sender;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;

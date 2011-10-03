@@ -11,8 +11,8 @@ import javax.faces.context.FacesContext;
 
 import org.springframework.stereotype.Component;
 
-import com.mycallstation.email.EmailBean;
-import com.mycallstation.email.Emailer;
+import com.mycallstation.email.sender.EmailBean;
+import com.mycallstation.email.sender.Emailer;
 
 /**
  * @author wgao

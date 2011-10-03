@@ -121,10 +121,14 @@
 			conf="provided->default" />
 		<dependency org="org.mobicents.javax.sip" name="mobicents-jain-sip-ext"
 			rev="1.0" conf="provided->default;foride->sources,javadoc" />
+		<dependency org="javax.media" name="jmf" rev="2.1.1e"
+			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.apache.tomcat" name="catalina" rev="6.0.32"
 			conf="provided->default" />
 		<dependency org="com.google.guava" name="guava" rev="r09"
 			conf="compile->default;foride->sources,javadoc" />
+		<dependency org="com.google.code.gson" name="gson" rev="1.7.1"
+			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="com.jcraft" name="jsch" rev="0.1.44"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="junit" name="junit" rev="4.8.1"
@@ -134,6 +138,8 @@
 			<exclude module="slf4j-api" />
 		</dependency>
 		<dependency org="org.apache.xbean" name="xbean-spring" rev="3.7"
+			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.jsoup" name="jsoup" rev="1.6.1"
 			conf="runtime->default;foride->sources,javadoc" />
 	</dependencies>
 </ivy-module>

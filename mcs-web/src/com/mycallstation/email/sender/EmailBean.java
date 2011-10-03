@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.mycallstation.email;
+package com.mycallstation.email.sender;
 
 import java.io.Serializable;
 import java.util.ArrayList;

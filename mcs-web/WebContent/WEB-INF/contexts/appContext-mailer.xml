@@ -8,4 +8,8 @@
 			</bean>
 		</property>
 	</bean>
+
+	<bean id="mailSessionManager" class="com.mycallstation.email.receiver.MailSessionManager">
+		<lookup-method name="createMailSession" bean="mailSession" />
+	</bean>
 </beans>

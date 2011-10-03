@@ -117,7 +117,7 @@ public class VoipSettingWizardBean implements Serializable {
 
 	private boolean saveDisabled = true;
 
-	private Map<String, Integer> callbackList = new HashMap<String, Integer>();
+	private Map<String, PhoneType> callbackList = new HashMap<String, PhoneType>();
 
 	@PostConstruct
 	public void init() {
@@ -150,8 +150,7 @@ public class VoipSettingWizardBean implements Serializable {
 						oriGvNumber = gvNumber = account.getPhoneNumber();
 						gvCallback = account.getCallBackNumber();
 						gvCallbackType = account.getCallBackType() == null ? PhoneType.HOME
-								: PhoneType.getTypeByValue(account
-										.getCallBackType());
+								: PhoneType.valueOf(account.getCallBackType());
 					} else if (!VoipAccountType.OUTGOING.equals(account
 							.getType()) && inId == null) {
 						hasIncome = true;
@@ -295,8 +294,7 @@ public class VoipSettingWizardBean implements Serializable {
 							if (gvCallback == null || gvCallbackType == null
 									|| gvCallbackType.lessThan(phone.getType())) {
 								gvCallback = phone.getPhoneNumber();
-								gvCallbackType = PhoneType.getTypeByValue(phone
-										.getType());
+								gvCallbackType = phone.getType();
 							}
 						}
 					}

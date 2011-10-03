@@ -11,4 +11,11 @@
 		<property name="saltSizeBytes" value="0" />
 		<property name="iterations" value="1" />
 	</bean>
+
+	<bean id="httpConnectionManager"
+		class="org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager"
+		destroy-method="shutdown">
+		<property name="defaultMaxPerRoute" value="100" />
+		<property name="maxTotal" value="100" />
+	</bean>
 </beans>

@@ -76,6 +76,8 @@
 			<exclude module="commons-logging" />
 			<exclude module="commons-codec" />
 		</dependency>
+		<dependency org="org.jsoup" name="jsoup" rev="1.6.1"
+			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="junit" name="junit" rev="4.8.1"
 			conf="test->default;foride->sources,javadoc" />
 	</dependencies>

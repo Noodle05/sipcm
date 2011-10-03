@@ -14,27 +14,33 @@ public class Phone implements Serializable {
 	private int id;
 	private String name;
 	private String phoneNumber;
-	private int type;
+	// Should set to HOME
+	private PhoneType type;
 	private boolean verified;
-	private transient int policyBitmask;
-	private transient boolean dEPRECATEDDisabled;
+	// Should set to YES_WITHOUT_PIN
+	private VoiceMailAccessPolicy policyBitmask;
+	private boolean dEPRECATEDDisabled;
 	private boolean telephonyVerified;
-	private transient boolean smsEnabled;
-	private transient String incomingAccessNumber;
-	private transient boolean voicemailForwardingVerified;
-	private transient int behaviorOnRedirect;
-	private transient String carrier;
-	private transient int customOverrideState;
+	private boolean smsEnabled;
+	private String incomingAccessNumber;
+	private boolean voicemailForwardingVerified;
+	private int behaviorOnRedirect;
+	private String carrier;
+	private int customOverrideState;
 	private boolean inVerification;
+	private boolean recentlyProvisionedOrDeprovisioned;
 	private String formattedNumber;
-	private transient TimeRange wd;
-	private transient TimeRange we;
-	private transient String scheduleSet;
-	private transient boolean weekdayAllDay;
-	private transient Time[] weekdayTimes;
-	private transient boolean weekendAllDay;
-	private transient Time[] weekendTimes;
-	private transient boolean redirectToVoicemail;
+	private TimeRange wd;
+	private TimeRange we;
+	// Should set FALSE
+	private ScheduleSet scheduleSet;
+	// This is kind of duplicate with wd
+	private boolean weekdayAllDay;
+	private Time[] weekdayTimes;
+	// This is kind of duplicate with we
+	private boolean weekendAllDay;
+	private Time[] weekendTimes;
+	private boolean redirectToVoicemail;
 	private boolean active;
 	private boolean enabledForOthers;
 
@@ -86,7 +92,7 @@ public class Phone implements Serializable {
 	/**
 	 * @return the type
 	 */
-	public int getType() {
+	public PhoneType getType() {
 		return type;
 	}
 
@@ -94,7 +100,7 @@ public class Phone implements Serializable {
 	 * @param type
 	 *            the type to set
 	 */
-	public void setType(int type) {
+	public void setType(PhoneType type) {
 		this.type = type;
 	}
 
@@ -116,7 +122,7 @@ public class Phone implements Serializable {
 	/**
 	 * @return the policyBitmask
 	 */
-	public int getPolicyBitmask() {
+	public VoiceMailAccessPolicy getPolicyBitmask() {
 		return policyBitmask;
 	}
 
@@ -124,7 +130,7 @@ public class Phone implements Serializable {
 	 * @param policyBitmask
 	 *            the policyBitmask to set
 	 */
-	public void setPolicyBitmask(int policyBitmask) {
+	public void setPolicyBitmask(VoiceMailAccessPolicy policyBitmask) {
 		this.policyBitmask = policyBitmask;
 	}
 
@@ -265,6 +271,22 @@ public class Phone implements Serializable {
 	}
 
 	/**
+	 * @return the recentlyProvisionedOrDeprovisioned
+	 */
+	public boolean isRecentlyProvisionedOrDeprovisioned() {
+		return recentlyProvisionedOrDeprovisioned;
+	}
+
+	/**
+	 * @param recentlyProvisionedOrDeprovisioned
+	 *            the recentlyProvisionedOrDeprovisioned to set
+	 */
+	public void setRecentlyProvisionedOrDeprovisioned(
+			boolean recentlyProvisionedOrDeprovisioned) {
+		this.recentlyProvisionedOrDeprovisioned = recentlyProvisionedOrDeprovisioned;
+	}
+
+	/**
 	 * @return the formattedNumber
 	 */
 	public String getFormattedNumber() {
@@ -312,7 +334,7 @@ public class Phone implements Serializable {
 	/**
 	 * @return the scheduleSet
 	 */
-	public String getScheduleSet() {
+	public ScheduleSet getScheduleSet() {
 		return scheduleSet;
 	}
 
@@ -320,7 +342,7 @@ public class Phone implements Serializable {
 	 * @param scheduleSet
 	 *            the scheduleSet to set
 	 */
-	public void setScheduleSet(String scheduleSet) {
+	public void setScheduleSet(ScheduleSet scheduleSet) {
 		this.scheduleSet = scheduleSet;
 	}
 
@@ -429,4 +451,16 @@ public class Phone implements Serializable {
 		this.enabledForOthers = enabledForOthers;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Phone[id=").append(id).append(",formated number=")
+				.append(formattedNumber).append("]");
+		return sb.toString();
+	}
 }

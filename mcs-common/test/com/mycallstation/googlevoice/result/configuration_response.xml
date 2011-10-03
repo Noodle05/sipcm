@@ -1,0 +1,1502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+  <json><![CDATA[{"phones":{"1":{"id":1,"name":"Home","phoneNumber":"+14089400907","type":1,"verified":true,"policyBitmask":0,"dEPRECATEDDisabled":false,"telephonyVerified":true,"smsEnabled":false,"incomingAccessNumber":"","voicemailForwardingVerified":false,"behaviorOnRedirect":0,"carrier":"","customOverrideState":0,"inVerification":false,"lastVerificationDate":"1317151414835","recentlyProvisionedOrDeprovisioned":false,"formattedNumber":"(408) 940-0907","wd":{"allDay":false,"times":[]},"we":{"allDay":false,"times":[]},"scheduleSet":false,"weekdayAllDay":false,"weekdayTimes":[],"weekendAllDay":false,"weekendTimes":[],"redirectToVoicemail":false,"active":true,"enabledForOthers":true}},"phoneList":[1],"settings":{"primaryDid":"+19169056948","language":"en","screenBehavior":0,"useDidAsCallerId":false,"credits":0,"timezone":"America/Los_Angeles","doNotDisturb":false,"directRtp":1,"filterGlobalSpam":1,"enablePinAccess":1,"didInfos":[],"smsNotifications":[],"emailNotificationActive":true,"emailNotificationAddress":"wlifeng@yahoo.com","smsToEmailActive":false,"smsToEmailSubject":false,"missedToEmail":false,"showTranscripts":true,"directConnect":true,"useDidAsSource":false,"emailToSmsActive":false,"missedToInbox":false,"greetings":[{"id":"0","name":"System Standard","jobberName":""}],"greetingsMap":{},"activeForwardingIds":[1],"disabledIdMap":{},"defaultGreetingId":0,"webCallButtons":[],"groups":{"13":{"id":"13","name":"Friends","disabledForwardingIds":{},"isCustomForwarding":false,"isCustomGreeting":false,"isCustomDirectConnect":false,"directConnect":false,"greetingId":0},"14":{"id":"14","name":"Family","disabledForwardingIds":{},"isCustomForwarding":false,"isCustomGreeting":false,"isCustomDirectConnect":false,"directConnect":false,"greetingId":0},"15":{"id":"15","name":"Coworkers","disabledForwardingIds":{},"isCustomForwarding":false,"isCustomGreeting":false,"isCustomDirectConnect":false,"directConnect":false,"greetingId":0}},"groupList":["13","14","15"],"lowBalanceNotificationEnabled":false,"emailAddresses":["wlifeng@yahoo.com"],"baseUrl":"https://www.google.com/voice"}}]]></json>
+  <html><![CDATA[<div id="gc-settings-phones-pane">
+
+  <div id="gc-phone-settings-content" class="gc-settings-content">
+    <div id="gc-forwarding-container">
+      <div id="gc-user-number-section" class="gc-phone-list-item">
+        
+        <div id="gc-user-number-header">Your Google Voice Number</div>
+        <div id="gc-user-number-value" class="goog-inline-block gc-user-number-value">(916) 905-6948</div>
+        <div id="gc-partner-enabled" class="goog-inline-block gc-partner-enabled"></div>
+        <div class="goog-inline-block" style="padding-top: 6px;">
+          <div>
+            
+                <div id="gc-user-change-number" class="goog-inline-block gc-user-number-location">
+                  <a title="Change your Google Voice number" href="javascript://">Change / Port</a>
+                </div>
+              
+            </div>
+        </div>
+        <div id="gc-did-list">
+          
+        </div>
+        <div style="margin-top: 20px;">Forwards calls to:</div>
+        
+      </div>
+      <div id="gc-forwarding-number-list">
+        
+        
+            <div class="gc-phone-list-item" id="1">
+  <table style="width: 100%;">
+    <tbody>
+    <tr>
+      <td class="gc-phoneitem-checkbox">
+         <input type="checkbox" class="gc-temp-enable" checked/>
+      </td>
+      <td class="gc-phoneitem-content">
+          <div class="gc-forwarding-verify-notice" style="display: none;">
+            This phone must be verified before it can be used with your account.
+            <a href="javascript://" class="gc-verify-number">Verify Now</a>
+          </div>
+          <div>
+            <div class="gc-forwarding-number-value goog-inline-block">Home</div>
+            <div class="gc-phoneitem-carrier-container goog-inline-block" style="display: none;"></div>
+            <div class="gc-phoneitem-partner-link-container goog-inline-block" style="display: none;">
+              <a href="javascript://" class="gc-phoneitem-partner-link"></a>
+              <img alt="Help_dark" class="gc-help-button" id="gc-help-activate" src="/voice/resources/109158364-help_dark.gif" title="Click for info"/>
+            </div>
+          </div>
+          <div>
+            <div class="gc-forwarding-number-ani goog-inline-block">(408) 940-0907</div>
+            <div class="gc-forwarding-number-type goog-inline-block gc-phoneitem-smalltext"></div>
+          </div>
+          
+          <div class="gc-phoneitem-edit">
+            <div class="gc-edit-number goog-inline-block">Edit</div>&nbsp;<div class="gc-delete-number goog-inline-block">Delete</div>
+
+            
+          </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+          
+      </div>
+      <div class="gc-new-number" style="margin-top: 20px; padding-bottom: 20px;">
+        <a href="javascript://" id="gc-new-number-link" class="gc-nobox gc-add-number-link">Add another phone</a>
+      </div>
+    </div>
+    <div id="gc-phone-edit" style="display: none;">
+  <div class="gc-error-msg" id="gc-phoneedit-warning" style="font-weight:bold; padding-left:5px; width: 100%; text-align: center;"></div>
+  <div id="gc-phone-edit-desc" class="gc-phone-edit-desc"></div>
+  <div id="gc-phone-edit-value" class="goog-inline-block gc-user-number-value"></div>
+  <div id="gc-phone-edit-location" class="goog-inline-block gc-user-number-location"></div>
+  <div class="gc-phone-edit">
+    <form name="gc-phone-edit-form" id="gc-phone-edit-form">
+    <table class="gc-phone-edit-form">
+      <tr>
+        <th class="gc-phone-edit-form-mid">Name:</th>
+        <td><input value="My New Phone" class="gc-text" id="gc-edit-desc-input" title="Phone Name" name="desc-input"/></td>
+      </tr>
+      <tr id="gc-phone-edit-numrow">
+        <th class="gc-phone-edit-form-mid">
+          <span id="gc-phone-edit-number-text">Number</span>
+          <span id="gc-phone-edit-email-text" style="display:none;">Email</span>:
+        </th>
+        <td><input value="555-555-5555" class="gc-text" id="gc-edit-ani-input" name="ani-input"/></td>
+      </tr>
+      <tr id="gc-phone-edit-typerow">
+        <th class="gc-phone-edit-form-mid">Phone Type:</th>
+        <td>
+          <select id="gc-edit-phonetype" class="gc-text" name="edit-phonetype">
+          </select>
+          <img alt="Help_dark" class="gc-help-button" id="gc-help-phonetype" src="/voice/resources/109158364-help_dark.gif" style="margin-bottom: 2px;" title="Click for info"/>
+        </td>
+      </tr>
+      <tr id="gc-phone-edit-carrierrow" style="display: none;">
+        <th class="gc-phone-edit-form-mid">Carrier:</th>
+        <td>
+          <span id="gc-phone-edit-carrier"></span>
+          <a href="javascript://" id="gc-phone-edit-check-carrier-link" style="font-size: 12px; margin-left: 4px;">check operator</a>
+          <span id="gc-phone-edit-carrier-checking" style="display: none;"><img alt="Blueloading" height="15" src="/voice/resources/3006972922-blueloading.gif" style="margin-bottom: -3px;" width="15"/></span>
+        </td>
+      </tr>
+      <tr id="gc-phone-edit-smsrow" style="display: none;">
+        <th class="gc-phone-edit-form-mid">Text Settings:</th>
+        <td>
+          <div>
+              <input type="checkbox" name="gc-sms-enabled" id="gc-sms-enabled" class="gc-checkbox-align">
+              <label for="gc-sms-enabled" class="gc-label-align">
+                <span class="gc-sms-enabled-description">
+                  Receive text messages on this phone <span class="gc-settings-description">(mobile phones only)</span>
+                </span>
+              </label>
+          </div>
+        </td>
+      </tr>
+    </table>
+    
+      <div style="padding: 6px 6px 16px; font-size: 12px;">
+        <a href="javascript://" id="gc-phone-show">Show advanced settings</a>
+      </div>
+    
+    <table class="gc-phone-edit-form" id="gc-phone-adv" style="display: none;">
+      <tr>
+        <th colspan="2" style="height: 5px;">&nbsp;</th>
+      </tr>
+      <tr>
+          <th>Voicemail Access:
+            <img alt="Help_dark" class="gc-help-button" id="gc-help-auto-auth" src="/voice/resources/109158364-help_dark.gif" style="margin-bottom: 0;" title="Click for info"/>
+          </th>
+          <td>
+            
+              <div>Direct access to voicemail when calling your Google number from this phone?</div>
+              <div>
+                  <input type="radio" name="gc-authenticate-group" id="gc-direct-vm-yes" />
+                  <label for="gc-direct-vm-yes">
+                    Yes <span class="gc-settings-description">(default for mobile phones)</span>
+                  </label>
+                  <div style="padding-left: 20px;">
+                      <input type="radio" name="gc-require-pin-group" id="gc-require-pin-yes" />
+                      <label for="gc-require-pin-yes">
+                        PIN required <span class="gc-settings-description">(for added safety)</span>
+                      </label><br />
+                      <input type="radio" name="gc-require-pin-group" id="gc-require-pin-no" />
+                      <label for="gc-require-pin-no">
+                        PIN not required <span class="gc-settings-description">(for added convenience)</span>
+                      </label><br />
+                  </div>
+              </div>
+              <div>
+                  <input type="radio" name="gc-authenticate-group" id="gc-direct-vm-no"/>
+                  <label for="gc-direct-vm-no">
+                    No <span class="gc-settings-description">(requires pressing star during greetings -- default for non-mobile phones)</span>
+                  </label>
+              </div>
+          </td>
+      </tr>
+      <tr>
+        <th colspan="2" style="height: 5px;">&nbsp;</th>
+      </tr>
+      <tr>
+        <th>Ring Schedule: <img alt="Help_dark" class="gc-help-button" id="gc-help-schedule" src="/voice/resources/109158364-help_dark.gif" style="margin-bottom: 0;" title="Click for info"/></th>
+        <td>
+          <div id="gc-phone-schedule" style="display: ;">
+            <div>
+              <span class="gc-schedule-title">Weekdays</span>
+            </div>
+            <div>
+              <input type="radio" name="gc-ring-wd" id="gc-ring-wd-ar" value="0"/>
+              <label for="gc-ring-wd-ar">Always ring on weekdays</label>
+            </div>
+            <div>
+              <input type="radio" name="gc-ring-wd" id="gc-ring-wd-nr" value="1"/>
+              <label for="gc-ring-wd-nr">Never ring on weekdays</label>
+            </div>
+            <div>
+              <input type="radio" name="gc-ring-wd" id="gc-ring-wd-cs" value="2"/>
+              <label for="gc-ring-wd-cs">Use custom schedule</label>
+            </div>
+            <div class="gc-schedule-block" id="gc-phone-schedule-wd">
+              
+              <div id="gc-ring-wd0" class="gc-ring-range-wd" style="display: ;">
+                Do <b>not</b> ring phone from
+                <select class="gc-text" id="gc-ring-from-wd0">
+                  <option value="12:00am">Midnight</option>
+                  <option value="12:15am">12:15am</option>
+                  <option value="12:30am">12:30am</option>
+                  <option value="12:45am">12:45am</option>
+                  
+                  <option value="1:00am">&nbsp;&nbsp;1:00am</option>
+                  <option value="1:15am">&nbsp;&nbsp;1:15am</option>
+                  <option value="1:30am">&nbsp;&nbsp;1:30am</option>
+                  <option value="1:45am">&nbsp;&nbsp;1:45am</option>
+                  <option value="2:00am">&nbsp;&nbsp;2:00am</option>
+                  <option value="2:15am">&nbsp;&nbsp;2:15am</option>
+                  <option value="2:30am">&nbsp;&nbsp;2:30am</option>
+                  <option value="2:45am">&nbsp;&nbsp;2:45am</option>
+                  <option value="3:00am">&nbsp;&nbsp;3:00am</option>
+                  <option value="3:15am">&nbsp;&nbsp;3:15am</option>
+                  <option value="3:30am">&nbsp;&nbsp;3:30am</option>
+                  <option value="3:45am">&nbsp;&nbsp;3:45am</option>
+                  <option value="4:00am">&nbsp;&nbsp;4:00am</option>
+                  <option value="4:15am">&nbsp;&nbsp;4:15am</option>
+                  <option value="4:30am">&nbsp;&nbsp;4:30am</option>
+                  <option value="4:45am">&nbsp;&nbsp;4:45am</option>
+                  <option value="5:00am">&nbsp;&nbsp;5:00am</option>
+                  <option value="5:15am">&nbsp;&nbsp;5:15am</option>
+                  <option value="5:30am">&nbsp;&nbsp;5:30am</option>
+                  <option value="5:45am">&nbsp;&nbsp;5:45am</option>
+                  <option value="6:00am">&nbsp;&nbsp;6:00am</option>
+                  <option value="6:15am">&nbsp;&nbsp;6:15am</option>
+                  <option value="6:30am">&nbsp;&nbsp;6:30am</option>
+                  <option value="6:45am">&nbsp;&nbsp;6:45am</option>
+                  <option value="7:00am">&nbsp;&nbsp;7:00am</option>
+                  <option value="7:15am">&nbsp;&nbsp;7:15am</option>
+                  <option value="7:30am">&nbsp;&nbsp;7:30am</option>
+                  <option value="7:45am">&nbsp;&nbsp;7:45am</option>
+                  <option value="8:00am">&nbsp;&nbsp;8:00am</option>
+                  <option value="8:15am">&nbsp;&nbsp;8:15am</option>
+                  <option value="8:30am">&nbsp;&nbsp;8:30am</option>
+                  <option value="8:45am">&nbsp;&nbsp;8:45am</option>
+                  <option value="9:00am">&nbsp;&nbsp;9:00am</option>
+                  <option value="9:15am">&nbsp;&nbsp;9:15am</option>
+                  <option value="9:30am">&nbsp;&nbsp;9:30am</option>
+                  <option value="9:45am">&nbsp;&nbsp;9:45am</option>
+                  <option value="10:00am">10:00am</option>
+                  <option value="10:15am">10:15am</option>
+                  <option value="10:30am">10:30am</option>
+                  <option value="10:45am">10:45am</option>
+                  <option value="11:00am">11:00am</option>
+                  <option value="11:15am">11:15am</option>
+                  <option value="11:30am">11:30am</option>
+                  <option value="11:45am">11:45am</option>
+                  <option value="12:00pm">12:00pm</option>
+                  <option value="12:15pm">12:15pm</option>
+                  <option value="12:30pm">12:30pm</option>
+                  <option value="12:45pm">12:45pm</option>
+                  
+                  <option value="1:00pm">&nbsp;&nbsp;1:00pm</option>
+                  <option value="1:15pm">&nbsp;&nbsp;1:15pm</option>
+                  <option value="1:30pm">&nbsp;&nbsp;1:30pm</option>
+                  <option value="1:45pm">&nbsp;&nbsp;1:45pm</option>
+                  <option value="2:00pm">&nbsp;&nbsp;2:00pm</option>
+                  <option value="2:15pm">&nbsp;&nbsp;2:15pm</option>
+                  <option value="2:30pm">&nbsp;&nbsp;2:30pm</option>
+                  <option value="2:45pm">&nbsp;&nbsp;2:45pm</option>
+                  <option value="3:00pm">&nbsp;&nbsp;3:00pm</option>
+                  <option value="3:15pm">&nbsp;&nbsp;3:15pm</option>
+                  <option value="3:30pm">&nbsp;&nbsp;3:30pm</option>
+                  <option value="3:45pm">&nbsp;&nbsp;3:45pm</option>
+                  <option value="4:00pm">&nbsp;&nbsp;4:00pm</option>
+                  <option value="4:15pm">&nbsp;&nbsp;4:15pm</option>
+                  <option value="4:30pm">&nbsp;&nbsp;4:30pm</option>
+                  <option value="4:45pm">&nbsp;&nbsp;4:45pm</option>
+                  <option value="5:00pm">&nbsp;&nbsp;5:00pm</option>
+                  <option value="5:15pm">&nbsp;&nbsp;5:15pm</option>
+                  <option value="5:30pm">&nbsp;&nbsp;5:30pm</option>
+                  <option value="5:45pm">&nbsp;&nbsp;5:45pm</option>
+                  <option value="6:00pm">&nbsp;&nbsp;6:00pm</option>
+                  <option value="6:15pm">&nbsp;&nbsp;6:15pm</option>
+                  <option value="6:30pm">&nbsp;&nbsp;6:30pm</option>
+                  <option value="6:45pm">&nbsp;&nbsp;6:45pm</option>
+                  <option value="7:00pm">&nbsp;&nbsp;7:00pm</option>
+                  <option value="7:15pm">&nbsp;&nbsp;7:15pm</option>
+                  <option value="7:30pm">&nbsp;&nbsp;7:30pm</option>
+                  <option value="7:45pm">&nbsp;&nbsp;7:45pm</option>
+                  <option value="8:00pm">&nbsp;&nbsp;8:00pm</option>
+                  <option value="8:15pm">&nbsp;&nbsp;8:15pm</option>
+                  <option value="8:30pm">&nbsp;&nbsp;8:30pm</option>
+                  <option value="8:45pm">&nbsp;&nbsp;8:45pm</option>
+                  <option value="9:00pm">&nbsp;&nbsp;9:00pm</option>
+                  <option value="9:15pm">&nbsp;&nbsp;9:15pm</option>
+                  <option value="9:30pm">&nbsp;&nbsp;9:30pm</option>
+                  <option value="9:45pm">&nbsp;&nbsp;9:45pm</option>
+                  <option value="10:00pm">10:00pm</option>
+                  <option value="10:15pm">10:15pm</option>
+                  <option value="10:30pm">10:30pm</option>
+                  <option value="10:45pm">10:45pm</option>
+                  <option value="11:00pm">11:00pm</option>
+                  <option value="11:15pm">11:15pm</option>
+                  <option value="11:30pm">11:30pm</option>
+                  <option value="11:45pm">11:45pm</option>
+                </select>
+                <span>to</span>
+                <select class="gc-text" id="gc-ring-to-wd0">
+                  <option value="12:15am">12:15am</option>
+                  <option value="12:30am">12:30am</option>
+                  <option value="12:45am">12:45am</option>
+                  
+                  <option value="1:00am">&nbsp;&nbsp;1:00am</option>
+                  <option value="1:15am">&nbsp;&nbsp;1:15am</option>
+                  <option value="1:30am">&nbsp;&nbsp;1:30am</option>
+                  <option value="1:45am">&nbsp;&nbsp;1:45am</option>
+                  <option value="2:00am">&nbsp;&nbsp;2:00am</option>
+                  <option value="2:15am">&nbsp;&nbsp;2:15am</option>
+                  <option value="2:30am">&nbsp;&nbsp;2:30am</option>
+                  <option value="2:45am">&nbsp;&nbsp;2:45am</option>
+                  <option value="3:00am">&nbsp;&nbsp;3:00am</option>
+                  <option value="3:15am">&nbsp;&nbsp;3:15am</option>
+                  <option value="3:30am">&nbsp;&nbsp;3:30am</option>
+                  <option value="3:45am">&nbsp;&nbsp;3:45am</option>
+                  <option value="4:00am">&nbsp;&nbsp;4:00am</option>
+                  <option value="4:15am">&nbsp;&nbsp;4:15am</option>
+                  <option value="4:30am">&nbsp;&nbsp;4:30am</option>
+                  <option value="4:45am">&nbsp;&nbsp;4:45am</option>
+                  <option value="5:00am">&nbsp;&nbsp;5:00am</option>
+                  <option value="5:15am">&nbsp;&nbsp;5:15am</option>
+                  <option value="5:30am">&nbsp;&nbsp;5:30am</option>
+                  <option value="5:45am">&nbsp;&nbsp;5:45am</option>
+                  <option value="6:00am">&nbsp;&nbsp;6:00am</option>
+                  <option value="6:15am">&nbsp;&nbsp;6:15am</option>
+                  <option value="6:30am">&nbsp;&nbsp;6:30am</option>
+                  <option value="6:45am">&nbsp;&nbsp;6:45am</option>
+                  <option value="7:00am">&nbsp;&nbsp;7:00am</option>
+                  <option value="7:15am">&nbsp;&nbsp;7:15am</option>
+                  <option value="7:30am">&nbsp;&nbsp;7:30am</option>
+                  <option value="7:45am">&nbsp;&nbsp;7:45am</option>
+                  <option value="8:00am">&nbsp;&nbsp;8:00am</option>
+                  <option value="8:15am">&nbsp;&nbsp;8:15am</option>
+                  <option value="8:30am">&nbsp;&nbsp;8:30am</option>
+                  <option value="8:45am">&nbsp;&nbsp;8:45am</option>
+                  <option value="9:00am">&nbsp;&nbsp;9:00am</option>
+                  <option value="9:15am">&nbsp;&nbsp;9:15am</option>
+                  <option value="9:30am">&nbsp;&nbsp;9:30am</option>
+                  <option value="9:45am">&nbsp;&nbsp;9:45am</option>
+                  <option value="10:00am">10:00am</option>
+                  <option value="10:15am">10:15am</option>
+                  <option value="10:30am">10:30am</option>
+                  <option value="10:45am">10:45am</option>
+                  <option value="11:00am">11:00am</option>
+                  <option value="11:15am">11:15am</option>
+                  <option value="11:30am">11:30am</option>
+                  <option value="11:45am">11:45am</option>
+                  <option value="12:00pm">12:00pm</option>
+                  <option value="12:15pm">12:15pm</option>
+                  <option value="12:30pm">12:30pm</option>
+                  <option value="12:45pm">12:45pm</option>
+                  
+                  <option value="1:00pm">&nbsp;&nbsp;1:00pm</option>
+                  <option value="1:15pm">&nbsp;&nbsp;1:15pm</option>
+                  <option value="1:30pm">&nbsp;&nbsp;1:30pm</option>
+                  <option value="1:45pm">&nbsp;&nbsp;1:45pm</option>
+                  <option value="2:00pm">&nbsp;&nbsp;2:00pm</option>
+                  <option value="2:15pm">&nbsp;&nbsp;2:15pm</option>
+                  <option value="2:30pm">&nbsp;&nbsp;2:30pm</option>
+                  <option value="2:45pm">&nbsp;&nbsp;2:45pm</option>
+                  <option value="3:00pm">&nbsp;&nbsp;3:00pm</option>
+                  <option value="3:15pm">&nbsp;&nbsp;3:15pm</option>
+                  <option value="3:30pm">&nbsp;&nbsp;3:30pm</option>
+                  <option value="3:45pm">&nbsp;&nbsp;3:45pm</option>
+                  <option value="4:00pm">&nbsp;&nbsp;4:00pm</option>
+                  <option value="4:15pm">&nbsp;&nbsp;4:15pm</option>
+                  <option value="4:30pm">&nbsp;&nbsp;4:30pm</option>
+                  <option value="4:45pm">&nbsp;&nbsp;4:45pm</option>
+                  <option value="5:00pm">&nbsp;&nbsp;5:00pm</option>
+                  <option value="5:15pm">&nbsp;&nbsp;5:15pm</option>
+                  <option value="5:30pm">&nbsp;&nbsp;5:30pm</option>
+                  <option value="5:45pm">&nbsp;&nbsp;5:45pm</option>
+                  <option value="6:00pm">&nbsp;&nbsp;6:00pm</option>
+                  <option value="6:15pm">&nbsp;&nbsp;6:15pm</option>
+                  <option value="6:30pm">&nbsp;&nbsp;6:30pm</option>
+                  <option value="6:45pm">&nbsp;&nbsp;6:45pm</option>
+                  <option value="7:00pm">&nbsp;&nbsp;7:00pm</option>
+                  <option value="7:15pm">&nbsp;&nbsp;7:15pm</option>
+                  <option value="7:30pm">&nbsp;&nbsp;7:30pm</option>
+                  <option value="7:45pm">&nbsp;&nbsp;7:45pm</option>
+                  <option value="8:00pm">&nbsp;&nbsp;8:00pm</option>
+                  <option value="8:15pm">&nbsp;&nbsp;8:15pm</option>
+                  <option value="8:30pm">&nbsp;&nbsp;8:30pm</option>
+                  <option value="8:45pm">&nbsp;&nbsp;8:45pm</option>
+                  <option value="9:00pm">&nbsp;&nbsp;9:00pm</option>
+                  <option value="9:15pm">&nbsp;&nbsp;9:15pm</option>
+                  <option value="9:30pm">&nbsp;&nbsp;9:30pm</option>
+                  <option value="9:45pm">&nbsp;&nbsp;9:45pm</option>
+                  <option value="10:00pm">10:00pm</option>
+                  <option value="10:15pm">10:15pm</option>
+                  <option value="10:30pm">10:30pm</option>
+                  <option value="10:45pm">10:45pm</option>
+                  <option value="11:00pm">11:00pm</option>
+                  <option value="11:15pm">11:15pm</option>
+                  <option value="11:30pm">11:30pm</option>
+                  <option value="11:45pm">11:45pm</option>
+                  <option value="12:00am">Midnight</option>
+                </select>
+                <a id="gc-ring-remove-wd0" href="javascript://">Remove</a>
+              </div>
+              
+              <div id="gc-ring-wd1" class="gc-ring-range-wd" style="display: ;">
+                Do <b>not</b> ring phone from
+                <select class="gc-text" id="gc-ring-from-wd1">
+                  <option value="12:00am">Midnight</option>
+                  <option value="12:15am">12:15am</option>
+                  <option value="12:30am">12:30am</option>
+                  <option value="12:45am">12:45am</option>
+                  
+                  <option value="1:00am">&nbsp;&nbsp;1:00am</option>
+                  <option value="1:15am">&nbsp;&nbsp;1:15am</option>
+                  <option value="1:30am">&nbsp;&nbsp;1:30am</option>
+                  <option value="1:45am">&nbsp;&nbsp;1:45am</option>
+                  <option value="2:00am">&nbsp;&nbsp;2:00am</option>
+                  <option value="2:15am">&nbsp;&nbsp;2:15am</option>
+                  <option value="2:30am">&nbsp;&nbsp;2:30am</option>
+                  <option value="2:45am">&nbsp;&nbsp;2:45am</option>
+                  <option value="3:00am">&nbsp;&nbsp;3:00am</option>
+                  <option value="3:15am">&nbsp;&nbsp;3:15am</option>
+                  <option value="3:30am">&nbsp;&nbsp;3:30am</option>
+                  <option value="3:45am">&nbsp;&nbsp;3:45am</option>
+                  <option value="4:00am">&nbsp;&nbsp;4:00am</option>
+                  <option value="4:15am">&nbsp;&nbsp;4:15am</option>
+                  <option value="4:30am">&nbsp;&nbsp;4:30am</option>
+                  <option value="4:45am">&nbsp;&nbsp;4:45am</option>
+                  <option value="5:00am">&nbsp;&nbsp;5:00am</option>
+                  <option value="5:15am">&nbsp;&nbsp;5:15am</option>
+                  <option value="5:30am">&nbsp;&nbsp;5:30am</option>
+                  <option value="5:45am">&nbsp;&nbsp;5:45am</option>
+                  <option value="6:00am">&nbsp;&nbsp;6:00am</option>
+                  <option value="6:15am">&nbsp;&nbsp;6:15am</option>
+                  <option value="6:30am">&nbsp;&nbsp;6:30am</option>
+                  <option value="6:45am">&nbsp;&nbsp;6:45am</option>
+                  <option value="7:00am">&nbsp;&nbsp;7:00am</option>
+                  <option value="7:15am">&nbsp;&nbsp;7:15am</option>
+                  <option value="7:30am">&nbsp;&nbsp;7:30am</option>
+                  <option value="7:45am">&nbsp;&nbsp;7:45am</option>
+                  <option value="8:00am">&nbsp;&nbsp;8:00am</option>
+                  <option value="8:15am">&nbsp;&nbsp;8:15am</option>
+                  <option value="8:30am">&nbsp;&nbsp;8:30am</option>
+                  <option value="8:45am">&nbsp;&nbsp;8:45am</option>
+                  <option value="9:00am">&nbsp;&nbsp;9:00am</option>
+                  <option value="9:15am">&nbsp;&nbsp;9:15am</option>
+                  <option value="9:30am">&nbsp;&nbsp;9:30am</option>
+                  <option value="9:45am">&nbsp;&nbsp;9:45am</option>
+                  <option value="10:00am">10:00am</option>
+                  <option value="10:15am">10:15am</option>
+                  <option value="10:30am">10:30am</option>
+                  <option value="10:45am">10:45am</option>
+                  <option value="11:00am">11:00am</option>
+                  <option value="11:15am">11:15am</option>
+                  <option value="11:30am">11:30am</option>
+                  <option value="11:45am">11:45am</option>
+                  <option value="12:00pm">12:00pm</option>
+                  <option value="12:15pm">12:15pm</option>
+                  <option value="12:30pm">12:30pm</option>
+                  <option value="12:45pm">12:45pm</option>
+                  
+                  <option value="1:00pm">&nbsp;&nbsp;1:00pm</option>
+                  <option value="1:15pm">&nbsp;&nbsp;1:15pm</option>
+                  <option value="1:30pm">&nbsp;&nbsp;1:30pm</option>
+                  <option value="1:45pm">&nbsp;&nbsp;1:45pm</option>
+                  <option value="2:00pm">&nbsp;&nbsp;2:00pm</option>
+                  <option value="2:15pm">&nbsp;&nbsp;2:15pm</option>
+                  <option value="2:30pm">&nbsp;&nbsp;2:30pm</option>
+                  <option value="2:45pm">&nbsp;&nbsp;2:45pm</option>
+                  <option value="3:00pm">&nbsp;&nbsp;3:00pm</option>
+                  <option value="3:15pm">&nbsp;&nbsp;3:15pm</option>
+                  <option value="3:30pm">&nbsp;&nbsp;3:30pm</option>
+                  <option value="3:45pm">&nbsp;&nbsp;3:45pm</option>
+                  <option value="4:00pm">&nbsp;&nbsp;4:00pm</option>
+                  <option value="4:15pm">&nbsp;&nbsp;4:15pm</option>
+                  <option value="4:30pm">&nbsp;&nbsp;4:30pm</option>
+                  <option value="4:45pm">&nbsp;&nbsp;4:45pm</option>
+                  <option value="5:00pm">&nbsp;&nbsp;5:00pm</option>
+                  <option value="5:15pm">&nbsp;&nbsp;5:15pm</option>
+                  <option value="5:30pm">&nbsp;&nbsp;5:30pm</option>
+                  <option value="5:45pm">&nbsp;&nbsp;5:45pm</option>
+                  <option value="6:00pm">&nbsp;&nbsp;6:00pm</option>
+                  <option value="6:15pm">&nbsp;&nbsp;6:15pm</option>
+                  <option value="6:30pm">&nbsp;&nbsp;6:30pm</option>
+                  <option value="6:45pm">&nbsp;&nbsp;6:45pm</option>
+                  <option value="7:00pm">&nbsp;&nbsp;7:00pm</option>
+                  <option value="7:15pm">&nbsp;&nbsp;7:15pm</option>
+                  <option value="7:30pm">&nbsp;&nbsp;7:30pm</option>
+                  <option value="7:45pm">&nbsp;&nbsp;7:45pm</option>
+                  <option value="8:00pm">&nbsp;&nbsp;8:00pm</option>
+                  <option value="8:15pm">&nbsp;&nbsp;8:15pm</option>
+                  <option value="8:30pm">&nbsp;&nbsp;8:30pm</option>
+                  <option value="8:45pm">&nbsp;&nbsp;8:45pm</option>
+                  <option value="9:00pm">&nbsp;&nbsp;9:00pm</option>
+                  <option value="9:15pm">&nbsp;&nbsp;9:15pm</option>
+                  <option value="9:30pm">&nbsp;&nbsp;9:30pm</option>
+                  <option value="9:45pm">&nbsp;&nbsp;9:45pm</option>
+                  <option value="10:00pm">10:00pm</option>
+                  <option value="10:15pm">10:15pm</option>
+                  <option value="10:30pm">10:30pm</option>
+                  <option value="10:45pm">10:45pm</option>
+                  <option value="11:00pm">11:00pm</option>
+                  <option value="11:15pm">11:15pm</option>
+                  <option value="11:30pm">11:30pm</option>
+                  <option value="11:45pm">11:45pm</option>
+                </select>
+                <span>to</span>
+                <select class="gc-text" id="gc-ring-to-wd1">
+                  <option value="12:15am">12:15am</option>
+                  <option value="12:30am">12:30am</option>
+                  <option value="12:45am">12:45am</option>
+                  
+                  <option value="1:00am">&nbsp;&nbsp;1:00am</option>
+                  <option value="1:15am">&nbsp;&nbsp;1:15am</option>
+                  <option value="1:30am">&nbsp;&nbsp;1:30am</option>
+                  <option value="1:45am">&nbsp;&nbsp;1:45am</option>
+                  <option value="2:00am">&nbsp;&nbsp;2:00am</option>
+                  <option value="2:15am">&nbsp;&nbsp;2:15am</option>
+                  <option value="2:30am">&nbsp;&nbsp;2:30am</option>
+                  <option value="2:45am">&nbsp;&nbsp;2:45am</option>
+                  <option value="3:00am">&nbsp;&nbsp;3:00am</option>
+                  <option value="3:15am">&nbsp;&nbsp;3:15am</option>
+                  <option value="3:30am">&nbsp;&nbsp;3:30am</option>
+                  <option value="3:45am">&nbsp;&nbsp;3:45am</option>
+                  <option value="4:00am">&nbsp;&nbsp;4:00am</option>
+                  <option value="4:15am">&nbsp;&nbsp;4:15am</option>
+                  <option value="4:30am">&nbsp;&nbsp;4:30am</option>
+                  <option value="4:45am">&nbsp;&nbsp;4:45am</option>
+                  <option value="5:00am">&nbsp;&nbsp;5:00am</option>
+                  <option value="5:15am">&nbsp;&nbsp;5:15am</option>
+                  <option value="5:30am">&nbsp;&nbsp;5:30am</option>
+                  <option value="5:45am">&nbsp;&nbsp;5:45am</option>
+                  <option value="6:00am">&nbsp;&nbsp;6:00am</option>
+                  <option value="6:15am">&nbsp;&nbsp;6:15am</option>
+                  <option value="6:30am">&nbsp;&nbsp;6:30am</option>
+                  <option value="6:45am">&nbsp;&nbsp;6:45am</option>
+                  <option value="7:00am">&nbsp;&nbsp;7:00am</option>
+                  <option value="7:15am">&nbsp;&nbsp;7:15am</option>
+                  <option value="7:30am">&nbsp;&nbsp;7:30am</option>
+                  <option value="7:45am">&nbsp;&nbsp;7:45am</option>
+                  <option value="8:00am">&nbsp;&nbsp;8:00am</option>
+                  <option value="8:15am">&nbsp;&nbsp;8:15am</option>
+                  <option value="8:30am">&nbsp;&nbsp;8:30am</option>
+                  <option value="8:45am">&nbsp;&nbsp;8:45am</option>
+                  <option value="9:00am">&nbsp;&nbsp;9:00am</option>
+                  <option value="9:15am">&nbsp;&nbsp;9:15am</option>
+                  <option value="9:30am">&nbsp;&nbsp;9:30am</option>
+                  <option value="9:45am">&nbsp;&nbsp;9:45am</option>
+                  <option value="10:00am">10:00am</option>
+                  <option value="10:15am">10:15am</option>
+                  <option value="10:30am">10:30am</option>
+                  <option value="10:45am">10:45am</option>
+                  <option value="11:00am">11:00am</option>
+                  <option value="11:15am">11:15am</option>
+                  <option value="11:30am">11:30am</option>
+                  <option value="11:45am">11:45am</option>
+                  <option value="12:00pm">12:00pm</option>
+                  <option value="12:15pm">12:15pm</option>
+                  <option value="12:30pm">12:30pm</option>
+                  <option value="12:45pm">12:45pm</option>
+                  
+                  <option value="1:00pm">&nbsp;&nbsp;1:00pm</option>
+                  <option value="1:15pm">&nbsp;&nbsp;1:15pm</option>
+                  <option value="1:30pm">&nbsp;&nbsp;1:30pm</option>
+                  <option value="1:45pm">&nbsp;&nbsp;1:45pm</option>
+                  <option value="2:00pm">&nbsp;&nbsp;2:00pm</option>
+                  <option value="2:15pm">&nbsp;&nbsp;2:15pm</option>
+                  <option value="2:30pm">&nbsp;&nbsp;2:30pm</option>
+                  <option value="2:45pm">&nbsp;&nbsp;2:45pm</option>
+                  <option value="3:00pm">&nbsp;&nbsp;3:00pm</option>
+                  <option value="3:15pm">&nbsp;&nbsp;3:15pm</option>
+                  <option value="3:30pm">&nbsp;&nbsp;3:30pm</option>
+                  <option value="3:45pm">&nbsp;&nbsp;3:45pm</option>
+                  <option value="4:00pm">&nbsp;&nbsp;4:00pm</option>
+                  <option value="4:15pm">&nbsp;&nbsp;4:15pm</option>
+                  <option value="4:30pm">&nbsp;&nbsp;4:30pm</option>
+                  <option value="4:45pm">&nbsp;&nbsp;4:45pm</option>
+                  <option value="5:00pm">&nbsp;&nbsp;5:00pm</option>
+                  <option value="5:15pm">&nbsp;&nbsp;5:15pm</option>
+                  <option value="5:30pm">&nbsp;&nbsp;5:30pm</option>
+                  <option value="5:45pm">&nbsp;&nbsp;5:45pm</option>
+                  <option value="6:00pm">&nbsp;&nbsp;6:00pm</option>
+                  <option value="6:15pm">&nbsp;&nbsp;6:15pm</option>
+                  <option value="6:30pm">&nbsp;&nbsp;6:30pm</option>
+                  <option value="6:45pm">&nbsp;&nbsp;6:45pm</option>
+                  <option value="7:00pm">&nbsp;&nbsp;7:00pm</option>
+                  <option value="7:15pm">&nbsp;&nbsp;7:15pm</option>
+                  <option value="7:30pm">&nbsp;&nbsp;7:30pm</option>
+                  <option value="7:45pm">&nbsp;&nbsp;7:45pm</option>
+                  <option value="8:00pm">&nbsp;&nbsp;8:00pm</option>
+                  <option value="8:15pm">&nbsp;&nbsp;8:15pm</option>
+                  <option value="8:30pm">&nbsp;&nbsp;8:30pm</option>
+                  <option value="8:45pm">&nbsp;&nbsp;8:45pm</option>
+                  <option value="9:00pm">&nbsp;&nbsp;9:00pm</option>
+                  <option value="9:15pm">&nbsp;&nbsp;9:15pm</option>
+                  <option value="9:30pm">&nbsp;&nbsp;9:30pm</option>
+                  <option value="9:45pm">&nbsp;&nbsp;9:45pm</option>
+                  <option value="10:00pm">10:00pm</option>
+                  <option value="10:15pm">10:15pm</option>
+                  <option value="10:30pm">10:30pm</option>
+                  <option value="10:45pm">10:45pm</option>
+                  <option value="11:00pm">11:00pm</option>
+                  <option value="11:15pm">11:15pm</option>
+                  <option value="11:30pm">11:30pm</option>
+                  <option value="11:45pm">11:45pm</option>
+                  <option value="12:00am">Midnight</option>
+                </select>
+                <a id="gc-ring-remove-wd1" href="javascript://">Remove</a>
+              </div>
+              
+              <div id="gc-ring-wd2" class="gc-ring-range-wd" style="display: ;">
+                Do <b>not</b> ring phone from
+                <select class="gc-text" id="gc-ring-from-wd2">
+                  <option value="12:00am">Midnight</option>
+                  <option value="12:15am">12:15am</option>
+                  <option value="12:30am">12:30am</option>
+                  <option value="12:45am">12:45am</option>
+                  
+                  <option value="1:00am">&nbsp;&nbsp;1:00am</option>
+                  <option value="1:15am">&nbsp;&nbsp;1:15am</option>
+                  <option value="1:30am">&nbsp;&nbsp;1:30am</option>
+                  <option value="1:45am">&nbsp;&nbsp;1:45am</option>
+                  <option value="2:00am">&nbsp;&nbsp;2:00am</option>
+                  <option value="2:15am">&nbsp;&nbsp;2:15am</option>
+                  <option value="2:30am">&nbsp;&nbsp;2:30am</option>
+                  <option value="2:45am">&nbsp;&nbsp;2:45am</option>
+                  <option value="3:00am">&nbsp;&nbsp;3:00am</option>
+                  <option value="3:15am">&nbsp;&nbsp;3:15am</option>
+                  <option value="3:30am">&nbsp;&nbsp;3:30am</option>
+                  <option value="3:45am">&nbsp;&nbsp;3:45am</option>
+                  <option value="4:00am">&nbsp;&nbsp;4:00am</option>
+                  <option value="4:15am">&nbsp;&nbsp;4:15am</option>
+                  <option value="4:30am">&nbsp;&nbsp;4:30am</option>
+                  <option value="4:45am">&nbsp;&nbsp;4:45am</option>
+                  <option value="5:00am">&nbsp;&nbsp;5:00am</option>
+                  <option value="5:15am">&nbsp;&nbsp;5:15am</option>
+                  <option value="5:30am">&nbsp;&nbsp;5:30am</option>
+                  <option value="5:45am">&nbsp;&nbsp;5:45am</option>
+                  <option value="6:00am">&nbsp;&nbsp;6:00am</option>
+                  <option value="6:15am">&nbsp;&nbsp;6:15am</option>
+                  <option value="6:30am">&nbsp;&nbsp;6:30am</option>
+                  <option value="6:45am">&nbsp;&nbsp;6:45am</option>
+                  <option value="7:00am">&nbsp;&nbsp;7:00am</option>
+                  <option value="7:15am">&nbsp;&nbsp;7:15am</option>
+                  <option value="7:30am">&nbsp;&nbsp;7:30am</option>
+                  <option value="7:45am">&nbsp;&nbsp;7:45am</option>
+                  <option value="8:00am">&nbsp;&nbsp;8:00am</option>
+                  <option value="8:15am">&nbsp;&nbsp;8:15am</option>
+                  <option value="8:30am">&nbsp;&nbsp;8:30am</option>
+                  <option value="8:45am">&nbsp;&nbsp;8:45am</option>
+                  <option value="9:00am">&nbsp;&nbsp;9:00am</option>
+                  <option value="9:15am">&nbsp;&nbsp;9:15am</option>
+                  <option value="9:30am">&nbsp;&nbsp;9:30am</option>
+                  <option value="9:45am">&nbsp;&nbsp;9:45am</option>
+                  <option value="10:00am">10:00am</option>
+                  <option value="10:15am">10:15am</option>
+                  <option value="10:30am">10:30am</option>
+                  <option value="10:45am">10:45am</option>
+                  <option value="11:00am">11:00am</option>
+                  <option value="11:15am">11:15am</option>
+                  <option value="11:30am">11:30am</option>
+                  <option value="11:45am">11:45am</option>
+                  <option value="12:00pm">12:00pm</option>
+                  <option value="12:15pm">12:15pm</option>
+                  <option value="12:30pm">12:30pm</option>
+                  <option value="12:45pm">12:45pm</option>
+                  
+                  <option value="1:00pm">&nbsp;&nbsp;1:00pm</option>
+                  <option value="1:15pm">&nbsp;&nbsp;1:15pm</option>
+                  <option value="1:30pm">&nbsp;&nbsp;1:30pm</option>
+                  <option value="1:45pm">&nbsp;&nbsp;1:45pm</option>
+                  <option value="2:00pm">&nbsp;&nbsp;2:00pm</option>
+                  <option value="2:15pm">&nbsp;&nbsp;2:15pm</option>
+                  <option value="2:30pm">&nbsp;&nbsp;2:30pm</option>
+                  <option value="2:45pm">&nbsp;&nbsp;2:45pm</option>
+                  <option value="3:00pm">&nbsp;&nbsp;3:00pm</option>
+                  <option value="3:15pm">&nbsp;&nbsp;3:15pm</option>
+                  <option value="3:30pm">&nbsp;&nbsp;3:30pm</option>
+                  <option value="3:45pm">&nbsp;&nbsp;3:45pm</option>
+                  <option value="4:00pm">&nbsp;&nbsp;4:00pm</option>
+                  <option value="4:15pm">&nbsp;&nbsp;4:15pm</option>
+                  <option value="4:30pm">&nbsp;&nbsp;4:30pm</option>
+                  <option value="4:45pm">&nbsp;&nbsp;4:45pm</option>
+                  <option value="5:00pm">&nbsp;&nbsp;5:00pm</option>
+                  <option value="5:15pm">&nbsp;&nbsp;5:15pm</option>
+                  <option value="5:30pm">&nbsp;&nbsp;5:30pm</option>
+                  <option value="5:45pm">&nbsp;&nbsp;5:45pm</option>
+                  <option value="6:00pm">&nbsp;&nbsp;6:00pm</option>
+                  <option value="6:15pm">&nbsp;&nbsp;6:15pm</option>
+                  <option value="6:30pm">&nbsp;&nbsp;6:30pm</option>
+                  <option value="6:45pm">&nbsp;&nbsp;6:45pm</option>
+                  <option value="7:00pm">&nbsp;&nbsp;7:00pm</option>
+                  <option value="7:15pm">&nbsp;&nbsp;7:15pm</option>
+                  <option value="7:30pm">&nbsp;&nbsp;7:30pm</option>
+                  <option value="7:45pm">&nbsp;&nbsp;7:45pm</option>
+                  <option value="8:00pm">&nbsp;&nbsp;8:00pm</option>
+                  <option value="8:15pm">&nbsp;&nbsp;8:15pm</option>
+                  <option value="8:30pm">&nbsp;&nbsp;8:30pm</option>
+                  <option value="8:45pm">&nbsp;&nbsp;8:45pm</option>
+                  <option value="9:00pm">&nbsp;&nbsp;9:00pm</option>
+                  <option value="9:15pm">&nbsp;&nbsp;9:15pm</option>
+                  <option value="9:30pm">&nbsp;&nbsp;9:30pm</option>
+                  <option value="9:45pm">&nbsp;&nbsp;9:45pm</option>
+                  <option value="10:00pm">10:00pm</option>
+                  <option value="10:15pm">10:15pm</option>
+                  <option value="10:30pm">10:30pm</option>
+                  <option value="10:45pm">10:45pm</option>
+                  <option value="11:00pm">11:00pm</option>
+                  <option value="11:15pm">11:15pm</option>
+                  <option value="11:30pm">11:30pm</option>
+                  <option value="11:45pm">11:45pm</option>
+                </select>
+                <span>to</span>
+                <select class="gc-text" id="gc-ring-to-wd2">
+                  <option value="12:15am">12:15am</option>
+                  <option value="12:30am">12:30am</option>
+                  <option value="12:45am">12:45am</option>
+                  
+                  <option value="1:00am">&nbsp;&nbsp;1:00am</option>
+                  <option value="1:15am">&nbsp;&nbsp;1:15am</option>
+                  <option value="1:30am">&nbsp;&nbsp;1:30am</option>
+                  <option value="1:45am">&nbsp;&nbsp;1:45am</option>
+                  <option value="2:00am">&nbsp;&nbsp;2:00am</option>
+                  <option value="2:15am">&nbsp;&nbsp;2:15am</option>
+                  <option value="2:30am">&nbsp;&nbsp;2:30am</option>
+                  <option value="2:45am">&nbsp;&nbsp;2:45am</option>
+                  <option value="3:00am">&nbsp;&nbsp;3:00am</option>
+                  <option value="3:15am">&nbsp;&nbsp;3:15am</option>
+                  <option value="3:30am">&nbsp;&nbsp;3:30am</option>
+                  <option value="3:45am">&nbsp;&nbsp;3:45am</option>
+                  <option value="4:00am">&nbsp;&nbsp;4:00am</option>
+                  <option value="4:15am">&nbsp;&nbsp;4:15am</option>
+                  <option value="4:30am">&nbsp;&nbsp;4:30am</option>
+                  <option value="4:45am">&nbsp;&nbsp;4:45am</option>
+                  <option value="5:00am">&nbsp;&nbsp;5:00am</option>
+                  <option value="5:15am">&nbsp;&nbsp;5:15am</option>
+                  <option value="5:30am">&nbsp;&nbsp;5:30am</option>
+                  <option value="5:45am">&nbsp;&nbsp;5:45am</option>
+                  <option value="6:00am">&nbsp;&nbsp;6:00am</option>
+                  <option value="6:15am">&nbsp;&nbsp;6:15am</option>
+                  <option value="6:30am">&nbsp;&nbsp;6:30am</option>
+                  <option value="6:45am">&nbsp;&nbsp;6:45am</option>
+                  <option value="7:00am">&nbsp;&nbsp;7:00am</option>
+                  <option value="7:15am">&nbsp;&nbsp;7:15am</option>
+                  <option value="7:30am">&nbsp;&nbsp;7:30am</option>
+                  <option value="7:45am">&nbsp;&nbsp;7:45am</option>
+                  <option value="8:00am">&nbsp;&nbsp;8:00am</option>
+                  <option value="8:15am">&nbsp;&nbsp;8:15am</option>
+                  <option value="8:30am">&nbsp;&nbsp;8:30am</option>
+                  <option value="8:45am">&nbsp;&nbsp;8:45am</option>
+                  <option value="9:00am">&nbsp;&nbsp;9:00am</option>
+                  <option value="9:15am">&nbsp;&nbsp;9:15am</option>
+                  <option value="9:30am">&nbsp;&nbsp;9:30am</option>
+                  <option value="9:45am">&nbsp;&nbsp;9:45am</option>
+                  <option value="10:00am">10:00am</option>
+                  <option value="10:15am">10:15am</option>
+                  <option value="10:30am">10:30am</option>
+                  <option value="10:45am">10:45am</option>
+                  <option value="11:00am">11:00am</option>
+                  <option value="11:15am">11:15am</option>
+                  <option value="11:30am">11:30am</option>
+                  <option value="11:45am">11:45am</option>
+                  <option value="12:00pm">12:00pm</option>
+                  <option value="12:15pm">12:15pm</option>
+                  <option value="12:30pm">12:30pm</option>
+                  <option value="12:45pm">12:45pm</option>
+                  
+                  <option value="1:00pm">&nbsp;&nbsp;1:00pm</option>
+                  <option value="1:15pm">&nbsp;&nbsp;1:15pm</option>
+                  <option value="1:30pm">&nbsp;&nbsp;1:30pm</option>
+                  <option value="1:45pm">&nbsp;&nbsp;1:45pm</option>
+                  <option value="2:00pm">&nbsp;&nbsp;2:00pm</option>
+                  <option value="2:15pm">&nbsp;&nbsp;2:15pm</option>
+                  <option value="2:30pm">&nbsp;&nbsp;2:30pm</option>
+                  <option value="2:45pm">&nbsp;&nbsp;2:45pm</option>
+                  <option value="3:00pm">&nbsp;&nbsp;3:00pm</option>
+                  <option value="3:15pm">&nbsp;&nbsp;3:15pm</option>
+                  <option value="3:30pm">&nbsp;&nbsp;3:30pm</option>
+                  <option value="3:45pm">&nbsp;&nbsp;3:45pm</option>
+                  <option value="4:00pm">&nbsp;&nbsp;4:00pm</option>
+                  <option value="4:15pm">&nbsp;&nbsp;4:15pm</option>
+                  <option value="4:30pm">&nbsp;&nbsp;4:30pm</option>
+                  <option value="4:45pm">&nbsp;&nbsp;4:45pm</option>
+                  <option value="5:00pm">&nbsp;&nbsp;5:00pm</option>
+                  <option value="5:15pm">&nbsp;&nbsp;5:15pm</option>
+                  <option value="5:30pm">&nbsp;&nbsp;5:30pm</option>
+                  <option value="5:45pm">&nbsp;&nbsp;5:45pm</option>
+                  <option value="6:00pm">&nbsp;&nbsp;6:00pm</option>
+                  <option value="6:15pm">&nbsp;&nbsp;6:15pm</option>
+                  <option value="6:30pm">&nbsp;&nbsp;6:30pm</option>
+                  <option value="6:45pm">&nbsp;&nbsp;6:45pm</option>
+                  <option value="7:00pm">&nbsp;&nbsp;7:00pm</option>
+                  <option value="7:15pm">&nbsp;&nbsp;7:15pm</option>
+                  <option value="7:30pm">&nbsp;&nbsp;7:30pm</option>
+                  <option value="7:45pm">&nbsp;&nbsp;7:45pm</option>
+                  <option value="8:00pm">&nbsp;&nbsp;8:00pm</option>
+                  <option value="8:15pm">&nbsp;&nbsp;8:15pm</option>
+                  <option value="8:30pm">&nbsp;&nbsp;8:30pm</option>
+                  <option value="8:45pm">&nbsp;&nbsp;8:45pm</option>
+                  <option value="9:00pm">&nbsp;&nbsp;9:00pm</option>
+                  <option value="9:15pm">&nbsp;&nbsp;9:15pm</option>
+                  <option value="9:30pm">&nbsp;&nbsp;9:30pm</option>
+                  <option value="9:45pm">&nbsp;&nbsp;9:45pm</option>
+                  <option value="10:00pm">10:00pm</option>
+                  <option value="10:15pm">10:15pm</option>
+                  <option value="10:30pm">10:30pm</option>
+                  <option value="10:45pm">10:45pm</option>
+                  <option value="11:00pm">11:00pm</option>
+                  <option value="11:15pm">11:15pm</option>
+                  <option value="11:30pm">11:30pm</option>
+                  <option value="11:45pm">11:45pm</option>
+                  <option value="12:00am">Midnight</option>
+                </select>
+                <a id="gc-ring-remove-wd2" href="javascript://">Remove</a>
+              </div>
+              
+              <div><a id="gc-ring-add-wd" href="javascript://">Add time range</a></div>
+            </div>
+            <div style="padding-top: 6px;">
+              <span class="gc-schedule-title">Weekends</span>
+            </div>
+            <div>
+              <input type="radio" name="gc-ring-we" id="gc-ring-we-ar" value="0"/>
+              <label for="gc-ring-we-ar">Always ring on weekends</label>
+            </div>
+            <div>
+              <input type="radio" name="gc-ring-we" id="gc-ring-we-nr" value="1"/>
+              <label for="gc-ring-we-nr">Never ring on weekends</label>
+            </div>
+            <div>
+              <input type="radio" name="gc-ring-we" id="gc-ring-we-cs" value="2"/>
+              <label for="gc-ring-we-cs">Use custom schedule</label>
+            </div>
+            <div class="gc-schedule-block" id="gc-phone-schedule-we">
+              
+              <div id="gc-ring-we0" class="gc-ring-range-we" style="display: none;">
+                Do <b>not</b> ring phone from
+                <select class="gc-text" id="gc-ring-from-we0">
+                  <option value="12:00am">Midnight</option>
+                  <option value="12:15am">12:15am</option>
+                  <option value="12:30am">12:30am</option>
+                  <option value="12:45am">12:45am</option>
+                  
+                  <option value="1:00am">&nbsp;&nbsp;1:00am</option>
+                  <option value="1:15am">&nbsp;&nbsp;1:15am</option>
+                  <option value="1:30am">&nbsp;&nbsp;1:30am</option>
+                  <option value="1:45am">&nbsp;&nbsp;1:45am</option>
+                  <option value="2:00am">&nbsp;&nbsp;2:00am</option>
+                  <option value="2:15am">&nbsp;&nbsp;2:15am</option>
+                  <option value="2:30am">&nbsp;&nbsp;2:30am</option>
+                  <option value="2:45am">&nbsp;&nbsp;2:45am</option>
+                  <option value="3:00am">&nbsp;&nbsp;3:00am</option>
+                  <option value="3:15am">&nbsp;&nbsp;3:15am</option>
+                  <option value="3:30am">&nbsp;&nbsp;3:30am</option>
+                  <option value="3:45am">&nbsp;&nbsp;3:45am</option>
+                  <option value="4:00am">&nbsp;&nbsp;4:00am</option>
+                  <option value="4:15am">&nbsp;&nbsp;4:15am</option>
+                  <option value="4:30am">&nbsp;&nbsp;4:30am</option>
+                  <option value="4:45am">&nbsp;&nbsp;4:45am</option>
+                  <option value="5:00am">&nbsp;&nbsp;5:00am</option>
+                  <option value="5:15am">&nbsp;&nbsp;5:15am</option>
+                  <option value="5:30am">&nbsp;&nbsp;5:30am</option>
+                  <option value="5:45am">&nbsp;&nbsp;5:45am</option>
+                  <option value="6:00am">&nbsp;&nbsp;6:00am</option>
+                  <option value="6:15am">&nbsp;&nbsp;6:15am</option>
+                  <option value="6:30am">&nbsp;&nbsp;6:30am</option>
+                  <option value="6:45am">&nbsp;&nbsp;6:45am</option>
+                  <option value="7:00am">&nbsp;&nbsp;7:00am</option>
+                  <option value="7:15am">&nbsp;&nbsp;7:15am</option>
+                  <option value="7:30am">&nbsp;&nbsp;7:30am</option>
+                  <option value="7:45am">&nbsp;&nbsp;7:45am</option>
+                  <option value="8:00am">&nbsp;&nbsp;8:00am</option>
+                  <option value="8:15am">&nbsp;&nbsp;8:15am</option>
+                  <option value="8:30am">&nbsp;&nbsp;8:30am</option>
+                  <option value="8:45am">&nbsp;&nbsp;8:45am</option>
+                  <option value="9:00am">&nbsp;&nbsp;9:00am</option>
+                  <option value="9:15am">&nbsp;&nbsp;9:15am</option>
+                  <option value="9:30am">&nbsp;&nbsp;9:30am</option>
+                  <option value="9:45am">&nbsp;&nbsp;9:45am</option>
+                  <option value="10:00am">10:00am</option>
+                  <option value="10:15am">10:15am</option>
+                  <option value="10:30am">10:30am</option>
+                  <option value="10:45am">10:45am</option>
+                  <option value="11:00am">11:00am</option>
+                  <option value="11:15am">11:15am</option>
+                  <option value="11:30am">11:30am</option>
+                  <option value="11:45am">11:45am</option>
+                  <option value="12:00pm">12:00pm</option>
+                  <option value="12:15pm">12:15pm</option>
+                  <option value="12:30pm">12:30pm</option>
+                  <option value="12:45pm">12:45pm</option>
+                  
+                  <option value="1:00pm">&nbsp;&nbsp;1:00pm</option>
+                  <option value="1:15pm">&nbsp;&nbsp;1:15pm</option>
+                  <option value="1:30pm">&nbsp;&nbsp;1:30pm</option>
+                  <option value="1:45pm">&nbsp;&nbsp;1:45pm</option>
+                  <option value="2:00pm">&nbsp;&nbsp;2:00pm</option>
+                  <option value="2:15pm">&nbsp;&nbsp;2:15pm</option>
+                  <option value="2:30pm">&nbsp;&nbsp;2:30pm</option>
+                  <option value="2:45pm">&nbsp;&nbsp;2:45pm</option>
+                  <option value="3:00pm">&nbsp;&nbsp;3:00pm</option>
+                  <option value="3:15pm">&nbsp;&nbsp;3:15pm</option>
+                  <option value="3:30pm">&nbsp;&nbsp;3:30pm</option>
+                  <option value="3:45pm">&nbsp;&nbsp;3:45pm</option>
+                  <option value="4:00pm">&nbsp;&nbsp;4:00pm</option>
+                  <option value="4:15pm">&nbsp;&nbsp;4:15pm</option>
+                  <option value="4:30pm">&nbsp;&nbsp;4:30pm</option>
+                  <option value="4:45pm">&nbsp;&nbsp;4:45pm</option>
+                  <option value="5:00pm">&nbsp;&nbsp;5:00pm</option>
+                  <option value="5:15pm">&nbsp;&nbsp;5:15pm</option>
+                  <option value="5:30pm">&nbsp;&nbsp;5:30pm</option>
+                  <option value="5:45pm">&nbsp;&nbsp;5:45pm</option>
+                  <option value="6:00pm">&nbsp;&nbsp;6:00pm</option>
+                  <option value="6:15pm">&nbsp;&nbsp;6:15pm</option>
+                  <option value="6:30pm">&nbsp;&nbsp;6:30pm</option>
+                  <option value="6:45pm">&nbsp;&nbsp;6:45pm</option>
+                  <option value="7:00pm">&nbsp;&nbsp;7:00pm</option>
+                  <option value="7:15pm">&nbsp;&nbsp;7:15pm</option>
+                  <option value="7:30pm">&nbsp;&nbsp;7:30pm</option>
+                  <option value="7:45pm">&nbsp;&nbsp;7:45pm</option>
+                  <option value="8:00pm">&nbsp;&nbsp;8:00pm</option>
+                  <option value="8:15pm">&nbsp;&nbsp;8:15pm</option>
+                  <option value="8:30pm">&nbsp;&nbsp;8:30pm</option>
+                  <option value="8:45pm">&nbsp;&nbsp;8:45pm</option>
+                  <option value="9:00pm">&nbsp;&nbsp;9:00pm</option>
+                  <option value="9:15pm">&nbsp;&nbsp;9:15pm</option>
+                  <option value="9:30pm">&nbsp;&nbsp;9:30pm</option>
+                  <option value="9:45pm">&nbsp;&nbsp;9:45pm</option>
+                  <option value="10:00pm">10:00pm</option>
+                  <option value="10:15pm">10:15pm</option>
+                  <option value="10:30pm">10:30pm</option>
+                  <option value="10:45pm">10:45pm</option>
+                  <option value="11:00pm">11:00pm</option>
+                  <option value="11:15pm">11:15pm</option>
+                  <option value="11:30pm">11:30pm</option>
+                  <option value="11:45pm">11:45pm</option>
+                </select>
+                <span>to</span>
+                <select class="gc-text" id="gc-ring-to-we0">
+                  <option value="12:15am">12:15am</option>
+                  <option value="12:30am">12:30am</option>
+                  <option value="12:45am">12:45am</option>
+                  
+                  <option value="1:00am">&nbsp;&nbsp;1:00am</option>
+                  <option value="1:15am">&nbsp;&nbsp;1:15am</option>
+                  <option value="1:30am">&nbsp;&nbsp;1:30am</option>
+                  <option value="1:45am">&nbsp;&nbsp;1:45am</option>
+                  <option value="2:00am">&nbsp;&nbsp;2:00am</option>
+                  <option value="2:15am">&nbsp;&nbsp;2:15am</option>
+                  <option value="2:30am">&nbsp;&nbsp;2:30am</option>
+                  <option value="2:45am">&nbsp;&nbsp;2:45am</option>
+                  <option value="3:00am">&nbsp;&nbsp;3:00am</option>
+                  <option value="3:15am">&nbsp;&nbsp;3:15am</option>
+                  <option value="3:30am">&nbsp;&nbsp;3:30am</option>
+                  <option value="3:45am">&nbsp;&nbsp;3:45am</option>
+                  <option value="4:00am">&nbsp;&nbsp;4:00am</option>
+                  <option value="4:15am">&nbsp;&nbsp;4:15am</option>
+                  <option value="4:30am">&nbsp;&nbsp;4:30am</option>
+                  <option value="4:45am">&nbsp;&nbsp;4:45am</option>
+                  <option value="5:00am">&nbsp;&nbsp;5:00am</option>
+                  <option value="5:15am">&nbsp;&nbsp;5:15am</option>
+                  <option value="5:30am">&nbsp;&nbsp;5:30am</option>
+                  <option value="5:45am">&nbsp;&nbsp;5:45am</option>
+                  <option value="6:00am">&nbsp;&nbsp;6:00am</option>
+                  <option value="6:15am">&nbsp;&nbsp;6:15am</option>
+                  <option value="6:30am">&nbsp;&nbsp;6:30am</option>
+                  <option value="6:45am">&nbsp;&nbsp;6:45am</option>
+                  <option value="7:00am">&nbsp;&nbsp;7:00am</option>
+                  <option value="7:15am">&nbsp;&nbsp;7:15am</option>
+                  <option value="7:30am">&nbsp;&nbsp;7:30am</option>
+                  <option value="7:45am">&nbsp;&nbsp;7:45am</option>
+                  <option value="8:00am">&nbsp;&nbsp;8:00am</option>
+                  <option value="8:15am">&nbsp;&nbsp;8:15am</option>
+                  <option value="8:30am">&nbsp;&nbsp;8:30am</option>
+                  <option value="8:45am">&nbsp;&nbsp;8:45am</option>
+                  <option value="9:00am">&nbsp;&nbsp;9:00am</option>
+                  <option value="9:15am">&nbsp;&nbsp;9:15am</option>
+                  <option value="9:30am">&nbsp;&nbsp;9:30am</option>
+                  <option value="9:45am">&nbsp;&nbsp;9:45am</option>
+                  <option value="10:00am">10:00am</option>
+                  <option value="10:15am">10:15am</option>
+                  <option value="10:30am">10:30am</option>
+                  <option value="10:45am">10:45am</option>
+                  <option value="11:00am">11:00am</option>
+                  <option value="11:15am">11:15am</option>
+                  <option value="11:30am">11:30am</option>
+                  <option value="11:45am">11:45am</option>
+                  <option value="12:00pm">12:00pm</option>
+                  <option value="12:15pm">12:15pm</option>
+                  <option value="12:30pm">12:30pm</option>
+                  <option value="12:45pm">12:45pm</option>
+                  
+                  <option value="1:00pm">&nbsp;&nbsp;1:00pm</option>
+                  <option value="1:15pm">&nbsp;&nbsp;1:15pm</option>
+                  <option value="1:30pm">&nbsp;&nbsp;1:30pm</option>
+                  <option value="1:45pm">&nbsp;&nbsp;1:45pm</option>
+                  <option value="2:00pm">&nbsp;&nbsp;2:00pm</option>
+                  <option value="2:15pm">&nbsp;&nbsp;2:15pm</option>
+                  <option value="2:30pm">&nbsp;&nbsp;2:30pm</option>
+                  <option value="2:45pm">&nbsp;&nbsp;2:45pm</option>
+                  <option value="3:00pm">&nbsp;&nbsp;3:00pm</option>
+                  <option value="3:15pm">&nbsp;&nbsp;3:15pm</option>
+                  <option value="3:30pm">&nbsp;&nbsp;3:30pm</option>
+                  <option value="3:45pm">&nbsp;&nbsp;3:45pm</option>
+                  <option value="4:00pm">&nbsp;&nbsp;4:00pm</option>
+                  <option value="4:15pm">&nbsp;&nbsp;4:15pm</option>
+                  <option value="4:30pm">&nbsp;&nbsp;4:30pm</option>
+                  <option value="4:45pm">&nbsp;&nbsp;4:45pm</option>
+                  <option value="5:00pm">&nbsp;&nbsp;5:00pm</option>
+                  <option value="5:15pm">&nbsp;&nbsp;5:15pm</option>
+                  <option value="5:30pm">&nbsp;&nbsp;5:30pm</option>
+                  <option value="5:45pm">&nbsp;&nbsp;5:45pm</option>
+                  <option value="6:00pm">&nbsp;&nbsp;6:00pm</option>
+                  <option value="6:15pm">&nbsp;&nbsp;6:15pm</option>
+                  <option value="6:30pm">&nbsp;&nbsp;6:30pm</option>
+                  <option value="6:45pm">&nbsp;&nbsp;6:45pm</option>
+                  <option value="7:00pm">&nbsp;&nbsp;7:00pm</option>
+                  <option value="7:15pm">&nbsp;&nbsp;7:15pm</option>
+                  <option value="7:30pm">&nbsp;&nbsp;7:30pm</option>
+                  <option value="7:45pm">&nbsp;&nbsp;7:45pm</option>
+                  <option value="8:00pm">&nbsp;&nbsp;8:00pm</option>
+                  <option value="8:15pm">&nbsp;&nbsp;8:15pm</option>
+                  <option value="8:30pm">&nbsp;&nbsp;8:30pm</option>
+                  <option value="8:45pm">&nbsp;&nbsp;8:45pm</option>
+                  <option value="9:00pm">&nbsp;&nbsp;9:00pm</option>
+                  <option value="9:15pm">&nbsp;&nbsp;9:15pm</option>
+                  <option value="9:30pm">&nbsp;&nbsp;9:30pm</option>
+                  <option value="9:45pm">&nbsp;&nbsp;9:45pm</option>
+                  <option value="10:00pm">10:00pm</option>
+                  <option value="10:15pm">10:15pm</option>
+                  <option value="10:30pm">10:30pm</option>
+                  <option value="10:45pm">10:45pm</option>
+                  <option value="11:00pm">11:00pm</option>
+                  <option value="11:15pm">11:15pm</option>
+                  <option value="11:30pm">11:30pm</option>
+                  <option value="11:45pm">11:45pm</option>
+                  <option value="12:00am">Midnight</option>
+                </select>
+                <a id="gc-ring-remove-we0" href="javascript://">Remove</a>
+              </div>
+              
+              <div id="gc-ring-we1" class="gc-ring-range-we" style="display: none;">
+                Do <b>not</b> ring phone from
+                <select class="gc-text" id="gc-ring-from-we1">
+                  <option value="12:00am">Midnight</option>
+                  <option value="12:15am">12:15am</option>
+                  <option value="12:30am">12:30am</option>
+                  <option value="12:45am">12:45am</option>
+                  
+                  <option value="1:00am">&nbsp;&nbsp;1:00am</option>
+                  <option value="1:15am">&nbsp;&nbsp;1:15am</option>
+                  <option value="1:30am">&nbsp;&nbsp;1:30am</option>
+                  <option value="1:45am">&nbsp;&nbsp;1:45am</option>
+                  <option value="2:00am">&nbsp;&nbsp;2:00am</option>
+                  <option value="2:15am">&nbsp;&nbsp;2:15am</option>
+                  <option value="2:30am">&nbsp;&nbsp;2:30am</option>
+                  <option value="2:45am">&nbsp;&nbsp;2:45am</option>
+                  <option value="3:00am">&nbsp;&nbsp;3:00am</option>
+                  <option value="3:15am">&nbsp;&nbsp;3:15am</option>
+                  <option value="3:30am">&nbsp;&nbsp;3:30am</option>
+                  <option value="3:45am">&nbsp;&nbsp;3:45am</option>
+                  <option value="4:00am">&nbsp;&nbsp;4:00am</option>
+                  <option value="4:15am">&nbsp;&nbsp;4:15am</option>
+                  <option value="4:30am">&nbsp;&nbsp;4:30am</option>
+                  <option value="4:45am">&nbsp;&nbsp;4:45am</option>
+                  <option value="5:00am">&nbsp;&nbsp;5:00am</option>
+                  <option value="5:15am">&nbsp;&nbsp;5:15am</option>
+                  <option value="5:30am">&nbsp;&nbsp;5:30am</option>
+                  <option value="5:45am">&nbsp;&nbsp;5:45am</option>
+                  <option value="6:00am">&nbsp;&nbsp;6:00am</option>
+                  <option value="6:15am">&nbsp;&nbsp;6:15am</option>
+                  <option value="6:30am">&nbsp;&nbsp;6:30am</option>
+                  <option value="6:45am">&nbsp;&nbsp;6:45am</option>
+                  <option value="7:00am">&nbsp;&nbsp;7:00am</option>
+                  <option value="7:15am">&nbsp;&nbsp;7:15am</option>
+                  <option value="7:30am">&nbsp;&nbsp;7:30am</option>
+                  <option value="7:45am">&nbsp;&nbsp;7:45am</option>
+                  <option value="8:00am">&nbsp;&nbsp;8:00am</option>
+                  <option value="8:15am">&nbsp;&nbsp;8:15am</option>
+                  <option value="8:30am">&nbsp;&nbsp;8:30am</option>
+                  <option value="8:45am">&nbsp;&nbsp;8:45am</option>
+                  <option value="9:00am">&nbsp;&nbsp;9:00am</option>
+                  <option value="9:15am">&nbsp;&nbsp;9:15am</option>
+                  <option value="9:30am">&nbsp;&nbsp;9:30am</option>
+                  <option value="9:45am">&nbsp;&nbsp;9:45am</option>
+                  <option value="10:00am">10:00am</option>
+                  <option value="10:15am">10:15am</option>
+                  <option value="10:30am">10:30am</option>
+                  <option value="10:45am">10:45am</option>
+                  <option value="11:00am">11:00am</option>
+                  <option value="11:15am">11:15am</option>
+                  <option value="11:30am">11:30am</option>
+                  <option value="11:45am">11:45am</option>
+                  <option value="12:00pm">12:00pm</option>
+                  <option value="12:15pm">12:15pm</option>
+                  <option value="12:30pm">12:30pm</option>
+                  <option value="12:45pm">12:45pm</option>
+                  
+                  <option value="1:00pm">&nbsp;&nbsp;1:00pm</option>
+                  <option value="1:15pm">&nbsp;&nbsp;1:15pm</option>
+                  <option value="1:30pm">&nbsp;&nbsp;1:30pm</option>
+                  <option value="1:45pm">&nbsp;&nbsp;1:45pm</option>
+                  <option value="2:00pm">&nbsp;&nbsp;2:00pm</option>
+                  <option value="2:15pm">&nbsp;&nbsp;2:15pm</option>
+                  <option value="2:30pm">&nbsp;&nbsp;2:30pm</option>
+                  <option value="2:45pm">&nbsp;&nbsp;2:45pm</option>
+                  <option value="3:00pm">&nbsp;&nbsp;3:00pm</option>
+                  <option value="3:15pm">&nbsp;&nbsp;3:15pm</option>
+                  <option value="3:30pm">&nbsp;&nbsp;3:30pm</option>
+                  <option value="3:45pm">&nbsp;&nbsp;3:45pm</option>
+                  <option value="4:00pm">&nbsp;&nbsp;4:00pm</option>
+                  <option value="4:15pm">&nbsp;&nbsp;4:15pm</option>
+                  <option value="4:30pm">&nbsp;&nbsp;4:30pm</option>
+                  <option value="4:45pm">&nbsp;&nbsp;4:45pm</option>
+                  <option value="5:00pm">&nbsp;&nbsp;5:00pm</option>
+                  <option value="5:15pm">&nbsp;&nbsp;5:15pm</option>
+                  <option value="5:30pm">&nbsp;&nbsp;5:30pm</option>
+                  <option value="5:45pm">&nbsp;&nbsp;5:45pm</option>
+                  <option value="6:00pm">&nbsp;&nbsp;6:00pm</option>
+                  <option value="6:15pm">&nbsp;&nbsp;6:15pm</option>
+                  <option value="6:30pm">&nbsp;&nbsp;6:30pm</option>
+                  <option value="6:45pm">&nbsp;&nbsp;6:45pm</option>
+                  <option value="7:00pm">&nbsp;&nbsp;7:00pm</option>
+                  <option value="7:15pm">&nbsp;&nbsp;7:15pm</option>
+                  <option value="7:30pm">&nbsp;&nbsp;7:30pm</option>
+                  <option value="7:45pm">&nbsp;&nbsp;7:45pm</option>
+                  <option value="8:00pm">&nbsp;&nbsp;8:00pm</option>
+                  <option value="8:15pm">&nbsp;&nbsp;8:15pm</option>
+                  <option value="8:30pm">&nbsp;&nbsp;8:30pm</option>
+                  <option value="8:45pm">&nbsp;&nbsp;8:45pm</option>
+                  <option value="9:00pm">&nbsp;&nbsp;9:00pm</option>
+                  <option value="9:15pm">&nbsp;&nbsp;9:15pm</option>
+                  <option value="9:30pm">&nbsp;&nbsp;9:30pm</option>
+                  <option value="9:45pm">&nbsp;&nbsp;9:45pm</option>
+                  <option value="10:00pm">10:00pm</option>
+                  <option value="10:15pm">10:15pm</option>
+                  <option value="10:30pm">10:30pm</option>
+                  <option value="10:45pm">10:45pm</option>
+                  <option value="11:00pm">11:00pm</option>
+                  <option value="11:15pm">11:15pm</option>
+                  <option value="11:30pm">11:30pm</option>
+                  <option value="11:45pm">11:45pm</option>
+                </select>
+                <span>to</span>
+                <select class="gc-text" id="gc-ring-to-we1">
+                  <option value="12:15am">12:15am</option>
+                  <option value="12:30am">12:30am</option>
+                  <option value="12:45am">12:45am</option>
+                  
+                  <option value="1:00am">&nbsp;&nbsp;1:00am</option>
+                  <option value="1:15am">&nbsp;&nbsp;1:15am</option>
+                  <option value="1:30am">&nbsp;&nbsp;1:30am</option>
+                  <option value="1:45am">&nbsp;&nbsp;1:45am</option>
+                  <option value="2:00am">&nbsp;&nbsp;2:00am</option>
+                  <option value="2:15am">&nbsp;&nbsp;2:15am</option>
+                  <option value="2:30am">&nbsp;&nbsp;2:30am</option>
+                  <option value="2:45am">&nbsp;&nbsp;2:45am</option>
+                  <option value="3:00am">&nbsp;&nbsp;3:00am</option>
+                  <option value="3:15am">&nbsp;&nbsp;3:15am</option>
+                  <option value="3:30am">&nbsp;&nbsp;3:30am</option>
+                  <option value="3:45am">&nbsp;&nbsp;3:45am</option>
+                  <option value="4:00am">&nbsp;&nbsp;4:00am</option>
+                  <option value="4:15am">&nbsp;&nbsp;4:15am</option>
+                  <option value="4:30am">&nbsp;&nbsp;4:30am</option>
+                  <option value="4:45am">&nbsp;&nbsp;4:45am</option>
+                  <option value="5:00am">&nbsp;&nbsp;5:00am</option>
+                  <option value="5:15am">&nbsp;&nbsp;5:15am</option>
+                  <option value="5:30am">&nbsp;&nbsp;5:30am</option>
+                  <option value="5:45am">&nbsp;&nbsp;5:45am</option>
+                  <option value="6:00am">&nbsp;&nbsp;6:00am</option>
+                  <option value="6:15am">&nbsp;&nbsp;6:15am</option>
+                  <option value="6:30am">&nbsp;&nbsp;6:30am</option>
+                  <option value="6:45am">&nbsp;&nbsp;6:45am</option>
+                  <option value="7:00am">&nbsp;&nbsp;7:00am</option>
+                  <option value="7:15am">&nbsp;&nbsp;7:15am</option>
+                  <option value="7:30am">&nbsp;&nbsp;7:30am</option>
+                  <option value="7:45am">&nbsp;&nbsp;7:45am</option>
+                  <option value="8:00am">&nbsp;&nbsp;8:00am</option>
+                  <option value="8:15am">&nbsp;&nbsp;8:15am</option>
+                  <option value="8:30am">&nbsp;&nbsp;8:30am</option>
+                  <option value="8:45am">&nbsp;&nbsp;8:45am</option>
+                  <option value="9:00am">&nbsp;&nbsp;9:00am</option>
+                  <option value="9:15am">&nbsp;&nbsp;9:15am</option>
+                  <option value="9:30am">&nbsp;&nbsp;9:30am</option>
+                  <option value="9:45am">&nbsp;&nbsp;9:45am</option>
+                  <option value="10:00am">10:00am</option>
+                  <option value="10:15am">10:15am</option>
+                  <option value="10:30am">10:30am</option>
+                  <option value="10:45am">10:45am</option>
+                  <option value="11:00am">11:00am</option>
+                  <option value="11:15am">11:15am</option>
+                  <option value="11:30am">11:30am</option>
+                  <option value="11:45am">11:45am</option>
+                  <option value="12:00pm">12:00pm</option>
+                  <option value="12:15pm">12:15pm</option>
+                  <option value="12:30pm">12:30pm</option>
+                  <option value="12:45pm">12:45pm</option>
+                  
+                  <option value="1:00pm">&nbsp;&nbsp;1:00pm</option>
+                  <option value="1:15pm">&nbsp;&nbsp;1:15pm</option>
+                  <option value="1:30pm">&nbsp;&nbsp;1:30pm</option>
+                  <option value="1:45pm">&nbsp;&nbsp;1:45pm</option>
+                  <option value="2:00pm">&nbsp;&nbsp;2:00pm</option>
+                  <option value="2:15pm">&nbsp;&nbsp;2:15pm</option>
+                  <option value="2:30pm">&nbsp;&nbsp;2:30pm</option>
+                  <option value="2:45pm">&nbsp;&nbsp;2:45pm</option>
+                  <option value="3:00pm">&nbsp;&nbsp;3:00pm</option>
+                  <option value="3:15pm">&nbsp;&nbsp;3:15pm</option>
+                  <option value="3:30pm">&nbsp;&nbsp;3:30pm</option>
+                  <option value="3:45pm">&nbsp;&nbsp;3:45pm</option>
+                  <option value="4:00pm">&nbsp;&nbsp;4:00pm</option>
+                  <option value="4:15pm">&nbsp;&nbsp;4:15pm</option>
+                  <option value="4:30pm">&nbsp;&nbsp;4:30pm</option>
+                  <option value="4:45pm">&nbsp;&nbsp;4:45pm</option>
+                  <option value="5:00pm">&nbsp;&nbsp;5:00pm</option>
+                  <option value="5:15pm">&nbsp;&nbsp;5:15pm</option>
+                  <option value="5:30pm">&nbsp;&nbsp;5:30pm</option>
+                  <option value="5:45pm">&nbsp;&nbsp;5:45pm</option>
+                  <option value="6:00pm">&nbsp;&nbsp;6:00pm</option>
+                  <option value="6:15pm">&nbsp;&nbsp;6:15pm</option>
+                  <option value="6:30pm">&nbsp;&nbsp;6:30pm</option>
+                  <option value="6:45pm">&nbsp;&nbsp;6:45pm</option>
+                  <option value="7:00pm">&nbsp;&nbsp;7:00pm</option>
+                  <option value="7:15pm">&nbsp;&nbsp;7:15pm</option>
+                  <option value="7:30pm">&nbsp;&nbsp;7:30pm</option>
+                  <option value="7:45pm">&nbsp;&nbsp;7:45pm</option>
+                  <option value="8:00pm">&nbsp;&nbsp;8:00pm</option>
+                  <option value="8:15pm">&nbsp;&nbsp;8:15pm</option>
+                  <option value="8:30pm">&nbsp;&nbsp;8:30pm</option>
+                  <option value="8:45pm">&nbsp;&nbsp;8:45pm</option>
+                  <option value="9:00pm">&nbsp;&nbsp;9:00pm</option>
+                  <option value="9:15pm">&nbsp;&nbsp;9:15pm</option>
+                  <option value="9:30pm">&nbsp;&nbsp;9:30pm</option>
+                  <option value="9:45pm">&nbsp;&nbsp;9:45pm</option>
+                  <option value="10:00pm">10:00pm</option>
+                  <option value="10:15pm">10:15pm</option>
+                  <option value="10:30pm">10:30pm</option>
+                  <option value="10:45pm">10:45pm</option>
+                  <option value="11:00pm">11:00pm</option>
+                  <option value="11:15pm">11:15pm</option>
+                  <option value="11:30pm">11:30pm</option>
+                  <option value="11:45pm">11:45pm</option>
+                  <option value="12:00am">Midnight</option>
+                </select>
+                <a id="gc-ring-remove-we1" href="javascript://">Remove</a>
+              </div>
+              
+              <div id="gc-ring-we2" class="gc-ring-range-we" style="display: none;">
+                Do <b>not</b> ring phone from
+                <select class="gc-text" id="gc-ring-from-we2">
+                  <option value="12:00am">Midnight</option>
+                  <option value="12:15am">12:15am</option>
+                  <option value="12:30am">12:30am</option>
+                  <option value="12:45am">12:45am</option>
+                  
+                  <option value="1:00am">&nbsp;&nbsp;1:00am</option>
+                  <option value="1:15am">&nbsp;&nbsp;1:15am</option>
+                  <option value="1:30am">&nbsp;&nbsp;1:30am</option>
+                  <option value="1:45am">&nbsp;&nbsp;1:45am</option>
+                  <option value="2:00am">&nbsp;&nbsp;2:00am</option>
+                  <option value="2:15am">&nbsp;&nbsp;2:15am</option>
+                  <option value="2:30am">&nbsp;&nbsp;2:30am</option>
+                  <option value="2:45am">&nbsp;&nbsp;2:45am</option>
+                  <option value="3:00am">&nbsp;&nbsp;3:00am</option>
+                  <option value="3:15am">&nbsp;&nbsp;3:15am</option>
+                  <option value="3:30am">&nbsp;&nbsp;3:30am</option>
+                  <option value="3:45am">&nbsp;&nbsp;3:45am</option>
+                  <option value="4:00am">&nbsp;&nbsp;4:00am</option>
+                  <option value="4:15am">&nbsp;&nbsp;4:15am</option>
+                  <option value="4:30am">&nbsp;&nbsp;4:30am</option>
+                  <option value="4:45am">&nbsp;&nbsp;4:45am</option>
+                  <option value="5:00am">&nbsp;&nbsp;5:00am</option>
+                  <option value="5:15am">&nbsp;&nbsp;5:15am</option>
+                  <option value="5:30am">&nbsp;&nbsp;5:30am</option>
+                  <option value="5:45am">&nbsp;&nbsp;5:45am</option>
+                  <option value="6:00am">&nbsp;&nbsp;6:00am</option>
+                  <option value="6:15am">&nbsp;&nbsp;6:15am</option>
+                  <option value="6:30am">&nbsp;&nbsp;6:30am</option>
+                  <option value="6:45am">&nbsp;&nbsp;6:45am</option>
+                  <option value="7:00am">&nbsp;&nbsp;7:00am</option>
+                  <option value="7:15am">&nbsp;&nbsp;7:15am</option>
+                  <option value="7:30am">&nbsp;&nbsp;7:30am</option>
+                  <option value="7:45am">&nbsp;&nbsp;7:45am</option>
+                  <option value="8:00am">&nbsp;&nbsp;8:00am</option>
+                  <option value="8:15am">&nbsp;&nbsp;8:15am</option>
+                  <option value="8:30am">&nbsp;&nbsp;8:30am</option>
+                  <option value="8:45am">&nbsp;&nbsp;8:45am</option>
+                  <option value="9:00am">&nbsp;&nbsp;9:00am</option>
+                  <option value="9:15am">&nbsp;&nbsp;9:15am</option>
+                  <option value="9:30am">&nbsp;&nbsp;9:30am</option>
+                  <option value="9:45am">&nbsp;&nbsp;9:45am</option>
+                  <option value="10:00am">10:00am</option>
+                  <option value="10:15am">10:15am</option>
+                  <option value="10:30am">10:30am</option>
+                  <option value="10:45am">10:45am</option>
+                  <option value="11:00am">11:00am</option>
+                  <option value="11:15am">11:15am</option>
+                  <option value="11:30am">11:30am</option>
+                  <option value="11:45am">11:45am</option>
+                  <option value="12:00pm">12:00pm</option>
+                  <option value="12:15pm">12:15pm</option>
+                  <option value="12:30pm">12:30pm</option>
+                  <option value="12:45pm">12:45pm</option>
+                  
+                  <option value="1:00pm">&nbsp;&nbsp;1:00pm</option>
+                  <option value="1:15pm">&nbsp;&nbsp;1:15pm</option>
+                  <option value="1:30pm">&nbsp;&nbsp;1:30pm</option>
+                  <option value="1:45pm">&nbsp;&nbsp;1:45pm</option>
+                  <option value="2:00pm">&nbsp;&nbsp;2:00pm</option>
+                  <option value="2:15pm">&nbsp;&nbsp;2:15pm</option>
+                  <option value="2:30pm">&nbsp;&nbsp;2:30pm</option>
+                  <option value="2:45pm">&nbsp;&nbsp;2:45pm</option>
+                  <option value="3:00pm">&nbsp;&nbsp;3:00pm</option>
+                  <option value="3:15pm">&nbsp;&nbsp;3:15pm</option>
+                  <option value="3:30pm">&nbsp;&nbsp;3:30pm</option>
+                  <option value="3:45pm">&nbsp;&nbsp;3:45pm</option>
+                  <option value="4:00pm">&nbsp;&nbsp;4:00pm</option>
+                  <option value="4:15pm">&nbsp;&nbsp;4:15pm</option>
+                  <option value="4:30pm">&nbsp;&nbsp;4:30pm</option>
+                  <option value="4:45pm">&nbsp;&nbsp;4:45pm</option>
+                  <option value="5:00pm">&nbsp;&nbsp;5:00pm</option>
+                  <option value="5:15pm">&nbsp;&nbsp;5:15pm</option>
+                  <option value="5:30pm">&nbsp;&nbsp;5:30pm</option>
+                  <option value="5:45pm">&nbsp;&nbsp;5:45pm</option>
+                  <option value="6:00pm">&nbsp;&nbsp;6:00pm</option>
+                  <option value="6:15pm">&nbsp;&nbsp;6:15pm</option>
+                  <option value="6:30pm">&nbsp;&nbsp;6:30pm</option>
+                  <option value="6:45pm">&nbsp;&nbsp;6:45pm</option>
+                  <option value="7:00pm">&nbsp;&nbsp;7:00pm</option>
+                  <option value="7:15pm">&nbsp;&nbsp;7:15pm</option>
+                  <option value="7:30pm">&nbsp;&nbsp;7:30pm</option>
+                  <option value="7:45pm">&nbsp;&nbsp;7:45pm</option>
+                  <option value="8:00pm">&nbsp;&nbsp;8:00pm</option>
+                  <option value="8:15pm">&nbsp;&nbsp;8:15pm</option>
+                  <option value="8:30pm">&nbsp;&nbsp;8:30pm</option>
+                  <option value="8:45pm">&nbsp;&nbsp;8:45pm</option>
+                  <option value="9:00pm">&nbsp;&nbsp;9:00pm</option>
+                  <option value="9:15pm">&nbsp;&nbsp;9:15pm</option>
+                  <option value="9:30pm">&nbsp;&nbsp;9:30pm</option>
+                  <option value="9:45pm">&nbsp;&nbsp;9:45pm</option>
+                  <option value="10:00pm">10:00pm</option>
+                  <option value="10:15pm">10:15pm</option>
+                  <option value="10:30pm">10:30pm</option>
+                  <option value="10:45pm">10:45pm</option>
+                  <option value="11:00pm">11:00pm</option>
+                  <option value="11:15pm">11:15pm</option>
+                  <option value="11:30pm">11:30pm</option>
+                  <option value="11:45pm">11:45pm</option>
+                </select>
+                <span>to</span>
+                <select class="gc-text" id="gc-ring-to-we2">
+                  <option value="12:15am">12:15am</option>
+                  <option value="12:30am">12:30am</option>
+                  <option value="12:45am">12:45am</option>
+                  
+                  <option value="1:00am">&nbsp;&nbsp;1:00am</option>
+                  <option value="1:15am">&nbsp;&nbsp;1:15am</option>
+                  <option value="1:30am">&nbsp;&nbsp;1:30am</option>
+                  <option value="1:45am">&nbsp;&nbsp;1:45am</option>
+                  <option value="2:00am">&nbsp;&nbsp;2:00am</option>
+                  <option value="2:15am">&nbsp;&nbsp;2:15am</option>
+                  <option value="2:30am">&nbsp;&nbsp;2:30am</option>
+                  <option value="2:45am">&nbsp;&nbsp;2:45am</option>
+                  <option value="3:00am">&nbsp;&nbsp;3:00am</option>
+                  <option value="3:15am">&nbsp;&nbsp;3:15am</option>
+                  <option value="3:30am">&nbsp;&nbsp;3:30am</option>
+                  <option value="3:45am">&nbsp;&nbsp;3:45am</option>
+                  <option value="4:00am">&nbsp;&nbsp;4:00am</option>
+                  <option value="4:15am">&nbsp;&nbsp;4:15am</option>
+                  <option value="4:30am">&nbsp;&nbsp;4:30am</option>
+                  <option value="4:45am">&nbsp;&nbsp;4:45am</option>
+                  <option value="5:00am">&nbsp;&nbsp;5:00am</option>
+                  <option value="5:15am">&nbsp;&nbsp;5:15am</option>
+                  <option value="5:30am">&nbsp;&nbsp;5:30am</option>
+                  <option value="5:45am">&nbsp;&nbsp;5:45am</option>
+                  <option value="6:00am">&nbsp;&nbsp;6:00am</option>
+                  <option value="6:15am">&nbsp;&nbsp;6:15am</option>
+                  <option value="6:30am">&nbsp;&nbsp;6:30am</option>
+                  <option value="6:45am">&nbsp;&nbsp;6:45am</option>
+                  <option value="7:00am">&nbsp;&nbsp;7:00am</option>
+                  <option value="7:15am">&nbsp;&nbsp;7:15am</option>
+                  <option value="7:30am">&nbsp;&nbsp;7:30am</option>
+                  <option value="7:45am">&nbsp;&nbsp;7:45am</option>
+                  <option value="8:00am">&nbsp;&nbsp;8:00am</option>
+                  <option value="8:15am">&nbsp;&nbsp;8:15am</option>
+                  <option value="8:30am">&nbsp;&nbsp;8:30am</option>
+                  <option value="8:45am">&nbsp;&nbsp;8:45am</option>
+                  <option value="9:00am">&nbsp;&nbsp;9:00am</option>
+                  <option value="9:15am">&nbsp;&nbsp;9:15am</option>
+                  <option value="9:30am">&nbsp;&nbsp;9:30am</option>
+                  <option value="9:45am">&nbsp;&nbsp;9:45am</option>
+                  <option value="10:00am">10:00am</option>
+                  <option value="10:15am">10:15am</option>
+                  <option value="10:30am">10:30am</option>
+                  <option value="10:45am">10:45am</option>
+                  <option value="11:00am">11:00am</option>
+                  <option value="11:15am">11:15am</option>
+                  <option value="11:30am">11:30am</option>
+                  <option value="11:45am">11:45am</option>
+                  <option value="12:00pm">12:00pm</option>
+                  <option value="12:15pm">12:15pm</option>
+                  <option value="12:30pm">12:30pm</option>
+                  <option value="12:45pm">12:45pm</option>
+                  
+                  <option value="1:00pm">&nbsp;&nbsp;1:00pm</option>
+                  <option value="1:15pm">&nbsp;&nbsp;1:15pm</option>
+                  <option value="1:30pm">&nbsp;&nbsp;1:30pm</option>
+                  <option value="1:45pm">&nbsp;&nbsp;1:45pm</option>
+                  <option value="2:00pm">&nbsp;&nbsp;2:00pm</option>
+                  <option value="2:15pm">&nbsp;&nbsp;2:15pm</option>
+                  <option value="2:30pm">&nbsp;&nbsp;2:30pm</option>
+                  <option value="2:45pm">&nbsp;&nbsp;2:45pm</option>
+                  <option value="3:00pm">&nbsp;&nbsp;3:00pm</option>
+                  <option value="3:15pm">&nbsp;&nbsp;3:15pm</option>
+                  <option value="3:30pm">&nbsp;&nbsp;3:30pm</option>
+                  <option value="3:45pm">&nbsp;&nbsp;3:45pm</option>
+                  <option value="4:00pm">&nbsp;&nbsp;4:00pm</option>
+                  <option value="4:15pm">&nbsp;&nbsp;4:15pm</option>
+                  <option value="4:30pm">&nbsp;&nbsp;4:30pm</option>
+                  <option value="4:45pm">&nbsp;&nbsp;4:45pm</option>
+                  <option value="5:00pm">&nbsp;&nbsp;5:00pm</option>
+                  <option value="5:15pm">&nbsp;&nbsp;5:15pm</option>
+                  <option value="5:30pm">&nbsp;&nbsp;5:30pm</option>
+                  <option value="5:45pm">&nbsp;&nbsp;5:45pm</option>
+                  <option value="6:00pm">&nbsp;&nbsp;6:00pm</option>
+                  <option value="6:15pm">&nbsp;&nbsp;6:15pm</option>
+                  <option value="6:30pm">&nbsp;&nbsp;6:30pm</option>
+                  <option value="6:45pm">&nbsp;&nbsp;6:45pm</option>
+                  <option value="7:00pm">&nbsp;&nbsp;7:00pm</option>
+                  <option value="7:15pm">&nbsp;&nbsp;7:15pm</option>
+                  <option value="7:30pm">&nbsp;&nbsp;7:30pm</option>
+                  <option value="7:45pm">&nbsp;&nbsp;7:45pm</option>
+                  <option value="8:00pm">&nbsp;&nbsp;8:00pm</option>
+                  <option value="8:15pm">&nbsp;&nbsp;8:15pm</option>
+                  <option value="8:30pm">&nbsp;&nbsp;8:30pm</option>
+                  <option value="8:45pm">&nbsp;&nbsp;8:45pm</option>
+                  <option value="9:00pm">&nbsp;&nbsp;9:00pm</option>
+                  <option value="9:15pm">&nbsp;&nbsp;9:15pm</option>
+                  <option value="9:30pm">&nbsp;&nbsp;9:30pm</option>
+                  <option value="9:45pm">&nbsp;&nbsp;9:45pm</option>
+                  <option value="10:00pm">10:00pm</option>
+                  <option value="10:15pm">10:15pm</option>
+                  <option value="10:30pm">10:30pm</option>
+                  <option value="10:45pm">10:45pm</option>
+                  <option value="11:00pm">11:00pm</option>
+                  <option value="11:15pm">11:15pm</option>
+                  <option value="11:30pm">11:30pm</option>
+                  <option value="11:45pm">11:45pm</option>
+                  <option value="12:00am">Midnight</option>
+                </select>
+                <a id="gc-ring-remove-we2" href="javascript://">Remove</a>
+              </div>
+              
+              <div><a id="gc-ring-add-we" href="javascript://">Add time range</a></div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th colspan="2" style="height: 5px;">&nbsp;</th>
+      </tr>
+      
+      <tr id="gc-phone-edit-vms" style="display: none;">
+        <th >Forwarding Options: <img alt="Help_dark" class="gc-help-button" id="gc-help-redirect-behavior" src="/voice/resources/109158364-help_dark.gif" style="margin-bottom: 0px;" title="Click for info"/></th>
+        <td>
+          <div>
+            <a href="javascript://" id="gc-phstp-enable-link">Activate</a>&nbsp;<b>&middot;</b>&nbsp;
+            <a href="javascript://" id="gc-phstp-disable-link">Deactivate</a>
+          </div>
+          
+          <div style="padding-top: 4px;">
+            <div>When someone calls this phone directly and I don't pick up</div>
+            <input type="radio" name="gc-redirect-behavior" id="gc-redirect-behavior-ring">
+            <label for="gc-redirect-behavior-ring" class="gc-label-align">
+              Ring my other phones before going to voicemail
+            </label><br/>
+            <input type="radio" name="gc-redirect-behavior" id="gc-redirect-behavior-voicemail" checked>
+            <label for="gc-redirect-behavior-voicemail" class="gc-label-align">
+              Go straight to voicemail
+            </label>
+          </div>
+          
+        </td>
+      </tr>
+    </table>
+  <div style="padding-bottom: 12px; padding-top: 5px;">
+    <div id="gc-phone-edit-save" class="goog-inline-block gc-save-button">Save</div>&nbsp;<div id="gc-phone-edit-cancel" class="goog-inline-block gc-cancel-button">Cancel</div>
+  </div>
+  </form>
+  </div>
+</div>
+
+  </div>
+  <div class="gc-footer-settings2">
+  <div class="gc-footer">
+  &copy;2011 Google
+  - <a target="_blank" href="http://www.google.com/intl/en_US/googlevoice/legal-notices.html">Terms</a>
+  - <a target="_blank" href="http://googlevoiceblog.blogspot.com/">Blog</a>
+  - <a target="_blank" href="http://www.google.com">Google Home</a>
+  
+  - Follow us on:&nbsp;
+    <a href="http://googlevoiceblog.blogspot.com?&hl=en_US" title="Follow us on Blogger"
+        target="_blank"><img alt="Share-blogger" class="gc-social-media-icon" src="/voice/resources/354906564-share-blogger.png"/></a>
+    <a href="http://www.facebook.com/googlevoice" title="Follow us on Facebook"
+        target="_blank"><img alt="Share-facebook" class="gc-social-media-icon" src="/voice/resources/1069641586-share-facebook.png"/></a>
+    <a href="http://www.twitter.com/googlevoice" title="Follow us on Twitter"
+        target="_blank"><img alt="Share-twitter" class="gc-social-media-icon" src="/voice/resources/3056668169-share-twitter.png"/></a>
+    <a href="http://www.youtube.com/googlevoice?&hl=en_US" title="Follow us on YouTube"
+        target="_blank"><img alt="Share-youtube" class="gc-social-media-icon" src="/voice/resources/2655032802-share-youtube.png"/></a>
+</div>
+
+  </div>
+</div>
+]]></html>
+</response>

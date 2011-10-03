@@ -159,5 +159,7 @@
 		</dependency>
 		<dependency org="org.apache.xbean" name="xbean-spring" rev="3.7"
 			conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.jsoup" name="jsoup" rev="1.6.1"
+			conf="compile->default;foride->sources,javadoc" />
 	</dependencies>
 </ivy-module>

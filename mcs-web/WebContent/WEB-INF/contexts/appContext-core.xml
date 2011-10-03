@@ -19,9 +19,9 @@
 	<task:annotation-driven executor="globalExecutor"
 		scheduler="globalScheduler" />
 
-	<task:executor id="globalExecutor" pool-size="10" />
+	<task:executor id="globalExecutor" pool-size="30" />
 
-	<task:scheduler id="globalScheduler" pool-size="5" />
+	<task:scheduler id="globalScheduler" pool-size="15" />
 
 	<bean id="placeholderConfig" class="com.mycallstation.spring.EncryptedPlaceholderConfigurer"
 		init-method="init">

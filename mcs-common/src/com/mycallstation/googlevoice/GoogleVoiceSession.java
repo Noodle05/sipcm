@@ -5,14 +5,20 @@ package com.mycallstation.googlevoice;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -27,6 +33,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
@@ -34,15 +42,32 @@ import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import com.google.gson.Gson;
 import com.mycallstation.common.AuthenticationException;
 import com.mycallstation.common.BaseConfiguration;
+import com.mycallstation.constant.McsConstant;
+import com.mycallstation.googlevoice.result.CallResult;
+import com.mycallstation.googlevoice.result.CheckForwardingVerifiedResult;
+import com.mycallstation.googlevoice.result.CheckIllegalSharingResult;
+import com.mycallstation.googlevoice.result.EditPhoneResult;
 import com.mycallstation.googlevoice.setting.GoogleVoiceConfig;
+import com.mycallstation.googlevoice.setting.Phone;
+import com.mycallstation.googlevoice.setting.Settings;
+import com.mycallstation.googlevoice.util.Utility;
+import com.mycallstation.util.HttpUtils;
 
 /**
  * @author wgao
@@ -55,50 +80,62 @@ public class GoogleVoiceSession implements Serializable {
 
 	private static final long serialVersionUID = 727761632230756155L;
 
-	private static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.A.B.C Safari/525.13";
-
 	private static final String LOGIN_URL = "https://www.google.com/accounts/ClientLogin";
+	private static final String LOGOUT_URL = "https://www.google.com/accounts/Logout";
 	private static final String GV_URL = "https://www.google.com/voice/";
 	private static final String CALL_URL = "https://www.google.com/voice/call/connect/";
 	private static final String CONCEL_URL = "https://www.google.com/voice/call/cancel/";
 	private static final String PHONE_SETTING_URL = "https://www.google.com/voice/settings/tab/phones";
+	private static final String EDIT_GENERAL_SETTINGS_URL = "https://www.google.com/voice/settings/editGeneralSettings/";
+	private static final String DELETE_PHONE_URL = "https://www.google.com/voice/settings/deleteForwarding/";
+	private static final String EDIT_ADD_PHONE_URL = "https://www.google.com/voice/settings/editForwarding/";
+	private static final String SET_IN_VERIFICATION_URL = "https://www.google.com/voice/settings/setInVerification";
+	// Request: phoneId = xxx
+	// Response: "ok": true, "needReclaim":true, "reclaimCheckResult":1
+	private static final String CHECK_ILLEGAL_SHARING_URL = "https://www.google.com/voice/settings/checkIllegalSharing";
+	// Request: code: xx, forwardingNumber = +1xxxx, phoneId = xxx, phoneType =
+	// x, subscriberNumber = undefined
+	// Response: "ok":true,"verified":false/true,"diversionName":"","carrier":""
+	private static final String VERIFY_FORWARDING_URL = "https://www.google.com/voice/call/verifyForwarding";
+	// Get request: phoneId=xx
+	// {"ok":true,"verified":false,"diversionNum":"","carrier":""}
+	// {"ok":true,"verified":true,"diversionNum":"","carrier":""}
+	private static final String CHECK_FORWARDING_VERIFIED_URL = "https://www.google.com/voice/settings/checkForwardingVerified";
+	// Request: phoneId = xxx, enabled = 0/1
+	// Response: "ok": true
+	private static final String EDIT_DEFAULT_FORWARDING_URL = "https://www.google.com/voice/settings/editDefaultForwarding/";
+
 	private static final String GV_SERVICE = "grandcentral";
 
 	private static final Pattern authTokenPattern = Pattern
 			.compile("^Auth=(.+)$");
 
-	private static final Pattern resultPattern = Pattern.compile(
-			"^\\{\"ok\"\\s*\\:\\s*(false|true).*\\}$", Pattern.DOTALL
-					+ Pattern.CASE_INSENSITIVE);
-
-	private static final Pattern rnr_sePattern = Pattern
-			.compile("^\\s*'_rnr_se':\\s*'(.+)',\\s*$");
-	private static final Pattern v_Pattern = Pattern
-			.compile("^\\s*'v':\\s*'(\\d+)',\\s*$");
-	private static final Pattern errorPattern = Pattern.compile("^Error=(.*)$");
-	private static final Pattern captchaTokenPattern = Pattern
+	static final Pattern gcDataPattern = Pattern
+			.compile(
+					"\\s*var\\s+_gcData\\s*=\\s*(\\{.*\\});\\s*_gvRun\\(_gcData,\\s*'en_US',\\s*true\\);\\s*",
+					Pattern.DOTALL | Pattern.MULTILINE | Pattern.UNIX_LINES);
+	static final Pattern errorPattern = Pattern.compile("^Error=(.*)$");
+	static final Pattern captchaTokenPattern = Pattern
 			.compile("^CaptchaToken=(.+)$");
-	private static final Pattern captchaUrlPattern = Pattern
+	static final Pattern captchaUrlPattern = Pattern
 			.compile("^CaptchaUrl=(.+)$");
-	private static final Pattern phoneSettingPattern = Pattern
-			.compile("^\\s*<json><!\\[CDATA\\[(.+)\\]\\]></json>\\s*$");
 
 	private String username;
 	private String password;
 	private String myNumber;
-	private HttpClient httpClient;
+	HttpClient httpClient;
 	private String authToken;
 	private String rnrSe;
-	private int version = 590;
+	private String version = "24230371";
 	private int maxRetry = 1;
 	private volatile boolean cancelCall;
 	private volatile boolean loggedIn;
 
 	@Resource(name = "systemConfiguration")
-	private BaseConfiguration appConfig;
+	BaseConfiguration appConfig;
 
-	@Resource(name = "googleVoiceManager")
-	private GoogleVoiceManager manager;
+	@Resource(name = "httpConnectionManager")
+	private ClientConnectionManager clientConntectionManager;
 
 	public void init() {
 		HttpParams params = new BasicHttpParams();
@@ -106,12 +143,12 @@ public class GoogleVoiceSession implements Serializable {
 		params.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,
 				connTimeout);
 		DefaultHttpClient client = new DefaultHttpClient(
-				manager.getConnectionManager(), params);
+				clientConntectionManager, params);
 		client.addRequestInterceptor(new HttpRequestInterceptor() {
 			@Override
 			public void process(HttpRequest request, HttpContext context)
 					throws HttpException, IOException {
-				request.setHeader("User-agent", USER_AGENT);
+				request.setHeader("User-agent", McsConstant.USER_AGENT);
 			}
 		});
 		httpClient = client;
@@ -123,7 +160,7 @@ public class GoogleVoiceSession implements Serializable {
 			logger.debug("Trying to login.");
 		}
 		HttpPost login = new HttpPost(LOGIN_URL);
-		List<NameValuePair> ps = new ArrayList<NameValuePair>();
+		List<NameValuePair> ps = new ArrayList<NameValuePair>(5);
 		ps.add(new BasicNameValuePair("Email", username));
 		ps.add(new BasicNameValuePair("Passwd", password));
 		ps.add(new BasicNameValuePair("service", GV_SERVICE));
@@ -135,8 +172,11 @@ public class GoogleVoiceSession implements Serializable {
 		HttpResponse response = httpClient.execute(login);
 		try {
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(response.getEntity().getContent()));
+				HttpEntity entity = response.getEntity();
+				String charset = HttpUtils.getCharset(entity);
+				InputStreamReader isr = new InputStreamReader(
+						entity.getContent(), charset);
+				BufferedReader reader = new BufferedReader(isr);
 				try {
 					String tmp = null;
 					while ((tmp = reader.readLine()) != null && !loggedIn) {
@@ -164,59 +204,44 @@ public class GoogleVoiceSession implements Serializable {
 		HttpGet gvPage = new HttpGet(GV_URL);
 		prepairAuthToken(gvPage);
 		response = httpClient.execute(gvPage);
+		HttpUtils.checkResponse(gvPage, response, logger);
+		HttpEntity entity = response.getEntity();
+		String charset = HttpUtils.getCharset(entity);
+		InputStream is = entity.getContent();
+		String str = null;
 		try {
-			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(response.getEntity().getContent()));
-				try {
-					boolean rnrSet = false;
-					boolean versionSet = false;
-					String tmp = null;
-					while (((tmp = reader.readLine()) != null)
-							&& (!rnrSet || !versionSet)) {
-						if (!rnrSet) {
-							Matcher m = rnr_sePattern.matcher(tmp);
-							if (m.matches()) {
-								rnrSe = m.group(1);
-								rnrSet = true;
-								continue;
-							}
-						}
-						if (!versionSet) {
-							Matcher m = v_Pattern.matcher(tmp);
-							if (m.matches()) {
-								String s = m.group(1);
-								version = Integer.parseInt(s);
-								versionSet = true;
-								continue;
-							}
-						}
+			Document dom = Jsoup.parse(is, charset, "https://www.google.com");
+			Elements scripts = dom.select("script[type$=javascript]").not(
+					"script[src]");
+			if (scripts != null) {
+				for (Element s : scripts) {
+					String t = s.html();
+					Matcher m = gcDataPattern.matcher(t);
+					if (m.matches()) {
+						str = m.group(1);
+						break;
 					}
-				} finally {
-					reader.close();
 				}
-				if (rnrSe == null) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Cannot find rnr.");
-					}
-					throw new NoRnrSeException();
-				}
-				if (logger.isTraceEnabled()) {
-					logger.trace("Find rnr: {}", rnrSe);
-				}
-			} else {
-				String error = response.getEntity() == null ? null
-						: EntityUtils.toString(response.getEntity());
-				if (logger.isDebugEnabled()) {
-					logger.debug("Login page return error {}", response
-							.getStatusLine().getStatusCode());
-				}
-				throw new HttpResponseException(response.getStatusLine()
-						.getStatusCode(), error == null ? "No content in page"
-						: error);
 			}
 		} finally {
-			gvPage.abort();
+			is.close();
+		}
+		if (str != null) {
+			// Remove xml comments inside java script.
+			str = str.replaceAll("<!--[^>]+-->", "");
+			Gson gson = Utility.getGson();
+			RnrSeData data = gson.fromJson(str, RnrSeData.class);
+			rnrSe = data.get_rnr_se();
+			version = data.getV();
+		}
+		if (rnrSe == null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Cannot find rnr.");
+			}
+			throw new NoRnrSeException();
+		}
+		if (logger.isTraceEnabled()) {
+			logger.trace("Find rnr: {}", rnrSe);
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("Google voice session for \"{}\" logged in.", username);
@@ -229,18 +254,37 @@ public class GoogleVoiceSession implements Serializable {
 
 	public void logout() {
 		if (loggedIn) {
-			authToken = null;
-			rnrSe = null;
-			loggedIn = false;
+			HttpGet callGet = new HttpGet(LOGOUT_URL);
+			try {
+				httpClient.execute(callGet);
+			} catch (Exception e) {
+				if (logger.isWarnEnabled()) {
+					logger.warn(
+							"Error happened when try to logout, will ignore it.",
+							e);
+				}
+			} finally {
+				try {
+					callGet.abort();
+				} catch (Throwable e) {
+					// Ignore it.
+				}
+				authToken = null;
+				rnrSe = null;
+				loggedIn = false;
+			}
 		}
 	}
 
 	public boolean call(String destination, String phoneType)
 			throws ClientProtocolException, IOException, HttpResponseException,
-			AuthenticationException {
+			AuthenticationException, SecurityException,
+			IllegalArgumentException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
 		if (!cancelCall) {
 			HttpPost callPost = new HttpPost(CALL_URL);
-			List<NameValuePair> ps = new ArrayList<NameValuePair>();
+			List<NameValuePair> ps = new ArrayList<NameValuePair>(6);
 			ps.add(new BasicNameValuePair("outgoingNumber", destination));
 			ps.add(new BasicNameValuePair("forwardingNumber", myNumber));
 			ps.add(new BasicNameValuePair("subscriberNumber", "undefined"));
@@ -255,7 +299,8 @@ public class GoogleVoiceSession implements Serializable {
 						"Calling \"call\" method with target number {}, callback number {}, phone type {}",
 						new Object[] { destination, myNumber, phoneType });
 			}
-			return callMethod(callPost, 0);
+			CallResult result = callMethod(callPost, 0, null);
+			return result.isSuccess();
 		} else {
 			if (logger.isDebugEnabled()) {
 				logger.debug("This call already cancelled.");
@@ -265,13 +310,16 @@ public class GoogleVoiceSession implements Serializable {
 	}
 
 	public boolean cancel() throws ClientProtocolException, IOException,
-			HttpResponseException, AuthenticationException {
+			HttpResponseException, AuthenticationException, SecurityException,
+			IllegalArgumentException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cancelling call.");
 		}
 		cancelCall = true;
 		HttpPost callPost = new HttpPost(CONCEL_URL);
-		List<NameValuePair> ps = new ArrayList<NameValuePair>();
+		List<NameValuePair> ps = new ArrayList<NameValuePair>(4);
 		ps.add(new BasicNameValuePair("outgoingNumber", "undefined"));
 		ps.add(new BasicNameValuePair("forwardingNumber", "undefined"));
 		ps.add(new BasicNameValuePair("cancelType", "C2C"));
@@ -282,66 +330,482 @@ public class GoogleVoiceSession implements Serializable {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Call \"cancel\" method.");
 		}
-		return callMethod(callPost, 0);
+		CallResult result = callMethod(callPost, 0, CallResult.class);
+		return result.isSuccess();
 	}
 
-	public GoogleVoiceConfig getGoogleVoiceSetting()
-			throws ClientProtocolException, IOException {
-		String phoneSettingUrl = PHONE_SETTING_URL;
-		HttpGet request = new HttpGet(phoneSettingUrl);
-		HttpParams params = new BasicHttpParams();
-		params.setIntParameter("v", version);
-		request.setParams(params);
+	public GoogleVoiceConfig getGoogleVoiceSetting() throws IOException,
+			ParserConfigurationException, SAXException,
+			GoogleAuthenticationException, IllegalStateException,
+			HttpResponseException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Getting google voice settings");
+		}
+		List<NameValuePair> qparams = new ArrayList<NameValuePair>(1);
+		qparams.add(new BasicNameValuePair("v", version));
+		HttpGet request = new HttpGet(HttpUtils.prepareGetUrl(
+				PHONE_SETTING_URL, qparams));
 		prepairAuthToken(request);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Sending request");
+		}
 		HttpResponse response = httpClient.execute(request);
-		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					response.getEntity().getContent()));
+		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Call failed, parsing failed reason.");
+			}
+			parseError(response.getEntity());
+		}
+		HttpUtils.checkResponse(request, response, logger);
+		HttpEntity entity = response.getEntity();
+		String charset = HttpUtils.getCharset(entity);
+		InputStreamReader reader = new InputStreamReader(entity.getContent(),
+				charset);
+		InputSource is = new InputSource(reader);
+		SAXParserFactory factory = SAXParserFactory.newInstance();
+		try {
+			SAXParser parser = factory.newSAXParser();
+			SAXHandler handler = new SAXHandler();
+			if (logger.isTraceEnabled()) {
+				logger.trace("Parsing response xml.");
+			}
+			parser.parse(is, handler);
+			String jsonStr = handler.getJson();
+			if (jsonStr != null) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Found json string. {}", jsonStr);
+				}
+				Gson gson = Utility.getGson();
+				GoogleVoiceConfig config = gson.fromJson(jsonStr,
+						GoogleVoiceConfig.class);
+				return config;
+			} else {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Parse success, but didn't found json string.");
+				}
+			}
+		} finally {
 			try {
-				String tmp = null;
-				while ((tmp = reader.readLine()) != null) {
-					Matcher m = phoneSettingPattern.matcher(tmp);
-					if (m.matches()) {
-						String jsonStr = m.group(1);
-						Gson gson = new Gson();
-						GoogleVoiceConfig config = gson.fromJson(jsonStr,
-								GoogleVoiceConfig.class);
-						return config;
-					}
-				}
-			} catch (IOException e) {
-				try {
-					reader.close();
-				} catch (IOException ee) {
-					if (logger.isWarnEnabled()) {
-						logger.warn(
-								"Error happened when close reader during IO exception handling, ignore it.",
-								ee);
-					}
-				} finally {
-					reader = null;
-				}
-				throw e;
-			} finally {
-				if (reader != null) {
-					try {
-						reader.close();
-					} catch (IOException e) {
-						if (logger.isWarnEnabled()) {
-							logger.warn(
-									"Error happened when close reader, ignore it.",
-									e);
-						}
-					}
+				reader.close();
+			} catch (Throwable e) {
+				if (logger.isWarnEnabled()) {
+					logger.warn("Error happened when close reader, ignore it.",
+							e);
 				}
 			}
 		}
 		return null;
 	}
 
-	private boolean callMethod(HttpPost request, int retry)
+	public CallResult editGeneralSettings(Settings settings)
+			throws ClientProtocolException, SecurityException,
+			IllegalArgumentException, IOException, HttpResponseException,
+			AuthenticationException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Editing general settings", settings);
+		}
+		if (settings == null) {
+			throw new NullPointerException();
+		}
+		HttpPost callPost = new HttpPost(EDIT_GENERAL_SETTINGS_URL);
+		List<NameValuePair> ps = new ArrayList<NameValuePair>(15);
+
+		ps.add(new BasicNameValuePair("directConnect", settings
+				.isDirectConnect() ? "1" : "0"));
+		ps.add(new BasicNameValuePair("directRtp", Integer.toString(settings
+				.getDirectRtp())));
+		ps.add(new BasicNameValuePair("doNotDisturb",
+				settings.isDoNotDisturb() ? "1" : "0"));
+		if (settings.isDoNotDisturb()) {
+			ps.add(new BasicNameValuePair("doNotDisturbExpiration", Long
+					.toString(settings.getDoNotDisturbExpiration())));
+		} else {
+			ps.add(new BasicNameValuePair("doNotDisturbExpiration", "-1"));
+		}
+		ps.add(new BasicNameValuePair("emailNotificationActive", settings
+				.isEmailNotificationActive() ? "1" : "0"));
+		ps.add(new BasicNameValuePair("emailNotificationAddress", settings
+				.getEmailNotificationAddress()));
+		ps.add(new BasicNameValuePair("filterGlobalSpam", Integer
+				.toString(settings.getFilterGlobalSpam())));
+		ps.add(new BasicNameValuePair("missedToEmail", settings
+				.isMissedToEmail() ? "1" : "0"));
+		ps.add(new BasicNameValuePair("missedToInbox", settings
+				.isMissedToInbox() ? "1" : "0"));
+		if (!settings.isDirectConnect()) {
+			ps.add(new BasicNameValuePair("screenBehavior", Integer
+					.toString(settings.getScreenBehavior())));
+		} else {
+			ps.add(new BasicNameValuePair("screenBehavior", "0"));
+		}
+		ps.add(new BasicNameValuePair("smsToEmailActive", settings
+				.isSmsToEmailActive() ? "1" : "0"));
+		ps.add(new BasicNameValuePair("smsToEmailSubject", settings
+				.isSmsToEmailSubject() ? "1" : "0"));
+		ps.add(new BasicNameValuePair("useDidAsCallerId", settings
+				.isUseDidAsCallerId() ? "1" : "0"));
+		ps.add(new BasicNameValuePair("useDidAsSmsSource", settings
+				.isUseDidAsSource() ? "1" : "0"));
+
+		ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
+		HttpEntity en = new UrlEncodedFormEntity(ps);
+		callPost.setEntity(en);
+		prepairAuthToken(callPost);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Calling general settings.");
+		}
+		CallResult result = callMethod(callPost, 0, CallResult.class);
+		return result;
+	}
+
+	public EditPhoneResult editPhone(Phone phone)
 			throws ClientProtocolException, IOException, HttpResponseException,
-			AuthenticationException {
+			AuthenticationException, SecurityException,
+			IllegalArgumentException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
+		EditPhoneResult result = editPhone(phone, true);
+		if (result.isSuccess()) {
+			result = editPhone(phone, false);
+		}
+		return result;
+	}
+
+	private EditPhoneResult editPhone(Phone phone, boolean dryRun)
+			throws ClientProtocolException, IOException, HttpResponseException,
+			AuthenticationException, SecurityException,
+			IllegalArgumentException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Adding phone: {}", phone);
+		}
+		if (phone == null) {
+			throw new NullPointerException("Cannot delete non-exists phone.");
+		}
+		HttpPost callPost = new HttpPost(EDIT_ADD_PHONE_URL);
+		List<NameValuePair> ps = new ArrayList<NameValuePair>(dryRun ? 15 : 14);
+		if (dryRun) {
+			ps.add(new BasicNameValuePair("dryRun", "1"));
+		}
+		ps.add(new BasicNameValuePair("id", Integer.toString(phone.getId())));
+		ps.add(new BasicNameValuePair("type", Integer.toString(phone.getType()
+				.getValue())));
+		ps.add(new BasicNameValuePair("name", phone.getName()));
+		ps.add(new BasicNameValuePair("phoneNumber", phone.getPhoneNumber()));
+		ps.add(new BasicNameValuePair("policyBitmask", Integer.toString(phone
+				.getPolicyBitmask().getValue())));
+		ps.add(new BasicNameValuePair("redirectToVoicemail", phone
+				.isRedirectToVoicemail() ? "1" : "0"));
+		ps.add(new BasicNameValuePair("smsEnabled", phone.isSmsEnabled() ? "1"
+				: "0"));
+		switch (phone.getScheduleSet()) {
+		case FALSE:
+			ps.add(new BasicNameValuePair("ringwd", "0"));
+			ps.add(new BasicNameValuePair("fromTimewd0", "9:00am"));
+			ps.add(new BasicNameValuePair("toTimewd0", "5:00pm"));
+			ps.add(new BasicNameValuePair("ringwe", "0"));
+			ps.add(new BasicNameValuePair("fromTimewe0", "9:00am"));
+			ps.add(new BasicNameValuePair("toTimewe0", "5:00pm"));
+			break;
+		case TRUE:
+			if (phone.getWd() != null && phone.getWd().isAllDay()) {
+				ps.add(new BasicNameValuePair("ringwd", "1"));
+			} else {
+				ps.add(new BasicNameValuePair("ringwd", "0"));
+			}
+			ps.add(new BasicNameValuePair("fromTimewd0", "9:00am"));
+			ps.add(new BasicNameValuePair("toTimewd0", "5:00pm"));
+			if (phone.getWe() != null && phone.getWe().isAllDay()) {
+				ps.add(new BasicNameValuePair("ringwe", "1"));
+			} else {
+				ps.add(new BasicNameValuePair("ringwe", "0"));
+			}
+			ps.add(new BasicNameValuePair("fromTimewe0", "9:00am"));
+			ps.add(new BasicNameValuePair("toTimewe0", "5:00pm"));
+			break;
+		case ONE:
+			if (phone.getWd() != null) {
+				if (phone.getWd().isAllDay()) {
+					ps.add(new BasicNameValuePair("ringwd", "1"));
+					ps.add(new BasicNameValuePair("fromTimewd0", "9:00am"));
+					ps.add(new BasicNameValuePair("toTimewd0", "5:00pm"));
+				} else {
+					if (phone.getWd().getTimes() != null
+							&& phone.getWd().getTimes().length > 0) {
+						ps.add(new BasicNameValuePair("ringwd", "2"));
+						for (int i = 0; i < phone.getWd().getTimes().length; i++) {
+							ps.add(new BasicNameValuePair("fromTimewd" + i,
+									phone.getWd().getTimes()[i].getStartTime()));
+							ps.add(new BasicNameValuePair("toTimewd0" + i,
+									phone.getWd().getTimes()[i].getEndTime()));
+						}
+					} else {
+						ps.add(new BasicNameValuePair("ringwd", "0"));
+						ps.add(new BasicNameValuePair("fromTimewd0", "9:00am"));
+						ps.add(new BasicNameValuePair("toTimewd0", "5:00pm"));
+					}
+				}
+			} else {
+				ps.add(new BasicNameValuePair("ringwd", "0"));
+				ps.add(new BasicNameValuePair("fromTimewd0", "9:00am"));
+				ps.add(new BasicNameValuePair("toTimewd0", "5:00pm"));
+			}
+			if (phone.getWe() != null) {
+				if (phone.getWe().isAllDay()) {
+					ps.add(new BasicNameValuePair("ringwe", "1"));
+					ps.add(new BasicNameValuePair("fromTimewe0", "9:00am"));
+					ps.add(new BasicNameValuePair("toTimewe0", "5:00pm"));
+				} else {
+					if (phone.getWe().getTimes() != null
+							&& phone.getWe().getTimes().length > 0) {
+						ps.add(new BasicNameValuePair("ringwe", "2"));
+						for (int i = 0; i < phone.getWe().getTimes().length; i++) {
+							ps.add(new BasicNameValuePair("fromTimewe" + i,
+									phone.getWe().getTimes()[i].getStartTime()));
+							ps.add(new BasicNameValuePair("toTimewe0" + i,
+									phone.getWe().getTimes()[i].getEndTime()));
+						}
+					} else {
+						ps.add(new BasicNameValuePair("ringwe", "0"));
+						ps.add(new BasicNameValuePair("fromTimewe0", "9:00am"));
+						ps.add(new BasicNameValuePair("toTimewe0", "5:00pm"));
+					}
+				}
+			} else {
+				ps.add(new BasicNameValuePair("ringwe", "0"));
+				ps.add(new BasicNameValuePair("fromTimewe0", "9:00am"));
+				ps.add(new BasicNameValuePair("toTimewe0", "5:00pm"));
+			}
+			break;
+		}
+		ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
+		HttpEntity en = new UrlEncodedFormEntity(ps);
+		callPost.setEntity(en);
+		prepairAuthToken(callPost);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Calling edit/add phone number.");
+		}
+		EditPhoneResult result = callMethod(callPost, 0, EditPhoneResult.class);
+		return result;
+	}
+
+	public boolean deletePhone(Phone phone) throws ClientProtocolException,
+			IOException, HttpResponseException, AuthenticationException,
+			SecurityException, IllegalArgumentException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Deleting phone: {}", phone);
+		}
+		if (phone == null) {
+			throw new NullPointerException("Cannot delete non-exists phone.");
+		}
+		if (phone.getId() <= 0) {
+			throw new IllegalArgumentException(
+					"Phone id less equal to 0, cannot delete.");
+		}
+		HttpPost callPost = new HttpPost(DELETE_PHONE_URL);
+		List<NameValuePair> ps = new ArrayList<NameValuePair>(2);
+		ps.add(new BasicNameValuePair("id", Integer.toString(phone.getId())));
+		ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
+		HttpEntity en = new UrlEncodedFormEntity(ps);
+		callPost.setEntity(en);
+		prepairAuthToken(callPost);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Call \"delete phone\" method.");
+		}
+		CallResult result = callMethod(callPost, 0, CallResult.class);
+		return result.isSuccess();
+	}
+
+	public CheckIllegalSharingResult checkIllegalSharing(Phone phone)
+			throws ClientProtocolException, SecurityException,
+			IllegalArgumentException, IOException, HttpResponseException,
+			AuthenticationException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Checking illegal sharing for phone: {}", phone);
+		}
+		if (phone == null) {
+			throw new NullPointerException("Cannot check for non-exists phone.");
+		}
+		if (phone.getId() <= 0) {
+			throw new IllegalArgumentException(
+					"Phone id less equal to 0, cannot check.");
+		}
+		HttpPost callPost = new HttpPost(CHECK_ILLEGAL_SHARING_URL);
+		List<NameValuePair> ps = new ArrayList<NameValuePair>(2);
+		ps.add(new BasicNameValuePair("phoneId",
+				Integer.toString(phone.getId())));
+		ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
+		HttpEntity en = new UrlEncodedFormEntity(ps);
+		callPost.setEntity(en);
+		prepairAuthToken(callPost);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Call \"delete phone\" method.");
+		}
+		CheckIllegalSharingResult result = callMethod(callPost, 0,
+				CheckIllegalSharingResult.class);
+		return result;
+	}
+
+	public boolean editDefaultForwarding(Phone phone, boolean enable)
+			throws ClientProtocolException, SecurityException,
+			IllegalArgumentException, IOException, HttpResponseException,
+			AuthenticationException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
+		if (logger.isDebugEnabled()) {
+			logger.debug(
+					"Edit default forwarding for phone: {} to set enable to {}",
+					phone, enable);
+		}
+		if (phone == null) {
+			throw new NullPointerException();
+		}
+		if (phone.getId() <= 0) {
+			throw new IllegalArgumentException(
+					"Phone id less equal to 0, cannot edit.");
+		}
+		HttpPost callPost = new HttpPost(EDIT_DEFAULT_FORWARDING_URL);
+		List<NameValuePair> ps = new ArrayList<NameValuePair>(3);
+		ps.add(new BasicNameValuePair("phoneId",
+				Integer.toString(phone.getId())));
+		ps.add(new BasicNameValuePair("enabled", enable ? "1" : "0"));
+		ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
+		HttpEntity en = new UrlEncodedFormEntity(ps);
+		callPost.setEntity(en);
+		prepairAuthToken(callPost);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Call \"delete phone\" method.");
+		}
+		CallResult result = callMethod(callPost, 0, CallResult.class);
+		return result.isSuccess();
+	}
+
+	public CheckForwardingVerifiedResult checkForwardingVerified(Phone phone)
+			throws ClientProtocolException, SecurityException,
+			IllegalArgumentException, IOException, HttpResponseException,
+			AuthenticationException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Checking forwarding verified for phone: {}", phone);
+		}
+		if (phone == null) {
+			throw new NullPointerException();
+		}
+		if (phone.getId() <= 0) {
+			throw new IllegalArgumentException(
+					"Phone id less equal to 0, cannot check.");
+		}
+		List<NameValuePair> qparams = new ArrayList<NameValuePair>(1);
+		qparams.add(new BasicNameValuePair("phoneId", Integer.toString(phone
+				.getId())));
+		HttpGet request = new HttpGet(HttpUtils.prepareGetUrl(
+				CHECK_FORWARDING_VERIFIED_URL, qparams));
+		prepairAuthToken(request);
+
+		if (logger.isTraceEnabled()) {
+			logger.trace("Call \"checkForwardingVerified\" method.");
+		}
+		CheckForwardingVerifiedResult result = callMethod(request, 0,
+				CheckForwardingVerifiedResult.class);
+		return result;
+	}
+
+	public boolean setInVerification(Phone phone, boolean inVerification)
+			throws ClientProtocolException, IOException, HttpResponseException,
+			AuthenticationException, SecurityException,
+			IllegalArgumentException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Setting inVerification for phone: {}", phone);
+		}
+		if (phone == null) {
+			throw new NullPointerException(
+					"Cannot set inVerification non-exists phone.");
+		}
+		if (phone.getId() <= 0) {
+			throw new IllegalArgumentException(
+					"Phone id less equal to 0, cannot set inVerification.");
+		}
+		HttpPost callPost = new HttpPost(SET_IN_VERIFICATION_URL);
+		List<NameValuePair> ps = new ArrayList<NameValuePair>(3);
+		ps.add(new BasicNameValuePair("phoneId",
+				Integer.toString(phone.getId())));
+		if (inVerification) {
+			ps.add(new BasicNameValuePair("isInVerification", "1"));
+		} else {
+			ps.add(new BasicNameValuePair("isInVerification", "0"));
+		}
+		ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
+		HttpEntity en = new UrlEncodedFormEntity(ps);
+		callPost.setEntity(en);
+		prepairAuthToken(callPost);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Call \"setInVerification for phone\" method.");
+		}
+		CallResult result = callMethod(callPost, 0, CallResult.class);
+		return result.isSuccess();
+	}
+
+	public boolean verifyForwarding(Phone phone, int code)
+			throws ClientProtocolException, SecurityException,
+			IllegalArgumentException, IOException, HttpResponseException,
+			AuthenticationException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Setting inVerification for phone: {}", phone);
+		}
+		if (phone == null) {
+			throw new NullPointerException(
+					"Cannot set inVerification non-exists phone.");
+		}
+		if (phone.getId() <= 0) {
+			throw new IllegalArgumentException(
+					"Phone id less equal to 0, cannot set inVerification.");
+		}
+		if (code <= 0 || code > 100) {
+			throw new IllegalArgumentException(
+					"verify code need to between 1 to 99");
+		}
+		HttpPost callPost = new HttpPost(VERIFY_FORWARDING_URL);
+		List<NameValuePair> ps = new ArrayList<NameValuePair>(6);
+		ps.add(new BasicNameValuePair("phoneId",
+				Integer.toString(phone.getId())));
+		ps.add(new BasicNameValuePair("forwardingNumber", phone
+				.getPhoneNumber()));
+		ps.add(new BasicNameValuePair("code", code < 10 ? "0"
+				+ Integer.toString(code) : Integer.toString(code)));
+		ps.add(new BasicNameValuePair("phoneType", Integer.toString(phone
+				.getType().getValue())));
+		ps.add(new BasicNameValuePair("subscriberNumber", "undefined"));
+
+		ps.add(new BasicNameValuePair("_rnr_se", rnrSe));
+		HttpEntity en = new UrlEncodedFormEntity(ps);
+		callPost.setEntity(en);
+		prepairAuthToken(callPost);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Call \"setInVerification for phone\" method.");
+		}
+		CallResult result = callMethod(callPost, 0, CallResult.class);
+		return result.isSuccess();
+	}
+
+	private <T extends CallResult> T callMethod(HttpUriRequest request,
+			int retry, Class<T> clazz) throws ClientProtocolException,
+			IOException, HttpResponseException, AuthenticationException,
+			SecurityException, NoSuchMethodException, IllegalArgumentException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
+		T result = null;
 		HttpResponse response = httpClient.execute(request);
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
 			if (logger.isTraceEnabled()) {
@@ -353,47 +817,35 @@ public class GoogleVoiceSession implements Serializable {
 					logger.trace("Retry with login first.");
 				}
 				login();
-				return callMethod(request, retry++);
+				return callMethod(request, retry++, clazz);
 			} else {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Call failed, parsing failed reason.");
 				}
 				parseError(response.getEntity());
 			}
-		} else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Call method failed with status code: {}",
-						response.getStatusLine().getStatusCode());
-			}
-			request.abort();
-			throw new HttpResponseException(response.getStatusLine()
-					.getStatusCode(), "Error happened when parse auth tokens");
 		}
+		HttpUtils.checkResponse(request, response, logger);
 		String body = EntityUtils.toString(response.getEntity());
 		if (logger.isTraceEnabled()) {
 			logger.trace("Method return body: {}", body);
 		}
-		Matcher m = resultPattern.matcher(body);
-		if (m.matches()) {
-			if ("true".equalsIgnoreCase(m.group(1))) {
-				if (logger.isTraceEnabled()) {
-					logger.trace("Method return \"ok\" : true. Success.");
-				}
-				return true;
-			}
-		}
+		Constructor<T> c = clazz.getConstructor(String.class);
+		result = c.newInstance(body);
 		if (logger.isDebugEnabled()) {
-			logger.debug("Call failed.");
+			logger.debug("Call result: {}", result);
 		}
-		return false;
+		return result;
 	}
 
 	private void parseError(HttpEntity entity)
 			throws GoogleAuthenticationException, IllegalStateException,
 			IOException, HttpResponseException {
 		if (entity != null) {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					entity.getContent()));
+			String charset = HttpUtils.getCharset(entity);
+			InputStreamReader isr = new InputStreamReader(entity.getContent(),
+					charset);
+			BufferedReader reader = new BufferedReader(isr);
 			try {
 				String tmp;
 				AuthenticationErrorCode errorCode = null;
@@ -450,7 +902,112 @@ public class GoogleVoiceSession implements Serializable {
 	/**
 	 * @return the version
 	 */
-	public int getVersion() {
+	public String getVersion() {
 		return version;
+	}
+
+	static class SAXHandler extends DefaultHandler {
+		private char[] data;
+		private int cursor;
+
+		private boolean inJson;
+		private boolean jsonSetted;
+
+		public SAXHandler() {
+			data = new char[1024];
+			cursor = 0;
+			inJson = false;
+			jsonSetted = false;
+		}
+
+		public String getJson() {
+			return jsonSetted ? String.valueOf(data, 0, cursor) : null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+		 * java.lang.String, java.lang.String, org.xml.sax.Attributes)
+		 */
+		@Override
+		public void startElement(String uri, String localName, String qName,
+				Attributes attributes) throws SAXException {
+			if (!inJson && !jsonSetted && qName.equalsIgnoreCase("json")) {
+				inJson = true;
+			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.xml.sax.helpers.DefaultHandler#endElement(java.lang.String,
+		 * java.lang.String, java.lang.String)
+		 */
+		@Override
+		public void endElement(String uri, String localName, String qName)
+				throws SAXException {
+			if (inJson && qName.equalsIgnoreCase("json")) {
+				inJson = false;
+				jsonSetted = true;
+			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.xml.sax.helpers.DefaultHandler#characters(char[], int, int)
+		 */
+		@Override
+		public void characters(char[] ch, int start, int length)
+				throws SAXException {
+			if (inJson) {
+				if ((data.length - cursor) < length) {
+					char[] tmp = new char[cursor + length];
+					System.arraycopy(data, 0, tmp, 0, cursor);
+					data = tmp;
+				}
+				System.arraycopy(ch, start, data, cursor, length);
+				cursor += length;
+			}
+		}
+	}
+}
+
+class RnrSeData implements Serializable {
+	private static final long serialVersionUID = 3873653909704915557L;
+
+	private String v;
+	private String _rnr_se;
+
+	/**
+	 * @return the v
+	 */
+	public String getV() {
+		return v;
+	}
+
+	/**
+	 * @param v
+	 *            the v to set
+	 */
+	public void setV(String v) {
+		this.v = v;
+	}
+
+	/**
+	 * @return the _rnr_se
+	 */
+	public String get_rnr_se() {
+		return _rnr_se;
+	}
+
+	/**
+	 * @param _rnr_se
+	 *            the _rnr_se to set
+	 */
+	public void set_rnr_se(String _rnr_se) {
+		this._rnr_se = _rnr_se;
 	}
 }

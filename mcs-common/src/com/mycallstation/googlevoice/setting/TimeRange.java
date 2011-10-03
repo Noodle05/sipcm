@@ -43,4 +43,22 @@ public class TimeRange implements Serializable {
 	public void setTimes(Time[] times) {
 		this.times = times;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[allDay=").append(allDay);
+		if (times != null) {
+			for (int i = 0; i < times.length; i++) {
+				sb.append(",").append(i).append("=").append(times[i]);
+			}
+		}
+		sb.append("]");
+		return sb.toString();
+	}
 }

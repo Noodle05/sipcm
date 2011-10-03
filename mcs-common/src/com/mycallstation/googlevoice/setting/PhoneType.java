@@ -8,45 +8,33 @@ package com.mycallstation.googlevoice.setting;
  * 
  */
 public enum PhoneType {
-	HOME(1), MOBILE(2), WORK(3), GTALK(9);
-	private int value;
+	HOME(1, 100), MOBILE(2, 50), WORK(3, 75), GTALK(9, 0);
+	private final int value;
+	private final int weight;
 
-	private PhoneType(int value) {
+	private PhoneType(int value, int weight) {
 		this.value = value;
+		this.weight = weight;
 	}
 
 	public int getValue() {
 		return value;
 	}
 
-	public static PhoneType getTypeByValue(int value) {
+	public int getWeight() {
+		return weight;
+	}
+
+	public static PhoneType valueOf(int value) {
 		for (PhoneType type : PhoneType.values()) {
 			if (type.getValue() == value) {
 				return type;
 			}
 		}
-		return null;
+		return HOME;
 	}
 
-	public boolean lessThan(int type) {
-		switch (this) {
-		case HOME:
-			return false;
-		case MOBILE:
-			if (type == 1 || type == 3) {
-				return true;
-			} else {
-				return false;
-			}
-		case GTALK:
-			return true;
-		case WORK:
-			if (type == 1) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-		return true;
+	public boolean lessThan(PhoneType type) {
+		return weight - type.getWeight() < 0;
 	}
 }

@@ -12,35 +12,48 @@ import java.util.Map;
  */
 public class Settings implements Serializable {
 	private static final long serialVersionUID = -684999314980950874L;
+	// This is google voice number.
 	private String primaryDid;
-	private transient String language;
+	private String language;
+	// If directConnect = 0, this means Ask unknown callers name (1) or not (0)
 	private int screenBehavior;
+	// should set to false
 	private boolean useDidAsCallerId;
-	private transient int spam;
-	private transient int credits;
-	private transient String timezone;
-	private transient boolean doNotDisturb;
+	private int filterGlobalSpam;
+	private int enablePinAccess;
+	private int credits;
+	private String timezone;
+	private boolean doNotDisturb;
+	// Unix time stamp of expire date.
+	private long doNotDisturbExpiration = -1L;
 	private transient Object[] didInfos;
 	private transient Notification[] smsNotifications;
-	private transient boolean emailNotificationActive;
-	private transient String emailNotificationAddress;
-	private transient boolean smsToEmailActive;
-	private transient boolean smsToEmailSubject;
-	private transient boolean missedToEmail;
-	private transient boolean showTranscripts;
-	private transient boolean directConnect;
-	private transient boolean useDidAsSource;
-	private transient boolean emailToSmsActive;
-	private transient boolean missedToInbox;
-	private transient Greeting[] greetings;
-	private transient Map<Integer, Greeting> greetingMap;
+	private boolean emailNotificationActive;
+	private String emailNotificationAddress;
+	private boolean smsToEmailActive;
+	private boolean smsToEmailSubject;
+	private boolean missedToEmail;
+	private boolean showTranscripts;
+	// Direct connect or present screen behavior
+	// For use with mycallstation, should set to true
+	private boolean directConnect;
+	// Enable recording (4), switch (*) and conferencing options on inbound
+	// calls
+	private int directRtp;
+	// should set to false
+	private boolean useDidAsSource;
+	private boolean emailToSmsActive;
+	private boolean missedToInbox;
+	private Greeting[] greetings;
+	private Map<Integer, Greeting> greetingsMap;
 	private int[] activeForwardingIds;
+	// If an phone is not forwarding, it will in this map with value: true
 	private Map<Integer, Boolean> disabledIdMap;
-	private transient int defaultGreetingId;
+	private int defaultGreetingId;
 	private transient Object[] webCallButtons;
-	private transient Map<Integer, Group> groups;
-	private transient int[] groupList;
-	private transient boolean lowBalanceNotificationEnabled;
+	private Map<Integer, Group> groups;
+	private int[] groupList;
+	private boolean lowBalanceNotificationEnabled;
 	private String[] emailAddresses;
 	private String baseUrl;
 
@@ -105,18 +118,33 @@ public class Settings implements Serializable {
 	}
 
 	/**
-	 * @return the spam
+	 * @return the filterGlobalSpam
 	 */
-	public int getSpam() {
-		return spam;
+	public int getFilterGlobalSpam() {
+		return filterGlobalSpam;
 	}
 
 	/**
-	 * @param spam
-	 *            the spam to set
+	 * @param filterGlobalSpam
+	 *            the filterGlobalSpam to set
 	 */
-	public void setSpam(int spam) {
-		this.spam = spam;
+	public void setFilterGlobalSpam(int filterGlobalSpam) {
+		this.filterGlobalSpam = filterGlobalSpam;
+	}
+
+	/**
+	 * @return the enablePinAccess
+	 */
+	public int getEnablePinAccess() {
+		return enablePinAccess;
+	}
+
+	/**
+	 * @param enablePinAccess
+	 *            the enablePinAccess to set
+	 */
+	public void setEnablePinAccess(int enablePinAccess) {
+		this.enablePinAccess = enablePinAccess;
 	}
 
 	/**
@@ -162,6 +190,21 @@ public class Settings implements Serializable {
 	 */
 	public void setDoNotDisturb(boolean doNotDisturb) {
 		this.doNotDisturb = doNotDisturb;
+	}
+
+	/**
+	 * @return the doNotDisturbExpiration
+	 */
+	public long getDoNotDisturbExpiration() {
+		return doNotDisturbExpiration;
+	}
+
+	/**
+	 * @param doNotDisturbExpiration
+	 *            the doNotDisturbExpiration to set
+	 */
+	public void setDoNotDisturbExpiration(long doNotDisturbExpiration) {
+		this.doNotDisturbExpiration = doNotDisturbExpiration;
 	}
 
 	/**
@@ -300,6 +343,21 @@ public class Settings implements Serializable {
 	}
 
 	/**
+	 * @return the directRtp
+	 */
+	public int getDirectRtp() {
+		return directRtp;
+	}
+
+	/**
+	 * @param directRtp
+	 *            the directRtp to set
+	 */
+	public void setDirectRtp(int directRtp) {
+		this.directRtp = directRtp;
+	}
+
+	/**
 	 * @return the useDidAsSource
 	 */
 	public boolean isUseDidAsSource() {
@@ -360,18 +418,18 @@ public class Settings implements Serializable {
 	}
 
 	/**
-	 * @return the greetingMap
+	 * @return the greetingsMap
 	 */
-	public Map<Integer, Greeting> getGreetingMap() {
-		return greetingMap;
+	public Map<Integer, Greeting> getGreetingsMap() {
+		return greetingsMap;
 	}
 
 	/**
-	 * @param greetingMap
-	 *            the greetingMap to set
+	 * @param greetingsMap
+	 *            the greetingsMap to set
 	 */
-	public void setGreetingMap(Map<Integer, Greeting> greetingMap) {
-		this.greetingMap = greetingMap;
+	public void setGreetingsMap(Map<Integer, Greeting> greetingsMap) {
+		this.greetingsMap = greetingsMap;
 	}
 
 	/**

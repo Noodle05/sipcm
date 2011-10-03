@@ -36,6 +36,7 @@ import com.mycallstation.dataaccess.model.VoipVendor;
 import com.mycallstation.googlevoice.GoogleVoiceSession;
 import com.mycallstation.googlevoice.setting.GoogleVoiceConfig;
 import com.mycallstation.googlevoice.setting.Phone;
+import com.mycallstation.googlevoice.setting.PhoneType;
 import com.mycallstation.web.util.JSFUtils;
 import com.mycallstation.web.util.Messages;
 
@@ -311,7 +312,7 @@ public class VoipAccountSettingBean implements Serializable {
 					FacesContext.getCurrentInstance().addMessage(null, message);
 					ret = false;
 				} else {
-					if (ph.getType() != 1) {
+					if (!PhoneType.HOME.equals(ph.getType())) {
 						FacesMessage message = Messages
 								.getMessage(
 										"member.voip.warn.googlevoice.callback.type.error",
