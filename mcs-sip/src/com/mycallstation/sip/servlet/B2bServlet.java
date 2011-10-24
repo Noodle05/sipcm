@@ -46,6 +46,10 @@ public class B2bServlet extends AbstractSipServlet {
 	public static final String LINKED_SESSION_STATUS = "com.mycallstation.linkedSessionStatus";
 	public static final String REMOTE_URI = "com.mycallstation.remote.uri";
 
+	public static final String SESSION_STATE_WAITING = "WAITING";
+	public static final String SESSION_STATE_CANCELLED = "CANCELLED";
+	public static final String SESSION_STATE_TERMINATED = "TERMINATED";
+
 	@Resource(name = "sipUtil")
 	protected SipUtil sipUtil;
 
@@ -115,7 +119,7 @@ public class B2bServlet extends AbstractSipServlet {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Linked session cancelled already.");
 			}
-			if (cancelStatus.equals("WAITING")) {
+			if (cancelStatus.equals(SESSION_STATE_WAITING)) {
 				int status = resp.getStatus();
 				if (status < 200) {
 					if (logger.isTraceEnabled()) {
@@ -125,7 +129,7 @@ public class B2bServlet extends AbstractSipServlet {
 							.createCancel();
 					cancelRequest.send();
 					resp.getSession().setAttribute(LINKED_SESSION_STATUS,
-							"TERMINATED");
+							SESSION_STATE_TERMINATED);
 				} else if (status < 300) {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Orginal request already send BYE to end this invite, so we send bye");
@@ -134,7 +138,7 @@ public class B2bServlet extends AbstractSipServlet {
 							.createRequest(Request.BYE);
 					cancelRequest.send();
 					resp.getSession().setAttribute(LINKED_SESSION_STATUS,
-							"TERMINATED");
+							SESSION_STATE_TERMINATED);
 				} else {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Don't forward.");
@@ -291,7 +295,8 @@ public class B2bServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Linked session still in INITIAL state, set waiting and will send cancel when receive 100-199 response.");
 				}
-				linkedSession.setAttribute(LINKED_SESSION_STATUS, "WAITING");
+				linkedSession.setAttribute(LINKED_SESSION_STATUS,
+						SESSION_STATE_WAITING);
 				if (callEventListener != null) {
 					callCanceled(session);
 				}
@@ -317,7 +322,8 @@ public class B2bServlet extends AbstractSipServlet {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Mark forked invite already cancelled.");
 				}
-				linkedSession.setAttribute(LINKED_SESSION_STATUS, "CANCELLED");
+				linkedSession.setAttribute(LINKED_SESSION_STATUS,
+						SESSION_STATE_CANCELLED);
 				break;
 			case CONFIRMED:
 				SipServletRequest forkedRequest = helper.createRequest(
@@ -337,7 +343,8 @@ public class B2bServlet extends AbstractSipServlet {
 				}
 				response(req, SipServletResponse.SC_BAD_REQUEST,
 						"Use CANCEL next time.");
-				linkedSession.setAttribute(LINKED_SESSION_STATUS, "TERMINATED");
+				linkedSession.setAttribute(LINKED_SESSION_STATUS,
+						SESSION_STATE_TERMINATED);
 				break;
 			}
 			if (State.EARLY.equals(linkedSession.getState())) {
@@ -429,8 +436,8 @@ public class B2bServlet extends AbstractSipServlet {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Linked session still in INITIAL state, set waiting and will send cancel when receive 100-199 response.");
 					}
-					linkedSession
-							.setAttribute(LINKED_SESSION_STATUS, "WAITING");
+					linkedSession.setAttribute(LINKED_SESSION_STATUS,
+							SESSION_STATE_WAITING);
 					if (callEventListener != null) {
 						callCanceled(session);
 					}
@@ -448,7 +455,7 @@ public class B2bServlet extends AbstractSipServlet {
 					}
 					cancelRequest.send();
 					linkedSession.setAttribute(LINKED_SESSION_STATUS,
-							"CANCELLED");
+							SESSION_STATE_CANCELLED);
 					if (callEventListener != null) {
 						callCanceled(session);
 					}
@@ -473,7 +480,7 @@ public class B2bServlet extends AbstractSipServlet {
 						logger.trace("Linked session already terminated.");
 					}
 					linkedSession.setAttribute(LINKED_SESSION_STATUS,
-							"TERMINATED");
+							SESSION_STATE_TERMINATED);
 					break;
 				}
 			} else {

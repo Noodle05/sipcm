@@ -4,18 +4,30 @@
 package com.mycallstation.sip.servlet;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
+import javax.sdp.Attribute;
+import javax.sdp.MediaDescription;
+import javax.sdp.SdpConstants;
+import javax.sdp.SdpException;
+import javax.sdp.SdpFactory;
+import javax.sdp.SdpParseException;
+import javax.sdp.SessionDescription;
 import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
 import javax.servlet.sip.B2buaHelper;
 import javax.servlet.sip.ServletParseException;
 import javax.servlet.sip.ServletTimer;
 import javax.servlet.sip.SipApplicationSession;
+import javax.servlet.sip.SipServletMessage;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSession;
@@ -50,6 +62,9 @@ public class GoogleVoiceServlet extends B2bServlet {
 	public static final String GV_SESSION = "com.mycallstation.googlevoice.session";
 	public static final String ORIGINAL_REQUEST = "com.mycallstation.originalRequest";
 	public static final String GV_TIMEOUT = "com.mycallstation.googlevoice.timeout";
+	public static final Pattern codecPattern = Pattern
+			.compile("^(\\d+)\\s+.*$");
+	public static final String SDP_TYPE = "application/sdp";
 
 	@Resource(name = "googleVoiceManager")
 	private GoogleVoiceManager googleVoiceManager;
@@ -163,9 +178,19 @@ public class GoogleVoiceServlet extends B2bServlet {
 			SipServletRequest origReq = (SipServletRequest) origSession
 					.getAttribute(ORIGINAL_REQUEST);
 			// Response OK to original request first.
+			SessionDescription[] sdps = null;
+			try {
+				sdps = findCommonCodec(origReq, req);
+			} catch (Throwable e) {
+				sdps = null;
+			}
 			SipServletResponse origResponse = origReq
 					.createResponse(SipServletResponse.SC_OK);
-			copyContent(req, origResponse);
+			if (sdps != null) {
+				setContent(origResponse, sdps[1]);
+			} else {
+				copyContent(req, origResponse);
+			}
 			sipUtil.processingAddressInSDP(origResponse, req);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Sending OK to original request. {}", origResponse);
@@ -174,7 +199,11 @@ public class GoogleVoiceServlet extends B2bServlet {
 			// Response OK to this request.
 			SipServletResponse response = req
 					.createResponse(SipServletResponse.SC_OK);
-			copyContent(origReq, response);
+			if (sdps != null) {
+				setContent(response, sdps[0]);
+			} else {
+				copyContent(origReq, response);
+			}
 			sipUtil.processingAddressInSDP(response, origReq);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Sending OK to callback request. {}", response);
@@ -496,6 +525,106 @@ public class GoogleVoiceServlet extends B2bServlet {
 			CallEndEvent endEvent = new CallEndEvent(startEvent,
 					SipServletResponse.SC_BAD_GATEWAY, msg);
 			callEventListener.outgoingCallFailed(endEvent);
+		}
+	}
+
+	private SessionDescription[] findCommonCodec(SipServletMessage msg1,
+			SipServletMessage msg2) throws IOException, SdpException {
+		SessionDescription sdp1 = getSdpFromMessage(msg1);
+		SessionDescription sdp2 = getSdpFromMessage(msg2);
+		if (sdp1 != null && sdp2 != null) {
+			@SuppressWarnings("unchecked")
+			Vector<MediaDescription> mds1 = sdp1.getMediaDescriptions(false);
+			if (mds1 == null || mds1.isEmpty()) {
+				return null;
+			}
+			@SuppressWarnings("unchecked")
+			Vector<MediaDescription> mds2 = sdp2.getMediaDescriptions(false);
+			if (mds2 == null || mds2.isEmpty()) {
+				return null;
+			}
+			MediaDescription md1 = mds1.firstElement();
+			MediaDescription md2 = mds2.firstElement();
+			@SuppressWarnings("unchecked")
+			Vector<String> codecs1 = md1.getMedia().getMediaFormats(false);
+			if (codecs1 == null || codecs1.isEmpty()) {
+				return null;
+			}
+			@SuppressWarnings("unchecked")
+			Vector<String> codecs2 = md2.getMedia().getMediaFormats(false);
+			if (codecs2 == null || codecs2.isEmpty()) {
+				return null;
+			}
+			Integer codec = null;
+			for (String c : codecs1) {
+				if (Integer.parseInt(c) < SdpConstants.AVP_DEFINED_STATIC_MAX
+						&& codecs2.contains(c)) {
+					codec = Integer.parseInt(c);
+					break;
+				}
+			}
+			if (codec == null) {
+				return null;
+			}
+			processMediaDescription(md1, codec);
+			processMediaDescription(md2, codec);
+			return new SessionDescription[] { sdp1, sdp2 };
+		}
+		return null;
+	}
+
+	private SessionDescription getSdpFromMessage(SipServletMessage msg)
+			throws IOException, SdpParseException {
+		SdpFactory sdpFactory = SdpFactory.getInstance();
+		SessionDescription sdp = null;
+		if ("application/sdp".equals(msg.getContentType())
+				&& msg.getContentLength() > 0) {
+			byte[] t = msg.getRawContent();
+			String enc = msg.getCharacterEncoding();
+			if (enc == null) {
+				enc = "UTF-8";
+			}
+			String c = new String(t, enc);
+			sdp = sdpFactory.createSessionDescription(c);
+		}
+		return sdp;
+	}
+
+	private void setContent(SipServletMessage msg, SessionDescription sdp)
+			throws UnsupportedEncodingException {
+		String sdpStr = sdp.toString();
+		msg.setContent(sdpStr, SDP_TYPE);
+	}
+
+	private void processMediaDescription(MediaDescription md, Integer codec)
+			throws SdpException {
+		@SuppressWarnings("unchecked")
+		Vector<String> codecs = md.getMedia().getMediaFormats(false);
+		Vector<String> oCodecs = new Vector<String>();
+		oCodecs.add(codec.toString());
+		for (String cstr : codecs) {
+			int c = Integer.parseInt(cstr);
+			if (c > SdpConstants.AVP_DEFINED_STATIC_MAX) {
+				oCodecs.add(cstr);
+			}
+		}
+		md.getMedia().setMediaFormats(oCodecs);
+		@SuppressWarnings("unchecked")
+		Vector<Attribute> attrs = md.getAttributes(false);
+		Iterator<Attribute> itea = attrs.iterator();
+		while (itea.hasNext()) {
+			Attribute a = itea.next();
+			if ("rtpmap".equals(a.getName()) || "fmtp".equals(a.getName())) {
+				if (a.getValue() != null) {
+					Matcher m = codecPattern.matcher(a.getValue());
+					if (m.matches()) {
+						String cstr = m.group(1);
+						if (!oCodecs.contains(cstr)) {
+							itea.remove();
+						}
+					}
+				}
+			}
 		}
 	}
 }

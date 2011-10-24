@@ -35,8 +35,8 @@ public class IPKallMailTest {
 	@Test
 	public void test() throws MessagingException, IOException {
 		MailSession session = new MailSession();
-		session.setAccount("wei@gaofamily.org");
-		session.setPassword("Jack_519");
+		session.setAccount("something");
+		session.setPassword("anotherthing");
 		final Collection<IPKallSession> ipKallSessions = new HashSet<IPKallSession>();
 		session.searchEmailBySenderAndSubjet("info@ipkall.com",
 				"Here is your IPKall phone number", new MessageOperation() {

@@ -14,6 +14,7 @@ import java.util.Scanner;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.mycallstation.common.TestConfiguration;
@@ -63,6 +64,7 @@ public class IPKallSessionTest {
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testLoginLogout() throws ClientProtocolException, IOException,
 			HttpResponseException, IPKallException {
@@ -71,16 +73,16 @@ public class IPKallSessionTest {
 		session.clientConntectionManager = new ThreadSafeClientConnManager();
 		session.googleRecaptchaManager = new GoogleRecaptchaManagerTest();
 		session.init();
-		session.setPhoneNumber("2063095328");
-		session.setPassword("www4321");
+		session.setPhoneNumber("somenumber");
+		session.setPassword("something");
 		session.login();
 		assertEquals("SIP", session.getAccountType());
 		assertEquals("wlifeng", session.getSipPhoneNumber());
 		assertEquals("wlifeng@yahoo.com", session.getEmail());
 		assertEquals(120, session.getRingSeconds());
-		session.setSipPhoneNumber("wei.gao");
+		session.setSipPhoneNumber("someuser1");
 		session.update();
-		assertEquals("wei.gao", session.getSipPhoneNumber());
+		assertEquals("someuser1", session.getSipPhoneNumber());
 		session.setSipPhoneNumber("aaa");
 		session.update();
 		assertEquals("aaa", session.getSipPhoneNumber());

@@ -3,12 +3,13 @@
  */
 package com.mycallstation.security;
 
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 
 /**
  * @author wgao
@@ -17,9 +18,15 @@ import com.google.common.collect.MapMaker;
 public class GrantedAuthorityImpl implements GrantedAuthority {
 	private static final long serialVersionUID = -395218563364427760L;
 
-	private static final ConcurrentMap<String, GrantedAuthority> cache = new MapMaker()
-			.concurrencyLevel(2).initialCapacity(2)
-			.expireAfterWrite(8, TimeUnit.HOURS).makeMap();
+	private static final Cache<String, GrantedAuthority> cache = CacheBuilder
+			.newBuilder().concurrencyLevel(2).initialCapacity(2)
+			.expireAfterWrite(8, TimeUnit.HOURS)
+			.build(new CacheLoader<String, GrantedAuthority>() {
+				@Override
+				public GrantedAuthority load(String key) throws Exception {
+					return new GrantedAuthorityImpl(key);
+				}
+			});
 
 	private final String authority;
 
@@ -28,14 +35,7 @@ public class GrantedAuthorityImpl implements GrantedAuthority {
 	}
 
 	public static GrantedAuthority getGrantedAuthority(String authority) {
-		GrantedAuthority auth = cache.get(authority);
-		if (auth == null) {
-			auth = new GrantedAuthorityImpl(authority);
-			GrantedAuthority tmp = cache.putIfAbsent(authority, auth);
-			if (tmp != null) {
-				auth = tmp;
-			}
-		}
+		GrantedAuthority auth = cache.getUnchecked(authority);
 		return auth;
 	}
 

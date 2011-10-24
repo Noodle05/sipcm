@@ -8,11 +8,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -23,7 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.mycallstation.dataaccess.business.AddressBindingService;
 import com.mycallstation.dataaccess.business.UserSipProfileService;
 import com.mycallstation.dataaccess.model.AddressBinding;
@@ -44,7 +48,7 @@ public class LocationServiceImpl implements LocationService {
 	public static final Logger logger = LoggerFactory
 			.getLogger(LocationServiceImpl.class);
 
-	private ConcurrentMap<UserSipProfile, List<AddressBinding>> cache;
+	private Cache<UserSipProfile, AddressBindings> cache;
 
 	@Resource(name = "sipUtil")
 	private SipUtil sipUtil;
@@ -68,8 +72,19 @@ public class LocationServiceImpl implements LocationService {
 
 	@PostConstruct
 	public void init() throws NoSuchAlgorithmException {
-		cache = new MapMaker().concurrencyLevel(32)
-				.expireAfterWrite(30, TimeUnit.MINUTES).softValues().makeMap();
+		cache = CacheBuilder.newBuilder().concurrencyLevel(8)
+				.expireAfterWrite(30, TimeUnit.MINUTES).softValues()
+				.maximumSize(500)
+				.build(new CacheLoader<UserSipProfile, AddressBindings>() {
+					@Override
+					public AddressBindings load(UserSipProfile key)
+							throws Exception {
+						List<AddressBinding> addresses = addressBindingService
+								.getAddressBindings(key);
+						return new AddressBindings(addresses,
+								sipAddressComparator);
+					}
+				});
 		minimumExpires = appConfig.getSipMinExpires() / 2;
 	}
 
@@ -82,7 +97,7 @@ public class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public void removeAllBinding(UserSipProfile userSipProfile) {
-		cache.remove(userSipProfile);
+		cache.invalidate(userSipProfile);
 		addressBindingService.removeByUserSipProfile(userSipProfile);
 		listener.userUnregistered(new RegistrationEvent(userSipProfile));
 	}
@@ -99,12 +114,16 @@ public class LocationServiceImpl implements LocationService {
 	public void updateRegistration(UserSipProfile userSipProfile,
 			Address address, int expires, Address remoteEnd, String callId)
 			throws LocationServiceException {
-		List<AddressBinding> addresses = null;
-		AddressBinding addressBinding = null;
-		addresses = getUserBinding(userSipProfile, false);
-		if (addresses != null) {
-			addressBinding = getAddressBinding(addresses, address);
-		}
+		cache.invalidate(userSipProfile);
+		AddressBindings addresses = cache.getUnchecked(userSipProfile);
+		addresses.updateRegistration(userSipProfile, address, expires,
+				remoteEnd, callId);
+	}
+
+	private void internalUpdateRegistration(UserSipProfile userSipProfile,
+			List<AddressBinding> addresses, Address address, int expires,
+			Address remoteEnd, String callId) throws LocationServiceException {
+		AddressBinding addressBinding = getAddressBinding(addresses, address);
 		if (addressBinding != null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Find existing binding, will update it. Bind: {}",
@@ -118,7 +137,7 @@ public class LocationServiceImpl implements LocationService {
 				if (addresses.isEmpty()) {
 					addressBindingService.removeBinding(addressBinding,
 							userSipProfile, true);
-					cache.remove(userSipProfile);
+					cache.invalidate(userSipProfile);
 					listener.userUnregistered(new RegistrationEvent(
 							userSipProfile));
 				} else {
@@ -148,7 +167,6 @@ public class LocationServiceImpl implements LocationService {
 						.setLastCheck((int) (System.currentTimeMillis() / 1000L));
 				addressBindingService.saveEntity(addressBinding);
 				Collections.sort(addresses, sipAddressComparator);
-				cache.put(userSipProfile, addresses);
 				listener.userRenewRegistration(new RegistrationEvent(
 						userSipProfile));
 			}
@@ -158,11 +176,8 @@ public class LocationServiceImpl implements LocationService {
 					logger.trace("Add address {}", address);
 				}
 				boolean exists = true;
-				if (addresses == null || addresses.isEmpty()) {
+				if (addresses.isEmpty()) {
 					exists = false;
-					if (addresses == null) {
-						addresses = new ArrayList<AddressBinding>(1);
-					}
 				}
 				addressBinding = addressBindingService
 						.createAddressBindingEntity(userSipProfile,
@@ -171,7 +186,6 @@ public class LocationServiceImpl implements LocationService {
 								!exists);
 				addresses.add(addressBinding);
 				Collections.sort(addresses, sipAddressComparator);
-				cache.put(userSipProfile, addresses);
 
 				if (!exists) {
 					listener.userRegistered(new RegistrationEvent(
@@ -221,30 +235,7 @@ public class LocationServiceImpl implements LocationService {
 	 */
 	@Override
 	public List<AddressBinding> getUserBinding(UserSipProfile userSipProfile) {
-		return getUserBinding(userSipProfile, true);
-	}
-
-	private List<AddressBinding> getUserBinding(UserSipProfile userSipProfile,
-			boolean useCache) {
-		List<AddressBinding> addresses = null;
-		if (useCache) {
-			addresses = cache.get(userSipProfile);
-		}
-		if (addresses == null) {
-			addresses = addressBindingService
-					.getAddressBindings(userSipProfile);
-			if (addresses != null && !addresses.isEmpty()) {
-				Collections.sort(addresses, sipAddressComparator);
-				if (useCache) {
-					List<AddressBinding> a = cache.putIfAbsent(userSipProfile,
-							addresses);
-					if (a != null) {
-						addresses = a;
-					}
-				}
-			}
-		}
-		return addresses;
+		return cache.getUnchecked(userSipProfile).getAddressBindings();
 	}
 
 	/*
@@ -260,36 +251,22 @@ public class LocationServiceImpl implements LocationService {
 			throw new NullPointerException("Phone number cannot be null.");
 		String pn = PhoneNumberUtil.getCanonicalizedPhoneNumber(phoneNumber);
 		List<AddressBinding> addresses = null;
-		for (Entry<UserSipProfile, List<AddressBinding>> entry : cache
-				.entrySet()) {
-			UserSipProfile usp = entry.getKey();
+		UserSipProfile userSipProfile = null;
+		for (UserSipProfile usp : cache.asMap().keySet()) {
 			String p = usp.getPhoneNumberStatus().isVerified()
 					&& usp.getPhoneNumber() == null ? null : usp
 					.getPhoneNumber();
 			if (pn.equals(p)) {
-				if (usp.isAllowLocalDirectly()) {
-					addresses = entry.getValue();
-					break;
-				} else {
-					return null;
-				}
+				userSipProfile = usp;
+				break;
 			}
 		}
-		if (addresses == null) {
-			UserSipProfile usp = userSipProfileService
+		if (userSipProfile == null) {
+			userSipProfile = userSipProfileService
 					.getUserSipProfileByVerifiedPhoneNumber(pn);
-			if (usp != null) {
-				addresses = addressBindingService.getAddressBindings(usp);
-				if (addresses != null && !addresses.isEmpty()) {
-					List<AddressBinding> a = cache.putIfAbsent(usp, addresses);
-					if (a != null) {
-						addresses = a;
-					}
-				}
-				if (!usp.isAllowLocalDirectly()) {
-					addresses = null;
-				}
-			}
+		}
+		if (userSipProfile != null && userSipProfile.isAllowLocalDirectly()) {
+			addresses = cache.getUnchecked(userSipProfile).getAddressBindings();
 		}
 		return addresses;
 	}
@@ -314,7 +291,7 @@ public class LocationServiceImpl implements LocationService {
 				for (Long id : uspids) {
 					UserSipProfile u = userSipProfileService.getEntityById(id);
 					if (u != null) {
-						cache.remove(u);
+						cache.invalidate(u);
 						listener.userUnregistered(new RegistrationEvent(u));
 					}
 				}
@@ -343,18 +320,14 @@ public class LocationServiceImpl implements LocationService {
 		}
 		List<Long> ids = new ArrayList<Long>(Arrays.asList(userIds));
 		Collections.sort(ids);
-		Iterator<Entry<UserSipProfile, List<AddressBinding>>> ite = cache
-				.entrySet().iterator();
+		Iterator<UserSipProfile> ite = cache.asMap().keySet().iterator();
 		while (ite.hasNext() && !ids.isEmpty()) {
-			Entry<UserSipProfile, List<AddressBinding>> entry = ite.next();
-			if (entry != null) {
-				UserSipProfile usp = entry.getKey();
-				Long uid = usp.getId();
-				int index = Collections.binarySearch(ids, uid);
-				if (index >= 0) {
-					ids.remove(index);
-					ite.remove();
-				}
+			UserSipProfile usp = ite.next();
+			Long uid = usp.getId();
+			int index = Collections.binarySearch(ids, uid);
+			if (index >= 0) {
+				ids.remove(index);
+				cache.invalidate(usp);
 			}
 		}
 	}
@@ -370,5 +343,46 @@ public class LocationServiceImpl implements LocationService {
 			}
 		}
 		return null;
+	}
+
+	private class AddressBindings {
+		private final List<AddressBinding> data;
+		private final Lock readLock;
+		private final Lock writeLock;
+
+		private AddressBindings(List<AddressBinding> data,
+				Comparator<AddressBinding> comparator) {
+			this.data = data == null ? new ArrayList<AddressBinding>() : data;
+			ReadWriteLock rwl = new ReentrantReadWriteLock();
+			readLock = rwl.readLock();
+			writeLock = rwl.writeLock();
+			sortIt();
+		}
+
+		private void sortIt() {
+			Collections.sort(data, sipAddressComparator);
+		}
+
+		private List<AddressBinding> getAddressBindings() {
+			readLock.lock();
+			try {
+				return Collections
+						.unmodifiableList(new ArrayList<AddressBinding>(data));
+			} finally {
+				readLock.unlock();
+			}
+		}
+
+		private void updateRegistration(UserSipProfile userSipProfile,
+				Address address, int expires, Address remoteEnd, String callId)
+				throws LocationServiceException {
+			writeLock.lock();
+			try {
+				internalUpdateRegistration(userSipProfile, data, address,
+						expires, remoteEnd, callId);
+			} finally {
+				writeLock.unlock();
+			}
+		}
 	}
 }

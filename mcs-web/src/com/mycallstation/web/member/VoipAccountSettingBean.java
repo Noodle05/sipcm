@@ -263,7 +263,7 @@ public class VoipAccountSettingBean implements Serializable {
 		boolean ret = true;
 		GoogleVoiceSession session = JSFUtils.getGoogleVoiceManager()
 				.getGoogleVoiceSession(account.getAccount(),
-						account.getPassword(), null);
+						account.getPassword());
 		try {
 			try {
 				session.login();

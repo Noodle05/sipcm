@@ -65,6 +65,12 @@ public class SipConfiguration extends BaseConfiguration {
 	public static final String KEEP_ALIVE_CHAT_TIME = "phonenumber.keepalive.chattime";
 	public static final String KEEP_ALIVE_GOOGLEVOICE_TIMEOUT = "phonenumber.keepalive.googlevoicetimeout";
 
+	public static final String MGCP_PEER_ADDRESS = "";
+	public static final String MGCP_PEER_PORT = "";
+	public static final String MGCP_STACK_NAME = "";
+	public static final String MGCP_LOCAL_ADDRESS = "";
+	public static final String MGCP_LOCAL_PORT = "";
+
 	@Resource(name = "applicationConfiguration")
 	private Configuration appConfig;
 
@@ -233,5 +239,25 @@ public class SipConfiguration extends BaseConfiguration {
 
 	public int getKeepAliveGoogleVoiceTimeout() {
 		return appConfig.getInt(KEEP_ALIVE_GOOGLEVOICE_TIMEOUT, 30);
+	}
+
+	public int getMGCPPeerPort() {
+		return appConfig.getInt(MGCP_PEER_PORT, 2049);
+	}
+
+	public String getMGCPPeerIP() {
+		return appConfig.getString(MGCP_PEER_ADDRESS, "127.0.0.1");
+	}
+
+	public String getMGCPStackName() {
+		return appConfig.getString(MGCP_STACK_NAME, "MediaServer");
+	}
+
+	public String getMGCPLocalAddress() {
+		return appConfig.getString(MGCP_LOCAL_ADDRESS, "127.0.0.1");
+	}
+
+	public int getMGCPLocalPort() {
+		return appConfig.getInt(MGCP_LOCAL_PORT, 2050);
 	}
 }

@@ -121,7 +121,7 @@
 			conf="provided->default;foride->sources,javadoc">
 			<exclude org="javax.activation" name="activation" />
 		</dependency>
-		<dependency org="com.google.guava" name="guava" rev="r09"
+		<dependency org="com.google.guava" name="guava" rev="10.0.1"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="com.google.code.gson" name="gson" rev="1.7.1"
 			conf="runtime->default;foride->sources,javadoc" />

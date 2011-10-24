@@ -19,7 +19,7 @@ public class TestConfiguration extends BaseConfiguration {
 	}
 
 	public File getTemperoryFolder() {
-		return new File(System.getProperty("java.io.tmpdir"));
+		return new File("/Volumes/Users/wgao/tmp/");
 	}
 
 	public int getHttpClientConnectionTimeout() {

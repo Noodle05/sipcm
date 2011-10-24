@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
@@ -346,7 +347,7 @@ public class PhoneNumberKeepAlive {
 		private final GoogleVoiceSession session;
 		private final ScheduledFuture<?> future;
 		private volatile boolean received;
-		private volatile boolean done;
+		private final CountDownLatch doneSignal;
 
 		private GVSessionTimer(UserVoipAccount account,
 				GoogleVoiceSession session) {
@@ -358,7 +359,7 @@ public class PhoneNumberKeepAlive {
 			c.add(Calendar.SECOND, appConfig.getKeepAliveGoogleVoiceTimeout());
 			future = scheduler.schedule(this, c.getTime());
 			received = false;
-			done = false;
+			doneSignal = new CountDownLatch(1);
 		}
 
 		public void receivedCall() {
@@ -390,10 +391,7 @@ public class PhoneNumberKeepAlive {
 			} finally {
 				session.logout();
 				removePingingUser(account.getOwner());
-				synchronized (this) {
-					done = true;
-					this.notifyAll();
-				}
+				doneSignal.countDown();
 			}
 		}
 
@@ -405,21 +403,12 @@ public class PhoneNumberKeepAlive {
 					}
 				}
 			} finally {
-				synchronized (this) {
-					done = true;
-					this.notifyAll();
-				}
+				doneSignal.countDown();
 			}
 		}
 
 		public void waitingForDone() throws InterruptedException {
-			if (!done) {
-				synchronized (this) {
-					while (!done) {
-						this.wait();
-					}
-				}
-			}
+			doneSignal.await();
 		}
 
 		public String getGVPhoneNumber() {

@@ -19,6 +19,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.common.collect.MapMaker;
 import com.mycallstation.sip.events.BlockIpEvent;
 import com.mycallstation.sip.events.BlockIpEventListener;
@@ -35,7 +38,7 @@ public class DosProtector {
 	@Resource(name = "sipDosBlockEventListener")
 	private BlockIpEventListener blockEventListener;
 
-	private ConcurrentMap<String, AtomicInteger> counter;
+	private Cache<String, AtomicInteger> counter;
 	private ConcurrentMap<String, Long> blockList;
 
 	@Resource(name = "systemConfiguration")
@@ -43,10 +46,17 @@ public class DosProtector {
 
 	@PostConstruct
 	public void init() {
-		counter = new MapMaker()
-				.concurrencyLevel(32)
+		counter = CacheBuilder
+				.newBuilder()
+				.concurrencyLevel(4)
 				.expireAfterWrite(appConfig.getDosProtectInterval(),
-						TimeUnit.SECONDS).makeMap();
+						TimeUnit.SECONDS)
+				.build(new CacheLoader<String, AtomicInteger>() {
+					@Override
+					public AtomicInteger load(String key) throws Exception {
+						return new AtomicInteger(0);
+					}
+				});
 		blockList = new MapMaker().concurrencyLevel(4).makeMap();
 		if (logger.isInfoEnabled()) {
 			logger.info(
@@ -70,14 +80,7 @@ public class DosProtector {
 		if (blockList.containsKey(ip)) {
 			return;
 		}
-		AtomicInteger count = counter.get(ip);
-		if (count == null) {
-			count = new AtomicInteger(0);
-			AtomicInteger a = counter.putIfAbsent(ip, count);
-			if (a != null) {
-				count = a;
-			}
-		}
+		AtomicInteger count = counter.getUnchecked(ip);
 		int c = count.incrementAndGet();
 		if (c > appConfig.getDosProtectMaximumRequests()) {
 			if (logger.isInfoEnabled()) {
@@ -103,7 +106,7 @@ public class DosProtector {
 					}
 				}
 			}
-			counter.remove(ip);
+			counter.invalidate(ip);
 		}
 	}
 
@@ -123,7 +126,7 @@ public class DosProtector {
 				}
 			}
 		}
-		counter.remove(ip);
+		counter.invalidate(ip);
 	}
 
 	@Scheduled(fixedRate = 60000L)

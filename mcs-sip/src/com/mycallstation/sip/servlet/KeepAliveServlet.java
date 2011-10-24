@@ -15,6 +15,7 @@ import javax.sdp.Attribute;
 import javax.sdp.Connection;
 import javax.sdp.MediaDescription;
 import javax.sdp.Origin;
+import javax.sdp.SdpConstants;
 import javax.sdp.SdpException;
 import javax.sdp.SdpFactory;
 import javax.sdp.SessionDescription;
@@ -85,7 +86,6 @@ public class KeepAliveServlet extends AbstractSipServlet {
 					sdp = generateSessionDescription();
 					String sdpStr = sdp.toString();
 					resp.setContent(sdpStr, SDP_TYPE);
-					resp.setContentLength(sdpStr.length());
 					if (logger.isTraceEnabled()) {
 						logger.trace("Sending response: {}", resp);
 					}
@@ -176,12 +176,18 @@ public class KeepAliveServlet extends AbstractSipServlet {
 			c.setAddress(origin.getAddress());
 		}
 		MediaDescription md = sdpFactory.createMediaDescription("audio",
-				nextPort(), 1, "RTP/AVP", new int[] { 0, 8, 101 });
-		Attribute rtpmap_0 = sdpFactory.createAttribute("rtpmap", "0 PCMU/8000");
-		Attribute rtpmap_8 = sdpFactory.createAttribute("rtpmap", "8 PCMA/8000");
-		Attribute rtpmap_18 = sdpFactory.createAttribute("rtpmap", "18 G729/8000");
+				nextPort(), 1, SdpConstants.RTP_AVP, new int[] {
+						SdpConstants.PCMU, SdpConstants.PCMA,
+						SdpConstants.G729, 101 });
+		Attribute rtpmap_0 = sdpFactory.createAttribute(SdpConstants.RTPMAP,
+				"0 PCMU/8000");
+		Attribute rtpmap_8 = sdpFactory.createAttribute(SdpConstants.RTPMAP,
+				"8 PCMA/8000");
+		Attribute rtpmap_18 = sdpFactory.createAttribute(SdpConstants.RTPMAP,
+				"18 G729/8000");
 		Attribute fmtp_18 = sdpFactory.createAttribute("fmtp", "18 annexb=no");
-		Attribute rtpmap_101 = sdpFactory.createAttribute("rtpmap", "101 telephone-event/8000");
+		Attribute rtpmap_101 = sdpFactory.createAttribute(SdpConstants.RTPMAP,
+				"101 telephone-event/8000");
 		Attribute fmtp_101 = sdpFactory.createAttribute("fmtp", "101 0-15");
 		Attribute sendrecv = sdpFactory.createAttribute("sendrecv", null);
 		md.addAttribute((AttributeField) rtpmap_0);

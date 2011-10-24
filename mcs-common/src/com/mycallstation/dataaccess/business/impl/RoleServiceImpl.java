@@ -3,7 +3,6 @@
  */
 package com.mycallstation.dataaccess.business.impl;
 
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -11,7 +10,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.mycallstation.base.business.impl.AbstractService;
 import com.mycallstation.base.dao.DAO;
 import com.mycallstation.base.filter.Filter;
@@ -25,7 +26,7 @@ import com.mycallstation.dataaccess.model.Role;
 @Service("roleService")
 public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 		RoleService {
-	private ConcurrentMap<String, Role> cache;
+	private Cache<String, Role> cache;
 
 	/*
 	 * (non-Javadoc)
@@ -36,9 +37,17 @@ public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 	@PostConstruct
 	public void init() {
 		super.init();
-		cache = new MapMaker().concurrencyLevel(2).softValues()
+		cache = CacheBuilder.newBuilder().concurrencyLevel(2).softValues()
 				.initialCapacity(2).expireAfterWrite(8, TimeUnit.HOURS)
-				.makeMap();
+				.build(new CacheLoader<String, Role>() {
+					@Override
+					public Role load(String key) throws Exception {
+						Filter filter = filterFactory.createSimpleFilter(
+								"name", key, Filter.Operator.IEQ);
+						Role role = dao.getUniqueEntity(filter);
+						return role;
+					}
+				});
 	}
 
 	/*
@@ -61,43 +70,19 @@ public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 	 */
 	@Override
 	public Role getUserRole() {
-		Role role = cache.get(USER_ROLE);
-		if (role == null) {
-			Filter filter = filterFactory.createSimpleFilter("name", USER_ROLE,
-					Filter.Operator.IEQ);
-			role = dao.getUniqueEntity(filter);
-			if (role != null) {
-				cache.putIfAbsent(USER_ROLE, role);
-			}
-		}
+		Role role = cache.getUnchecked(USER_ROLE);
 		return role;
 	}
 
 	@Override
 	public Role getCallerRole() {
-		Role role = cache.get(CALLER_ROLE);
-		if (role == null) {
-			Filter filter = filterFactory.createSimpleFilter("name",
-					CALLER_ROLE, Filter.Operator.IEQ);
-			role = dao.getUniqueEntity(filter);
-			if (role != null) {
-				cache.putIfAbsent(CALLER_ROLE, role);
-			}
-		}
+		Role role = cache.getUnchecked(CALLER_ROLE);
 		return role;
 	}
 
 	@Override
 	public Role getAdminRole() {
-		Role role = cache.get(ADMIN_ROLE);
-		if (role == null) {
-			Filter filter = filterFactory.createSimpleFilter("name",
-					ADMIN_ROLE, Filter.Operator.IEQ);
-			role = dao.getUniqueEntity(filter);
-			if (role != null) {
-				cache.putIfAbsent(ADMIN_ROLE, role);
-			}
-		}
+		Role role = cache.getUnchecked(ADMIN_ROLE);
 		return role;
 	}
 }

@@ -65,7 +65,6 @@ public class GoogleVoiceFunctionTest {
 		}
 	}
 
-	@Ignore
 	@Test
 	public void testSettings() throws ClientProtocolException, IOException,
 			AuthenticationException, HttpResponseException, SecurityException,
@@ -108,7 +107,6 @@ public class GoogleVoiceFunctionTest {
 		}
 	}
 
-	@Ignore
 	@Test
 	public void testAddDeletePhone() throws ClientProtocolException,
 			IOException, AuthenticationException, HttpResponseException,
@@ -277,7 +275,6 @@ public class GoogleVoiceFunctionTest {
 		}
 	}
 
-	@Ignore
 	@Test(expected = GoogleAuthenticationException.class)
 	public void testLoginFailed() throws ClientProtocolException, IOException,
 			AuthenticationException, HttpResponseException {
@@ -285,6 +282,18 @@ public class GoogleVoiceFunctionTest {
 		gvSession.setPassword("aaa");
 		gvSession.login();
 		fail();
+	}
+
+	@Test
+	public void testCheckMessage() throws ClientProtocolException, IOException,
+			AuthenticationException, HttpResponseException, SecurityException,
+			IllegalArgumentException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException,
+			InvocationTargetException {
+		GoogleVoiceSession gvSession = getGoogleVoiceSession();
+		gvSession.login();
+		int voiceMessage = gvSession.checkNewMessage();
+		assertEquals(1, voiceMessage);
 	}
 
 	private Phone getPhoneByNumber(GoogleVoiceConfig config, String phoneNumber) {

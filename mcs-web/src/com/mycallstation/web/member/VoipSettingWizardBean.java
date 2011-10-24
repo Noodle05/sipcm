@@ -250,7 +250,7 @@ public class VoipSettingWizardBean implements Serializable {
 		gvConfig = null;
 		String pass = gvPass == null ? oriGvPass : gvPass;
 		GoogleVoiceSession gvs = JSFUtils.getGoogleVoiceManager()
-				.getGoogleVoiceSession(gvAccount, pass, null);
+				.getGoogleVoiceSession(gvAccount, pass);
 		try {
 			try {
 				gvs.login();

@@ -4,6 +4,7 @@
 package com.mycallstation.common;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.annotation.Resource;
@@ -62,7 +63,7 @@ public abstract class BaseConfiguration {
 				System.getProperty("java.io.tmpdir"));
 		File folder = new File(str);
 		if (!folder.exists()) {
-			throw new IOException("Temporary folder doesn't exist.");
+			throw new FileNotFoundException("Temporary folder doesn't exist.");
 		}
 		if (!folder.isDirectory()) {
 			throw new IOException("Temporary folder is not a directory.");
