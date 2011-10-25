@@ -343,6 +343,7 @@ public class GoogleVoiceSession implements Serializable {
 				authToken = null;
 				rnrSe = null;
 				loggedIn = false;
+				cancelCall = false;
 			}
 		}
 	}
