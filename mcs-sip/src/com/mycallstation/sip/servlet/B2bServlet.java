@@ -15,6 +15,8 @@ import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.sip.Address;
 import javax.servlet.sip.B2buaHelper;
+import javax.servlet.sip.ServletTimer;
+import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipServletMessage;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
@@ -324,6 +326,7 @@ public class B2bServlet extends AbstractSipServlet {
 				}
 				linkedSession.setAttribute(LINKED_SESSION_STATUS,
 						SESSION_STATE_CANCELLED);
+				setupTimer(linkedSession);
 				break;
 			case CONFIRMED:
 				SipServletRequest forkedRequest = helper.createRequest(
@@ -459,6 +462,7 @@ public class B2bServlet extends AbstractSipServlet {
 					if (callEventListener != null) {
 						callCanceled(session);
 					}
+					setupTimer(linkedSession);
 					break;
 				case CONFIRMED:
 					if (logger.isTraceEnabled()) {
@@ -496,6 +500,12 @@ public class B2bServlet extends AbstractSipServlet {
 						session.getId());
 			}
 		}
+	}
+
+	private void setupTimer(SipSession session) {
+		SipApplicationSession appSession = session.getApplicationSession();
+		timeService.createTimer(appSession, 5000L, false,
+				new CancelTimeoutProcessor(session));
 	}
 
 	protected void processReInvite(SipServletRequest req)
@@ -647,6 +657,34 @@ public class B2bServlet extends AbstractSipServlet {
 			if (logger.isWarnEnabled()) {
 				logger.warn("Calling \"{}\" with null session!", "callFailed");
 			}
+		}
+	}
+}
+
+class CancelTimeoutProcessor implements TimerProcessor {
+	private static final long serialVersionUID = 1419149519713284944L;
+
+	private final SipSession sipSession;
+
+	CancelTimeoutProcessor(SipSession sipSession) {
+		this.sipSession = sipSession;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.sip.servlet.TimerProcessor#timeout(javax.servlet.sip
+	 * .ServletTimer)
+	 */
+	@Override
+	public void timeout(ServletTimer timer) {
+		if (sipSession.isValid()) {
+			sipSession.invalidate();
+		}
+		SipApplicationSession appSession = timer.getApplicationSession();
+		if (appSession.isValid()) {
+			appSession.invalidate();
 		}
 	}
 }
