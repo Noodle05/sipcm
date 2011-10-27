@@ -31,7 +31,6 @@ import javax.servlet.sip.SipServletMessage;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSession;
-import javax.servlet.sip.SipSession.State;
 import javax.servlet.sip.SipURI;
 import javax.servlet.sip.URI;
 import javax.servlet.sip.annotation.SipServlet;
@@ -441,54 +440,6 @@ public class GoogleVoiceServlet extends B2bServlet {
 			return helper;
 		} else {
 			return req.getB2buaHelper();
-		}
-	}
-
-	public void timeout(SipApplicationSession appSession,
-			SipServletRequest req, UserSipProfile user) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Timeout, google voice didn't go though in time, cancel it.");
-		}
-		if (req == null) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("Google voice timeout, but request object is null?");
-			}
-			return;
-		}
-		String appSessionIdKey = AbstractSipServlet.generateAppSessionKey(user);
-		getServletContext().removeAttribute(appSessionIdKey);
-		GoogleVoiceSession gvSession = (GoogleVoiceSession) appSession
-				.getAttribute(GV_SESSION);
-		if (gvSession != null) {
-			try {
-				if (logger.isTraceEnabled()) {
-					logger.trace("Cancelling google voice call.");
-				}
-				gvSession.cancel();
-				if (logger.isTraceEnabled()) {
-					logger.trace("Google voice call canceled.");
-				}
-			} catch (Exception e) {
-				if (logger.isWarnEnabled()) {
-					logger.warn(
-							"Error happened when cancel google voice call.", e);
-				}
-			} finally {
-				gvSession.logout();
-			}
-		}
-		if (State.INITIAL.equals(req.getSession().getState())
-				|| State.EARLY.equals(req.getSession().getState())) {
-			try {
-				if (logger.isTraceEnabled()) {
-					logger.trace("Response timeout to original INVITE request.");
-				}
-				response(req, SipServletResponse.SC_REQUEST_TIMEOUT);
-			} catch (Exception e) {
-				if (logger.isWarnEnabled()) {
-					logger.warn("Error happened when sendig timeout response to original request.");
-				}
-			}
 		}
 	}
 

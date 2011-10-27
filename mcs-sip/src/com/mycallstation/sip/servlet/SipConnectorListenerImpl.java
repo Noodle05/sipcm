@@ -101,17 +101,4 @@ public class SipConnectorListenerImpl implements SipConnectorListener {
 		// TODO Auto-generated method stub
 
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.springframework.web.context.ServletContextAware#setServletContext
-	 * (javax.servlet.ServletContext)
-	 */
-	// @Override
-	// public void setServletContext(ServletContext servletContext) {
-	// voipVendorManager = (VoipVendorManager) servletContext
-	// .getAttribute("voipVendorManager");
-	// }
 }

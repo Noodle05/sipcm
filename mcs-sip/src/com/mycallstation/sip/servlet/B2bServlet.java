@@ -166,7 +166,7 @@ public class B2bServlet extends AbstractSipServlet {
 		}
 		if (forkedResp != null) {
 			copyContent(resp, forkedResp);
-			if ("INVITE".equals(resp.getRequest().getMethod())
+			if (Request.INVITE.equals(resp.getRequest().getMethod())
 					&& (resp.getStatus() >= 200 && resp.getStatus() < 300)) {
 				sipUtil.processingAddressInSDP(forkedResp, resp);
 			}
@@ -176,7 +176,7 @@ public class B2bServlet extends AbstractSipServlet {
 			forkedResp.send();
 		}
 		if (callEventListener != null) {
-			if ("INVITE".equalsIgnoreCase(resp.getRequest().getMethod())) {
+			if (Request.INVITE.equalsIgnoreCase(resp.getRequest().getMethod())) {
 				if (resp.getStatus() >= 200) {
 					if (resp.getStatus() < 300) {
 						callEstablished(session, linkedSession);
@@ -184,9 +184,11 @@ public class B2bServlet extends AbstractSipServlet {
 						callFailed(session, linkedSession, resp);
 					}
 				}
-			} else if ("BYE".equalsIgnoreCase(resp.getRequest().getMethod())) {
+			} else if (Request.BYE.equalsIgnoreCase(resp.getRequest()
+					.getMethod())) {
 				callEnd(session, linkedSession);
-			} else if ("CANCEL".equalsIgnoreCase(resp.getRequest().getMethod())) {
+			} else if (Request.CANCEL.equalsIgnoreCase(resp.getRequest()
+					.getMethod())) {
 				callCanceled(session, linkedSession);
 			}
 		}
@@ -326,7 +328,6 @@ public class B2bServlet extends AbstractSipServlet {
 				}
 				linkedSession.setAttribute(LINKED_SESSION_STATUS,
 						SESSION_STATE_CANCELLED);
-				setupTimer(linkedSession);
 				break;
 			case CONFIRMED:
 				SipServletRequest forkedRequest = helper.createRequest(
@@ -350,6 +351,7 @@ public class B2bServlet extends AbstractSipServlet {
 						SESSION_STATE_TERMINATED);
 				break;
 			}
+			setupCleanupTimer(linkedSession);
 			if (State.EARLY.equals(linkedSession.getState())) {
 				return;
 			}
@@ -462,7 +464,6 @@ public class B2bServlet extends AbstractSipServlet {
 					if (callEventListener != null) {
 						callCanceled(session);
 					}
-					setupTimer(linkedSession);
 					break;
 				case CONFIRMED:
 					if (logger.isTraceEnabled()) {
@@ -487,6 +488,7 @@ public class B2bServlet extends AbstractSipServlet {
 							SESSION_STATE_TERMINATED);
 					break;
 				}
+				setupCleanupTimer(linkedSession);
 			} else {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Linked session {} already cancelled.",
@@ -502,7 +504,7 @@ public class B2bServlet extends AbstractSipServlet {
 		}
 	}
 
-	private void setupTimer(SipSession session) {
+	private void setupCleanupTimer(SipSession session) {
 		SipApplicationSession appSession = session.getApplicationSession();
 		timeService.createTimer(appSession, 5000L, false,
 				new CancelTimeoutProcessor(session));
@@ -517,7 +519,7 @@ public class B2bServlet extends AbstractSipServlet {
 		SipSession linked = helper.getLinkedSession(req.getSession());
 		SipServletRequest forkedReq = helper.createRequest(linked, req, null);
 		copyContent(req, forkedReq);
-		if ("INVITE".equals(req.getMethod())) {
+		if (Request.INVITE.equals(req.getMethod())) {
 			sipUtil.processingAddressInSDP(forkedReq, req);
 		}
 		if (logger.isTraceEnabled()) {
