@@ -9,7 +9,6 @@
 	<property name="ivy.setting" value="${mcs-common}/ivysettings.xml" />
 
 	<property name="src.dir" location="${basedir}/src" />
-	<property name="resource.dir" location="${basedir}/resources" />
 	<property name="build.dir" location="${basedir}/build" />
 	<property name="dist.dir" location="${basedir}/../dist" />
 	<property name="self.dist.dir" location="${basedir}/dist" />
@@ -99,7 +98,6 @@
 			<lib dir="${self.dist.dir}/lib" />
 			<webinf dir="${self.dist.dir}/webinf" includes="config/*,contexts/*" />
 			<metainf file="${web.dir}/META-INF/context.xml" />
-			<classes dir="${resource.dir}" />
 			<fileset dir="${web.dir}">
 				<exclude name="WEB-INF/**" />
 				<exclude name="META-INF/**" />
