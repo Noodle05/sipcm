@@ -47,6 +47,7 @@ public class B2bServlet extends AbstractSipServlet {
 
 	public static final String LINKED_SESSION_STATUS = "com.mycallstation.linkedSessionStatus";
 	public static final String REMOTE_URI = "com.mycallstation.remote.uri";
+	public static final String DIALOG_ESTABLISHED = "GET_TRYING_AND_WAITING";
 
 	public static final String SESSION_STATE_WAITING = "WAITING";
 	public static final String SESSION_STATE_CANCELLED = "CANCELLED";
@@ -113,6 +114,19 @@ public class B2bServlet extends AbstractSipServlet {
 				}
 			}
 			return;
+		}
+		if (resp.getStatus() < 200) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Get 1xx response, set dialog established to session.");
+			}
+			resp.getSession().setAttribute(DIALOG_ESTABLISHED, Boolean.TRUE);
+		} else {
+			if (resp.getSession().getAttribute(DIALOG_ESTABLISHED) != null) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Out of early stage, remove dialog established from session.");
+				}
+				resp.getSession().removeAttribute(DIALOG_ESTABLISHED);
+			}
 		}
 
 		String cancelStatus = (String) resp.getSession().getAttribute(
@@ -448,21 +462,32 @@ public class B2bServlet extends AbstractSipServlet {
 					}
 					break;
 				case EARLY:
-					SipServletRequest cancelRequest = helper
-							.createCancel(linkedSession);
-					if (logger.isDebugEnabled()) {
-						logger.debug("Forwarding cancel request {}",
-								cancelRequest);
-					}
-					if (linkedSession.getAttribute(REMOTE_URI) != null) {
-						cancelRequest.setRequestURI((URI) linkedSession
-								.getAttribute(REMOTE_URI));
-					}
-					cancelRequest.send();
-					linkedSession.setAttribute(LINKED_SESSION_STATUS,
-							SESSION_STATE_CANCELLED);
-					if (callEventListener != null) {
-						callCanceled(session);
+					if (linkedSession.getAttribute(DIALOG_ESTABLISHED) == null) {
+						if (logger.isTraceEnabled()) {
+							logger.trace("Linked session dialog not established yet, will wait and to send cancel.");
+						}
+						linkedSession.setAttribute(LINKED_SESSION_STATUS,
+								SESSION_STATE_WAITING);
+						if (callEventListener != null) {
+							callCanceled(session);
+						}
+					} else {
+						SipServletRequest cancelRequest = helper
+								.createCancel(linkedSession);
+						if (logger.isDebugEnabled()) {
+							logger.debug("Forwarding cancel request {}",
+									cancelRequest);
+						}
+						if (linkedSession.getAttribute(REMOTE_URI) != null) {
+							cancelRequest.setRequestURI((URI) linkedSession
+									.getAttribute(REMOTE_URI));
+						}
+						cancelRequest.send();
+						linkedSession.setAttribute(LINKED_SESSION_STATUS,
+								SESSION_STATE_CANCELLED);
+						if (callEventListener != null) {
+							callCanceled(session);
+						}
 					}
 					break;
 				case CONFIRMED:
