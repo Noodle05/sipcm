@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mycallstation.base.filter.Filter;
+import com.mycallstation.base.filter.Operator;
 
 /**
  * @author Jack
@@ -16,11 +17,11 @@ import com.mycallstation.base.filter.Filter;
 class SimpleFilter extends BaseFilter implements Serializable {
 	private static final long serialVersionUID = 685227069924405650L;
 
-	protected String leftHand;
+	private final String leftHand;
 
-	protected Serializable rightHand;
+	private final Serializable rightHand;
 
-	protected Filter.Operator operator;
+	private final Operator operator;
 
 	SimpleFilter(Operator operator, String leftHand, Serializable rightHand) {
 		this.operator = operator;

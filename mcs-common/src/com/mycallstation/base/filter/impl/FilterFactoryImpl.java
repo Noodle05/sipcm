@@ -10,9 +10,11 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
+import com.mycallstation.base.filter.Direction;
 import com.mycallstation.base.filter.Filter;
 import com.mycallstation.base.filter.FilterFactory;
 import com.mycallstation.base.filter.InvalidFilterException;
+import com.mycallstation.base.filter.Operator;
 import com.mycallstation.base.filter.Page;
 import com.mycallstation.base.filter.Sort;
 
@@ -21,7 +23,7 @@ import com.mycallstation.base.filter.Sort;
  * 
  */
 @Component("filterFactory")
-public class FilterFactoryImpl extends FilterFactory {
+public class FilterFactoryImpl implements FilterFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -31,7 +33,7 @@ public class FilterFactoryImpl extends FilterFactory {
 	 */
 	@Override
 	public Filter createSimpleFilter(String name, Serializable val) {
-		return createSimpleFilter(name, val, Filter.Operator.EQ);
+		return createSimpleFilter(name, val, Operator.EQ);
 	}
 
 	/*
@@ -43,8 +45,7 @@ public class FilterFactoryImpl extends FilterFactory {
 	 * com.mycallstation.base.filter.Filter.Operator)
 	 */
 	@Override
-	public Filter createSimpleFilter(String name, Serializable val,
-			Filter.Operator op) {
+	public Filter createSimpleFilter(String name, Serializable val, Operator op) {
 		checkArguments(name, op);
 		// Check OPERATOR. Not all operator can be create as simple filter.
 		if (!op.isSimpleOperator()) {
@@ -190,6 +191,60 @@ public class FilterFactoryImpl extends FilterFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
+	 * com.mycallstation.base.filter.FilterFactory#createIsEmptyFilter(java.
+	 * lang.String)
+	 */
+	@Override
+	public Filter createIsEmptyFilter(String name) {
+		checkArguments(name);
+		return new IsEmptyFilter(name, false);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.base.filter.FilterFactory#createIsNotEmptyFilter(java
+	 * .lang.String)
+	 */
+	@Override
+	public Filter createIsNotEmptyFilter(String name) {
+		checkArguments(name);
+		return new IsEmptyFilter(name, true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.base.filter.FilterFactory#createMemberOfFilter(java
+	 * .lang.String, java.io.Serializable)
+	 */
+	@Override
+	public <T extends Serializable> Filter createMemberOfFilter(String name,
+			T value) {
+		checkArguments(name);
+		return new MemberOfFilter(name, value, false);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.base.filter.FilterFactory#createNotMemberOfFilter(java
+	 * .lang.String, java.io.Serializable)
+	 */
+	@Override
+	public <T extends Serializable> Filter createNotMemberOfFilter(String name,
+			T value) {
+		checkArguments(name);
+		return new MemberOfFilter(name, value, true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
 	 * com.mycallstation.base.filter.FilterFactory#createSort(java.lang.String)
 	 */
 	@Override
@@ -203,10 +258,10 @@ public class FilterFactoryImpl extends FilterFactory {
 	 * 
 	 * @see
 	 * com.mycallstation.base.filter.FilterFactory#createSort(java.lang.String,
-	 * com.mycallstation.base.filter.Sort.Direction)
+	 * com.mycallstation.base.filter.Direction)
 	 */
 	@Override
-	public Sort createSort(String varName, Sort.Direction direction) {
+	public Sort createSort(String varName, Direction direction) {
 		Sort ret = new SortImpl(varName, direction);
 		return ret;
 	}
@@ -221,7 +276,7 @@ public class FilterFactoryImpl extends FilterFactory {
 		return new PageImpl();
 	}
 
-	private void checkArguments(String name, Filter.Operator op) {
+	private void checkArguments(String name, Operator op) {
 		if (StringUtils.isEmpty(name)) {
 			throw new IllegalArgumentException("name cannot be empty.");
 		}

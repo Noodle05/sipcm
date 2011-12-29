@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.mycallstation.base.filter.Filter;
+import com.mycallstation.base.filter.Operator;
 
 /**
  * @author Jack
@@ -16,9 +17,9 @@ import com.mycallstation.base.filter.Filter;
 class ExistFilter extends BaseFilter implements Serializable {
 	private static final long serialVersionUID = -8938735745979348763L;
 
-	protected StringFilter selectQuery;
+	private final StringFilter selectQuery;
 
-	protected Operator operator;
+	private final Operator operator;
 
 	ExistFilter(StringFilter selectQuery, boolean notFlag) {
 		this.selectQuery = selectQuery;

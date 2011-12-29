@@ -6,49 +6,11 @@ package com.mycallstation.base.filter;
 import java.io.Serializable;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.mycallstation.base.filter.impl.FilterFactoryImpl;
-
 /**
  * @author Jack
  * 
  */
-public abstract class FilterFactory {
-	private static final Logger logger = LoggerFactory
-			.getLogger(FilterFactory.class);
-
-	public static final String defaultFilterFactoryClass = FilterFactoryImpl.class
-			.getCanonicalName();
-
-	public static FilterFactory getDefaultFilterFactory() {
-		FilterFactory filterFactory = null;
-		try {
-			Class<?> clazz = Class.forName(defaultFilterFactoryClass);
-			if (clazz.isAssignableFrom(FilterFactory.class)) {
-				filterFactory = (FilterFactory) clazz.newInstance();
-			} else {
-				throw new ClassNotFoundException(defaultFilterFactoryClass
-						+ " is not subclass of FilterFactory.");
-			}
-		} catch (ClassNotFoundException e) {
-			if (logger.isErrorEnabled()) {
-				logger.error("Default filter factory class doesn't exists.", e);
-			}
-		} catch (IllegalAccessException e) {
-			if (logger.isErrorEnabled()) {
-				logger.error("Cannot access default filter factory class.", e);
-			}
-		} catch (InstantiationException e) {
-			if (logger.isErrorEnabled()) {
-				logger.error(
-						"Cannot instantiate default filter factory class.", e);
-			}
-		}
-		return filterFactory;
-	}
-
+public interface FilterFactory {
 	/**
 	 * Create simple filter by name of property and object value.
 	 * 
@@ -56,7 +18,7 @@ public abstract class FilterFactory {
 	 * @param val
 	 * @return Filter object.
 	 */
-	public abstract Filter createSimpleFilter(String name, Serializable val);
+	public Filter createSimpleFilter(String name, Serializable val);
 
 	/**
 	 * Create simple filter by logic name of bean object, name of property,
@@ -67,8 +29,7 @@ public abstract class FilterFactory {
 	 * @param op
 	 * @return Filter object.
 	 */
-	public abstract Filter createSimpleFilter(String name, Serializable val,
-			Filter.Operator op);
+	public Filter createSimpleFilter(String name, Serializable val, Operator op);
 
 	/**
 	 * Create simple filter by string of condition.
@@ -76,7 +37,7 @@ public abstract class FilterFactory {
 	 * @param strCondition
 	 * @return Filter object.
 	 */
-	public abstract Filter createSimpleFilter(String strCondition);
+	public Filter createSimpleFilter(String strCondition);
 
 	/**
 	 * Create between filter by name of property and two values.
@@ -86,7 +47,7 @@ public abstract class FilterFactory {
 	 * @param val2
 	 * @return Filter object.
 	 */
-	public abstract Filter createBetweenFilter(String name, Serializable val1,
+	public Filter createBetweenFilter(String name, Serializable val1,
 			Serializable val2);
 
 	/**
@@ -97,8 +58,8 @@ public abstract class FilterFactory {
 	 * @param val2
 	 * @return Filter object.
 	 */
-	public abstract Filter createNotBetweenFilter(String name,
-			Serializable val1, Serializable val2);
+	public Filter createNotBetweenFilter(String name, Serializable val1,
+			Serializable val2);
 
 	/**
 	 * Create in filter by name of property and list of values.
@@ -107,7 +68,7 @@ public abstract class FilterFactory {
 	 * @param values
 	 * @return Filter object.
 	 */
-	public abstract <T extends Serializable> Filter createInFilter(String name,
+	public <T extends Serializable> Filter createInFilter(String name,
 			List<T> values);
 
 	/**
@@ -117,7 +78,7 @@ public abstract class FilterFactory {
 	 * @param values
 	 * @return Filter object.
 	 */
-	public abstract <T extends Serializable> Filter createInFilter(String name,
+	public <T extends Serializable> Filter createInFilter(String name,
 			T... values);
 
 	/**
@@ -127,7 +88,7 @@ public abstract class FilterFactory {
 	 * @param values
 	 * @return Filter object.
 	 */
-	public abstract Filter createNotInFilter(String name,
+	public Filter createNotInFilter(String name,
 			List<? extends Serializable> values);
 
 	/**
@@ -137,8 +98,8 @@ public abstract class FilterFactory {
 	 * @param values
 	 * @return Filter object.
 	 */
-	public abstract <T extends Serializable> Filter createNotInFilter(
-			String name, T... values);
+	public <T extends Serializable> Filter createNotInFilter(String name,
+			T... values);
 
 	/**
 	 * Create is null filter by name of property.
@@ -146,7 +107,7 @@ public abstract class FilterFactory {
 	 * @param name
 	 * @return Filter object.
 	 */
-	public abstract Filter createIsNullFilter(String name);
+	public Filter createIsNullFilter(String name);
 
 	/**
 	 * Create not null filter by name of property.
@@ -154,7 +115,46 @@ public abstract class FilterFactory {
 	 * @param name
 	 * @return Filter object.
 	 */
-	public abstract Filter createIsNotNullFilter(String name);
+	public Filter createIsNotNullFilter(String name);
+
+	/**
+	 * Create is empty filter by name of property. This can be used on
+	 * one-to-many or many-to-many collection properties.
+	 * 
+	 * @param name
+	 * @return Filter object.
+	 */
+	public Filter createIsEmptyFilter(String name);
+
+	/**
+	 * Create not empty filter by name of property. This can be used on
+	 * one-to-many or many-to-many collection properties.
+	 * 
+	 * @param name
+	 * @return Filter object.
+	 */
+	public Filter createIsNotEmptyFilter(String name);
+
+	/**
+	 * Create member of filter that can be used on one-to-many or many-to-many
+	 * properties. For value is member of a collection property.
+	 * 
+	 * @param name
+	 * @return Filter object.
+	 */
+	public <T extends Serializable> Filter createMemberOfFilter(String name,
+			T value);
+
+	/**
+	 * Create not member of filter that can be used on one-to-many or
+	 * many-to-many properties. For value is not member of a collection
+	 * property.
+	 * 
+	 * @param name
+	 * @return Filter object.
+	 */
+	public <T extends Serializable> Filter createNotMemberOfFilter(String name,
+			T value);
 
 	/**
 	 * Create a instance of sort object. with direction: asc
@@ -162,7 +162,7 @@ public abstract class FilterFactory {
 	 * @param name
 	 * @return sort
 	 */
-	public abstract Sort createSort(String varName);
+	public Sort createSort(String varName);
 
 	/**
 	 * Create a instance of sort object.
@@ -171,12 +171,12 @@ public abstract class FilterFactory {
 	 * @param direction
 	 * @return sort
 	 */
-	public abstract Sort createSort(String varName, Sort.Direction direction);
+	public Sort createSort(String varName, Direction direction);
 
 	/**
 	 * Create a page object.
 	 * 
 	 * @return
 	 */
-	public abstract Page createPage();
+	public Page createPage();
 }

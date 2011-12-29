@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mycallstation.base.filter.Filter;
+import com.mycallstation.base.filter.Operator;
 
 /**
  * @author Jack
@@ -16,7 +17,7 @@ import com.mycallstation.base.filter.Filter;
 class InListFilter extends BaseInFilter implements Serializable {
 	private static final long serialVersionUID = 910431459453687700L;
 
-	private List<? extends Serializable> rightHand;
+	private final List<? extends Serializable> rightHand;
 
 	<T extends Serializable> InListFilter(String left, List<T> right,
 			boolean notFlag) {

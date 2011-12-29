@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mycallstation.base.business.impl.AbstractService;
 import com.mycallstation.base.dao.DAO;
 import com.mycallstation.base.filter.Filter;
+import com.mycallstation.base.filter.Operator;
 import com.mycallstation.constant.KeepAlivePingType;
 import com.mycallstation.constant.OnlineStatus;
 import com.mycallstation.constant.PhoneNumberStatus;
@@ -100,7 +101,7 @@ public class UserSipProfileServiceImpl extends
 	@Override
 	public UserSipProfile getUserSipProfileByUsername(String username) {
 		Filter filter = filterFactory.createSimpleFilter("owner.username",
-				username, Filter.Operator.IEQ);
+				username, Operator.IEQ);
 		return dao.getUniqueEntity(filter);
 	}
 
@@ -116,7 +117,7 @@ public class UserSipProfileServiceImpl extends
 		Filter f1 = filterFactory
 				.createSimpleFilter("phoneNumber", phoneNumber);
 		Filter f2 = filterFactory.createSimpleFilter("phoneNumberStatus",
-				PhoneNumberStatus.UNVERIFIED, Filter.Operator.NOT_EQ);
+				PhoneNumberStatus.UNVERIFIED, Operator.NOT_EQ);
 		Filter filter = f1.appendAnd(f2);
 		List<UserSipProfile> entities = dao.getEntities(filter, null, null);
 		if (entities != null && !entities.isEmpty()) {
@@ -194,7 +195,7 @@ public class UserSipProfileServiceImpl extends
 		filter = filter.appendAnd(f1);
 		f1 = filterFactory.createIsNullFilter("lastReceiveCallTime");
 		Filter f2 = filterFactory.createSimpleFilter("lastReceiveCallTime", o,
-				Filter.Operator.LESS_THAN);
+				Operator.LESS_THAN);
 		f1 = f1.appendOr(f2);
 		filter = filter.appendAnd(f1);
 		return dao.getEntityIds(filter, null, null);

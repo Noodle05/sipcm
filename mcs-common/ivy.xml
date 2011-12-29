@@ -12,7 +12,7 @@
 <ivy-module version="2.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
-	<info organisation="com.mycallstation" module="sip-base" />
+	<info organisation="com.mycallstation" module="sip-common" />
 	<configurations>
 		<conf name="provided" description="System provided" />
 		<conf name="compile" description="Build Time dependencies" />
@@ -50,21 +50,21 @@
 		<dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.6.2"
 			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-aop"
-			rev="3.0.6.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+			rev="3.0.7.RELEASE" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-aspects"
-			rev="3.0.6.RELEASE" conf="runtime->default;foride->sources,javadoc">
+			rev="3.0.7.RELEASE" conf="runtime->default;foride->sources,javadoc">
 			<exclude module="spring-test" />
 		</dependency>
 		<dependency org="org.springframework" name="spring-core"
-			rev="3.0.6.RELEASE" conf="compile->default;foride->sources,javadoc">
+			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
 		</dependency>
 		<dependency org="org.springframework" name="spring-context"
-			rev="3.0.6.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-orm"
-			rev="3.0.6.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-test"
-			rev="3.0.6.RELEASE" conf="test->default;foride->sources,javadoc" />
+			rev="3.0.7.RELEASE" conf="test->default;foride->sources,javadoc" />
 		<dependency org="com.google.guava" name="guava" rev="10.0.1"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="com.google.code.gson" name="gson" rev="1.7.1"

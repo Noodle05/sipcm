@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mycallstation.base.business.impl.AbstractService;
 import com.mycallstation.base.dao.DAO;
 import com.mycallstation.base.filter.Filter;
+import com.mycallstation.base.filter.Operator;
 import com.mycallstation.common.BaseConfiguration;
 import com.mycallstation.constant.AccountStatus;
 import com.mycallstation.dataaccess.business.UserService;
@@ -73,7 +74,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	@Override
 	public User getUserByUsername(String username) {
 		Filter filter = filterFactory.createSimpleFilter("username", username,
-				Filter.Operator.IEQ);
+				Operator.IEQ);
 		return dao.getUniqueEntity(filter);
 	}
 
@@ -87,7 +88,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	@Override
 	public User getUserByEmail(String email) {
 		Filter filter = filterFactory.createSimpleFilter("email", email,
-				Filter.Operator.IEQ);
+				Operator.IEQ);
 		return dao.getUniqueEntity(filter);
 	}
 

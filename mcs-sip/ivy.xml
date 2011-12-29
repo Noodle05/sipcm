@@ -12,7 +12,7 @@
 <ivy-module version="2.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
-	<info organisation="com.mycallstation" module="SIPConnectionCenter" />
+	<info organisation="com.mycallstation" module="mcs-sip" />
 	<configurations>
 		<conf name="provided" description="System provided" />
 		<conf name="compile" description="Build Time dependencies" />
@@ -84,29 +84,29 @@
 			<exclude module="log4j" />
 		</dependency>
 		<dependency org="org.springframework" name="spring-aop"
-			rev="3.0.6.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+			rev="3.0.7.RELEASE" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-aspects"
-			rev="3.0.6.RELEASE" conf="runtime->default;foride->sources,javadoc">
+			rev="3.0.7.RELEASE" conf="runtime->default;foride->sources,javadoc">
 			<exclude module="spring-test" />
 		</dependency>
 		<dependency org="org.springframework" name="spring-beans"
-			rev="3.0.6.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+			rev="3.0.7.RELEASE" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-context-support"
-			rev="3.0.6.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-core"
-			rev="3.0.6.RELEASE" conf="compile->default;foride->sources,javadoc">
+			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
 		</dependency>
 		<dependency org="org.springframework" name="spring-context"
-			rev="3.0.6.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-jms"
-			rev="3.0.6.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-orm"
-			rev="3.0.6.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-web"
-			rev="3.0.6.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-test"
-			rev="3.0.6.RELEASE" conf="test->default;foride->sources,javadoc" />
+			rev="3.0.7.RELEASE" conf="test->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.servlet.sip" name="sip-servlets-impl"
 			rev="1.6.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.ha.javax.sip" name="mobicents-jain-sip-ha-core"

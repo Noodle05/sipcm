@@ -14,14 +14,14 @@ import com.mycallstation.base.filter.Operator;
  * @author Jack
  * 
  */
-class IsNullFilter extends BaseFilter implements Serializable {
+class IsEmptyFilter extends BaseFilter implements Serializable {
 	private static final long serialVersionUID = -7782355728640776213L;
 
 	private final String property;
 
 	private final Operator operator;
 
-	IsNullFilter(String name, boolean notFlag) {
+	IsEmptyFilter(String name, boolean notFlag) {
 		property = name;
 		operator = notFlag ? Operator.NOT_NULL : Operator.NULL;
 	}

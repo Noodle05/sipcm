@@ -11,12 +11,13 @@ import java.util.Map.Entry;
 
 import org.primefaces.model.LazyDataModel;
 
+import com.mycallstation.base.filter.Direction;
 import com.mycallstation.base.filter.FSP;
 import com.mycallstation.base.filter.Filter;
 import com.mycallstation.base.filter.FilterFactory;
+import com.mycallstation.base.filter.Operator;
 import com.mycallstation.base.filter.Page;
 import com.mycallstation.base.filter.Sort;
-import com.mycallstation.base.filter.Sort.Direction;
 import com.mycallstation.constant.CallStatus;
 import com.mycallstation.constant.CallType;
 import com.mycallstation.dataaccess.model.CallLog;
@@ -169,7 +170,7 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 				String value = entry.getValue();
 				if (key != null && value != null) {
 					Filter f1 = filterFactory.createSimpleFilter(key, "%"
-							+ value + "%", Filter.Operator.ILIKE);
+							+ value + "%", Operator.ILIKE);
 					filter = filter.appendAnd(f1);
 				}
 			}

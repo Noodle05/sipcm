@@ -14,23 +14,19 @@ import com.mycallstation.base.filter.Operator;
  * @author Jack
  * 
  */
-class BetweenFilter extends BaseFilter implements Serializable {
-	private static final long serialVersionUID = 9049839710701185793L;
+class MemberOfFilter extends BaseFilter implements Serializable {
+	private static final long serialVersionUID = 685227069924405650L;
 
 	private final String leftHand;
 
-	private final Serializable rightHand1;
-
-	private final Serializable rightHand2;
+	private final Serializable rightHand;
 
 	private final Operator operator;
 
-	BetweenFilter(String left, Serializable right1, Serializable right2,
-			boolean notFlag) {
-		this.leftHand = left;
-		this.rightHand1 = right1;
-		this.rightHand2 = right2;
-		operator = notFlag ? Operator.NOT_BETWEEN : Operator.BETWEEN;
+	MemberOfFilter(String name, Serializable value, boolean notFlag) {
+		this.leftHand = name;
+		this.rightHand = value;
+		this.operator = notFlag ? Operator.NOT_MEMBER_OF : Operator.MEMBER_OF;
 	}
 
 	/*
@@ -41,8 +37,8 @@ class BetweenFilter extends BaseFilter implements Serializable {
 	@Override
 	public String getString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(Filter.DEFAULT_ALIAS).append(".").append(leftHand)
-				.append(" ").append(operator.getString()).append(" ? and ?");
+		sb.append("? ").append(operator.getString()).append(" ")
+				.append(Filter.DEFAULT_ALIAS).append(".").append(leftHand);
 		return sb.toString();
 	}
 
@@ -53,9 +49,8 @@ class BetweenFilter extends BaseFilter implements Serializable {
 	 */
 	@Override
 	public List<Serializable> getValues() {
-		List<Serializable> ret = new ArrayList<Serializable>(2);
-		ret.add(rightHand1);
-		ret.add(rightHand2);
+		List<Serializable> ret = new ArrayList<Serializable>(1);
+		ret.add(rightHand);
 		return ret;
 	}
 }

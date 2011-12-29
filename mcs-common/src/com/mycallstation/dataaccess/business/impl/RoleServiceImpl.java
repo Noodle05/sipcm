@@ -16,6 +16,7 @@ import com.google.common.cache.CacheLoader;
 import com.mycallstation.base.business.impl.AbstractService;
 import com.mycallstation.base.dao.DAO;
 import com.mycallstation.base.filter.Filter;
+import com.mycallstation.base.filter.Operator;
 import com.mycallstation.dataaccess.business.RoleService;
 import com.mycallstation.dataaccess.model.Role;
 
@@ -43,7 +44,7 @@ public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 					@Override
 					public Role load(String key) throws Exception {
 						Filter filter = filterFactory.createSimpleFilter(
-								"name", key, Filter.Operator.IEQ);
+								"name", key, Operator.IEQ);
 						Role role = dao.getUniqueEntity(filter);
 						return role;
 					}

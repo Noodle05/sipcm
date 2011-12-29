@@ -90,7 +90,7 @@ public abstract class AbstractServiceEventObserver<Entity extends IdBasedEntity<
 			}
 			if (!newEntities.isEmpty()) {
 				EntityEventObject<Entity, ID> event = new EntityEventObject<Entity, ID>(
-						entities);
+						newEntities);
 				try {
 					listener.entityCreated(event);
 				} catch (Throwable e) {
@@ -101,7 +101,7 @@ public abstract class AbstractServiceEventObserver<Entity extends IdBasedEntity<
 			}
 			if (!existingEntities.isEmpty()) {
 				EntityEventObject<Entity, ID> event = new EntityEventObject<Entity, ID>(
-						entities);
+						existingEntities);
 				try {
 					listener.entityModified(event);
 				} catch (Throwable e) {

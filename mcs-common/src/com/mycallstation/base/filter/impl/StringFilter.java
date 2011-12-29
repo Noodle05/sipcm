@@ -14,7 +14,7 @@ import java.util.List;
 class StringFilter extends BaseFilter implements Serializable {
 	private static final long serialVersionUID = 8168643045904058467L;
 
-	private String strCondition;
+	private final String strCondition;
 
 	StringFilter(String condition) {
 		this.strCondition = condition;

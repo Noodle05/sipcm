@@ -5,6 +5,7 @@ package com.mycallstation.base.filter.impl;
 
 import java.io.Serializable;
 
+import com.mycallstation.base.filter.Direction;
 import com.mycallstation.base.filter.Filter;
 import com.mycallstation.base.filter.Sort;
 
@@ -15,21 +16,18 @@ import com.mycallstation.base.filter.Sort;
 class SortImpl implements Sort, Serializable, Cloneable {
 	private static final long serialVersionUID = 2231061244497829862L;
 
-	private String propertyName;
+	private final String propertyName;
 
-	private Direction direction;
+	private final Direction direction;
 
 	private SortImpl next;
 
 	SortImpl(String varName) {
-		init(varName, Direction.ASC);
+		this.propertyName = varName;
+		this.direction = Direction.ASC;
 	}
 
 	SortImpl(String varName, Direction direction) {
-		init(varName, direction);
-	}
-
-	private void init(String varName, Direction direction) {
 		this.propertyName = varName;
 		this.direction = direction;
 	}

@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.mycallstation.base.filter.Filter;
 import com.mycallstation.base.filter.InvalidFilterException;
+import com.mycallstation.base.filter.Operator;
 
 /**
  * @author Jack
@@ -17,11 +18,11 @@ import com.mycallstation.base.filter.InvalidFilterException;
 class AndOrFilter extends BaseFilter implements Serializable {
 	private static final long serialVersionUID = -8473349893716745816L;
 
-	private Filter leftHand;
+	private final Filter leftHand;
 
-	private Filter rightHand;
+	private final Filter rightHand;
 
-	private Operator operator;
+	private final Operator operator;
 
 	AndOrFilter(Filter leftHand, Filter rightHand, boolean and) {
 		this.leftHand = leftHand;
