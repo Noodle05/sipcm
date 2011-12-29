@@ -5,8 +5,6 @@ package com.mycallstation.base.filter;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 /**
  * @author Jack
  * 
@@ -51,10 +49,34 @@ public class FSP implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		ToStringBuilder tsb = new ToStringBuilder(this);
-		tsb.append("Page", page);
-		tsb.append("Sort", sort);
-		tsb.append("Filter", filter);
-		return tsb.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append("FSP[");
+		boolean first = true;
+		if (filter != null) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(",");
+			}
+			sb.append("filter=").append(filter);
+		}
+		if (sort != null) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(",");
+			}
+			sb.append("sort=").append(sort);
+		}
+		if (page != null) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(",");
+			}
+			sb.append("page=").append(page);
+		}
+		sb.append("]");
+		return sb.toString();
 	}
 }

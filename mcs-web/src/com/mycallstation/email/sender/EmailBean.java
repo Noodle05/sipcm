@@ -13,8 +13,6 @@ import java.util.Map;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 /**
  * @author Jack
  * 
@@ -416,18 +414,79 @@ public class EmailBean implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		ToStringBuilder tsb = new ToStringBuilder(this);
-		tsb.append("From", fromAddress);
-		tsb.append("To", toAddress);
-		tsb.append("Cc", ccAddress);
-		tsb.append("Bcc", bccAddress);
-		tsb.append("Reply", replyAddress);
-		tsb.append("Subject", subject);
-		tsb.append("Html encode", htmlEncoded);
-		tsb.append("Priority", priority.name());
-		if (attachments.size() > 0) {
-			tsb.append("Attachments", attachments.size());
+		StringBuilder sb = new StringBuilder();
+		sb.append("EmailBean[");
+		boolean first = true;
+		if (fromAddress != null) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(",");
+			}
+			sb.append("fromAddress=").append(fromAddress);
 		}
-		return tsb.toString();
+		if (toAddress != null) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(",");
+			}
+			sb.append("toAddress=").append(toAddress);
+		}
+		if (ccAddress != null) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(",");
+			}
+			sb.append("ccAddress=").append(ccAddress);
+		}
+		if (bccAddress != null) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(",");
+			}
+			sb.append("bccAddress=").append(bccAddress);
+		}
+		if (replyAddress != null) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(",");
+			}
+			sb.append("replyAddress=").append(replyAddress);
+		}
+		if (subject != null) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(",");
+			}
+			sb.append("subject=").append(subject);
+		}
+		if (first) {
+			first = false;
+		} else {
+			sb.append(",");
+		}
+		sb.append("htmlEncoded=").append(htmlEncoded);
+		if (priority != null) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(",");
+			}
+			sb.append("priority=").append(priority);
+		}
+		if (!attachments.isEmpty()) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(",");
+			}
+			sb.append("attachments=").append(attachments.size());
+		}
+		return sb.toString();
 	}
 }

@@ -53,7 +53,7 @@
 		</dependency>
 		<dependency org="commons-lang" name="commons-lang" rev="2.6"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="javassist" name="javassist" rev="3.8.0.GA"
+		<dependency org="org.javassist" name="javassist" rev="3.15.0-GA"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="log4j" name="log4j" rev="1.2.16"
 			conf="runtime->default;foride->sources,javadoc" />
@@ -63,7 +63,7 @@
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-codec" />
 		</dependency>
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.7.Final"
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.9.Final"
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
@@ -75,11 +75,11 @@
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.aspectj" name="aspectjweaver" rev="1.6.9"
 			conf="runtime->default;foride->sources,javadoc" />
-		<dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.6.2"
+		<dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.6.4"
 			conf="runtime->default;foride->sources,javadoc" />
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.2"
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.4"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.2"
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.4"
 			conf="runtime->default;foride->sources,javadoc">
 			<exclude module="log4j" />
 		</dependency>
@@ -131,7 +131,7 @@
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="com.sun.faces" name="jsf-impl" rev="2.0.4-b09"
 			conf="runtime->default;foride->sources,javadoc" />
-		<dependency org="junit" name="junit" rev="4.8.1"
+		<dependency org="junit" name="junit" rev="4.10"
 			conf="test->default;foride->sources,javadoc" />
 		<dependency org="org.primefaces" name="primefaces" rev="2.2.1"
 			conf="compile->default;foride->sources,javadoc" />
