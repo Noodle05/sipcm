@@ -34,7 +34,7 @@ public abstract class BaseConfiguration {
 
 	public BaseConfiguration() {
 		StrongTextEncryptor encryptor = new StrongTextEncryptor();
-		encryptor.setPassword(CodecTool.PASSWORD);
+		encryptor.setPassword(CodecTool.getEncryptPW());
 		textEncryptor = encryptor;
 	}
 

@@ -3,9 +3,6 @@
  */
 package com.mycallstation.web.util;
 
-import javax.annotation.Resource;
-
-import org.apache.commons.configuration.Configuration;
 import org.springframework.stereotype.Component;
 
 import com.mycallstation.common.BaseConfiguration;
@@ -30,9 +27,6 @@ public class WebConfiguration extends BaseConfiguration {
 	public static final String FROM_EMAIL = "global.from.email";
 	public static final String ADMIN_EMAIL_PERSONAL = "global.admin.email.personal";
 	public static final String FROM_EMAIL_PERSONAL = "global.from.email.personal";
-
-	@Resource(name = "applicationConfiguration")
-	private Configuration appConfig;
 
 	public boolean isRegisterByInviteOnly() {
 		return appConfig.getBoolean(REGISTER_BY_INVITE_ONLY, true);

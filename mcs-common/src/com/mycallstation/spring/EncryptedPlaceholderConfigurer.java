@@ -26,7 +26,7 @@ public class EncryptedPlaceholderConfigurer extends
 
 	public void init() {
 		StrongTextEncryptor encryptor = new StrongTextEncryptor();
-		encryptor.setPassword(CodecTool.PASSWORD);
+		encryptor.setPassword(CodecTool.getEncryptPW());
 		textEncryptor = encryptor;
 	}
 

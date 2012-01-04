@@ -5,15 +5,9 @@ package com.mycallstation.sip.util;
 
 import java.util.Arrays;
 
-import javax.annotation.Resource;
-
-import org.apache.commons.configuration.Configuration;
-import org.jasypt.util.text.StrongTextEncryptor;
-import org.jasypt.util.text.TextEncryptor;
 import org.springframework.stereotype.Component;
 
 import com.mycallstation.common.BaseConfiguration;
-import com.mycallstation.util.CodecTool;
 import com.mycallstation.util.PhoneNumberUtil;
 
 /**
@@ -70,17 +64,6 @@ public class SipConfiguration extends BaseConfiguration {
 	public static final String MGCP_STACK_NAME = "";
 	public static final String MGCP_LOCAL_ADDRESS = "";
 	public static final String MGCP_LOCAL_PORT = "";
-
-	@Resource(name = "applicationConfiguration")
-	private Configuration appConfig;
-
-	private final TextEncryptor textEncryptor;
-
-	public SipConfiguration() {
-		StrongTextEncryptor encryptor = new StrongTextEncryptor();
-		encryptor.setPassword(CodecTool.PASSWORD);
-		textEncryptor = encryptor;
-	}
 
 	public long getDosProtectInterval() {
 		return appConfig.getLong(SIP_DOS_PROTECT_INTERVAL, 60L);

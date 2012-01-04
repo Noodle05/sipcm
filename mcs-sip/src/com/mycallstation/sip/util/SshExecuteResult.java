@@ -3,16 +3,19 @@
  */
 package com.mycallstation.sip.util;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
  * @author wgao
  * 
  */
-public class SshExecuteResult {
-	private int exitStatus;
-	private Collection<String> output;
-	private Collection<String> error;
+public class SshExecuteResult implements Serializable {
+	private static final long serialVersionUID = -4284097179107314460L;
+
+	private final int exitStatus;
+	private final Collection<String> output;
+	private final Collection<String> error;
 
 	public SshExecuteResult(int exitStatus, Collection<String> output,
 			Collection<String> error) {

@@ -15,7 +15,8 @@ import org.jasypt.util.text.StrongTextEncryptor;
  * @author Jack
  */
 public class CodecTool {
-	public static final String PASSWORD = "P@ssw0rd@S1PCw";
+	public static final byte[] PASSWORD = { 0x7a, 0x38, 0x0e, 0x19, 0x3c, 0x0c,
+			0x41, 0x21, 0x06, 0x73, 0x34, 0x35, 0x05, 0x05 };
 
 	public static final String OPTION_HELP = "h";
 	public static final String OPTION_HELP_LONG = "help";
@@ -29,7 +30,18 @@ public class CodecTool {
 	private static final StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
 
 	static {
-		textEncryptor.setPassword(PASSWORD);
+		textEncryptor.setPassword(getEncryptPW());
+	}
+
+	public static final String getEncryptPW() {
+		int length = PASSWORD.length;
+		byte[] tmp = new byte[length];
+		for (int i = 0; i < tmp.length; i++) {
+			byte b = (byte) (PASSWORD[length - i - 1] ^ i);
+			b = (byte) (((b & 0x0f) << 4) | ((b & 0xf0) >> 4));
+			tmp[i] = b;
+		}
+		return new String(tmp);
 	}
 
 	/**
