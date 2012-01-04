@@ -40,6 +40,8 @@
 			rev="1.8.3" conf="runtime->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
 		</dependency>
+		<dependency org="commons-cli" name="commons-cli" rev="1.2"
+			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.5"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="commons-collections" name="commons-collections"
