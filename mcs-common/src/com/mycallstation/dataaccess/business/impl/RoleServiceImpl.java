@@ -10,9 +10,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.mycallstation.base.business.impl.AbstractService;
 import com.mycallstation.base.dao.DAO;
 import com.mycallstation.base.filter.Filter;
@@ -27,7 +27,7 @@ import com.mycallstation.dataaccess.model.Role;
 @Service("roleService")
 public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 		RoleService {
-	private Cache<String, Role> cache;
+	private LoadingCache<String, Role> cache;
 
 	/*
 	 * (non-Javadoc)

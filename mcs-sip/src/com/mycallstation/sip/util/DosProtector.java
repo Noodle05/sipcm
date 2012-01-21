@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.MapMaker;
 import com.mycallstation.sip.events.BlockIpEvent;
 import com.mycallstation.sip.events.BlockIpEventListener;
@@ -38,7 +38,7 @@ public class DosProtector {
 	@Resource(name = "sipDosBlockEventListener")
 	private BlockIpEventListener blockEventListener;
 
-	private Cache<String, AtomicInteger> counter;
+	private LoadingCache<String, AtomicInteger> counter;
 	private ConcurrentMap<String, Long> blockList;
 
 	@Resource(name = "systemConfiguration")

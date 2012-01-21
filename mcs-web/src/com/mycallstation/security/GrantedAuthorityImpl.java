@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 /**
  * @author wgao
@@ -18,7 +18,7 @@ import com.google.common.cache.CacheLoader;
 public class GrantedAuthorityImpl implements GrantedAuthority {
 	private static final long serialVersionUID = -395218563364427760L;
 
-	private static final Cache<String, GrantedAuthority> cache = CacheBuilder
+	private static final LoadingCache<String, GrantedAuthority> cache = CacheBuilder
 			.newBuilder().concurrencyLevel(2).initialCapacity(2)
 			.expireAfterWrite(8, TimeUnit.HOURS)
 			.build(new CacheLoader<String, GrantedAuthority>() {

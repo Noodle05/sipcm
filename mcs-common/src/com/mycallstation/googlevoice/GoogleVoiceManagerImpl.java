@@ -8,9 +8,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 /**
  * @author wgao
@@ -20,7 +20,7 @@ public abstract class GoogleVoiceManagerImpl implements GoogleVoiceManager {
 	private Logger logger = LoggerFactory
 			.getLogger(GoogleVoiceManagerImpl.class);
 
-	private final Cache<String, GoogleVoiceSession> cache;
+	private final LoadingCache<String, GoogleVoiceSession> cache;
 
 	public GoogleVoiceManagerImpl() {
 		cache = CacheBuilder.newBuilder().concurrencyLevel(16).softValues()

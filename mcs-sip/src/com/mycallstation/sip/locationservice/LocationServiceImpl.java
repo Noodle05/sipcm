@@ -3,7 +3,6 @@
  */
 package com.mycallstation.sip.locationservice;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,9 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.mycallstation.dataaccess.business.AddressBindingService;
 import com.mycallstation.dataaccess.business.UserSipProfileService;
 import com.mycallstation.dataaccess.model.AddressBinding;
@@ -48,7 +47,7 @@ public class LocationServiceImpl implements LocationService {
 	public static final Logger logger = LoggerFactory
 			.getLogger(LocationServiceImpl.class);
 
-	private Cache<UserSipProfile, AddressBindings> cache;
+	private LoadingCache<UserSipProfile, AddressBindings> cache;
 
 	@Resource(name = "sipUtil")
 	private SipUtil sipUtil;
@@ -71,7 +70,7 @@ public class LocationServiceImpl implements LocationService {
 	private int minimumExpires;
 
 	@PostConstruct
-	public void init() throws NoSuchAlgorithmException {
+	public void init() {
 		cache = CacheBuilder.newBuilder().concurrencyLevel(8)
 				.expireAfterWrite(30, TimeUnit.MINUTES).softValues()
 				.maximumSize(500)
