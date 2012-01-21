@@ -98,7 +98,6 @@ public class SipConnectorListenerImpl implements SipConnectorListener {
 	 */
 	@Override
 	public void sipConnectorRemoved(SipConnector connector) {
-		// TODO Auto-generated method stub
-
+		// Do nothing
 	}
 }

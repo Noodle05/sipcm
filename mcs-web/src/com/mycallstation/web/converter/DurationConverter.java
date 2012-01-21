@@ -42,7 +42,6 @@ public class DurationConverter implements Converter {
 			long ret = ((long) (h * 3600 + mi * 60 + s)) * 1000L;
 			return ret;
 		}
-		// TODO Auto-generated method stub
 		return null;
 	}
 
