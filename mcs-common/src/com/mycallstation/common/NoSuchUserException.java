@@ -4,7 +4,7 @@
 package com.mycallstation.common;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class NoSuchUserException extends AuthenticationException {

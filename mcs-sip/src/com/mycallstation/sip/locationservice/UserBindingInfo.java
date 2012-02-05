@@ -10,7 +10,7 @@ import com.mycallstation.dataaccess.model.AddressBinding;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class UserBindingInfo implements Serializable {

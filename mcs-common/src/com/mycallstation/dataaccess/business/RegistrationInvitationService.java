@@ -7,7 +7,7 @@ import com.mycallstation.base.business.Service;
 import com.mycallstation.dataaccess.model.RegistrationInvitation;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface RegistrationInvitationService extends

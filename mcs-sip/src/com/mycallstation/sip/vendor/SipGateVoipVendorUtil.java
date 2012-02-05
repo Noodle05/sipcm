@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("sipgate.voipVendorUtil")

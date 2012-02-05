@@ -23,7 +23,7 @@ import com.mycallstation.base.model.IdBasedEntity;
 import com.mycallstation.constant.ActiveMethod;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Entity

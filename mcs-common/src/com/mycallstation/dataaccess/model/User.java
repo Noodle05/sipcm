@@ -31,7 +31,7 @@ import com.mycallstation.base.model.IdBasedEntity;
 import com.mycallstation.constant.AccountStatus;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Entity

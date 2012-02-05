@@ -21,7 +21,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public class SchemaCreator {

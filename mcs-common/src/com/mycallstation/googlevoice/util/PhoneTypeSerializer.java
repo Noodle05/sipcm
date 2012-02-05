@@ -15,7 +15,7 @@ import com.google.gson.JsonSerializer;
 import com.mycallstation.googlevoice.setting.PhoneType;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class PhoneTypeSerializer implements JsonSerializer<PhoneType>,

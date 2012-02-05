@@ -14,7 +14,7 @@ import com.mycallstation.sip.events.BlockIpEvent;
 import com.mycallstation.sip.events.BlockIpEventListener;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("sipDosBlockEventListener")

@@ -11,7 +11,7 @@ import com.mycallstation.base.filter.FSP;
 import com.mycallstation.base.filter.Filter;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public interface Service<Entity extends Serializable, ID extends Serializable> {
@@ -142,13 +142,4 @@ public interface Service<Entity extends Serializable, ID extends Serializable> {
 	 * @return refreshed entity
 	 */
 	public Entity refreshEntity(Entity entity);
-
-	/**
-	 * Check if the entity is read only
-	 * 
-	 * @param entity
-	 *            the entity to check
-	 * @return true if the entity is read only, otherwise false.
-	 */
-	public boolean isReadonly(Entity entity);
 }

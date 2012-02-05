@@ -5,7 +5,6 @@ package com.mycallstation.web.member;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,35 +12,39 @@ import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
-import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import com.mycallstation.constant.ActiveMethod;
+import com.mycallstation.dataaccess.business.RoleService;
 import com.mycallstation.dataaccess.business.UserActivationService;
 import com.mycallstation.dataaccess.business.UserService;
 import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.dataaccess.model.UserActivation;
+import com.mycallstation.scope.ViewScope;
 import com.mycallstation.web.LocaleTimeZoneHolderBean;
+import com.mycallstation.web.util.EmailUtils;
 import com.mycallstation.web.util.JSFUtils;
 import com.mycallstation.web.util.Messages;
+import com.mycallstation.web.util.WebConfiguration;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
-@ManagedBean(name = "profileBean")
-@ViewScoped
+@Component("profileBean")
+@Scope(ViewScope.VIEW_SCOPE)
 public class ProfileBean implements Serializable {
 	private static final long serialVersionUID = 3724475125208917222L;
 
@@ -49,6 +52,30 @@ public class ProfileBean implements Serializable {
 			.getLogger(ProfileBean.class);
 
 	public static final String CONFIRM_EMAIL_TEMPLATE = "/templates/email-confirm.vm";
+
+	@Resource(name = "systemConfiguration")
+	private WebConfiguration appConfig;
+
+	@Resource(name = "userService")
+	private UserService userService;
+
+	@Resource(name = "roleService")
+	private RoleService roleService;
+
+	@Resource(name = "localeTimeZoneHolderBean")
+	private LocaleTimeZoneHolderBean localeTimeZoneHolderBean;
+
+	@Resource(name = "userActivationService")
+	private UserActivationService userActivationService;
+
+	@Resource(name = "webEmailUtils")
+	private EmailUtils emailUtils;
+
+	@Resource(name = "jsfUtils")
+	private JSFUtils jsfUtils;
+
+	@Resource(name = "web.messages")
+	private Messages messages;
 
 	private String email;
 
@@ -70,9 +97,8 @@ public class ProfileBean implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		emailPattern = Pattern.compile(JSFUtils.getAppConfig()
-				.getEmailPattern());
-		User user = JSFUtils.getCurrentUser();
+		emailPattern = Pattern.compile(appConfig.getEmailPattern());
+		User user = jsfUtils.getCurrentUser();
 		if (user == null) {
 			throw new IllegalStateException(
 					"Calling profile bean without user?");
@@ -102,8 +128,7 @@ public class ProfileBean implements Serializable {
 	}
 
 	public void save() {
-		UserService userService = JSFUtils.getUserService();
-		User user = JSFUtils.getCurrentUser();
+		User user = jsfUtils.getCurrentUser();
 		if (logger.isDebugEnabled()) {
 			logger.debug("Saving user profile for \"{}\"", user);
 		}
@@ -136,22 +161,21 @@ public class ProfileBean implements Serializable {
 				logger.trace("Email changed, remove caller role.");
 			}
 			user.setEmail(email);
-			user.removeRole(JSFUtils.getRoleService().getCallerRole());
+			user.removeRole(roleService.getCallerRole());
 			suspend = true;
 		}
 		userService.saveEntity(user);
-		LocaleTimeZoneHolderBean b = JSFUtils.getLocaleTimeZoneHolderBean();
-		if (b != null) {
-			b.setLocale(user.getLocale());
-			b.setTimeZone(user.getTimeZone());
+		if (localeTimeZoneHolderBean != null) {
+			localeTimeZoneHolderBean.setLocale(user.getLocale());
+			localeTimeZoneHolderBean.setTimeZone(user.getTimeZone());
 		}
 		if (suspend) {
 			changeEmail(user);
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"member.profile.voip.suspend", FacesMessage.SEVERITY_WARN);
 			FacesContext.getCurrentInstance().addMessage(null, message);
 		}
-		FacesMessage message = Messages.getMessage("member.profile.saved",
+		FacesMessage message = messages.getMessage("member.profile.saved",
 				FacesMessage.SEVERITY_INFO);
 		FacesContext.getCurrentInstance().addMessage(null, message);
 		if (suspend) {
@@ -170,14 +194,14 @@ public class ProfileBean implements Serializable {
 			UIComponent componentToValidate, Object value) {
 		String email = ((String) value).trim();
 		if (!emailPattern.matcher(email).matches()) {
-			FacesMessage message = Messages
+			FacesMessage message = messages
 					.getMessage("register.error.email.pattern",
 							FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
-		User user = JSFUtils.getUserService().getUserByEmail(email);
-		if (user != null && !user.equals(JSFUtils.getCurrentUser())) {
-			FacesMessage message = Messages.getMessage(
+		User user = userService.getUserByEmail(email);
+		if (user != null && !user.equals(jsfUtils.getCurrentUser())) {
+			FacesMessage message = messages.getMessage(
 					"register.error.email.exists", FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
@@ -203,7 +227,7 @@ public class ProfileBean implements Serializable {
 				} else if (password.equals(confirmPasswd)) {
 					return;
 				}
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"register.error.password.notmatch",
 						FacesMessage.SEVERITY_ERROR);
 				fc.addMessage("registrationForm:confirmPassword", message);
@@ -216,22 +240,19 @@ public class ProfileBean implements Serializable {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Create user activation object.");
 		}
-		UserActivationService userActivationService = JSFUtils
-				.getUserActivationService();
 		UserActivation userActivation = userActivationService
-				.createUserActivation(user, ActiveMethod.SELF, JSFUtils
-						.getAppConfig().getActiveExpires());
+				.createUserActivation(user, ActiveMethod.SELF,
+						appConfig.getActiveExpires());
 		userActivationService.saveEntity(userActivation);
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("activation", userActivation);
-		params.put("activeExpires", JSFUtils.getAppConfig().getActiveExpires());
+		params.put("activeExpires", appConfig.getActiveExpires());
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("Sending confirm email");
 		}
-		JSFUtils.getEmailUtils().sendMail(user.getEmail(),
-				user.getUserDisplayName(),
-				Messages.getString(null, "member.email.confirm.subject", null),
+		emailUtils.sendMail(user.getEmail(), user.getUserDisplayName(),
+				messages.getString(null, "member.email.confirm.subject", null),
 				CONFIRM_EMAIL_TEMPLATE, params, user.getLocale());
 	}
 
@@ -353,13 +374,5 @@ public class ProfileBean implements Serializable {
 	 */
 	public String getTimeZone() {
 		return timeZone;
-	}
-
-	public List<String> getAvailableLocales() {
-		return JSFUtils.getAvailableLocales();
-	}
-
-	public SelectItem[] getAvailableTimeZones() {
-		return JSFUtils.getAvailableTimeZones();
 	}
 }

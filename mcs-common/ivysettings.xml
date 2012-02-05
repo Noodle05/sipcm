@@ -1,4 +1,9 @@
 <ivysettings>
+	<property name="spring.version" value="3.1.0.RELEASE" />
+	<property name="hibernate.version" value="3.6.9.Final" />
+	<property name="slf4j.version" value="1.6.4" />
+	<property name="guava.version" value="11.0.1" />
+	<property name="jsf.version" value="2.1.3-b02" />
 	<settings defaultResolver="default" />
 	<include url="${ivy.default.settings.dir}/ivysettings-shared.xml" />
 	<include url="${ivy.default.settings.dir}/ivysettings-local.xml" />

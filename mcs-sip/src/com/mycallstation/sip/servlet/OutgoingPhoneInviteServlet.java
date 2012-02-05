@@ -25,7 +25,7 @@ import com.mycallstation.sip.locationservice.UserBindingInfo;
 import com.mycallstation.sip.util.MapHolderBean;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @SipServlet(name = "OutgoingPhoneInviteServlet", applicationName = "com.mycallstation.CallCenter", loadOnStartup = 1)

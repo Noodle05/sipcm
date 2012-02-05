@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class GoogleVoiceConfig implements Serializable {

@@ -17,7 +17,7 @@ import com.mycallstation.util.PhoneNumberUtil;
  * This is a dummy dialplan executor. It will just return the first user voip
  * account.
  * 
- * @author wgao
+ * @author Wei Gao
  */
 @Component("sipDialplanExecutor")
 public class CompositeDialplanExecutorImpl extends AbstractDialplanExecutor {

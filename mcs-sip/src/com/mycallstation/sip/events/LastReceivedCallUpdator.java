@@ -11,7 +11,7 @@ import com.mycallstation.constant.VoipVendorType;
 import com.mycallstation.dataaccess.business.UserSipProfileService;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("sipLastReceivedCallUpdator")

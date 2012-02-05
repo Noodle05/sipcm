@@ -6,7 +6,7 @@ package com.mycallstation.googlevoice.result;
 import com.mycallstation.googlevoice.setting.Phone;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class PhoneResult extends Phone {

@@ -11,43 +11,64 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
 
 import org.primefaces.event.FlowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import com.mycallstation.constant.PhoneNumberStatus;
 import com.mycallstation.constant.VoipAccountType;
 import com.mycallstation.constant.VoipVendorType;
 import com.mycallstation.dataaccess.business.UserSipProfileService;
 import com.mycallstation.dataaccess.business.UserVoipAccountService;
+import com.mycallstation.dataaccess.business.VoipVendorService;
 import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
 import com.mycallstation.dataaccess.model.VoipVendor;
+import com.mycallstation.googlevoice.GoogleVoiceManager;
 import com.mycallstation.googlevoice.GoogleVoiceSession;
 import com.mycallstation.googlevoice.setting.GoogleVoiceConfig;
 import com.mycallstation.googlevoice.setting.Phone;
 import com.mycallstation.googlevoice.setting.PhoneType;
+import com.mycallstation.scope.ViewScope;
 import com.mycallstation.web.util.JSFUtils;
 import com.mycallstation.web.util.Messages;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
-@ManagedBean(name = "voipSettingWizardBean")
-@ViewScoped
+@Component("voipSettingWizardBean")
+@Scope(ViewScope.VIEW_SCOPE)
 public class VoipSettingWizardBean implements Serializable {
 	private static final long serialVersionUID = 3292589636636863869L;
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(VoipSettingWizardBean.class);
+
+	@Resource(name = "userSipProfileService")
+	private UserSipProfileService userSipProfileService;
+
+	@Resource(name = "userVoipAccountService")
+	private UserVoipAccountService userVoipAccountService;
+
+	@Resource(name = "googleVoiceManager")
+	private GoogleVoiceManager googleVoiceManager;
+
+	@Resource(name = "voipVendorService")
+	private VoipVendorService voipVendorService;
+
+	@Resource(name = "jsfUtils")
+	private JSFUtils jsfUtils;
+
+	@Resource(name = "web.messages")
+	private Messages messages;
 
 	private String oriSipNumber;
 
@@ -121,12 +142,12 @@ public class VoipSettingWizardBean implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		User user = JSFUtils.getCurrentUser();
+		User user = jsfUtils.getCurrentUser();
 		if (user == null) {
 			throw new IllegalStateException(
 					"Access this page without user? Can't be!");
 		}
-		UserSipProfile userSipProfile = JSFUtils.getUserSipProfileService()
+		UserSipProfile userSipProfile = userSipProfileService
 				.getUserSipProfileByUser(user);
 		if (userSipProfile != null) {
 			oriSipNumber = sipNumber = userSipProfile.getPhoneNumber();
@@ -134,9 +155,8 @@ public class VoipSettingWizardBean implements Serializable {
 			sipAllowInternal = userSipProfile.isAllowLocalDirectly();
 			sipNumberVerified = userSipProfile.getPhoneNumberStatus()
 					.isVerified();
-			Collection<UserVoipAccount> accounts = JSFUtils
-					.getUserVoipAccountService().getUserVoipAccount(
-							userSipProfile);
+			Collection<UserVoipAccount> accounts = userVoipAccountService
+					.getUserVoipAccount(userSipProfile);
 			hasIncome = false;
 			hasOutgo = false;
 			if (accounts != null) {
@@ -186,7 +206,7 @@ public class VoipSettingWizardBean implements Serializable {
 
 		if ("gv-initial".equals(cs)) {
 			if (gvPass == null && oriGvPass == null) {
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"member.voip.wizard.error.gv.password.required",
 						FacesMessage.SEVERITY_ERROR);
 				FacesContext.getCurrentInstance().addMessage(null, message);
@@ -198,7 +218,7 @@ public class VoipSettingWizardBean implements Serializable {
 		}
 		if ("incoming-setting".equals(cs) && "outgoing-setting".equals(ns)) {
 			if (inPass == null && oriInPass == null) {
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"member.voip.wizard.error.in.password.required",
 						FacesMessage.SEVERITY_ERROR);
 				FacesContext.getCurrentInstance().addMessage(null, message);
@@ -207,7 +227,7 @@ public class VoipSettingWizardBean implements Serializable {
 		}
 		if ("outgoing-setting".equals(cs) && "confirm".equals(ns)) {
 			if (outPass == null && oriOutPass == null) {
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"member.voip.wizard.error.out.password.required",
 						FacesMessage.SEVERITY_ERROR);
 				FacesContext.getCurrentInstance().addMessage(null, message);
@@ -249,8 +269,8 @@ public class VoipSettingWizardBean implements Serializable {
 	private void validateGV() {
 		gvConfig = null;
 		String pass = gvPass == null ? oriGvPass : gvPass;
-		GoogleVoiceSession gvs = JSFUtils.getGoogleVoiceManager()
-				.getGoogleVoiceSession(gvAccount, pass);
+		GoogleVoiceSession gvs = googleVoiceManager.getGoogleVoiceSession(
+				gvAccount, pass);
 		try {
 			try {
 				gvs.login();
@@ -258,7 +278,7 @@ public class VoipSettingWizardBean implements Serializable {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Cannot login google voice.", e);
 				}
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"member.voip.warn.googlevoice.cannot.login",
 						FacesMessage.SEVERITY_WARN);
 				FacesContext.getCurrentInstance().addMessage(null, message);
@@ -269,10 +289,10 @@ public class VoipSettingWizardBean implements Serializable {
 				try {
 					gvConfig = gvs.getGoogleVoiceSetting();
 				} catch (Exception e) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Cannot get google voice config.", e);
+					if (logger.isWarnEnabled()) {
+						logger.warn("Cannot get google voice config.", e);
 					}
-					FacesMessage message = Messages.getMessage(
+					FacesMessage message = messages.getMessage(
 							"member.voip.warn.googlevoice.cannot.get.setting",
 							FacesMessage.SEVERITY_WARN);
 					FacesContext.getCurrentInstance().addMessage(null, message);
@@ -306,18 +326,18 @@ public class VoipSettingWizardBean implements Serializable {
 	}
 
 	private void validatePhoneNumber() {
-		UserSipProfile userSipProfile = JSFUtils.getUserSipProfileService()
+		UserSipProfile userSipProfile = userSipProfileService
 				.getUserSipProfileByVerifiedPhoneNumber(sipNumber);
 		if (gvName.equalsIgnoreCase(inName) || inName.equalsIgnoreCase(outName)
 				|| outName.equalsIgnoreCase(gvName)) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"member.voip.wizard.error.account.name.conflict",
 					FacesMessage.SEVERITY_WARN);
 			FacesContext.getCurrentInstance().addMessage(null, message);
 			saveDisabled = true;
 		} else if (userSipProfile != null
-				&& !userSipProfile.getOwner().equals(JSFUtils.getCurrentUser())) {
-			FacesMessage message = Messages.getMessage(
+				&& !userSipProfile.getOwner().equals(jsfUtils.getCurrentUser())) {
+			FacesMessage message = messages.getMessage(
 					"member.voip.wizard.error.phone.been.used",
 					FacesMessage.SEVERITY_WARN);
 			FacesContext.getCurrentInstance().addMessage(null, message);
@@ -328,13 +348,11 @@ public class VoipSettingWizardBean implements Serializable {
 	}
 
 	public String save() {
-		User user = JSFUtils.getCurrentUser();
+		User user = jsfUtils.getCurrentUser();
 		if (user == null) {
 			throw new IllegalStateException(
 					"Access this page without user? Can't be!");
 		}
-		UserSipProfileService userSipProfileService = JSFUtils
-				.getUserSipProfileService();
 		UserSipProfile userSipProfile = userSipProfileService
 				.getUserSipProfileByUser(user);
 		if (userSipProfile == null) {
@@ -350,8 +368,6 @@ public class VoipSettingWizardBean implements Serializable {
 		Collection<UserVoipAccount> accounts = new ArrayList<UserVoipAccount>(3);
 		Collection<UserVoipAccount> removeAccs = new ArrayList<UserVoipAccount>();
 
-		UserVoipAccountService userVoipAccountService = JSFUtils
-				.getUserVoipAccountService();
 		UserVoipAccount gvAccount = null;
 		if (gvId != null) {
 			gvAccount = userVoipAccountService.getEntityById(gvId);
@@ -359,8 +375,7 @@ public class VoipSettingWizardBean implements Serializable {
 		if (gvAccount == null) {
 			gvAccount = userVoipAccountService.createNewEntity();
 			gvAccount.setOwner(userSipProfile);
-			gvAccount.setVoipVendor(JSFUtils.getVoipVendorService()
-					.getGoogleVoiceVendor());
+			gvAccount.setVoipVendor(voipVendorService.getGoogleVoiceVendor());
 			gvAccount.setType(VoipAccountType.OUTGOING);
 		}
 		gvAccount.setName(gvName);
@@ -436,10 +451,6 @@ public class VoipSettingWizardBean implements Serializable {
 		return "/member/index.jsf?faces-redirect=true";
 	}
 
-	public SelectItem[] getGvCallbackTypes() {
-		return JSFUtils.getAvailableGvPhoneType();
-	}
-
 	public List<String> completeCallback(String query) {
 		List<String> result = new ArrayList<String>();
 		for (String c : callbackList.keySet()) {
@@ -451,7 +462,7 @@ public class VoipSettingWizardBean implements Serializable {
 	}
 
 	public Collection<VoipVendor> getSipVendors() {
-		return JSFUtils.getVoipVendorService().getSIPVendors();
+		return voipVendorService.getSIPVendors();
 	}
 
 	/**

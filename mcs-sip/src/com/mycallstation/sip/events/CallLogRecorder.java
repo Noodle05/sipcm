@@ -20,7 +20,7 @@ import com.mycallstation.dataaccess.business.CallLogService;
 import com.mycallstation.dataaccess.model.CallLog;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("sipCallLogRecorder")

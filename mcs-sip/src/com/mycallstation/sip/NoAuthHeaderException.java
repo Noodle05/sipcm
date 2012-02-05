@@ -6,7 +6,7 @@ package com.mycallstation.sip;
 import com.mycallstation.common.AuthenticationException;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class NoAuthHeaderException extends AuthenticationException {

@@ -15,7 +15,7 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import com.mycallstation.util.CodecTool;
 
 /**
- * @author jack
+ * @author Wei Gao
  * 
  */
 public class EncryptedPlaceholderConfigurer extends

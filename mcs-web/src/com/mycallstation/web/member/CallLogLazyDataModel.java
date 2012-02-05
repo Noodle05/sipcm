@@ -9,7 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Resource;
+
 import org.primefaces.model.LazyDataModel;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import com.mycallstation.base.filter.Direction;
 import com.mycallstation.base.filter.FSP;
@@ -20,22 +25,30 @@ import com.mycallstation.base.filter.Page;
 import com.mycallstation.base.filter.Sort;
 import com.mycallstation.constant.CallStatus;
 import com.mycallstation.constant.CallType;
+import com.mycallstation.dataaccess.business.CallLogService;
 import com.mycallstation.dataaccess.model.CallLog;
 import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.web.util.JSFUtils;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
+@Component("callLogLazyDataModel")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 	private static final long serialVersionUID = 6187662282080590301L;
 
 	private Filter baseFilter;
 
-	public CallLogLazyDataModel() {
-		super();
-	}
+	@Resource(name = "filterFactory")
+	private FilterFactory filterFactory;
+
+	@Resource(name = "callLogService")
+	private CallLogService callLogService;
+
+	@Resource(name = "jsfUtils")
+	private JSFUtils jsfUtils;
 
 	public void init(User user, Date startDate, Date endDate,
 			boolean includeInConnected, boolean includeInFailed,
@@ -52,14 +65,13 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 				&& !includeOutCanceled) {
 			throw new IllegalArgumentException("None data selected");
 		}
-		FilterFactory filterFactory = JSFUtils.getFilterFactory();
 		Filter filter = filterFactory.createSimpleFilter("owner.id",
 				user.getId());
 		Calendar c;
 		if (endDate == null) {
-			c = Calendar.getInstance(JSFUtils.getCurrentTimeZone());
+			c = Calendar.getInstance(jsfUtils.getCurrentTimeZone());
 		} else {
-			c = Calendar.getInstance(JSFUtils.getCurrentTimeZone());
+			c = Calendar.getInstance(jsfUtils.getCurrentTimeZone());
 			c.setTime(endDate);
 		}
 		c.add(Calendar.DAY_OF_MONTH, 1);
@@ -150,7 +162,7 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 		}
 
 		baseFilter = filter;
-		setRowCount(JSFUtils.getCallLogService().getRowCount(baseFilter));
+		setRowCount(callLogService.getRowCount(baseFilter));
 	}
 
 	/*
@@ -162,7 +174,6 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 	@Override
 	public List<CallLog> load(int first, int pageSize, String sortField,
 			boolean sortOrder, Map<String, String> filters) {
-		FilterFactory filterFactory = JSFUtils.getFilterFactory();
 		Filter filter = baseFilter;
 		if (filters != null) {
 			for (Entry<String, String> entry : filters.entrySet()) {
@@ -189,7 +200,7 @@ public class CallLogLazyDataModel extends LazyDataModel<CallLog> {
 		fsp.setFilter(filter);
 		fsp.setPage(page);
 		fsp.setSort(sort);
-		List<CallLog> callLogs = JSFUtils.getCallLogService().getEntities(fsp);
+		List<CallLog> callLogs = callLogService.getEntities(fsp);
 		setRowCount(page.getTotalRecords());
 		return callLogs;
 	}

@@ -4,7 +4,7 @@
 package com.mycallstation.external.ipkall;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class AuthenticationException extends IPKallException {

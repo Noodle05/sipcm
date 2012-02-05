@@ -10,7 +10,7 @@ import org.mobicents.servlet.sip.startup.loading.SipLoginConfig;
 import org.springframework.stereotype.Component;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("sipLoginConfig")

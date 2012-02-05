@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import com.mycallstation.dataaccess.model.AddressBinding;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("sipAddressComparator")

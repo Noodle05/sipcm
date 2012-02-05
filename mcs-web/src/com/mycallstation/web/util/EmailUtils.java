@@ -9,16 +9,20 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.faces.context.FacesContext;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
 import com.mycallstation.email.sender.EmailBean;
 import com.mycallstation.email.sender.Emailer;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("webEmailUtils")
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class EmailUtils {
 	private volatile String serverUrl;
 

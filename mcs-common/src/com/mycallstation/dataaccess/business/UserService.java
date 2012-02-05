@@ -7,7 +7,7 @@ import com.mycallstation.base.business.Service;
 import com.mycallstation.dataaccess.model.User;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public interface UserService extends Service<User, Long> {
@@ -22,4 +22,6 @@ public interface UserService extends Service<User, Long> {
 	public User getUserByEmail(String email);
 
 	public User fullyLoadUser(Long id);
+
+	public User fullyLoadUserByUsername(String username);
 }

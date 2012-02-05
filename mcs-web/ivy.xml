@@ -65,7 +65,7 @@
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-codec" />
 		</dependency>
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.9.Final"
+		<dependency org="org.hibernate" name="hibernate-core" rev="${hibernate.version}"
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
@@ -77,68 +77,68 @@
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.aspectj" name="aspectjweaver" rev="1.6.9"
 			conf="runtime->default;foride->sources,javadoc" />
-		<dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.6.4"
+		<dependency org="org.slf4j" name="jcl-over-slf4j" rev="${slf4j.version}"
 			conf="runtime->default;foride->sources,javadoc" />
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.4"
+		<dependency org="org.slf4j" name="slf4j-api" rev="${slf4j.version}"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.4"
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="${slf4j.version}"
 			conf="runtime->default;foride->sources,javadoc">
 			<exclude module="log4j" />
 		</dependency>
 		<dependency org="org.springframework" name="spring-aop"
-			rev="3.0.7.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-aspects"
-			rev="3.0.7.RELEASE" conf="runtime->default;foride->sources,javadoc">
+			rev="${spring.version}" conf="runtime->default;foride->sources,javadoc">
 			<exclude module="spring-test" />
 		</dependency>
 		<dependency org="org.springframework" name="spring-beans"
-			rev="3.0.7.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-context-support"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-core"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc">
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
 		</dependency>
 		<dependency org="org.springframework" name="spring-context"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-jms"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-orm"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-web"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework.security" name="spring-security-core"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc">
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc">
 			<exclude org="org.aspectj" />
 		</dependency>
 		<dependency org="org.springframework.security" name="spring-security-web"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework.security" name="spring-security-config"
-			rev="3.0.7.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-test"
-			rev="3.0.7.RELEASE" conf="test->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="test->default;foride->sources,javadoc" />
 		<dependency org="javax.servlet" name="servlet-api" rev="2.5"
 			conf="provided->default;foride->sources,javadoc" />
 		<dependency org="javax.mail" name="mail" rev="1.4.4"
 			conf="provided->default;foride->sources,javadoc">
 			<exclude org="javax.activation" name="activation" />
 		</dependency>
-		<dependency org="com.google.guava" name="guava" rev="11.0.1"
+		<dependency org="com.google.guava" name="guava" rev="${guava.version}"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="com.google.code.gson" name="gson" rev="2.1"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="jstl" name="jstl" rev="1.2"
 			conf="runtime->default;foride->sources,javadoc" />
-		<dependency org="com.sun.faces" name="jsf-api" rev="2.0.4-b09"
+		<dependency org="com.sun.faces" name="jsf-api" rev="${jsf.version}"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="com.sun.faces" name="jsf-impl" rev="2.0.4-b09"
+		<dependency org="com.sun.faces" name="jsf-impl" rev="${jsf.version}"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="junit" name="junit" rev="4.10"
 			conf="test->default;foride->sources,javadoc" />
 		<dependency org="org.primefaces" name="primefaces" rev="2.2.1"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="org.primefaces.themes" name="aristo"
-			rev="1.0.0" conf="runtime->default;foride->sources,javadoc" />
+		<dependency org="org.primefaces.themes" name="aristo" rev="1.0.0"
+			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.apache.velocity" name="velocity" rev="1.7"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework.security" name="facelets-taglib-jsf20-spring-3"
@@ -155,8 +155,8 @@
 			<exclude org="log4j" />
 			<exclude org="commons-logging" />
 		</dependency>
-		<dependency org="org.apache.activemq" name="activemq-core" rev="5.5.0"
-			conf="compile->default;foride->sources,javadoc">
+		<dependency org="org.apache.activemq" name="activemq-core"
+			rev="5.5.0" conf="compile->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
 		<dependency org="org.apache.xbean" name="xbean-spring" rev="3.7"

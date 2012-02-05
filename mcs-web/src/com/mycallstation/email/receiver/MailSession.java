@@ -36,7 +36,7 @@ import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.protocol.IMAPProtocol;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("mailSession")

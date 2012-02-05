@@ -11,7 +11,7 @@ import com.mycallstation.dataaccess.model.UserVoipAccount;
 import com.mycallstation.dataaccess.model.VoipVendor;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface UserVoipAccountService extends Service<UserVoipAccount, Long> {

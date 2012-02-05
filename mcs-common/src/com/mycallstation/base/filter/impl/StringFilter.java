@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 class StringFilter extends BaseFilter implements Serializable {

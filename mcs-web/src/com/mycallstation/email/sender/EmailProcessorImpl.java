@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 @Component("globalEmailProcessor")

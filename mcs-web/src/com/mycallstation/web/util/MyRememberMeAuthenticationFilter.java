@@ -24,12 +24,12 @@ import com.mycallstation.jforumintegration.SecurityTools;
 import com.mycallstation.security.UserDetailsImpl;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("myRememberMeAuthenticationFilter")
 public class MyRememberMeAuthenticationFilter extends GenericFilterBean {
-	@Resource
+	@Resource(name = "systemConfiguration")
 	public WebConfiguration appConfig;
 
 	@Override

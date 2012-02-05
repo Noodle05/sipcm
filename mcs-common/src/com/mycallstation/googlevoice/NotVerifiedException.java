@@ -4,7 +4,7 @@
 package com.mycallstation.googlevoice;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class NotVerifiedException extends GoogleAuthenticationException {

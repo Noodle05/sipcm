@@ -39,7 +39,7 @@ import com.mycallstation.sip.util.SipUtil;
 import com.mycallstation.util.PhoneNumberUtil;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("sipLocationService")

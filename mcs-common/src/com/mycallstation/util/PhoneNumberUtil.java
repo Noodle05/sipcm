@@ -6,7 +6,7 @@ package com.mycallstation.util;
 import java.util.regex.Pattern;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public abstract class PhoneNumberUtil {

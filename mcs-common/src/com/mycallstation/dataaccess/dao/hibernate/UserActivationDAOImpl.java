@@ -10,7 +10,7 @@ import com.mycallstation.dataaccess.dao.UserActivationDAO;
 import com.mycallstation.dataaccess.model.UserActivation;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Repository("userActivationDAO")

@@ -11,7 +11,7 @@ import com.mycallstation.common.BaseConfiguration;
 import com.mycallstation.util.PhoneNumberUtil;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("systemConfiguration")

@@ -4,7 +4,7 @@
 package com.mycallstation.email.sender;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public interface Emailer {

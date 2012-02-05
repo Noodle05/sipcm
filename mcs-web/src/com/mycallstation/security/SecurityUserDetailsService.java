@@ -10,17 +10,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.mycallstation.dataaccess.business.UserService;
 import com.mycallstation.dataaccess.model.User;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("securityUserDetailsService")
-@Transactional(readOnly = true)
 public class SecurityUserDetailsService implements UserDetailsService {
 	@Resource(name = "userService")
 	private UserService userService;
@@ -34,7 +32,7 @@ public class SecurityUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException, DataAccessException {
-		User user = userService.getUserByUsername(username);
+		User user = userService.fullyLoadUserByUsername(username);
 		if (user != null) {
 			return new UserDetailsImpl(user);
 		} else {

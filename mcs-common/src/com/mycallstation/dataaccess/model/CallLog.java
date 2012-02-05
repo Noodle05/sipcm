@@ -21,7 +21,7 @@ import com.mycallstation.constant.CallStatus;
 import com.mycallstation.constant.CallType;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Entity

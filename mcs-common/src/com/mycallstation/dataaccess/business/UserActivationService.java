@@ -9,7 +9,7 @@ import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.dataaccess.model.UserActivation;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface UserActivationService extends Service<UserActivation, Long> {

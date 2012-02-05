@@ -3,16 +3,20 @@
  */
 package com.mycallstation.web.util;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
 import com.mycallstation.common.BaseConfiguration;
 import com.mycallstation.constant.ActiveMethod;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("systemConfiguration")
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class WebConfiguration extends BaseConfiguration {
 	public static final String USERNAME_LENGTH_MIN = "username.length.min";
 	public static final String USERNAME_LENGTH_MAX = "username.length.max";

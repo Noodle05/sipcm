@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class Settings implements Serializable {
@@ -51,8 +51,8 @@ public class Settings implements Serializable {
 	private Map<Integer, Boolean> disabledIdMap;
 	private int defaultGreetingId;
 	private transient Object[] webCallButtons;
-	private Map<Integer, Group> groups;
-	private int[] groupList;
+	private Map<String, Group> groups;
+	private String[] groupList;
 	private boolean lowBalanceNotificationEnabled;
 	private String[] emailAddresses;
 	private String baseUrl;
@@ -495,7 +495,7 @@ public class Settings implements Serializable {
 	/**
 	 * @return the groups
 	 */
-	public Map<Integer, Group> getGroups() {
+	public Map<String, Group> getGroups() {
 		return groups;
 	}
 
@@ -503,14 +503,14 @@ public class Settings implements Serializable {
 	 * @param groups
 	 *            the groups to set
 	 */
-	public void setGroups(Map<Integer, Group> groups) {
+	public void setGroups(Map<String, Group> groups) {
 		this.groups = groups;
 	}
 
 	/**
 	 * @return the groupList
 	 */
-	public int[] getGroupList() {
+	public String[] getGroupList() {
 		return groupList;
 	}
 
@@ -518,7 +518,7 @@ public class Settings implements Serializable {
 	 * @param groupList
 	 *            the groupList to set
 	 */
-	public void setGroupList(int[] groupList) {
+	public void setGroupList(String[] groupList) {
 		this.groupList = groupList;
 	}
 

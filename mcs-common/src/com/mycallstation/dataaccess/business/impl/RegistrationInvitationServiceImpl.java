@@ -8,8 +8,10 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mycallstation.base.business.impl.AbstractService;
@@ -19,10 +21,11 @@ import com.mycallstation.dataaccess.business.RegistrationInvitationService;
 import com.mycallstation.dataaccess.model.RegistrationInvitation;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Service("registrationInvitationService")
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
 public class RegistrationInvitationServiceImpl extends
 		AbstractService<RegistrationInvitation, Integer> implements
 		RegistrationInvitationService {
@@ -61,7 +64,6 @@ public class RegistrationInvitationServiceImpl extends
 	 * generateInvitation (int, int)
 	 */
 	@Override
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public RegistrationInvitation generateInvitation(int count, int days) {
 		RegistrationInvitation entity = createNewEntity();
 		entity.setCount(count);
@@ -80,6 +82,7 @@ public class RegistrationInvitationServiceImpl extends
 	 * getInvitationByCode (java.lang.String)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public RegistrationInvitation getInvitationByCode(String code) {
 		Filter filter = filterFactory.createSimpleFilter("code", code);
 		return dao.getUniqueEntity(filter);

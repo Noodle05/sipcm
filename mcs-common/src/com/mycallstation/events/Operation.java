@@ -4,7 +4,7 @@
 package com.mycallstation.events;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public enum Operation {

@@ -7,12 +7,12 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class Group implements Serializable {
 	private static final long serialVersionUID = -2719868681865504624L;
-	private int id;
+	private String id;
 	private String name;
 	private Map<Integer, Boolean> disabledForwardingIds;
 	private boolean isCustomForwarding;
@@ -24,7 +24,7 @@ public class Group implements Serializable {
 	/**
 	 * @return the id
 	 */
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
@@ -32,7 +32,7 @@ public class Group implements Serializable {
 	 * @param id
 	 *            the id to set
 	 */
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

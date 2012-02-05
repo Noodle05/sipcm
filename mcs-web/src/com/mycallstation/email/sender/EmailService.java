@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 @Component("globalEmailService")
@@ -43,6 +43,7 @@ public class EmailService {
 		try {
 			if (mailSender != null) {
 				MimeMessagePreparator preparator = new MimeMessagePreparator() {
+					@Override
 					public void prepare(MimeMessage mimeMessage)
 							throws Exception {
 						prepareEmail(mimeMessage, emailBean);

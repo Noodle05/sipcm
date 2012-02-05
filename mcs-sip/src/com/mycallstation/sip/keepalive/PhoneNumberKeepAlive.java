@@ -38,7 +38,7 @@ import com.mycallstation.sip.util.SipConfiguration;
 import com.mycallstation.util.PhoneNumberUtil;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("phoneNumberKeepAlive")
@@ -366,6 +366,7 @@ public class PhoneNumberKeepAlive {
 			received = true;
 		}
 
+		@Override
 		public void run() {
 			try {
 				if (!received) {

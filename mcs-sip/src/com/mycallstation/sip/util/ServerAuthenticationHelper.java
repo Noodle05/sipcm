@@ -114,8 +114,7 @@ public class ServerAuthenticationHelper {
 	private SipServletResponseImpl createErrorResponse(
 			SipServletRequestImpl request) {
 		SipServletResponse response = null;
-		response = request
-				.createResponse(SipServletResponse.SC_UNAUTHORIZED);
+		response = request.createResponse(SipServletResponse.SC_UNAUTHORIZED);
 		return (SipServletResponseImpl) response;
 	}
 

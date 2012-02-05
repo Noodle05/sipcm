@@ -13,7 +13,7 @@ import com.mycallstation.googlevoice.result.CallResult;
 import com.mycallstation.googlevoice.util.Utility;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class CheckMessageResult extends CallResult {

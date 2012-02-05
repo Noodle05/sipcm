@@ -18,7 +18,7 @@ import com.mycallstation.sip.nat.PublicIpAddressHolder;
 import com.mycallstation.sip.vendor.VoipVendorManager;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @SipListener

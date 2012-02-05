@@ -20,7 +20,7 @@ import com.mycallstation.dataaccess.dao.UserVoipAccountDAO;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Repository("userVoipAccountDAO")

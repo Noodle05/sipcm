@@ -19,7 +19,7 @@ import javax.servlet.sip.SipSession;
 import javax.servlet.sip.annotation.SipServlet;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @SipServlet(name = "GVVerificationServlet", applicationName = "com.mycallstation.CallCenter", loadOnStartup = 1)
@@ -107,6 +107,7 @@ public class GVVerificationSerlet extends AbstractSipServlet {
 	private class NetworkConnectionListener implements
 			MediaEventListener<SdpPortManagerEvent> {
 
+		@Override
 		public void onEvent(SdpPortManagerEvent event) {
 
 			SdpPortManager sdpmana = event.getSource();

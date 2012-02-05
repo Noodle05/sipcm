@@ -6,7 +6,7 @@ package com.mycallstation.events;
 import java.io.Serializable;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class ServiceEvent implements Serializable {

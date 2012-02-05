@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import com.mycallstation.constant.VoipAccountType;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("voipAccountTypeConverter")

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import com.mycallstation.dataaccess.model.VoipVendor;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("voipVendorUtilManager")

@@ -3,8 +3,7 @@
  */
 package com.mycallstation.googlevoice;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +19,7 @@ import org.junit.Test;
 import com.google.gson.Gson;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class GoogleVoiceLoginTest {
@@ -54,5 +53,4 @@ public class GoogleVoiceLoginTest {
 		assertEquals("24230371", rnr.getV());
 	}
 
-	
 }

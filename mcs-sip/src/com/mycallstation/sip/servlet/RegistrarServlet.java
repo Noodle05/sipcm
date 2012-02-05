@@ -24,7 +24,7 @@ import com.mycallstation.sip.locationservice.LocationService;
 import com.mycallstation.sip.locationservice.RegisterTooFrequentException;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @SipServlet(name = "RegistrarServlet", applicationName = "com.mycallstation.CallCenter", loadOnStartup = 1)

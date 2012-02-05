@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import com.mycallstation.googlevoice.HttpResponseException;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public abstract class HttpUtils {
@@ -55,8 +55,7 @@ public abstract class HttpUtils {
 
 	public static void checkResponse(HttpUriRequest request,
 			HttpResponse response, Logger logger) throws HttpResponseException {
-		checkResponse(request, response, new int[] { HttpStatus.SC_OK },
-				logger);
+		checkResponse(request, response, new int[] { HttpStatus.SC_OK }, logger);
 	}
 
 	public static void checkResponse(HttpUriRequest request,

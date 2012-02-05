@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 import com.mycallstation.sip.nat.PublicIpAddressHolder;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("sipUtil")

@@ -33,7 +33,7 @@ import com.mycallstation.sip.keepalive.PhoneNumberKeepAlive;
 import com.mycallstation.sip.nat.PublicIpAddressHolder;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @SipServlet(name = "KeepAliveServlet", applicationName = "com.mycallstation.CallCenter", loadOnStartup = 1)

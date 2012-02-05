@@ -29,7 +29,7 @@ import com.mycallstation.constant.OnlineStatus;
 import com.mycallstation.constant.PhoneNumberStatus;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @GenericGenerator(name = "userSipProfileGenerator", strategy = "foreign", parameters = @Parameter(name = "property", value = "owner"))

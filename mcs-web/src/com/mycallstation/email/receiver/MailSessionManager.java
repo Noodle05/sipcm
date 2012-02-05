@@ -4,7 +4,7 @@
 package com.mycallstation.email.receiver;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public abstract class MailSessionManager {

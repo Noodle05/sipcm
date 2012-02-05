@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import com.mycallstation.constant.VoipVendorType;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("mapHolderBean")

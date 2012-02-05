@@ -16,7 +16,7 @@ import com.mycallstation.communication.UserEventMessageSender;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("userSipProfileServiceEventListener")

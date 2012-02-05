@@ -10,7 +10,7 @@ import com.mycallstation.base.filter.Filter;
 import com.mycallstation.base.filter.Sort;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 class SortImpl implements Sort, Serializable, Cloneable {

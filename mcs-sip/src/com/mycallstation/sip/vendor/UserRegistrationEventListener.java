@@ -14,7 +14,7 @@ import com.mycallstation.sip.events.RegistrationEvent;
 import com.mycallstation.sip.events.RegistrationEventListener;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("sipUserRegistrationForIncomingListener")

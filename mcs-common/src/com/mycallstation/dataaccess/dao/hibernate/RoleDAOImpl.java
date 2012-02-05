@@ -10,7 +10,7 @@ import com.mycallstation.dataaccess.dao.RoleDAO;
 import com.mycallstation.dataaccess.model.Role;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Repository("roleDao")

@@ -1,12 +1,4 @@
-@TypeDefs({
-	@TypeDef(
-			name = "encryptedString",
-			typeClass = EncryptedStringType.class,
-			parameters = { @Parameter(
-					name = "encryptorRegisteredName",
-					value = "sipHibernateStringEncryptor")
-	}) 
-})
+@TypeDefs({ @TypeDef(name = "encryptedString", typeClass = EncryptedStringType.class, parameters = { @Parameter(name = "encryptorRegisteredName", value = "sipHibernateStringEncryptor") }) })
 package com.mycallstation.dataaccess;
 
 import org.hibernate.annotations.Parameter;

@@ -15,7 +15,7 @@ import com.mycallstation.util.PhoneNumberUtil;
 /**
  * Default voip vendor utility implementation
  * 
- * @author wgao
+ * @author Wei Gao
  */
 @Component("defaultVoipVendorUtil")
 public class DefaultVoipVendorUtil implements VoipVendorUtil {

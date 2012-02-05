@@ -6,6 +6,7 @@ package com.mycallstation.web.util;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import javax.annotation.Resource;
 import javax.faces.context.FacesContext;
 
 import org.springframework.context.ApplicationListener;
@@ -18,12 +19,16 @@ import com.mycallstation.security.UserDetailsImpl;
 import com.mycallstation.web.LocaleTimeZoneHolderBean;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("applicationSecurityListener")
 public class ApplicationSecurityListener implements
 		ApplicationListener<AuthenticationSuccessEvent> {
+
+	@Resource(name = "localeTimeZoneHolderBean")
+	private LocaleTimeZoneHolderBean localeTimeZoneHolderBean;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -45,16 +50,16 @@ public class ApplicationSecurityListener implements
 				FacesContext ctx = FacesContext.getCurrentInstance();
 				if (ctx != null) {
 					if (locale != null || timeZone != null) {
-						LocaleTimeZoneHolderBean bean = JSFUtils
-								.getLocaleTimeZoneHolderBean();
-						if (bean != null) {
+						if (localeTimeZoneHolderBean != null) {
 							if (locale != null
-									&& !bean.getLocale().equals(locale)) {
-								bean.setLocale(locale);
+									&& !localeTimeZoneHolderBean.getLocale()
+											.equals(locale)) {
+								localeTimeZoneHolderBean.setLocale(locale);
 							}
 							if (timeZone != null
-									&& !bean.getTimeZone().equals(timeZone)) {
-								bean.setTimeZone(timeZone);
+									&& !localeTimeZoneHolderBean.getTimeZone()
+											.equals(timeZone)) {
+								localeTimeZoneHolderBean.setTimeZone(timeZone);
 							}
 						}
 					}

@@ -22,7 +22,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import com.mycallstation.sip.util.SipConfiguration;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class MsControlFactoryInitializer implements ServletContextListener {

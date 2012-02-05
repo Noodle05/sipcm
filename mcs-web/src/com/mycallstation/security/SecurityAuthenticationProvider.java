@@ -20,7 +20,7 @@ import org.springframework.util.Assert;
 import com.mycallstation.web.util.WebConfiguration;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("securityAuthenticationProvider")

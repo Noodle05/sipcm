@@ -21,7 +21,7 @@ import com.mycallstation.dataaccess.dao.UserSipProfileDAO;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Repository("userSipProfileDAO")
@@ -62,7 +62,8 @@ public class UserSipProfileDAOImpl extends AbstractDAO<UserSipProfile, Long>
 	 * (com.mycallstation.dataaccess.model.UserSipProfile[])
 	 */
 	@Override
-	public void updateLastReceiveCallTime(final UserSipProfile... userSipProfiles) {
+	public void updateLastReceiveCallTime(
+			final UserSipProfile... userSipProfiles) {
 		getHibernateTemplate().execute(new HibernateCallback<Integer>() {
 			@Override
 			public Integer doInHibernate(Session session)

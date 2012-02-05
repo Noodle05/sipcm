@@ -9,7 +9,7 @@ import java.io.Serializable;
  * https://www.google.com/voice/xpc/checkMessages?r=XK2%2FBiyhIWf9VV4p%2
  * BtQnI5G%2BVI0%3D
  * 
- * @author wgao
+ * @author Wei Gao
  */
 public class MessageInfo implements Serializable {
 	private static final long serialVersionUID = -2431761651675419773L;

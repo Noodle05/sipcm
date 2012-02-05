@@ -26,7 +26,7 @@ import com.mycallstation.sip.util.SipConfiguration;
 import com.mycallstation.sip.vendor.VoipVendorManager;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public abstract class AbstractSipServlet extends SipServlet implements Servlet {

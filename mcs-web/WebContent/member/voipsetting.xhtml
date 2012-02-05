@@ -87,7 +87,7 @@
 									value="#{messages['member.voip.wizard.gv.callback.type']}" />
 								<h:selectOneMenu id="gvCallbackType"
 									value="#{voipSettingWizardBean.gvCallbackType}">
-									<f:selectItems value="#{voipSettingWizardBean.gvCallbackTypes}" />
+									<f:selectItems value="#{jsfUtils.availableGvPhoneType}" />
 								</h:selectOneMenu>
 								<h:outputLabel for="inc"
 									value="#{messages['member.voip.wizard.has.income']}" />

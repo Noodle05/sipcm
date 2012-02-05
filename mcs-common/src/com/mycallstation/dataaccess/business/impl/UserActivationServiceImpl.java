@@ -7,8 +7,10 @@ import java.util.Calendar;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mycallstation.base.business.impl.AbstractService;
@@ -21,11 +23,11 @@ import com.mycallstation.dataaccess.model.UserActivation;
 import com.mycallstation.util.StringUtils;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Service("userActivationService")
-@Transactional(readOnly = true)
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
 public class UserActivationServiceImpl extends
 		AbstractService<UserActivation, Long> implements UserActivationService {
 	private static final int ACTIVE_CODE_LENGTH = 32;
@@ -53,7 +55,6 @@ public class UserActivationServiceImpl extends
 	 * com.mycallstation.base.business.impl.AbstractService#createNewEntity()
 	 */
 	@Override
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public UserActivation createNewEntity() {
 		UserActivation entity = super.createNewEntity();
 		entity.setActiveCode(stringUtils
@@ -70,7 +71,6 @@ public class UserActivationServiceImpl extends
 	 * com.mycallstation.common.ActiveMethod)
 	 */
 	@Override
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public UserActivation createUserActivation(final User owner,
 			final ActiveMethod method, int expireHours) {
 		if (method == null) {
@@ -103,6 +103,7 @@ public class UserActivationServiceImpl extends
 	 * getUserActivationByUser (com.mycallstation.common.model.User)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public UserActivation getUserActivationByUser(final User user) {
 		Filter filter = filterFactory.createSimpleFilter("owner.id",
 				user.getId());
@@ -117,7 +118,6 @@ public class UserActivationServiceImpl extends
 	 * (com.mycallstation .common.model.UserActivation, int)
 	 */
 	@Override
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public UserActivation updateExpires(final UserActivation userActivaiton,
 			int expireHours) {
 		Calendar c = Calendar.getInstance();

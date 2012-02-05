@@ -3,10 +3,7 @@
  */
 package com.mycallstation.external.ipkall;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +20,7 @@ import com.mycallstation.external.recaptcha.RecaptchaFailedException;
 import com.mycallstation.googlevoice.HttpResponseException;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class IPKallSessionTest {

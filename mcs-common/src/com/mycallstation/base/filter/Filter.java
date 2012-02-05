@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public interface Filter {

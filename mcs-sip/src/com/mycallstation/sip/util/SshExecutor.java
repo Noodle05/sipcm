@@ -28,7 +28,7 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("sshExecutor")

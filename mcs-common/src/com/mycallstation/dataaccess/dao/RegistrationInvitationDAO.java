@@ -7,7 +7,7 @@ import com.mycallstation.base.dao.DAO;
 import com.mycallstation.dataaccess.model.RegistrationInvitation;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface RegistrationInvitationDAO extends

@@ -8,7 +8,11 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -21,10 +25,11 @@ import com.mycallstation.dataaccess.business.RoleService;
 import com.mycallstation.dataaccess.model.Role;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Service("roleService")
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
 public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 		RoleService {
 	private LoadingCache<String, Role> cache;
@@ -39,7 +44,7 @@ public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 	public void init() {
 		super.init();
 		cache = CacheBuilder.newBuilder().concurrencyLevel(2).softValues()
-				.initialCapacity(2).expireAfterWrite(8, TimeUnit.HOURS)
+				.initialCapacity(3).expireAfterWrite(8, TimeUnit.HOURS)
 				.build(new CacheLoader<String, Role>() {
 					@Override
 					public Role load(String key) throws Exception {
@@ -70,18 +75,21 @@ public class RoleServiceImpl extends AbstractService<Role, Integer> implements
 	 * @see com.mycallstation.common.business.RoleService#getCallerRule()
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public Role getUserRole() {
 		Role role = cache.getUnchecked(USER_ROLE);
 		return role;
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Role getCallerRole() {
 		Role role = cache.getUnchecked(CALLER_ROLE);
 		return role;
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Role getAdminRole() {
 		Role role = cache.getUnchecked(ADMIN_ROLE);
 		return role;

@@ -4,7 +4,7 @@
 package com.mycallstation.constant;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public enum VoipVendorType {

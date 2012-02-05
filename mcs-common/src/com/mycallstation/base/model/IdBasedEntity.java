@@ -6,7 +6,7 @@ package com.mycallstation.base.model;
 import java.io.Serializable;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public interface IdBasedEntity<ID extends Serializable> {

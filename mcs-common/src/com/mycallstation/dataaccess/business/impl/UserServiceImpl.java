@@ -8,8 +8,10 @@ import java.util.HashSet;
 import javax.annotation.Resource;
 
 import org.jasypt.digest.StringDigester;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mycallstation.base.business.impl.AbstractService;
@@ -23,11 +25,11 @@ import com.mycallstation.dataaccess.model.Role;
 import com.mycallstation.dataaccess.model.User;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 @Service("userService")
-@Transactional(readOnly = true)
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
 public class UserServiceImpl extends AbstractService<User, Long> implements
 		UserService {
 	@Resource(name = "globalStringDigester")
@@ -56,7 +58,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	 * com.mycallstation.base.business.impl.AbstractService#createNewEntity()
 	 */
 	@Override
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public User createNewEntity() {
 		User user = super.createNewEntity();
 		user.setStatus(AccountStatus.PENDING);
@@ -72,6 +73,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	 * lang.String)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public User getUserByUsername(String username) {
 		Filter filter = filterFactory.createSimpleFilter("username", username,
 				Operator.IEQ);
@@ -86,6 +88,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	 * .String)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public User getUserByEmail(String email) {
 		Filter filter = filterFactory.createSimpleFilter("email", email,
 				Operator.IEQ);
@@ -99,7 +102,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	 * mycallstation.common .model.User, java.lang.String)
 	 */
 	@Override
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public User setPassword(User entity, String password) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(entity.getUsername()).append(":")
@@ -117,7 +119,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	 * .common. model.User, java.lang.String)
 	 */
 	@Override
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public boolean matchPassword(User entity, String password) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(entity.getUsername()).append(":")
@@ -133,8 +134,28 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 	 * .Long)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public User fullyLoadUser(Long id) {
 		User user = dao.getEntityById(id);
+		for (Role role : user.getRoles()) {
+			role.getId();
+		}
+		return user;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mycallstation.dataaccess.business.UserService#fullyLoadUserByUsername
+	 * (java.lang.String)
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public User fullyLoadUserByUsername(String username) {
+		Filter filter = filterFactory.createSimpleFilter("username", username,
+				Operator.IEQ);
+		User user = dao.getUniqueEntity(filter);
 		for (Role role : user.getRoles()) {
 			role.getId();
 		}

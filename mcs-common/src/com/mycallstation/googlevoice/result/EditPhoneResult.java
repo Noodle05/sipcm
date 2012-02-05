@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.mycallstation.googlevoice.util.Utility;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class EditPhoneResult extends CallResult {

@@ -9,7 +9,7 @@ import com.mycallstation.base.business.Service;
 import com.mycallstation.dataaccess.model.VoipVendor;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface VoipVendorService extends Service<VoipVendor, Integer> {

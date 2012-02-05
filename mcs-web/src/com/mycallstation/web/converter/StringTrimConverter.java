@@ -9,7 +9,7 @@ import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @FacesConverter(forClass = String.class)

@@ -8,9 +8,8 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UISelectBoolean;
 import javax.faces.context.FacesContext;
@@ -18,22 +17,32 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ComponentSystemEvent;
 
 import org.primefaces.model.LazyDataModel;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import com.mycallstation.dataaccess.model.CallLog;
 import com.mycallstation.dataaccess.model.User;
+import com.mycallstation.scope.ViewScope;
 import com.mycallstation.web.util.JSFUtils;
 import com.mycallstation.web.util.Messages;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
-@ManagedBean(name = "callLogBean")
-@ViewScoped
+@Component("callLogBean")
+@Scope(ViewScope.VIEW_SCOPE)
 public class CallLogBean implements Serializable {
 	private static final long serialVersionUID = -5169706526984150588L;
 
-	private CallLogLazyDataModel lazyModel = new CallLogLazyDataModel();
+	@Resource(name = "callLogLazyDataModel")
+	private CallLogLazyDataModel lazyModel;
+
+	@Resource(name = "jsfUtils")
+	private JSFUtils jsfUtils;
+
+	@Resource(name = "web.messages")
+	private Messages messages;
 
 	private CallLog selectedCallLog;
 
@@ -55,8 +64,8 @@ public class CallLogBean implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		User user = JSFUtils.getCurrentUser();
-		Calendar c = Calendar.getInstance(JSFUtils.getCurrentTimeZone());
+		User user = jsfUtils.getCurrentUser();
+		Calendar c = Calendar.getInstance(jsfUtils.getCurrentTimeZone());
 		c.set(Calendar.DAY_OF_MONTH, 1);
 		c.set(Calendar.HOUR_OF_DAY, 0);
 		c.set(Calendar.MINUTE, 0);
@@ -76,10 +85,10 @@ public class CallLogBean implements Serializable {
 	}
 
 	public void updateFilter(ActionEvent actionEvent) {
-		lazyModel.init(JSFUtils.getCurrentUser(), startDate, endDate,
+		lazyModel.init(jsfUtils.getCurrentUser(), startDate, endDate,
 				includeInConnected, includeInFailed, includeInCanceled,
 				includeOutConnected, includeOutFailed, includeOutCanceled);
-		FacesMessage message = Messages.getMessage(
+		FacesMessage message = messages.getMessage(
 				"member.call.log.search.updated", FacesMessage.SEVERITY_INFO);
 		FacesContext.getCurrentInstance().addMessage(null, message);
 	}
@@ -101,7 +110,7 @@ public class CallLogBean implements Serializable {
 		if (!inConnected.isSelected() && !inFailed.isSelected()
 				&& !inCanceled.isSelected() && !outConnected.isSelected()
 				&& !outFailed.isSelected() && !outCanceled.isSelected()) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"member.call.log.status.required",
 					FacesMessage.SEVERITY_ERROR);
 			FacesContext.getCurrentInstance().addMessage(null, message);

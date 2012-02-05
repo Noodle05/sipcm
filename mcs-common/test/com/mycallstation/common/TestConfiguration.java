@@ -6,7 +6,7 @@ package com.mycallstation.common;
 import java.io.File;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class TestConfiguration extends BaseConfiguration {

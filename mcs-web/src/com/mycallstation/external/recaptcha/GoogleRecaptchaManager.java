@@ -4,7 +4,7 @@
 package com.mycallstation.external.recaptcha;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public abstract class GoogleRecaptchaManager {

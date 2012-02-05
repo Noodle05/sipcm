@@ -10,7 +10,7 @@ import com.mycallstation.dataaccess.dao.VoipVendorDAO;
 import com.mycallstation.dataaccess.model.VoipVendor;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Repository("voipVendorDAO")

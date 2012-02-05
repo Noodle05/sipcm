@@ -16,7 +16,7 @@ import com.mycallstation.sip.locationservice.LocationService;
 import com.mycallstation.sip.vendor.VoipVendorManager;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("remoteUserServiceEventListener")

@@ -9,7 +9,7 @@ import java.util.Collection;
 import com.mycallstation.base.model.IdBasedEntity;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class CompositeServiceEventListener<Entity extends IdBasedEntity<ID>, ID extends Serializable>

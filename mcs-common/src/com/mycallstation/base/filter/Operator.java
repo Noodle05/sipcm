@@ -4,7 +4,7 @@
 package com.mycallstation.base.filter;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public enum Operator {

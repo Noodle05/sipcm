@@ -4,7 +4,7 @@
 package com.mycallstation.email.sender;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface EmailProcessor {

@@ -16,7 +16,7 @@ import java.util.ResourceBundle;
 import javax.faces.context.FacesContext;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class UTF8Message extends ResourceBundle {
@@ -40,6 +40,7 @@ public class UTF8Message extends ResourceBundle {
 	}
 
 	protected static class UTF8Control extends Control {
+		@Override
 		public ResourceBundle newBundle(String baseName, Locale locale,
 				String format, ClassLoader loader, boolean reload)
 				throws IllegalAccessException, InstantiationException,

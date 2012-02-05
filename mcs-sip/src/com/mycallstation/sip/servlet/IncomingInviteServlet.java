@@ -22,7 +22,7 @@ import com.mycallstation.sip.locationservice.UserBindingInfo;
 import com.mycallstation.util.PhoneNumberUtil;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Configurable

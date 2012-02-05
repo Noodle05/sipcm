@@ -10,7 +10,7 @@ import com.mycallstation.dataaccess.dao.AddressBindingDAO;
 import com.mycallstation.dataaccess.model.AddressBinding;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Repository("addressBindingDAO")

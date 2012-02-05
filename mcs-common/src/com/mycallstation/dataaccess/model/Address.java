@@ -21,7 +21,7 @@ import com.mycallstation.base.model.AbstractTrackableEntity;
 import com.mycallstation.base.model.IdBasedEntity;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Entity

@@ -17,7 +17,7 @@ import com.mycallstation.jforumintegration.SecurityTools;
 import com.mycallstation.web.util.WebConfiguration;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class AdditionCookiePersistentTokenBasedRememberMeServices extends

@@ -11,7 +11,7 @@ import com.mycallstation.base.filter.Filter;
 import com.mycallstation.base.filter.Operator;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 class InListFilter extends BaseInFilter implements Serializable {

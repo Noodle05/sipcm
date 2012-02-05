@@ -72,7 +72,7 @@ import com.mycallstation.googlevoice.util.Utility;
 import com.mycallstation.util.HttpUtils;
 
 /**
- * @author wgao
+ * @author Wei Gao
  */
 @Component("googleVoiceSession")
 @Scope("prototype")

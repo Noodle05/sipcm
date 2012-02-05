@@ -6,7 +6,7 @@ package com.mycallstation.base.filter.impl;
 import com.mycallstation.base.filter.Operator;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 abstract class BaseInFilter extends BaseFilter {

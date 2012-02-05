@@ -11,7 +11,7 @@ import com.mycallstation.base.filter.Filter;
 import com.mycallstation.base.filter.Operator;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 class BetweenFilter extends BaseFilter implements Serializable {

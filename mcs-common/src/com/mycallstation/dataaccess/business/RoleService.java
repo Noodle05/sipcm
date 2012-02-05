@@ -7,7 +7,7 @@ import com.mycallstation.base.business.Service;
 import com.mycallstation.dataaccess.model.Role;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface RoleService extends Service<Role, Integer> {

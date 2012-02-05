@@ -8,7 +8,7 @@ import java.io.Serializable;
 import javax.servlet.sip.ServletTimer;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface TimerProcessor extends Serializable {

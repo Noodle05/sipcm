@@ -4,7 +4,7 @@
 package com.mycallstation.sip.locationservice;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class RegisterTooFrequentException extends LocationServiceException {

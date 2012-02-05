@@ -12,7 +12,7 @@ import com.mycallstation.base.filter.InvalidFilterException;
 import com.mycallstation.base.filter.Operator;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 class AndOrFilter extends BaseFilter implements Serializable {

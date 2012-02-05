@@ -42,7 +42,7 @@ import com.mycallstation.base.filter.Page;
 import com.mycallstation.base.filter.Sort;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public abstract class AbstractDAO<Entity extends Serializable, ID extends Serializable>

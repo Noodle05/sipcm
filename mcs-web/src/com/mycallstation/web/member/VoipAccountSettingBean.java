@@ -12,9 +12,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -24,28 +23,34 @@ import org.primefaces.context.RequestContext;
 import org.primefaces.event.RowEditEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import com.mycallstation.constant.PhoneNumberStatus;
 import com.mycallstation.constant.VoipAccountType;
 import com.mycallstation.constant.VoipVendorType;
 import com.mycallstation.dataaccess.business.UserSipProfileService;
+import com.mycallstation.dataaccess.business.UserVoipAccountService;
+import com.mycallstation.dataaccess.business.VoipVendorService;
 import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
 import com.mycallstation.dataaccess.model.VoipVendor;
+import com.mycallstation.googlevoice.GoogleVoiceManager;
 import com.mycallstation.googlevoice.GoogleVoiceSession;
 import com.mycallstation.googlevoice.setting.GoogleVoiceConfig;
 import com.mycallstation.googlevoice.setting.Phone;
 import com.mycallstation.googlevoice.setting.PhoneType;
+import com.mycallstation.scope.ViewScope;
 import com.mycallstation.web.util.JSFUtils;
 import com.mycallstation.web.util.Messages;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
-@ManagedBean(name = "voipAccountSettingBean")
-@ViewScoped
+@Component("voipAccountSettingBean")
+@Scope(ViewScope.VIEW_SCOPE)
 public class VoipAccountSettingBean implements Serializable {
 	private static final long serialVersionUID = -4107844991260539763L;
 
@@ -55,6 +60,24 @@ public class VoipAccountSettingBean implements Serializable {
 	private static final int INVALID = 0;
 	private static final int VALID = 1;
 	private static final int VERIFIED = 2;
+
+	@Resource(name = "userVoipAccountService")
+	private UserVoipAccountService userVoipAccountService;
+
+	@Resource(name = "userSipProfileService")
+	private UserSipProfileService userSipProfileService;
+
+	@Resource(name = "googleVoiceManager")
+	private GoogleVoiceManager googleVoiceManager;
+
+	@Resource(name = "voipVendorService")
+	private VoipVendorService voipVendorService;
+
+	@Resource(name = "jsfUtils")
+	private JSFUtils jsfUtils;
+
+	@Resource(name = "web.messages")
+	private Messages messages;
 
 	private UserSipProfile userSipProfile;
 
@@ -72,7 +95,7 @@ public class VoipAccountSettingBean implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		User user = JSFUtils.getCurrentUser();
+		User user = jsfUtils.getCurrentUser();
 		if (user == null) {
 			throw new IllegalStateException(
 					"Access this page without user? Can't be!");
@@ -84,9 +107,8 @@ public class VoipAccountSettingBean implements Serializable {
 			sipProfilePhoneNumber = userSipProfile.getPhoneNumber();
 			sipProfileDefaultArea = userSipProfile.getDefaultAreaCode();
 			sipProfileAllowInternal = userSipProfile.isAllowLocalDirectly();
-			Collection<UserVoipAccount> accounts = JSFUtils
-					.getUserVoipAccountService().getUserVoipAccount(
-							userSipProfile);
+			Collection<UserVoipAccount> accounts = userVoipAccountService
+					.getUserVoipAccount(userSipProfile);
 			if (accounts != null) {
 				for (UserVoipAccount account : accounts) {
 					voipAccountPasswordMap.put(account.getId(),
@@ -100,17 +122,15 @@ public class VoipAccountSettingBean implements Serializable {
 
 	public void saveSipProfile() {
 		try {
-			UserSipProfileService userSipProfileService = JSFUtils
-					.getUserSipProfileService();
 			if (userSipProfile == null) {
 				userSipProfile = userSipProfileService
-						.createUserSipProfile(JSFUtils.getCurrentUser());
+						.createUserSipProfile(jsfUtils.getCurrentUser());
 			}
 			userSipProfile.setPhoneNumber(sipProfilePhoneNumber);
 			userSipProfile.setDefaultAreaCode(sipProfileDefaultArea);
 			userSipProfile.setAllowLocalDirectly(sipProfileAllowInternal);
 			userSipProfileService.saveEntity(userSipProfile);
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"member.sipprofile.success", FacesMessage.SEVERITY_INFO);
 			FacesContext.getCurrentInstance().addMessage(null, message);
 		} catch (Exception e) {
@@ -128,11 +148,11 @@ public class VoipAccountSettingBean implements Serializable {
 						&& voipAccountPasswordMap.get(account) != null) {
 					account.setPassword(voipAccountPasswordMap.get(account));
 				}
-				JSFUtils.getUserVoipAccountService().saveEntity(account);
+				userVoipAccountService.saveEntity(account);
 				voipAccountPasswordMap.put(account.getId(),
 						account.getPassword());
 				account.setPassword(null);
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"member.voip.accounts.save.success",
 						FacesMessage.SEVERITY_INFO);
 				FacesContext.getCurrentInstance().addMessage(null, message);
@@ -157,8 +177,7 @@ public class VoipAccountSettingBean implements Serializable {
 			int v = validateUserVoipAccount(selectedVoipAccount);
 			if (v != INVALID) {
 				Long id = selectedVoipAccount.getId();
-				JSFUtils.getUserVoipAccountService().saveEntity(
-						selectedVoipAccount);
+				userVoipAccountService.saveEntity(selectedVoipAccount);
 				voipAccountPasswordMap.put(selectedVoipAccount.getId(),
 						selectedVoipAccount.getPassword());
 				selectedVoipAccount.setPassword(null);
@@ -168,10 +187,9 @@ public class VoipAccountSettingBean implements Serializable {
 				if (v == VERIFIED) {
 					userSipProfile
 							.setPhoneNumberStatus(PhoneNumberStatus.GOOGLEVOICEVERIFIED);
-					JSFUtils.getUserSipProfileService().saveEntity(
-							userSipProfile);
+					userSipProfileService.saveEntity(userSipProfile);
 				}
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"member.voip.accounts.save.success",
 						FacesMessage.SEVERITY_INFO);
 				FacesContext.getCurrentInstance().addMessage(null, message);
@@ -191,11 +209,11 @@ public class VoipAccountSettingBean implements Serializable {
 	public void validatePhoneNumber(FacesContext context,
 			UIComponent componentToValidate, Object value) {
 		String phoneNumber = (String) value;
-		User user = JSFUtils.getCurrentUser();
-		UserSipProfile userSipProfile = JSFUtils.getUserSipProfileService()
+		User user = jsfUtils.getCurrentUser();
+		UserSipProfile userSipProfile = userSipProfileService
 				.getUserSipProfileByVerifiedPhoneNumber(phoneNumber);
 		if (userSipProfile != null && !userSipProfile.getOwner().equals(user)) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"member.sipprofile.error.phoneNumber.exists",
 					FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
@@ -206,7 +224,7 @@ public class VoipAccountSettingBean implements Serializable {
 		int ret = VALID;
 		if (account.getPassword() == null
 				&& voipAccountPasswordMap.get(account.getId()) == null) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"member.voip.error.password.required",
 					FacesMessage.SEVERITY_ERROR);
 			FacesContext.getCurrentInstance().addMessage(null, message);
@@ -215,21 +233,21 @@ public class VoipAccountSettingBean implements Serializable {
 		if (VoipVendorType.GOOGLE_VOICE.equals(account.getVoipVendor()
 				.getType())) {
 			if (!VoipAccountType.OUTGOING.equals(account.getType())) {
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"member.voip.error.googlevoice.outgoing.only",
 						FacesMessage.SEVERITY_ERROR);
 				FacesContext.getCurrentInstance().addMessage(null, message);
 				ret = INVALID;
 			}
 			if (account.getPhoneNumber() == null) {
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"member.voip.error.googlevoice.phonenumber.required",
 						FacesMessage.SEVERITY_ERROR);
 				FacesContext.getCurrentInstance().addMessage(null, message);
 				ret = INVALID;
 			}
 			if (account.getCallBackNumber() == null) {
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"member.voip.error.googlevoice.callback.required",
 						FacesMessage.SEVERITY_ERROR);
 				FacesContext.getCurrentInstance().addMessage(null, message);
@@ -241,7 +259,7 @@ public class VoipAccountSettingBean implements Serializable {
 		} else {
 			if (!VoipAccountType.OUTGOING.equals(account.getType())) {
 				if (account.getPhoneNumber() == null) {
-					FacesMessage message = Messages.getMessage(
+					FacesMessage message = messages.getMessage(
 							"member.voip.error.income.phonenumber.required",
 							FacesMessage.SEVERITY_ERROR);
 					FacesContext.getCurrentInstance().addMessage(null, message);
@@ -249,7 +267,7 @@ public class VoipAccountSettingBean implements Serializable {
 				}
 			}
 			if (account.getCallBackNumber() != null) {
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"member.voip.error.sip.no.callback",
 						FacesMessage.SEVERITY_ERROR);
 				FacesContext.getCurrentInstance().addMessage(null, message);
@@ -261,9 +279,8 @@ public class VoipAccountSettingBean implements Serializable {
 
 	private boolean validateGoogleVoiceAccount(UserVoipAccount account) {
 		boolean ret = true;
-		GoogleVoiceSession session = JSFUtils.getGoogleVoiceManager()
-				.getGoogleVoiceSession(account.getAccount(),
-						account.getPassword());
+		GoogleVoiceSession session = googleVoiceManager.getGoogleVoiceSession(
+				account.getAccount(), account.getPassword());
 		try {
 			try {
 				session.login();
@@ -271,7 +288,7 @@ public class VoipAccountSettingBean implements Serializable {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Error happened when login.", e);
 				}
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"member.voip.warn.googlevoice.cannot.login",
 						FacesMessage.SEVERITY_WARN);
 				FacesContext.getCurrentInstance().addMessage(null, message);
@@ -281,7 +298,7 @@ public class VoipAccountSettingBean implements Serializable {
 				GoogleVoiceConfig conf = session.getGoogleVoiceSetting();
 				if (!account.getPhoneNumber().equals(
 						conf.getSettings().getPrimaryDid())) {
-					FacesMessage message = Messages.getMessage(
+					FacesMessage message = messages.getMessage(
 							"member.voip.warn.googlevoice.number.not.match",
 							FacesMessage.SEVERITY_WARN);
 					FacesContext.getCurrentInstance().addMessage(null, message);
@@ -289,7 +306,7 @@ public class VoipAccountSettingBean implements Serializable {
 				}
 				Map<Integer, Phone> phones = conf.getPhones();
 				if (phones == null) {
-					FacesMessage message = Messages.getMessage(
+					FacesMessage message = messages.getMessage(
 							"member.voip.warn.googlevoice.no.callback.number",
 							FacesMessage.SEVERITY_WARN);
 					FacesContext.getCurrentInstance().addMessage(null, message);
@@ -306,14 +323,14 @@ public class VoipAccountSettingBean implements Serializable {
 					}
 				}
 				if (ph == null) {
-					FacesMessage message = Messages.getMessage(
+					FacesMessage message = messages.getMessage(
 							"member.voip.warn.googlevoice.callback.not.match",
 							FacesMessage.SEVERITY_WARN);
 					FacesContext.getCurrentInstance().addMessage(null, message);
 					ret = false;
 				} else {
 					if (!PhoneType.HOME.equals(ph.getType())) {
-						FacesMessage message = Messages
+						FacesMessage message = messages
 								.getMessage(
 										"member.voip.warn.googlevoice.callback.type.error",
 										FacesMessage.SEVERITY_WARN);
@@ -325,7 +342,7 @@ public class VoipAccountSettingBean implements Serializable {
 							.getDisabledIdMap();
 					Boolean disabled = disids.get(ph.getId());
 					if (disabled != null && disabled) {
-						FacesMessage message = Messages
+						FacesMessage message = messages
 								.getMessage(
 										"member.voip.warn.googlevoice.callback.disabled",
 										FacesMessage.SEVERITY_WARN);
@@ -339,7 +356,7 @@ public class VoipAccountSettingBean implements Serializable {
 					logger.debug(
 							"Error happened when getting google voice setting",
 							e);
-					FacesMessage message = Messages.getMessage(
+					FacesMessage message = messages.getMessage(
 							"member.voip.warn.googlevoice.cannot.get.setting",
 							FacesMessage.SEVERITY_WARN);
 					FacesContext.getCurrentInstance().addMessage(null, message);
@@ -354,8 +371,7 @@ public class VoipAccountSettingBean implements Serializable {
 
 	public void addVoipAccount() {
 		try {
-			UserVoipAccount account = JSFUtils.getUserVoipAccountService()
-					.createNewEntity();
+			UserVoipAccount account = userVoipAccountService.createNewEntity();
 			account.setOwner(userSipProfile);
 			selectedVoipAccount = account;
 		} catch (Exception e) {
@@ -366,10 +382,10 @@ public class VoipAccountSettingBean implements Serializable {
 	}
 
 	public void removeVoipAccount(ActionEvent action) {
-		JSFUtils.getUserVoipAccountService().removeEntity(selectedVoipAccount);
+		userVoipAccountService.removeEntity(selectedVoipAccount);
 		voipAccountPasswordMap.remove(selectedVoipAccount.getId());
 		voipAccounts.remove(selectedVoipAccount);
-		FacesMessage message = Messages.getMessage(
+		FacesMessage message = messages.getMessage(
 				"member.voip.account.deleted", FacesMessage.SEVERITY_INFO);
 		FacesContext.getCurrentInstance().addMessage(null, message);
 	}
@@ -382,7 +398,7 @@ public class VoipAccountSettingBean implements Serializable {
 	}
 
 	public Collection<VoipVendor> getVoipVendors() {
-		return JSFUtils.getVoipVendorService().getManagableVoipVendors();
+		return voipVendorService.getManagableVoipVendors();
 	}
 
 	public VoipAccountType[] getVoipAccountTypes() {
@@ -390,8 +406,7 @@ public class VoipAccountSettingBean implements Serializable {
 	}
 
 	private UserSipProfile getUserSipProfile(User user) {
-		userSipProfile = JSFUtils.getUserSipProfileService()
-				.getUserSipProfileByUser(user);
+		userSipProfile = userSipProfileService.getUserSipProfileByUser(user);
 		return userSipProfile;
 	}
 

@@ -17,7 +17,7 @@ import com.mycallstation.base.ServiceEventListener;
 import com.mycallstation.base.model.IdBasedEntity;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public abstract class AbstractServiceEventObserver<Entity extends IdBasedEntity<ID>, ID extends Serializable> {

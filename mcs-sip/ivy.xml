@@ -67,7 +67,7 @@
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-codec" />
 		</dependency>
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.9.Final"
+		<dependency org="org.hibernate" name="hibernate-core" rev="${hibernate.version}"
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
@@ -79,38 +79,38 @@
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.aspectj" name="aspectjweaver" rev="1.6.9"
 			conf="runtime->default;foride->sources,javadoc" />
-		<dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.6.4"
+		<dependency org="org.slf4j" name="jcl-over-slf4j" rev="${slf4j.version}"
 			conf="provided->default;foride->sources,javadoc" />
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.4"
+		<dependency org="org.slf4j" name="slf4j-api" rev="${slf4j.version}"
 			conf="provided->default;foride->sources,javadoc" />
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.4"
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="${slf4j.version}"
 			conf="provided->default;foride->sources,javadoc">
 			<exclude module="log4j" />
 		</dependency>
 		<dependency org="org.springframework" name="spring-aop"
-			rev="3.0.7.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-aspects"
-			rev="3.0.7.RELEASE" conf="runtime->default;foride->sources,javadoc">
+			rev="${spring.version}" conf="runtime->default;foride->sources,javadoc">
 			<exclude module="spring-test" />
 		</dependency>
 		<dependency org="org.springframework" name="spring-beans"
-			rev="3.0.7.RELEASE" conf="runtime->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-context-support"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-core"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc">
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
 		</dependency>
 		<dependency org="org.springframework" name="spring-context"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-jms"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-orm"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-web"
-			rev="3.0.7.RELEASE" conf="compile->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.springframework" name="spring-test"
-			rev="3.0.7.RELEASE" conf="test->default;foride->sources,javadoc" />
+			rev="${spring.version}" conf="test->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.servlet.sip" name="sip-servlets-impl"
 			rev="1.6.0.FINAL" conf="provided->default;foride->sources,javadoc" />
 		<dependency org="org.mobicents.ha.javax.sip" name="mobicents-jain-sip-ha-core"
@@ -126,27 +126,24 @@
 		<dependency org="net.java.stun4j" name="stun4j" rev="1.0.MOBICENTS"
 			conf="provided->default" />
 		<dependency org="org.mobicents.jsr309" name="mobicents-jsr309-impl"
-			rev="2.0.0.BETA5" conf="compile->default;foride->sources,javadoc" >
+			rev="2.0.0.BETA5" conf="compile->default;foride->sources,javadoc">
 			<exclude name="log4j" />
 			<exclude name="jain-sip-ri" />
 		</dependency>
-		<!-- dependency org="org.mobicents.servers.media.codecs" name="g711"
-			rev="2.1.0.BETA3" conf="compile->default;foride->sources,javadoc" />
-		<dependency org="org.mobicents.servers.media.codecs" name="g729"
-			rev="2.1.0.BETA3" conf="compile->default;foride->sources,javadoc" />
-		<dependency org="org.mobicents.servers.media.codecs" name="gsm"
-			rev="2.1.0.BETA3" conf="compile->default;foride->sources,javadoc" />
-		<dependency org="org.mobicents.media.io" name="rtp"
-			rev="2.1.0.BETA3" conf="compile->default;foride->sources,javadoc" />
-		<dependency org="org.mobicents.media.resources" name="dtmf"
-			rev="2.1.0.BETA3" conf="compile->default;foride->sources,javadoc" />
-		<dependency org="javax.media" name="jmf" rev="2.1.1e"
-			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="org.jboss.netty" name="netty"
-			rev="3.2.5.Final" conf="runtime->default;foride->sources,javadoc" / -->
-		<dependency org="org.apache.tomcat" name="catalina" rev="6.0.32"
+		<!-- dependency org="org.mobicents.servers.media.codecs" name="g711" rev="2.1.0.BETA3" 
+			conf="compile->default;foride->sources,javadoc" /> <dependency org="org.mobicents.servers.media.codecs" 
+			name="g729" rev="2.1.0.BETA3" conf="compile->default;foride->sources,javadoc" 
+			/> <dependency org="org.mobicents.servers.media.codecs" name="gsm" rev="2.1.0.BETA3" 
+			conf="compile->default;foride->sources,javadoc" /> <dependency org="org.mobicents.media.io" 
+			name="rtp" rev="2.1.0.BETA3" conf="compile->default;foride->sources,javadoc" 
+			/> <dependency org="org.mobicents.media.resources" name="dtmf" rev="2.1.0.BETA3" 
+			conf="compile->default;foride->sources,javadoc" /> <dependency org="javax.media" 
+			name="jmf" rev="2.1.1e" conf="compile->default;foride->sources,javadoc" /> 
+			<dependency org="org.jboss.netty" name="netty" rev="3.2.5.Final" conf="runtime->default;foride->sources,javadoc" 
+			/ -->
+		<dependency org="org.apache.tomcat" name="catalina" rev="6.0.35"
 			conf="provided->default" />
-		<dependency org="com.google.guava" name="guava" rev="11.0.1"
+		<dependency org="com.google.guava" name="guava" rev="${guava.version}"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="com.google.code.gson" name="gson" rev="2.1"
 			conf="runtime->default;foride->sources,javadoc" />
@@ -154,8 +151,8 @@
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="junit" name="junit" rev="4.10"
 			conf="test->default;foride->sources,javadoc" />
-		<dependency org="org.apache.activemq" name="activemq-core" rev="5.5.0"
-			conf="runtime->default;foride->sources,javadoc">
+		<dependency org="org.apache.activemq" name="activemq-core"
+			rev="5.5.0" conf="runtime->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
 		<dependency org="org.apache.xbean" name="xbean-spring" rev="3.7"

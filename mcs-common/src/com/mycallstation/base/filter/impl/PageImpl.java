@@ -8,7 +8,7 @@ import java.io.Serializable;
 import com.mycallstation.base.filter.Page;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 class PageImpl implements Page, Serializable {

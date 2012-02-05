@@ -6,29 +6,29 @@ package com.mycallstation.web.account;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
-import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import com.mycallstation.constant.AccountStatus;
 import com.mycallstation.constant.ActiveMethod;
 import com.mycallstation.dataaccess.business.RegistrationInvitationService;
+import com.mycallstation.dataaccess.business.RoleService;
 import com.mycallstation.dataaccess.business.UserActivationService;
 import com.mycallstation.dataaccess.business.UserService;
 import com.mycallstation.dataaccess.business.UserSipProfileService;
@@ -37,16 +37,18 @@ import com.mycallstation.dataaccess.model.Role;
 import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.dataaccess.model.UserActivation;
 import com.mycallstation.dataaccess.model.UserSipProfile;
+import com.mycallstation.scope.ViewScope;
+import com.mycallstation.web.util.EmailUtils;
 import com.mycallstation.web.util.JSFUtils;
 import com.mycallstation.web.util.Messages;
 import com.mycallstation.web.util.WebConfiguration;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
-@ManagedBean(name = "registrationBean")
-@RequestScoped
+@Component("registrationBean")
+@Scope(ViewScope.VIEW_SCOPE)
 public class RegistrationBean implements Serializable {
 	private static final long serialVersionUID = -6419289187735553748L;
 
@@ -55,6 +57,30 @@ public class RegistrationBean implements Serializable {
 
 	public static final String SELF_ACTIVE_EMAIL_TEMPLATE = "/templates/self-active.vm";
 	public static final String ADMIN_ACTIVE_EMAIL_TEMPLATE = "/templates/admin-active.vm";
+
+	@Resource(name = "userService")
+	private UserService userService;
+
+	@Resource(name = "registrationInvitationService")
+	private RegistrationInvitationService registrationInvitationService;
+
+	@Resource(name = "userSipProfileService")
+	private UserSipProfileService userSipProfileService;
+
+	@Resource(name = "systemConfiguration")
+	private WebConfiguration appConfig;
+
+	@Resource(name = "roleService")
+	private RoleService roleService;
+
+	@Resource(name = "userActivationService")
+	private UserActivationService userActivationService;
+
+	@Resource(name = "webEmailUtils")
+	private EmailUtils emailUtils;
+
+	@Resource(name = "web.messages")
+	private Messages messages;
 
 	private String username;
 
@@ -86,15 +112,9 @@ public class RegistrationBean implements Serializable {
 	public String register() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		RegistrationInvitation invitation = null;
-		RegistrationInvitationService registrationInvitationService = JSFUtils
-				.getRegistrationInvitationService();
-		UserSipProfileService userSipProfileService = JSFUtils
-				.getUserSipProfileService();
-		UserService userService = JSFUtils.getUserService();
-		WebConfiguration appConfig = JSFUtils.getAppConfig();
 		if (appConfig.isRegisterByInviteOnly()) {
 			if (invitationCode == null) {
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"register.error.by.invitation.only",
 						FacesMessage.SEVERITY_ERROR);
 				context.addMessage("registrationForm:invitationCode", message);
@@ -103,7 +123,7 @@ public class RegistrationBean implements Serializable {
 			invitation = registrationInvitationService
 					.getInvitationByCode(invitationCode);
 			if (invitation == null) {
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"register.error.invalid.invitation.code",
 						FacesMessage.SEVERITY_ERROR);
 				context.addMessage("registrationForm:invitationCode", message);
@@ -112,7 +132,7 @@ public class RegistrationBean implements Serializable {
 			if (invitation.getExpireDate() != null
 					&& invitation.getExpireDate().before(new Date())) {
 				registrationInvitationService.removeEntity(invitation);
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"register.error.invitation.code.expired",
 						FacesMessage.SEVERITY_ERROR);
 				context.addMessage("registrationForm:invitationCode", message);
@@ -120,7 +140,7 @@ public class RegistrationBean implements Serializable {
 			}
 			if (invitation.getCount() <= 0) {
 				registrationInvitationService.removeEntity(invitation);
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"register.error.invitation.code.all.taken",
 						FacesMessage.SEVERITY_ERROR);
 				context.addMessage("registrationForm:invitationCode", message);
@@ -150,7 +170,7 @@ public class RegistrationBean implements Serializable {
 		if (ActiveMethod.NONE.equals(appConfig.getActiveMethod())) {
 			user.setStatus(AccountStatus.ACTIVE);
 		}
-		Role userRole = JSFUtils.getRoleService().getUserRole();
+		Role userRole = roleService.getUserRole();
 		user.addRole(userRole);
 		userService.setPassword(user, password);
 		userService.saveEntity(user);
@@ -183,11 +203,10 @@ public class RegistrationBean implements Serializable {
 
 	public void validateUsername(FacesContext context,
 			UIComponent componentToValidate, Object value) {
-		WebConfiguration appConfig = JSFUtils.getAppConfig();
 		String username = ((String) value).trim();
 		if (username.length() < appConfig.getUsernameLengthMin()
 				|| username.length() > appConfig.getUsernameLengthMax()) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"register.error.username.length",
 					new Object[] { appConfig.getUsernameLengthMin(),
 							appConfig.getUsernameLengthMax() },
@@ -195,25 +214,25 @@ public class RegistrationBean implements Serializable {
 			throw new ValidatorException(message);
 		}
 		if (!getUsernamePattern().matcher(username).matches()) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"register.error.username.pattern",
 					FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
-		String[] blackList = JSFUtils.getAppConfig().getUsernameBlackList();
+		String[] blackList = appConfig.getUsernameBlackList();
 		if (blackList != null) {
 			for (String black : blackList) {
 				if (username.toUpperCase().contains(black.toUpperCase())) {
-					FacesMessage message = Messages.getMessage(
+					FacesMessage message = messages.getMessage(
 							"register.error.username.reserved",
 							FacesMessage.SEVERITY_ERROR);
 					throw new ValidatorException(message);
 				}
 			}
 		}
-		User user = JSFUtils.getUserService().getUserByUsername(username);
+		User user = userService.getUserByUsername(username);
 		if (user != null) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"register.error.username.exists",
 					FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
@@ -224,14 +243,14 @@ public class RegistrationBean implements Serializable {
 			UIComponent componentToValidate, Object value) {
 		String email = ((String) value).trim();
 		if (!getEmailPattern().matcher(email).matches()) {
-			FacesMessage message = Messages
+			FacesMessage message = messages
 					.getMessage("register.error.email.pattern",
 							FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
-		User user = JSFUtils.getUserService().getUserByEmail(email);
+		User user = userService.getUserByEmail(email);
 		if (user != null) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"register.error.email.exists", FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(message);
 		}
@@ -249,7 +268,7 @@ public class RegistrationBean implements Serializable {
 					.trim();
 			if (password != null && confirmPasswd != null) {
 				if (!password.equals(confirmPasswd)) {
-					FacesMessage message = Messages.getMessage(
+					FacesMessage message = messages.getMessage(
 							"register.error.password.notmatch",
 							FacesMessage.SEVERITY_ERROR);
 					fc.addMessage("registrationForm:confirmPassword", message);
@@ -409,26 +428,15 @@ public class RegistrationBean implements Serializable {
 		return invitationCode;
 	}
 
-	public List<String> getAvailableLocales() {
-		return JSFUtils.getAvailableLocales();
-	}
-
-	public SelectItem[] getAvailableTimeZones() {
-		return JSFUtils.getAvailableTimeZones();
-	}
-
 	private Pattern getUsernamePattern() {
-		return Pattern.compile(JSFUtils.getAppConfig().getUsernamePattern());
+		return Pattern.compile(appConfig.getUsernamePattern());
 	}
 
 	private Pattern getEmailPattern() {
-		return Pattern.compile(JSFUtils.getAppConfig().getEmailPattern());
+		return Pattern.compile(appConfig.getEmailPattern());
 	}
 
 	private void selfActive(User user) {
-		UserActivationService userActivationService = JSFUtils
-				.getUserActivationService();
-		WebConfiguration appConfig = JSFUtils.getAppConfig();
 		UserActivation userActivation = userActivationService
 				.createUserActivation(user, ActiveMethod.SELF,
 						appConfig.getActiveExpires());
@@ -437,18 +445,13 @@ public class RegistrationBean implements Serializable {
 		params.put("activation", userActivation);
 		params.put("activeExpires", appConfig.getActiveExpires());
 
-		JSFUtils.getEmailUtils().sendMail(
-				user.getEmail(),
-				user.getUserDisplayName(),
-				Messages.getString(null, "register.active.self.email.subject",
-						null), SELF_ACTIVE_EMAIL_TEMPLATE, params,
-				user.getLocale());
+		emailUtils.sendMail(user.getEmail(), user.getUserDisplayName(),
+				messages.getString(null, "register.active.self.email.subject",
+						null), SELF_ACTIVE_EMAIL_TEMPLATE, params, user
+						.getLocale());
 	}
 
 	private void adminActive(User user) {
-		UserActivationService userActivationService = JSFUtils
-				.getUserActivationService();
-		WebConfiguration appConfig = JSFUtils.getAppConfig();
 		UserActivation userActivation = userActivationService
 				.createUserActivation(user, ActiveMethod.ADMIN,
 						appConfig.getActiveExpires());
@@ -457,11 +460,9 @@ public class RegistrationBean implements Serializable {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("activation", userActivation);
 
-		JSFUtils.getEmailUtils().sendMail(
-				appConfig.getAdminEmail(),
-				appConfig.getAdminEmailPersonal(),
-				Messages.getString(null, "register.active.admin.email.subject",
-						null), ADMIN_ACTIVE_EMAIL_TEMPLATE, params,
-				user.getLocale());
+		emailUtils.sendMail(appConfig.getAdminEmail(), appConfig
+				.getAdminEmailPersonal(), messages.getString(null,
+				"register.active.admin.email.subject", null),
+				ADMIN_ACTIVE_EMAIL_TEMPLATE, params, user.getLocale());
 	}
 }

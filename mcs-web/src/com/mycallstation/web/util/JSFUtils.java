@@ -11,36 +11,32 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import javax.el.ELContext;
-import javax.el.ELResolver;
+import javax.annotation.Resource;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
-import com.mycallstation.base.filter.FilterFactory;
-import com.mycallstation.dataaccess.business.CallLogService;
-import com.mycallstation.dataaccess.business.RegistrationInvitationService;
-import com.mycallstation.dataaccess.business.RoleService;
-import com.mycallstation.dataaccess.business.UserActivationService;
 import com.mycallstation.dataaccess.business.UserService;
-import com.mycallstation.dataaccess.business.UserSipProfileService;
-import com.mycallstation.dataaccess.business.UserVoipAccountService;
-import com.mycallstation.dataaccess.business.VoipVendorService;
 import com.mycallstation.dataaccess.model.User;
-import com.mycallstation.googlevoice.GoogleVoiceManager;
 import com.mycallstation.googlevoice.setting.PhoneType;
 import com.mycallstation.security.UserDetailsImpl;
 import com.mycallstation.web.LocaleTimeZoneHolderBean;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
-public abstract class JSFUtils {
+@Component("jsfUtils")
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class JSFUtils {
 	public static final String NA = "---";
 
 	public static final Map<Locale, SelectItem[]> availableTimeZones = new HashMap<Locale, SelectItem[]>(
@@ -77,43 +73,16 @@ public abstract class JSFUtils {
 	public static final Map<Locale, SelectItem[]> availableGvPhoneType = new HashMap<Locale, SelectItem[]>(
 			2);
 
-	private static <T> T getManagedBean(String managedBeanKey, Class<T> clazz)
-			throws IllegalArgumentException {
-		if (managedBeanKey == null) {
-			throw new NullPointerException("Managed Bean Key is null.");
-		}
-		if (managedBeanKey.isEmpty()) {
-			throw new IllegalArgumentException("Managed Bean key is empty.");
-		}
-		if (clazz == null) {
-			throw new NullPointerException("Class is null.");
-		}
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		if (facesContext == null) {
-			return null;
-		}
-		ELResolver resolver = facesContext.getApplication().getELResolver();
-		ELContext elContext = facesContext.getELContext();
-		Object managedBean = resolver.getValue(elContext, null, managedBeanKey);
-		if (!elContext.isPropertyResolved()) {
-			throw new IllegalArgumentException(
-					"No managed bean found for key: " + managedBeanKey);
-		}
-		if (managedBean == null) {
-			return null;
-		} else {
-			if (clazz.isInstance(managedBean)) {
-				return clazz.cast(managedBean);
-			} else {
-				throw new IllegalArgumentException(
-						"Managed bean is not of type [" + clazz.getName()
-								+ "] | Actual type is: ["
-								+ managedBean.getClass().getName() + "]");
-			}
-		}
-	}
+	@Resource(name = "userService")
+	private UserService userService;
 
-	public static User getCurrentUser() {
+	@Resource(name = "localeTimeZoneHolderBean")
+	private LocaleTimeZoneHolderBean localeTimeZoneHolderBean;
+
+	@Resource(name = "web.messages")
+	private Messages messages;
+
+	public User getCurrentUser() {
 		User user = null;
 		SecurityContext context = SecurityContextHolder.getContext();
 		if (context != null) {
@@ -125,8 +94,6 @@ public abstract class JSFUtils {
 						user = ((UserDetailsImpl) principal).getUser();
 					} else {
 						String username = principal.toString();
-						UserService userService = getManagedBean("userService",
-								UserService.class);
 						user = userService.getUserByUsername(username);
 					}
 				}
@@ -135,12 +102,10 @@ public abstract class JSFUtils {
 		return user;
 	}
 
-	public static Locale getCurrentLocale() {
+	public Locale getCurrentLocale() {
 		Locale locale = null;
-		LocaleTimeZoneHolderBean b = getManagedBean("localeTimeZoneHolderBean",
-				LocaleTimeZoneHolderBean.class);
-		if (b != null) {
-			locale = b.getLocale();
+		if (localeTimeZoneHolderBean != null) {
+			locale = localeTimeZoneHolderBean.getLocale();
 		}
 		if (locale == null) {
 			FacesContext context = FacesContext.getCurrentInstance();
@@ -157,12 +122,10 @@ public abstract class JSFUtils {
 		return locale;
 	}
 
-	public static TimeZone getCurrentTimeZone() {
+	public TimeZone getCurrentTimeZone() {
 		TimeZone timeZone = null;
-		LocaleTimeZoneHolderBean b = getManagedBean("localeTimeZoneHolderBean",
-				LocaleTimeZoneHolderBean.class);
-		if (b != null) {
-			timeZone = b.getTimeZone();
+		if (localeTimeZoneHolderBean != null) {
+			timeZone = localeTimeZoneHolderBean.getTimeZone();
 		}
 		if (timeZone == null) {
 			timeZone = TimeZone.getDefault();
@@ -170,11 +133,11 @@ public abstract class JSFUtils {
 		return timeZone;
 	}
 
-	public static List<String> getAvailableLocales() {
+	public List<String> getAvailableLocales() {
 		return new ArrayList<String>(availableLocales.keySet());
 	}
 
-	public static SelectItem[] getAvailableTimeZones() {
+	public SelectItem[] getAvailableTimeZones() {
 		Locale locale = getCurrentLocale();
 		SelectItem[] ret = availableTimeZones.get(locale);
 		if (ret == null) {
@@ -198,7 +161,7 @@ public abstract class JSFUtils {
 		return ret;
 	}
 
-	public static SelectItem[] getAvailableGvPhoneType() {
+	public SelectItem[] getAvailableGvPhoneType() {
 		Locale locale = getCurrentLocale();
 		SelectItem[] ret = availableGvPhoneType.get(locale);
 		if (ret == null) {
@@ -208,7 +171,7 @@ public abstract class JSFUtils {
 					ret = new SelectItem[PhoneType.values().length];
 					for (int i = 0; i < PhoneType.values().length; i++) {
 						PhoneType t = PhoneType.values()[i];
-						ret[i] = new SelectItem(t, Messages.getString(
+						ret[i] = new SelectItem(t, messages.getString(
 								null,
 								PhoneType.class.getCanonicalName() + "."
 										+ t.name(), null));
@@ -218,62 +181,5 @@ public abstract class JSFUtils {
 			}
 		}
 		return ret;
-	}
-
-	public static WebConfiguration getAppConfig() {
-		return getManagedBean("systemConfiguration", WebConfiguration.class);
-	}
-
-	public static UserService getUserService() {
-		return getManagedBean("userService", UserService.class);
-	}
-
-	public static UserSipProfileService getUserSipProfileService() {
-		return getManagedBean("userSipProfileService",
-				UserSipProfileService.class);
-	}
-
-	public static UserActivationService getUserActivationService() {
-		return getManagedBean("userActivationService",
-				UserActivationService.class);
-	}
-
-	public static VoipVendorService getVoipVendorService() {
-		return getManagedBean("voipVendorService", VoipVendorService.class);
-	}
-
-	public static UserVoipAccountService getUserVoipAccountService() {
-		return getManagedBean("userVoipAccountService",
-				UserVoipAccountService.class);
-	}
-
-	public static RoleService getRoleService() {
-		return getManagedBean("roleService", RoleService.class);
-	}
-
-	public static CallLogService getCallLogService() {
-		return getManagedBean("callLogService", CallLogService.class);
-	}
-
-	public static RegistrationInvitationService getRegistrationInvitationService() {
-		return getManagedBean("registrationInvitationService",
-				RegistrationInvitationService.class);
-	}
-
-	public static FilterFactory getFilterFactory() {
-		return getManagedBean("filterFactory", FilterFactory.class);
-	}
-
-	public static LocaleTimeZoneHolderBean getLocaleTimeZoneHolderBean() {
-		return getManagedBean("localeTimeZoneHolderBean",
-				LocaleTimeZoneHolderBean.class);
-	}
-
-	public static EmailUtils getEmailUtils() {
-		return getManagedBean("webEmailUtils", EmailUtils.class);
-	}
-
-	public static GoogleVoiceManager getGoogleVoiceManager() {
-		return getManagedBean("googleVoiceManager", GoogleVoiceManager.class);
 	}
 }

@@ -5,16 +5,18 @@ package com.mycallstation.web;
 
 import java.io.Serializable;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
+
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
-@ManagedBean(name = "homePage")
-@RequestScoped
+@Component("homePage")
+@Scope(WebApplicationContext.SCOPE_REQUEST)
 public class HomePageBean implements Serializable {
 	private static final long serialVersionUID = 8421390516129157988L;
 

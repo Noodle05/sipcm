@@ -40,7 +40,7 @@ import com.mycallstation.googlevoice.setting.Settings;
 import com.mycallstation.googlevoice.setting.VoiceMailAccessPolicy;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class GoogleVoiceFunctionTest {

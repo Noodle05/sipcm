@@ -24,7 +24,7 @@ import com.mycallstation.common.TestConfiguration;
 import com.mycallstation.googlevoice.HttpResponseException;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class RecaptchaParseTest {

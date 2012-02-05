@@ -6,7 +6,7 @@ package com.mycallstation.base.filter;
 import java.io.Serializable;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public class FSP implements Serializable {

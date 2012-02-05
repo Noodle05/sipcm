@@ -18,7 +18,7 @@ import javax.sdp.SessionDescription;
 import org.junit.Test;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class GooglevoiceServletTest {

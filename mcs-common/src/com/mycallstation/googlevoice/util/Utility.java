@@ -10,7 +10,7 @@ import com.mycallstation.googlevoice.setting.ScheduleSet;
 import com.mycallstation.googlevoice.setting.VoiceMailAccessPolicy;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public abstract class Utility {

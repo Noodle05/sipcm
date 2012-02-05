@@ -16,7 +16,7 @@ import org.jasypt.util.text.TextEncryptor;
 import com.mycallstation.util.CodecTool;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public abstract class BaseConfiguration {

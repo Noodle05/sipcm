@@ -12,7 +12,7 @@ import org.apache.commons.cli.Options;
 import org.jasypt.util.text.StrongTextEncryptor;
 
 /**
- * @author Jack
+ * @author Wei Gao
  */
 public class CodecTool {
 	public static final byte[] PASSWORD = { 0x7a, 0x38, 0x0e, 0x19, 0x3c, 0x0c,

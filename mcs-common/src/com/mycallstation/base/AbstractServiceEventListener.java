@@ -8,7 +8,7 @@ import java.io.Serializable;
 import com.mycallstation.base.model.IdBasedEntity;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class AbstractServiceEventListener<Entity extends IdBasedEntity<ID>, ID extends Serializable>

@@ -10,7 +10,7 @@ import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class CallStartEvent extends EventObject {
@@ -83,7 +83,8 @@ public class CallStartEvent extends EventObject {
 	}
 
 	/**
-	 * @param fromLocal the fromLocal to set
+	 * @param fromLocal
+	 *            the fromLocal to set
 	 */
 	public void setFromLocal(boolean fromLocal) {
 		this.fromLocal = fromLocal;

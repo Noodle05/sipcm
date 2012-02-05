@@ -10,7 +10,7 @@ import org.mobicents.servlet.sip.core.session.MobicentsSipSession;
 import org.mobicents.servlet.sip.message.B2buaHelperImpl;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class GvB2buaHelperImpl extends B2buaHelperImpl {

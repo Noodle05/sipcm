@@ -19,7 +19,7 @@ import com.mycallstation.events.Operation;
 import com.mycallstation.events.ServiceEvent;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("userEventMessageSender")

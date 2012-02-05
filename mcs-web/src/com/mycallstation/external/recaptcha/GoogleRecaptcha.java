@@ -52,7 +52,7 @@ import com.mycallstation.googlevoice.HttpResponseException;
 import com.mycallstation.util.HttpUtils;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("googleRecaptcha")

@@ -10,7 +10,7 @@ import com.mycallstation.dataaccess.dao.ConfigValueDAO;
 import com.mycallstation.dataaccess.model.ConfigValue;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 @Repository("configDAO")

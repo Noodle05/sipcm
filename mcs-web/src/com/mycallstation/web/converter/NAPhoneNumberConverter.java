@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import com.mycallstation.util.PhoneNumberUtil;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("naPhoneNumberConverter")

@@ -28,7 +28,7 @@ import com.mycallstation.googlevoice.HttpResponseException;
 import com.mycallstation.googlevoice.setting.Phone;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("gvVerficiationManager")

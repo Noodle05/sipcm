@@ -17,7 +17,7 @@ import com.google.gson.JsonSerializer;
 import com.mycallstation.googlevoice.setting.ScheduleSet;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("booleanSerializer")

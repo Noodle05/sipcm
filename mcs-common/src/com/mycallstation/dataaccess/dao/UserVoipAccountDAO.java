@@ -9,7 +9,7 @@ import com.mycallstation.base.dao.DAO;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface UserVoipAccountDAO extends DAO<UserVoipAccount, Long> {

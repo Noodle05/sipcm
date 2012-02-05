@@ -18,12 +18,12 @@ import org.springframework.stereotype.Component;
 import com.mycallstation.jforumintegration.SecurityTools;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("securityLogoutHandler")
 public class SecurityLogoutHandler implements LogoutSuccessHandler {
-	@Resource
+	@Resource(name = "systemConfiguration")
 	private WebConfiguration appConfig;
 
 	/*

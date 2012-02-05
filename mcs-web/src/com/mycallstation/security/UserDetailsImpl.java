@@ -13,7 +13,7 @@ import com.mycallstation.dataaccess.model.Role;
 import com.mycallstation.dataaccess.model.User;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class UserDetailsImpl implements UserDetails {

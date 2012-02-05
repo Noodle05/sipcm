@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import com.mycallstation.base.model.IdBasedEntity;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 @Entity

@@ -9,7 +9,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface MessageOperation {

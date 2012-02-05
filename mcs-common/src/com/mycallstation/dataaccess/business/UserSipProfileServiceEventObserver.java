@@ -19,7 +19,7 @@ import com.mycallstation.base.business.AbstractServiceEventObserver;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Aspect

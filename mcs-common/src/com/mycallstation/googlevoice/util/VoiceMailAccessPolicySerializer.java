@@ -17,7 +17,7 @@ import com.google.gson.JsonSerializer;
 import com.mycallstation.googlevoice.setting.VoiceMailAccessPolicy;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("voiceMailAccessPolicySerializer")

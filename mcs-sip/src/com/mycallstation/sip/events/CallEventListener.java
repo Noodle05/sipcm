@@ -6,7 +6,7 @@ package com.mycallstation.sip.events;
 import java.util.EventListener;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface CallEventListener extends EventListener {

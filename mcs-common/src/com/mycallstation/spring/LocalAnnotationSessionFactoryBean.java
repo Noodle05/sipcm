@@ -15,7 +15,7 @@ import org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBea
 import com.mycallstation.util.ClassUtils;
 
 /**
- * @author jack
+ * @author Wei Gao
  * 
  */
 @SuppressWarnings("deprecation")

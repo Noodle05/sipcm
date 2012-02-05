@@ -13,7 +13,7 @@ import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @MappedSuperclass

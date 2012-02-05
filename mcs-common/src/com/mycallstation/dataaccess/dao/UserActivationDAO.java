@@ -7,7 +7,7 @@ import com.mycallstation.base.dao.DAO;
 import com.mycallstation.dataaccess.model.UserActivation;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface UserActivationDAO extends DAO<UserActivation, Long> {

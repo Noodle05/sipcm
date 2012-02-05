@@ -5,8 +5,10 @@ package com.mycallstation.dataaccess.business.impl;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.mycallstation.base.business.impl.AbstractService;
 import com.mycallstation.base.dao.DAO;
@@ -14,11 +16,11 @@ import com.mycallstation.dataaccess.business.AddressService;
 import com.mycallstation.dataaccess.model.Address;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 @Service("addressService")
-@Transactional(readOnly = true)
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
 public class AddressServiceImpl extends AbstractService<Address, Long>
 		implements AddressService {
 	/*

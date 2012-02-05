@@ -7,6 +7,9 @@ import java.util.Collection;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +25,11 @@ import com.mycallstation.dataaccess.model.UserVoipAccount;
 import com.mycallstation.dataaccess.model.VoipVendor;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Service("userVoipAccountService")
-@Transactional(readOnly = true)
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
 public class UserVoipAccountServiceImpl extends
 		AbstractService<UserVoipAccount, Long> implements
 		UserVoipAccountService {
@@ -51,6 +54,7 @@ public class UserVoipAccountServiceImpl extends
 	 * (com .mycallstation.sip.model.UserSipProfile)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public Collection<UserVoipAccount> getOutgoingAccounts(UserSipProfile user) {
 		Filter f1 = filterFactory.createSimpleFilter("owner", user);
 		Filter f2 = filterFactory.createInFilter("type",
@@ -67,6 +71,7 @@ public class UserVoipAccountServiceImpl extends
 	 * (com .mycallstation.sip.model.UserSipProfile)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public Collection<UserVoipAccount> getIncomingAccounts(UserSipProfile user) {
 		Filter f1 = filterFactory.createSimpleFilter("owner", user);
 		Filter f2 = filterFactory.createSimpleFilter("voipVendor.type",
@@ -85,6 +90,7 @@ public class UserVoipAccountServiceImpl extends
 	 * (com.mycallstation.dataaccess.model.UserSipProfile)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public Collection<UserVoipAccount> getOfflineIncomingAccounts(
 			UserSipProfile user) {
 		Filter f1 = filterFactory.createSimpleFilter("owner", user);
@@ -105,6 +111,7 @@ public class UserVoipAccountServiceImpl extends
 	 * (com.mycallstation.sip.model.VoipVendor, java.lang.String)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public UserVoipAccount getUserVoipAccountByVendorAndAccount(
 			VoipVendor voipVender, String account) {
 		Filter f1 = filterFactory.createSimpleFilter("voipVendor", voipVender);
@@ -134,6 +141,7 @@ public class UserVoipAccountServiceImpl extends
 	 * getOnlineIncomingAccounts (java.lang.Long)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public Collection<UserVoipAccount> getOnlineIncomingAccounts(Long userId) {
 		Filter f1 = filterFactory.createSimpleFilter("owner.id", userId);
 		Filter f2 = filterFactory.createSimpleFilter("voipVendor.type",
@@ -153,6 +161,7 @@ public class UserVoipAccountServiceImpl extends
 	 * (com. mycallstation.sip.model.UserSipProfile)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public Collection<UserVoipAccount> getUserVoipAccount(
 			UserSipProfile userSipProfile) {
 		Filter filter = filterFactory.createSimpleFilter("owner",
@@ -168,7 +177,7 @@ public class UserVoipAccountServiceImpl extends
 	 * (com. mycallstation.sip.model.UserVoipAccount)
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public void updateRegisterExpires(UserVoipAccount account) {
 		((UserVoipAccountDAO) dao).updateRegisterExpires(account);
 	}
@@ -181,7 +190,7 @@ public class UserVoipAccountServiceImpl extends
 	 * (com.mycallstation .sip.model.UserVoipAccount)
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public void updateAuthResponse(UserVoipAccount account) {
 		((UserVoipAccountDAO) dao).updateAuthResponse(account);
 	}
@@ -194,7 +203,7 @@ public class UserVoipAccountServiceImpl extends
 	 * (com.mycallstation.sip.model.UserVoipAccount)
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public void updateRegisterExpiresAndAuthResonse(UserVoipAccount account) {
 		((UserVoipAccountDAO) dao)
 				.updateRegisterExpiresAndAuthResponse(account);
@@ -208,7 +217,7 @@ public class UserVoipAccountServiceImpl extends
 	 * ()
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public Collection<Long> checkRegisterExpires(int minExpires) {
 		return ((UserVoipAccountDAO) dao).checkRegisterExpires(minExpires);
 	}
@@ -220,6 +229,7 @@ public class UserVoipAccountServiceImpl extends
 	 * getUserVoipAccountWithAuthResponse(java.lang.Long)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public UserVoipAccount getUserVoipAccountWithAuthResponse(Long id) {
 		UserVoipAccount entity = dao.getEntityById(id);
 		entity.getAuthResponse();
@@ -234,6 +244,7 @@ public class UserVoipAccountServiceImpl extends
 	 * (com.mycallstation.dataaccess.model.UserSipProfile)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public UserVoipAccount getUserGoogleVoiceAccount(UserSipProfile user) {
 		Filter filter = filterFactory.createSimpleFilter("owner", user);
 		Filter f1 = filterFactory.createSimpleFilter("voipVendor.type",

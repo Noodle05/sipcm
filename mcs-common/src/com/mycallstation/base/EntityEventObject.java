@@ -10,7 +10,7 @@ import java.util.EventObject;
 import com.mycallstation.base.model.IdBasedEntity;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class EntityEventObject<Entity extends IdBasedEntity<ID>, ID extends Serializable>

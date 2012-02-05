@@ -8,6 +8,9 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +24,11 @@ import com.mycallstation.dataaccess.model.AddressBinding;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Service("addressBindingService")
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
 public class AddressBindingServiceImpl extends
 		AbstractService<AddressBinding, Long> implements AddressBindingService {
 	@Resource(name = "userSipProfileService")
@@ -51,6 +55,7 @@ public class AddressBindingServiceImpl extends
 	 * (com.mycallstation .sip.model.UserSipProfile)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<AddressBinding> getAddressBindings(UserSipProfile userSipProfile) {
 		Filter filter = filterFactory.createSimpleFilter("userSipProfile",
 				userSipProfile);
@@ -65,7 +70,7 @@ public class AddressBindingServiceImpl extends
 	 * javax.servlet.sip.Address, javax.servlet.sip.Address, java.lang.String)
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public AddressBinding createAddressBindingEntity(
 			UserSipProfile userSipProfile, String address, int expires,
 			String remoteEnd, String callId, boolean takeItOnline) {
@@ -92,7 +97,7 @@ public class AddressBindingServiceImpl extends
 	 * (com .mycallstation.sip.model.UserSipProfile)
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public void removeByUserSipProfile(UserSipProfile userSipProfile) {
 		Collection<AddressBinding> address = getAddressBindings(userSipProfile);
 		if (address != null && !address.isEmpty()) {
@@ -111,7 +116,7 @@ public class AddressBindingServiceImpl extends
 	 * com.mycallstation.sip.model.UserSipProfile, boolean)
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public AddressBinding removeBinding(AddressBinding binding,
 			UserSipProfile userSipProfile, boolean takeItOffline) {
 		AddressBinding ret;

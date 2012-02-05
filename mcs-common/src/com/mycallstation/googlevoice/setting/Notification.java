@@ -6,7 +6,7 @@ package com.mycallstation.googlevoice.setting;
 import java.io.Serializable;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class Notification implements Serializable {

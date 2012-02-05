@@ -7,7 +7,7 @@ import com.mycallstation.base.business.Service;
 import com.mycallstation.dataaccess.model.ConfigValue;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public interface ConfigValueService extends Service<ConfigValue, Integer> {

@@ -34,7 +34,7 @@ import com.mycallstation.sip.servlet.AbstractSipServlet;
 import com.mycallstation.sip.util.SipUtil;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("sipVoipVendorContext")

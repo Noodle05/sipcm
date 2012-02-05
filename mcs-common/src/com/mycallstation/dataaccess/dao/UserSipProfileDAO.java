@@ -10,7 +10,7 @@ import com.mycallstation.constant.OnlineStatus;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface UserSipProfileDAO extends DAO<UserSipProfile, Long> {

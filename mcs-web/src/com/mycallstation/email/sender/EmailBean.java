@@ -14,7 +14,7 @@ import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public class EmailBean implements Serializable {

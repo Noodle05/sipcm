@@ -10,7 +10,7 @@ import com.mycallstation.dataaccess.dao.CallLogDAO;
 import com.mycallstation.dataaccess.model.CallLog;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Repository("callLogDAO")

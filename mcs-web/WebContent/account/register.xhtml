@@ -95,14 +95,14 @@
 						<p:message id="displayNameError" for="displayName" />
 						<h:outputLabel for="locale" value="#{messages['register.locale']}" />
 						<h:selectOneMenu id="locale" value="#{registrationBean.locale}">
-							<f:selectItems value="#{registrationBean.availableLocales}" />
+							<f:selectItems value="#{getAvailableTimeZones.availableLocales}" />
 						</h:selectOneMenu>
 						<p:message id="localeError" for="locale" />
 						<h:outputLabel for="timeZone"
 							value="#{messages['register.timeZone']}" />
 						<h:selectOneMenu id="timeZone"
 							value="#{registrationBean.timeZone}">
-							<f:selectItems value="#{registrationBean.availableTimeZones}" />
+							<f:selectItems value="#{jsfUtils.availableTimeZones}" />
 						</h:selectOneMenu>
 						<p:message id="timeZoneError" for="timeZone" />
 						<h:outputLabel for="invitationCode"

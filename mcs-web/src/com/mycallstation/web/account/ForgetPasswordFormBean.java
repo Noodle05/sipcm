@@ -7,11 +7,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.mycallstation.constant.ActiveMethod;
 import com.mycallstation.dataaccess.business.UserActivationService;
@@ -23,34 +25,37 @@ import com.mycallstation.web.util.Messages;
 import com.mycallstation.web.util.WebConfiguration;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
-@ManagedBean(name = "forgetPasswordFormBean")
-@RequestScoped
+@Component("forgetPasswordFormBean")
+@Scope(WebApplicationContext.SCOPE_REQUEST)
 public class ForgetPasswordFormBean implements Serializable {
 	private static final long serialVersionUID = 4492899144455600476L;
 
 	public static final String FORGET_PASSWORD_EMAIL_TEMPLATE = "/templates/forget-password.vm";
 
-	@ManagedProperty("#{userService}")
-	private transient UserService userService;
+	@Resource(name = "userService")
+	private UserService userService;
 
-	@ManagedProperty("#{userActivationService}")
-	private transient UserActivationService userActivationService;
+	@Resource(name = "userActivationService")
+	private UserActivationService userActivationService;
 
-	@ManagedProperty("#{systemConfiguration}")
-	private transient WebConfiguration appConfig;
+	@Resource(name = "systemConfiguration")
+	private WebConfiguration appConfig;
 
-	@ManagedProperty(value = "#{webEmailUtils}")
-	private transient EmailUtils emailUtils;
+	@Resource(name = "webEmailUtils")
+	private EmailUtils emailUtils;
+
+	@Resource(name = "web.messages")
+	private Messages messages;
 
 	private String email;
 
 	public String action() {
 		User user = userService.getUserByEmail(email);
 		if (user == null) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"forget.password.error.user.not.found",
 					FacesMessage.SEVERITY_ERROR);
 			FacesContext.getCurrentInstance().addMessage(
@@ -63,7 +68,7 @@ public class ForgetPasswordFormBean implements Serializable {
 					ActiveMethod.SELF, appConfig.getActiveExpires());
 		} else {
 			if (ActiveMethod.ADMIN.equals(ua.getMethod())) {
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"forget.password.error.waiting.admin",
 						FacesMessage.SEVERITY_ERROR);
 				FacesContext.getCurrentInstance().addMessage(
@@ -79,11 +84,11 @@ public class ForgetPasswordFormBean implements Serializable {
 		params.put("activeExpires", appConfig.getActiveExpires());
 		emailUtils
 				.sendMail(user.getEmail(), user.getUserDisplayName(),
-						Messages.getString(null,
+						messages.getString(null,
 								"forget.password.email.subject", null),
 						FORGET_PASSWORD_EMAIL_TEMPLATE, params, user
 								.getLocale());
-		FacesMessage message = Messages.getMessage("forget.password.success",
+		FacesMessage message = messages.getMessage("forget.password.success",
 				FacesMessage.SEVERITY_INFO);
 		FacesContext.getCurrentInstance().addMessage(null, message);
 		return "success";
@@ -102,38 +107,5 @@ public class ForgetPasswordFormBean implements Serializable {
 	 */
 	public String getEmail() {
 		return email;
-	}
-
-	/**
-	 * @param userService
-	 *            the userService to set
-	 */
-	public void setUserService(UserService userService) {
-		this.userService = userService;
-	}
-
-	/**
-	 * @param userActivationService
-	 *            the userActivationService to set
-	 */
-	public void setUserActivationService(
-			UserActivationService userActivationService) {
-		this.userActivationService = userActivationService;
-	}
-
-	/**
-	 * @param appConfig
-	 *            the appConfig to set
-	 */
-	public void setAppConfig(WebConfiguration appConfig) {
-		this.appConfig = appConfig;
-	}
-
-	/**
-	 * @param emailUtils
-	 *            the emailUtils to set
-	 */
-	public void setEmailUtils(EmailUtils emailUtils) {
-		this.emailUtils = emailUtils;
 	}
 }

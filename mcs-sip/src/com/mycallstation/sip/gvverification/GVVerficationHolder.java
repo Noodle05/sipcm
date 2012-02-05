@@ -9,7 +9,7 @@ import com.mycallstation.googlevoice.GoogleVoiceSession;
 import com.mycallstation.googlevoice.setting.Phone;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 class GVVerficationHolder implements Serializable {
@@ -20,8 +20,8 @@ class GVVerficationHolder implements Serializable {
 	private final Phone phone;
 	private final int verifyCode;
 
-	GVVerficationHolder(GoogleVoiceSession gvSession, String gvNumber, Phone phone,
-			int verifyCode) {
+	GVVerficationHolder(GoogleVoiceSession gvSession, String gvNumber,
+			Phone phone, int verifyCode) {
 		this.gvSession = gvSession;
 		this.gvNumber = gvNumber;
 		this.phone = phone;

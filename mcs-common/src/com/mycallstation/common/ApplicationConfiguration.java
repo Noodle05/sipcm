@@ -24,7 +24,7 @@ import com.mycallstation.dataaccess.business.ConfigValueService;
 import com.mycallstation.dataaccess.model.ConfigValue;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 @Component("abstractApplicationConfiguration")

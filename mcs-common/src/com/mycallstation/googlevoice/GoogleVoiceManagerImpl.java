@@ -13,7 +13,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public abstract class GoogleVoiceManagerImpl implements GoogleVoiceManager {

@@ -38,7 +38,7 @@ import com.mycallstation.sip.locationservice.UserBindingInfo;
 import com.mycallstation.sip.util.SipUtil;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @SipServlet(name = "B2bServlet", applicationName = "com.mycallstation.CallCenter", loadOnStartup = 1)

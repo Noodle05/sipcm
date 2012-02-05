@@ -65,12 +65,12 @@
 						<h:outputLabel for="locale"
 							value="#{messages['member.profile.locale']}" />
 						<h:selectOneMenu id="locale" value="#{profileBean.locale}">
-							<f:selectItems value="#{profileBean.availableLocales}" />
+							<f:selectItems value="#{jsfUtils.availableLocales}" />
 						</h:selectOneMenu>
 						<h:outputLabel for="timeZone"
 							value="#{messages['member.profile.timeZone']}" />
 						<h:selectOneMenu id="timeZone" value="#{profileBean.timeZone}">
-							<f:selectItems value="#{profileBean.availableTimeZones}" />
+							<f:selectItems value="#{jsfUtils.availableTimeZones}" />
 						</h:selectOneMenu>
 					</h:panelGrid>
 					<p:commandButton ajax="true" id="submit" styleClass="submit"

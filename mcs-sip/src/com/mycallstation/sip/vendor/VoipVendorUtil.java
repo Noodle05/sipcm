@@ -10,7 +10,7 @@ import com.mycallstation.dataaccess.model.UserVoipAccount;
 /**
  * Utility class for voip vendors. Help to generate to address and from address.
  * 
- * @author wgao
+ * @author Wei Gao
  */
 public interface VoipVendorUtil {
 	/**

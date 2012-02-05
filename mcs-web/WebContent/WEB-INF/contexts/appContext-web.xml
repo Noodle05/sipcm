@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans xmlns="http://www.springframework.org/schema/security"
 	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-                http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
+                http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+	<http pattern="/resources/**" security="none" />
+	<http pattern="/jquery/**" security="none" />
+	<http pattern="/javax.faces.resource/**" security="none" />
+
 	<http auto-config="true" access-denied-page="/accessDenied.jsf">
-		<intercept-url pattern="/resources/**" filters="none" />
-		<intercept-url pattern="/jquery/**" filters="none" />
-		<intercept-url pattern="/javax.faces.resource/**"
-			filters="none" />
 		<intercept-url pattern="/login.jsf" access="IS_AUTHENTICATED_ANONYMOUSLY"
 			requires-channel="https" />
 		<intercept-url pattern="/account/**" access="IS_AUTHENTICATED_ANONYMOUSLY"
@@ -37,9 +39,22 @@
 			after="REMEMBER_ME_FILTER" />
 		<session-management session-fixation-protection="none" />
 	</http>
+
 	<authentication-manager>
 		<authentication-provider ref="securityAuthenticationProvider" />
 	</authentication-manager>
+
+	<beans:bean
+		class="org.springframework.beans.factory.config.CustomScopeConfigurer">
+		<beans:property name="scopes">
+			<util:map>
+				<beans:entry key="view">
+					<beans:bean class="com.mycallstation.scope.ViewScope" />
+				</beans:entry>
+			</util:map>
+		</beans:property>
+	</beans:bean>
+
 	<beans:bean
 		id="additionCookieAdditionCookiePersistentTokenBasedRememberMeServices"
 		class="com.mycallstation.security.AdditionCookiePersistentTokenBasedRememberMeServices">
@@ -47,6 +62,7 @@
 		<beans:property name="userDetailsService" ref="securityUserDetailsService" />
 		<beans:property name="tokenRepository" ref="tokenRepository" />
 	</beans:bean>
+
 	<beans:bean id="tokenRepository"
 		class="org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl">
 		<beans:property name="dataSource" ref="dataSource" />

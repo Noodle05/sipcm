@@ -8,7 +8,7 @@ import java.util.EventObject;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class RegistrationEvent extends EventObject {

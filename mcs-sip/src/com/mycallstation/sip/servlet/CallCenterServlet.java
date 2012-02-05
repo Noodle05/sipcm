@@ -30,7 +30,7 @@ import com.mycallstation.sip.util.ServerAuthenticationHelper;
 import com.mycallstation.util.PhoneNumberUtil;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @SipServlet(name = "CallCenterServlet", applicationName = "com.mycallstation.CallCenter", loadOnStartup = 1)

@@ -8,30 +8,36 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.annotation.Resource;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.web.util.JSFUtils;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
-@ManagedBean(name = "localeTimeZoneHolderBean")
-@SessionScoped
+@Component("localeTimeZoneHolderBean")
+@Scope(value = WebApplicationContext.SCOPE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class LocaleTimeZoneHolderBean implements Serializable {
 	private static final long serialVersionUID = 3748969759027996323L;
 
+	@Resource(name = "jsfUtils")
+	private JSFUtils jsfUtils;
+
 	private Locale locale;
 	private TimeZone timeZone;
-	private transient User user;
 
 	@PostConstruct
 	public void init() {
-		user = JSFUtils.getCurrentUser();
+		User user = jsfUtils.getCurrentUser();
 		if (user != null) {
 			setLocale(user.getLocale());
 			setTimeZone(user.getTimeZone());

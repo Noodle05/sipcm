@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.EventObject;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class CallEndEvent extends EventObject {

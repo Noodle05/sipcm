@@ -50,7 +50,7 @@ import com.mycallstation.sip.util.GvB2buaHelperImpl;
 import com.mycallstation.util.PhoneNumberUtil;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @SipServlet(name = "GoogleVoiceServlet", applicationName = "com.mycallstation.CallCenter", loadOnStartup = 1)

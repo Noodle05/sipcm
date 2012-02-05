@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface TrackableEntity extends Serializable {

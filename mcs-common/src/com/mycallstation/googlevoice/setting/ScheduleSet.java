@@ -4,7 +4,7 @@
 package com.mycallstation.googlevoice.setting;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public enum ScheduleSet {

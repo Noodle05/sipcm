@@ -32,7 +32,7 @@ import com.mycallstation.dataaccess.model.VoipVendor;
 import com.mycallstation.util.PhoneNumberUtil;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Configurable

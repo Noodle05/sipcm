@@ -7,9 +7,8 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.RequestDispatcher;
@@ -17,19 +16,25 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.springframework.context.annotation.Scope;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.web.WebAttributes;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.mycallstation.web.util.Messages;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
-@ManagedBean(name = "loginBean")
-@RequestScoped
+@Component("loginBean")
+@Scope(WebApplicationContext.SCOPE_REQUEST)
 public class LoginBean implements Serializable {
 	private static final long serialVersionUID = 8509736904609684199L;
+
+	@Resource(name = "web.messages")
+	private Messages messages;
 
 	private String username = "";
 	private String password = "";
@@ -64,7 +69,7 @@ public class LoginBean implements Serializable {
 					.remove(WebAttributes.AUTHENTICATION_EXCEPTION);
 			FacesContext.getCurrentInstance().addMessage(
 					null,
-					Messages.getMessage(
+					messages.getMessage(
 							"login.error.username.password.invalid",
 							FacesMessage.SEVERITY_ERROR));
 		}

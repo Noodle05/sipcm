@@ -13,7 +13,7 @@ import javax.faces.convert.Converter;
 import org.springframework.stereotype.Component;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("durationConverter")
@@ -39,7 +39,7 @@ public class DurationConverter implements Converter {
 			int h = Integer.parseInt(m.group(1));
 			int mi = Integer.parseInt(m.group(2));
 			int s = Integer.parseInt(m.group(3));
-			long ret = ((long) (h * 3600 + mi * 60 + s)) * 1000L;
+			long ret = (h * 3600 + mi * 60 + s) * 1000L;
 			return ret;
 		}
 		return null;

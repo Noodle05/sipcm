@@ -17,7 +17,7 @@ import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.googlevoice.GoogleVoiceSession;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class GoogleVoiceTimeoutProcessor implements TimerProcessor {

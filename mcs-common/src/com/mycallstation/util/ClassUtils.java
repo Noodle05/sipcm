@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public abstract class ClassUtils {

@@ -10,7 +10,7 @@ import com.mycallstation.dataaccess.dao.AddressDAO;
 import com.mycallstation.dataaccess.model.Address;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 @Repository("addressDAO")

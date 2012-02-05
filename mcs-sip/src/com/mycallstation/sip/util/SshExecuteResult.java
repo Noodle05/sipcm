@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class SshExecuteResult implements Serializable {

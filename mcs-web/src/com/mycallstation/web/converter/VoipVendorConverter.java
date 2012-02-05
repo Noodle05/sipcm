@@ -19,7 +19,7 @@ import com.mycallstation.dataaccess.business.VoipVendorService;
 import com.mycallstation.dataaccess.model.VoipVendor;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("voipVendorConverter")

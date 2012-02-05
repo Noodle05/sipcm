@@ -31,7 +31,7 @@ import com.mycallstation.base.model.IdBasedEntity;
 import com.mycallstation.constant.VoipAccountType;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @SqlResultSetMapping(name = "accountId", columns = @ColumnResult(name = "id"))

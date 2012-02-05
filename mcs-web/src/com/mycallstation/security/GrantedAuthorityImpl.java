@@ -12,7 +12,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class GrantedAuthorityImpl implements GrantedAuthority {

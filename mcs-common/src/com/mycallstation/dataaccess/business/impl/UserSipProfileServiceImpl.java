@@ -10,8 +10,10 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mycallstation.base.business.impl.AbstractService;
@@ -27,11 +29,11 @@ import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Service("userSipProfileService")
-@Transactional(readOnly = true)
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
 public class UserSipProfileServiceImpl extends
 		AbstractService<UserSipProfile, Long> implements UserSipProfileService {
 	/*
@@ -53,7 +55,6 @@ public class UserSipProfileServiceImpl extends
 	 * @see com.mycallstation.base.business.Service#createNewEntity()
 	 */
 	@Override
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public UserSipProfile createNewEntity() {
 		UserSipProfile entity = super.createNewEntity();
 		entity.setSipStatus(OnlineStatus.OFFLINE);
@@ -71,7 +72,6 @@ public class UserSipProfileServiceImpl extends
 	 * (com .mycallstation.common.model.User)
 	 */
 	@Override
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public UserSipProfile createUserSipProfile(User user) {
 		UserSipProfile userSipProfile = createNewEntity();
 		userSipProfile.setOwner(user);
@@ -86,6 +86,7 @@ public class UserSipProfileServiceImpl extends
 	 * ( com.mycallstation.common.model.User)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public UserSipProfile getUserSipProfileByUser(User user) {
 		// Filter filter = filterFactory.createSimpleFilter("owner", user);
 		// return dao.getUniqueEntity(filter);
@@ -99,6 +100,7 @@ public class UserSipProfileServiceImpl extends
 	 * getUserSipProfileByUsername (java.lang.String)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public UserSipProfile getUserSipProfileByUsername(String username) {
 		Filter filter = filterFactory.createSimpleFilter("owner.username",
 				username, Operator.IEQ);
@@ -112,6 +114,7 @@ public class UserSipProfileServiceImpl extends
 	 * getUserSipProfileByPhoneNumber (java.lang.String)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public UserSipProfile getUserSipProfileByVerifiedPhoneNumber(
 			String phoneNumber) {
 		Filter f1 = filterFactory
@@ -136,7 +139,7 @@ public class UserSipProfileServiceImpl extends
 	 * com.mycallstation.sip.model.UserSipProfile[])
 	 */
 	@Override
-	@Transactional(propagation = Propagation.SUPPORTS)
+	@Transactional
 	public void updateOnlineStatus(OnlineStatus onlineStatus,
 			UserSipProfile... userSipProfiles) {
 		((UserSipProfileDAO) dao).updateOnlineStatus(onlineStatus,
@@ -151,7 +154,7 @@ public class UserSipProfileServiceImpl extends
 	 * (com.mycallstation.dataaccess.model.UserSipProfile[])
 	 */
 	@Override
-	@Transactional(propagation = Propagation.SUPPORTS)
+	@Transactional
 	public void updateLastReceiveCallTime(UserSipProfile... userSipProfiles) {
 		((UserSipProfileDAO) dao).updateLastReceiveCallTime(userSipProfiles);
 	}
@@ -163,7 +166,7 @@ public class UserSipProfileServiceImpl extends
 	 * checkAddressBindingExpires()
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public Collection<Long> checkAddressBindingExpires() {
 		return ((UserSipProfileDAO) dao).checkAddressBindingExpires();
 	}
@@ -175,6 +178,7 @@ public class UserSipProfileServiceImpl extends
 	 * getNeedPingUserSipProfile(int, boolean)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public Collection<Long> getNeedPingUserSipProfile(int timeout,
 			boolean onlineOnly) {
 		Calendar c = Calendar.getInstance();

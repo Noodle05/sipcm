@@ -10,7 +10,7 @@ import com.mycallstation.dataaccess.model.AddressBinding;
 import com.mycallstation.dataaccess.model.UserSipProfile;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public interface AddressBindingService extends Service<AddressBinding, Long> {

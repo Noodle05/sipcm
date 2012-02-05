@@ -12,7 +12,7 @@ import com.mycallstation.dataaccess.model.UserVoipAccount;
 import com.mycallstation.util.PhoneNumberUtil;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("noprefix.digital.voipVendorUtil")

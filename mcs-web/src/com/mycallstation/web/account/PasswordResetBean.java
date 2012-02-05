@@ -6,9 +6,8 @@ package com.mycallstation.web.account;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -16,6 +15,9 @@ import javax.faces.event.ComponentSystemEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.mycallstation.constant.ActiveMethod;
 import com.mycallstation.dataaccess.business.RoleService;
@@ -23,15 +25,14 @@ import com.mycallstation.dataaccess.business.UserActivationService;
 import com.mycallstation.dataaccess.business.UserService;
 import com.mycallstation.dataaccess.model.User;
 import com.mycallstation.dataaccess.model.UserActivation;
-import com.mycallstation.web.util.JSFUtils;
 import com.mycallstation.web.util.Messages;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
-@ManagedBean(name = "passwordResetBean")
-@RequestScoped
+@Component("passwordResetBean")
+@Scope(WebApplicationContext.SCOPE_REQUEST)
 public class PasswordResetBean implements Serializable {
 	private static final long serialVersionUID = 5427030371221677230L;
 	private static final Logger logger = LoggerFactory
@@ -41,18 +42,24 @@ public class PasswordResetBean implements Serializable {
 	private Long userId;
 	private String password;
 
+	@Resource(name = "userService")
+	private UserService userService;
+
+	@Resource(name = "userActivationService")
+	private UserActivationService userActivationService;
+
+	@Resource(name = "web.messages")
+	private Messages messages;
+
 	public String save() {
 		if (logger.isDebugEnabled()) {
 			logger.debug(
 					"Resetting password for user id: {}, with active code: \"{}\"",
 					userId, activeCode);
 		}
-		UserService userService = JSFUtils.getUserService();
-		UserActivationService userActivationService = JSFUtils
-				.getUserActivationService();
 		FacesContext fc = FacesContext.getCurrentInstance();
 		if (userId == null) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"password.reset.error.invaliduserid",
 					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
@@ -60,7 +67,7 @@ public class PasswordResetBean implements Serializable {
 		}
 		User user = userService.fullyLoadUser(userId);
 		if (user == null || user.getDeleteDate() != null) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"password.reset.error.invaliduserid",
 					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
@@ -71,7 +78,7 @@ public class PasswordResetBean implements Serializable {
 		}
 		UserActivation ua = userActivationService.getUserActivationByUser(user);
 		if (ua == null) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"password.reset.error.invaliduserid",
 					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
@@ -85,7 +92,7 @@ public class PasswordResetBean implements Serializable {
 			if (logger.isTraceEnabled()) {
 				logger.trace("User active object alread expired");
 			}
-			FacesMessage message = Messages
+			FacesMessage message = messages
 					.getMessage("password.reset.error.expired",
 							FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
@@ -94,7 +101,7 @@ public class PasswordResetBean implements Serializable {
 		if (ActiveMethod.ADMIN.equals(ua.getMethod())) {
 			// Admin active, check if current user is admin
 			if (!fc.getExternalContext().isUserInRole(RoleService.ADMIN_ROLE)) {
-				FacesMessage message = Messages.getMessage(
+				FacesMessage message = messages.getMessage(
 						"password.reset.error.onlyadmin",
 						FacesMessage.SEVERITY_ERROR);
 				fc.addMessage(null, message);
@@ -104,14 +111,14 @@ public class PasswordResetBean implements Serializable {
 			}
 		}
 		if (activeCode == null) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"password.reset.error.invalidactivecode",
 					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
 			return null;
 		}
 		if (!ua.getActiveCode().equals(activeCode)) {
-			FacesMessage message = Messages.getMessage(
+			FacesMessage message = messages.getMessage(
 					"password.reset.error.invalidactivecode",
 					FacesMessage.SEVERITY_ERROR);
 			fc.addMessage(null, message);
@@ -126,7 +133,7 @@ public class PasswordResetBean implements Serializable {
 		}
 		userService.setPassword(user, password);
 		userService.saveEntity(user);
-		FacesMessage message = Messages.getMessage("password.reset.success",
+		FacesMessage message = messages.getMessage("password.reset.success",
 				FacesMessage.SEVERITY_INFO);
 		fc.addMessage(null, message);
 		return "success";
@@ -144,7 +151,7 @@ public class PasswordResetBean implements Serializable {
 					.trim();
 			if (password != null && confirmPasswd != null) {
 				if (!password.equals(confirmPasswd)) {
-					FacesMessage message = Messages.getMessage(
+					FacesMessage message = messages.getMessage(
 							"register.error.password.notmatch",
 							FacesMessage.SEVERITY_ERROR);
 					fc.addMessage("registrationForm:confirmPassword", message);

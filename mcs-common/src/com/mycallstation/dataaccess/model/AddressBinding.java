@@ -20,7 +20,7 @@ import org.hibernate.annotations.FilterDef;
 import com.mycallstation.base.model.IdBasedEntity;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Entity

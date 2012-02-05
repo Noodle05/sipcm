@@ -7,6 +7,9 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,11 +20,11 @@ import com.mycallstation.dataaccess.business.ConfigValueService;
 import com.mycallstation.dataaccess.model.ConfigValue;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 @Service("configService")
-@Transactional(readOnly = true)
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
 public class ConfigValueServiceImpl extends
 		AbstractService<ConfigValue, Integer> implements ConfigValueService {
 	/*
@@ -45,6 +48,7 @@ public class ConfigValueServiceImpl extends
 	 * .lang .String)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public ConfigValue getValueByKey(String key) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Getting value for \"{}\"", key);
@@ -59,7 +63,7 @@ public class ConfigValueServiceImpl extends
 	 * @see com.mycallstation.common.business.ConfigValueService#removeAll()
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public void removeAll() {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Removing all values");
@@ -76,7 +80,7 @@ public class ConfigValueServiceImpl extends
 	 * (java .lang.String)
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public ConfigValue removeValueByKey(String key) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Removing value for key \"{}\"", key);

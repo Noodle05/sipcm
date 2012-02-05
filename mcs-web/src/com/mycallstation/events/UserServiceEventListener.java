@@ -16,7 +16,7 @@ import com.mycallstation.communication.UserEventMessageSender;
 import com.mycallstation.dataaccess.model.User;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 @Component("userServiceEventListener")

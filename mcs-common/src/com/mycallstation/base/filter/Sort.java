@@ -4,7 +4,7 @@
 package com.mycallstation.base.filter;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public interface Sort {

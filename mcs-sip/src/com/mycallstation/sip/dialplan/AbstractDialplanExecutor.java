@@ -12,7 +12,7 @@ import com.mycallstation.dataaccess.model.UserSipProfile;
 import com.mycallstation.dataaccess.model.UserVoipAccount;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public abstract class AbstractDialplanExecutor implements DialplanExecutor {

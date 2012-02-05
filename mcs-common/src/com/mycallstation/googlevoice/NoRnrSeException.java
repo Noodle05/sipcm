@@ -6,7 +6,7 @@ package com.mycallstation.googlevoice;
 import com.mycallstation.common.AuthenticationException;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class NoRnrSeException extends AuthenticationException {

@@ -7,7 +7,7 @@ import java.net.InetAddress;
 import java.util.EventObject;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public class BlockIpEvent extends EventObject {

@@ -6,7 +6,7 @@ package com.mycallstation.base.model;
 import java.util.Date;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public interface ExpireableEntity extends TimestampBasedEntity {

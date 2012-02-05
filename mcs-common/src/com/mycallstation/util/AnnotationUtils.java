@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 public abstract class AnnotationUtils {

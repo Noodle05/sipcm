@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
 import com.mycallstation.base.filter.Direction;
@@ -19,10 +22,11 @@ import com.mycallstation.base.filter.Page;
 import com.mycallstation.base.filter.Sort;
 
 /**
- * @author Jack
+ * @author Wei Gao
  * 
  */
 @Component("filterFactory")
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
 public class FilterFactoryImpl implements FilterFactory {
 	/*
 	 * (non-Javadoc)

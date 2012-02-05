@@ -24,7 +24,7 @@ import com.mycallstation.email.receiver.MailSession;
 import com.mycallstation.email.receiver.MessageOperation;
 
 /**
- * @author wgao
+ * @author Wei Gao
  * 
  */
 public abstract class IPKallSessionManager {

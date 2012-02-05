@@ -14,7 +14,6 @@ import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanInstantiationException;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mycallstation.base.business.Service;
@@ -24,9 +23,8 @@ import com.mycallstation.base.filter.Filter;
 import com.mycallstation.base.filter.FilterFactory;
 
 /**
- * @author Jack
+ * @author Wei Gao
  */
-@Transactional(readOnly = true)
 public abstract class AbstractService<Entity extends Serializable, ID extends Serializable>
 		implements Service<Entity, ID> {
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -58,7 +56,6 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * @see com.mycallstation.base.business.Service#createNewEntity()
 	 */
 	@Override
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public Entity createNewEntity() {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Creating new entity instance.");
@@ -80,6 +77,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * )
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public Entity getEntityById(ID id) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Getting entity by id: {}", id);
@@ -95,6 +93,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * .base.filter.FSP)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<Entity> getEntities(FSP fsp) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Getting entities by fsp: {}", fsp);
@@ -110,6 +109,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * .base.filter.Filter)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<Entity> getEntities(Filter filter) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Getting entities by filter: {}", filter);
@@ -123,6 +123,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * @see com.mycallstation.base.business.Service#getEntities()
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<Entity> getEntities() {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Getting all entities");
@@ -138,6 +139,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * .base.filter.Filter)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public Entity getUniqueEntity(Filter filter) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Getting unique entity by filter: {}", filter);
@@ -153,6 +155,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * .base.filter.Filter)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public int getRowCount(Filter filter) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Getting row count by filter: {}", filter);
@@ -166,6 +169,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * @see com.mycallstation.base.business.Service#getRowCount()
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public int getRowCount() {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Getting row count");
@@ -177,21 +181,11 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.mycallstation.base.business.Service#isReadonly(java.io.Serializable)
-	 */
-	@Override
-	public boolean isReadonly(Entity entity) {
-		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
 	 * com.mycallstation.base.business.Service#refreshEntity(java.io.Serializable
 	 * )
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public Entity refreshEntity(Entity entity) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Refreshing entity: \"{}\"", entity);
@@ -207,7 +201,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * )
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public Entity removeEntity(Entity entity) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Removing entity: \"{}\"", entity);
@@ -223,7 +217,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * )
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public Collection<Entity> removeEntities(Collection<Entity> entities) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Removing entities, total number of entities: {}",
@@ -240,7 +234,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * )
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public Entity removeEntityById(ID id) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Removing entity by id: \"{}\"", id);
@@ -255,7 +249,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * com.mycallstation.base.business.Service#saveEntity(java.io.Serializable)
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public Entity saveEntity(Entity entity) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Saving entity: \"{}\"", entity);
@@ -271,7 +265,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * )
 	 */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public Collection<Entity> saveEntities(Collection<Entity> entities) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Saving entities, total number of entities: {}",
@@ -287,6 +281,7 @@ public abstract class AbstractService<Entity extends Serializable, ID extends Se
 	 * com.mycallstation.base.business.Service#getEntityId(java.io.Serializable)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public ID getEntityId(Entity entity) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Getting id of entity: \"{}\"", entity);
