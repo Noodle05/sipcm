@@ -70,7 +70,7 @@
 		<dependency org="com.google.code.gson" name="gson" rev="2.1"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.apache.httpcomponents" name="httpcore"
-			rev="4.1.3" conf="compile->default;foride->sources,javadoc" />
+			rev="4.1.4" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.apache.httpcomponents" name="httpclient"
 			rev="4.1.2" conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
