@@ -73,9 +73,9 @@
 			rev="4.2.0.Final" conf="runtime->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
-		<dependency org="org.aspectj" name="aspectjrt" rev="1.6.9"
+		<dependency org="org.aspectj" name="aspectjrt" rev="${aspectj.version}"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="org.aspectj" name="aspectjweaver" rev="1.6.9"
+		<dependency org="org.aspectj" name="aspectjweaver" rev="${aspectj.version}"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.slf4j" name="jcl-over-slf4j" rev="${slf4j.version}"
 			conf="runtime->default;foride->sources,javadoc" />
@@ -159,6 +159,10 @@
 			rev="5.5.0" conf="compile->default;foride->sources,javadoc">
 			<exclude module="slf4j-api" />
 		</dependency>
+		<!-- dependency org="net.sf.ehcache" name="ehcache-core"
+			rev="2.5.1" conf="runtime->default;foride->sources,javadoc">
+			<exclude module="slf4j-api" />
+		</dependency -->
 		<dependency org="org.apache.xbean" name="xbean-spring" rev="3.7"
 			conf="runtime->default;foride->sources,javadoc" />
 		<dependency org="org.jsoup" name="jsoup" rev="1.6.1"
