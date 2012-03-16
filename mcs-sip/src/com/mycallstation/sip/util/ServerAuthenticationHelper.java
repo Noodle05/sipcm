@@ -52,7 +52,8 @@ public class ServerAuthenticationHelper {
 						if (pAssertedHeaderValue == null
 								&& SipLoginConfig.IDENTITY_SCHEME_REQUIRED
 										.equals(pAssertedIdentitySetting)) {
-							request.createResponse(428,
+							request.createResponse(
+									SipServletResponse.SC_USE_IDENTITY_HEADER,
 									"P-Asserted-Idetity header is required!")
 									.send();
 							return false;

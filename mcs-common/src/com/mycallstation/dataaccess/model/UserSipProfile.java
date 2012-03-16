@@ -11,17 +11,14 @@ import javax.persistence.Column;
 import javax.persistence.ColumnResult;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapsId;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.QueryHint;
 import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 
 import com.mycallstation.base.model.IdBasedEntity;
 import com.mycallstation.constant.KeepAlivePingType;
@@ -32,7 +29,6 @@ import com.mycallstation.constant.PhoneNumberStatus;
  * @author Wei Gao
  * 
  */
-@GenericGenerator(name = "userSipProfileGenerator", strategy = "foreign", parameters = @Parameter(name = "property", value = "owner"))
 @SqlResultSetMapping(name = "profileId", columns = @ColumnResult(name = "id"))
 @NamedNativeQuery(name = "checkAddressBindingExpires", query = "call AddressBindingExpires()", resultSetMapping = "profileId", hints = { @QueryHint(name = "org.hibernate.callable", value = "true") })
 @Entity
@@ -41,12 +37,12 @@ public class UserSipProfile implements IdBasedEntity<Long>, Serializable {
 	private static final long serialVersionUID = 6413404008060974272L;
 
 	@Id
-	@GeneratedValue(generator = "userSipProfileGenerator")
-	@Column(name = "id", unique = true, nullable = false)
+	@Column(name = "id")
 	private Long id;
 
 	@OneToOne
-	@PrimaryKeyJoinColumn
+	@MapsId
+	@JoinColumn(name = "id")
 	private User owner;
 
 	@Enumerated
