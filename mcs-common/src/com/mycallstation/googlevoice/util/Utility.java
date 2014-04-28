@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.mycallstation.googlevoice.util;
 
@@ -11,7 +11,7 @@ import com.mycallstation.googlevoice.setting.VoiceMailAccessPolicy;
 
 /**
  * @author Wei Gao
- * 
+ *
  */
 public abstract class Utility {
 	private static final Gson gson = new GsonBuilder()

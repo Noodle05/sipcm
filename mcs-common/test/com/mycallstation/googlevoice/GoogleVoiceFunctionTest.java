@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.mycallstation.googlevoice;
 
@@ -41,11 +41,11 @@ import com.mycallstation.googlevoice.setting.VoiceMailAccessPolicy;
 
 /**
  * @author Wei Gao
- * 
+ *
  */
 public class GoogleVoiceFunctionTest {
 	private static final String username = "wlifeng@yahoo.com";
-	private static final String password = "wwww4321";
+	private static final String password = "Wwww4321";
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();

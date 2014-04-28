@@ -43,8 +43,8 @@
 		<entry key="LocalPhone" value-ref="noprefix.digital.voipVendorUtil" />
 	</util:map>
 
-	<!-- Define ServletContextAttributeExporter to make spring beans available 
-		to servlet context, so they can inject by @Resource annontation, this will 
+	<!-- Define ServletContextAttributeExporter to make spring beans available
+		to servlet context, so they can inject by @Resource annontation, this will
 		avoid to use load time weaver, and @PostConstruct invoke twice -->
 	<bean
 		class="org.springframework.web.context.support.ServletContextAttributeExporter">
@@ -63,6 +63,7 @@
 				<entry key="mapHolderBean" value-ref="mapHolderBean" />
 				<entry key="publicIpAddressHolder" value-ref="publicIpAddressHolder" />
 				<entry key="phoneNumberKeepAlive" value-ref="phoneNumberKeepAlive" />
+                <entry key="genericCallbackNumberChecker" value-ref="genericCallbackNumberChecker" />
 			</util:map>
 		</property>
 	</bean>

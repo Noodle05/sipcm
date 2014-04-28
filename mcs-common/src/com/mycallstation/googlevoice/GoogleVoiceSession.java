@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.mycallstation.googlevoice;
 
@@ -123,7 +123,7 @@ public class GoogleVoiceSession implements Serializable {
 	static final Pattern captchaUrlPattern = Pattern
 			.compile("^CaptchaUrl=(.+)$");
 	static final Pattern xpcRPattern = Pattern
-			.compile("new _cd\\('(.*)', null, null\\);");
+			.compile("new _cd\\('(.*)', null, null, '(?:.*)'\\);");
 
 	private String username;
 	private String password;
@@ -239,6 +239,7 @@ public class GoogleVoiceSession implements Serializable {
 			if (str != null) {
 				// Remove xml comments inside java script.
 				str = str.replaceAll("<!--[^>]+-->", "");
+				str = str.replaceAll("(?s),\\s*}", "}");
 				Gson gson = Utility.getGson();
 				RnrSeData data = gson.fromJson(str, RnrSeData.class);
 				rnrSe = data.get_rnr_se();
@@ -1044,7 +1045,7 @@ public class GoogleVoiceSession implements Serializable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -1058,7 +1059,7 @@ public class GoogleVoiceSession implements Serializable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -1081,7 +1082,7 @@ public class GoogleVoiceSession implements Serializable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -1147,7 +1148,7 @@ class SAXHandler extends DefaultHandler {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
 	 * java.lang.String, java.lang.String, org.xml.sax.Attributes)
 	 */
@@ -1161,7 +1162,7 @@ class SAXHandler extends DefaultHandler {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.xml.sax.helpers.DefaultHandler#endElement(java.lang.String,
 	 * java.lang.String, java.lang.String)
 	 */
@@ -1176,7 +1177,7 @@ class SAXHandler extends DefaultHandler {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.xml.sax.helpers.DefaultHandler#characters(char[], int, int)
 	 */
 	@Override
