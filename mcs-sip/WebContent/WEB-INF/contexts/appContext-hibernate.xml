@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
-	<bean id="sessionFactory" class="com.mycallstation.spring.LocalAnnotationSessionFactoryBean">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
-		<property name="basePackage" value="com.mycallstation" />
+		<property name="packagesToScan">
+			<list>
+				<value>com.mycallstation</value>
+			</list>
+		</property>
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
 				<!-- Create/update the database tables automatically when the JVM starts 
 					up -->
-				<prop key="hibernate.hbm2ddl.auto">valid</prop>
+				<prop key="hibernate.hbm2ddl.auto">validate</prop>
 				<prop key="hibernate.jdbc.batch_size">200</prop>
 				<prop key="hibernate.show_sql">false</prop>
 				<prop key="hibernate.format_sql">true</prop>
@@ -21,18 +25,12 @@
 				<prop key="hibernate.cache.use_query_cache">${hibernate.cache.use_query_cache}</prop>
 			</props>
 		</property>
-		<property name="lobHandler">
-			<ref local="lobHandler" />
-		</property>
 	</bean>
 
-	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"
-		lazy-init="true" />
-
 	<bean id="txManager"
-		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory">
-			<ref local="sessionFactory" />
+			<ref bean="sessionFactory" />
 		</property>
 	</bean>
 </beans>

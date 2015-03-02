@@ -98,9 +98,10 @@ public class RecaptchaParseTest {
 		boolean success = false;
 		try {
 			is.mark(1024);
-			Scanner sc = new Scanner(is);
-			if (sc.findWithinHorizon("Your answer was correct", 1024) != null) {
-				success = true;
+			try (Scanner sc = new Scanner(is)) {
+    			if (sc.findWithinHorizon("Your answer was correct", 1024) != null) {
+    				success = true;
+    			}
 			}
 			assertFalse(success);
 			is.reset();
@@ -137,9 +138,10 @@ public class RecaptchaParseTest {
 		boolean success = false;
 		try {
 			is.mark(1024);
-			Scanner sc = new Scanner(is);
-			if (sc.findWithinHorizon("Your answer was correct", 1024) != null) {
-				success = true;
+			try (Scanner sc = new Scanner(is)) {
+    			if (sc.findWithinHorizon("Your answer was correct", 1024) != null) {
+    				success = true;
+    			}
 			}
 
 			assertTrue(success);

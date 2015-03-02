@@ -45,10 +45,14 @@
 	<entry key="firewall.password_phrase" />
 	<entry key="firewall.ssh.disconnect.delay">60</entry>
 
-	<entry key="firewall.commands.list.all"><![CDATA[/usr/bin/sudo /sbin/iptables -L RH-Firewall-1-INPUT -n -v --line-numbers | /bin/egrep ".*DROP.*udp dpt:5060" | /bin/awk -F " " '{print $1 ":" $9}']]></entry>
-	<entry key="firewall.commands.list.ip"><![CDATA[/usr/bin/sudo /sbin/iptables -L RH-Firewall-1-INPUT -n -v --line-numbers | /bin/egrep ".*DROP.*{0}.*udp dpt:5060" | /bin/awk -F " " '''{print $1 ":" $9}''']]></entry>
-	<entry key="firewall.commands.block.ip"><![CDATA[/usr/bin/sudo  /sbin/iptables -I RH-Firewall-1-INPUT 1 -p udp -s {0} --dport 5060 -j DROP]]></entry>
-	<entry key="firewall.commands.unblock.ip"><![CDATA[/usr/bin/sudo /sbin/iptables -D RH-Firewall-1-INPUT {0}]]></entry>
+	<entry key="firewall.iptables.commands.list.all"><![CDATA[/usr/bin/sudo /sbin/iptables -L RH-Firewall-1-INPUT -n -v --line-numbers | /bin/egrep ".*DROP.*udp dpt:5060" | /bin/awk -F " " '{print $1 ":" $9}']]></entry>
+	<entry key="firewall.iptables.commands.list.ip"><![CDATA[/usr/bin/sudo /sbin/iptables -L RH-Firewall-1-INPUT -n -v --line-numbers | /bin/egrep ".*DROP.*{0}.*udp dpt:5060" | /bin/awk -F " " '''{print $1 ":" $9}''']]></entry>
+	<entry key="firewall.iptables.commands.block.ip"><![CDATA[/usr/bin/sudo  /sbin/iptables -I RH-Firewall-1-INPUT 1 -p udp -s {0} --dport 5060 -j DROP]]></entry>
+	<entry key="firewall.iptables.commands.unblock.ip"><![CDATA[/usr/bin/sudo /sbin/iptables -D RH-Firewall-1-INPUT {0}]]></entry>
+
+	<entry key="firewall.firewalld.commands.block.ip"><![CDATA[/usr/bin/sudo /usr/bin/firewall-cmd --direct --add-rule ipv4 filter SipFilter 0 --source {0} -j DROP]]></entry>
+	<entry key="firewall.firewalld.commands.unblock.ip"><![CDATA[/usr/bin/sudo /usr/bin/firewall-cmd --direct --remove-rule ipv4 filter SipFilter 0 --source {0} -j DROP]]></entry>
+	<entry key="firewall.firewalld.commands.unblock.all"><![CDATA[/usr/bin/sudo /usr/bin/firewall-cmd --direct --remove-rules ipv4 filter SipFilter]]></entry>
 
 	<entry key="register.by.invite.only">true</entry>
 	<entry key="register.active.method">SELF</entry>

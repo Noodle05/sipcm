@@ -34,190 +34,175 @@ import com.jcraft.jsch.Session;
 @Component("sshExecutor")
 @Scope("prototype")
 public class SshExecutor {
-	private static final Logger logger = LoggerFactory
-			.getLogger(SshExecutor.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(SshExecutor.class);
 
-	@Resource(name = "globalScheduler")
-	private TaskScheduler scheduler;
+    @Resource(name = "globalScheduler")
+    private TaskScheduler scheduler;
 
-	private final Runnable disconnectTask;
-	private final JSch jsch;
-	private volatile Session jschSession;
-	private volatile Future<Void> disconnectTaskFuture;
+    private final Runnable disconnectTask;
+    private final JSch jsch;
+    private volatile Session jschSession;
+    private volatile Future<?> disconnectTaskFuture;
 
-	private String host;
-	private int port;
-	private String username;
-	private String knownHosts;
-	private String privateKey;
-	private String passwordPhrase;
-	private int disconnectDelay;
-	private boolean initialized;
+    private String host;
+    private int port;
+    private String username;
+    private String knownHosts;
+    private String privateKey;
+    private String passwordPhrase;
+    private int disconnectDelay;
+    private boolean initialized;
 
-	public SshExecutor() {
-		disconnectTask = new DisconnectTask();
+    public SshExecutor() {
+        disconnectTask = new DisconnectTask();
 
-		jsch = new JSch();
-	}
+        jsch = new JSch();
+    }
 
-	private void checkInitialize() {
-		if (!initialized) {
-			throw new BeanInitializationException(
-					"SshExecutor not initialize yet.");
-		}
-	}
+    private void checkInitialize() {
+        if (!initialized) {
+            throw new BeanInitializationException(
+                    "SshExecutor not initialize yet.");
+        }
+    }
 
-	public void init(String host, int port, String username, String knownHosts,
-			String privateKey, String passwordPhrase, int disconnectDelay) {
-		this.host = host;
-		this.port = port;
-		this.username = username;
-		this.knownHosts = knownHosts;
-		this.privateKey = privateKey;
-		this.passwordPhrase = passwordPhrase;
-		this.disconnectDelay = disconnectDelay;
-		try {
-			jsch.addIdentity(this.privateKey, this.passwordPhrase);
-			jsch.setKnownHosts(this.knownHosts);
-		} catch (JSchException e) {
-			throw new BeanInitializationException(
-					"Error happened when initial ssh client.", e);
-		}
-		initialized = true;
-	}
+    public void init(String host, int port, String username, String knownHosts,
+            String privateKey, String passwordPhrase, int disconnectDelay) {
+        this.host = host;
+        this.port = port;
+        this.username = username;
+        this.knownHosts = knownHosts;
+        this.privateKey = privateKey;
+        this.passwordPhrase = passwordPhrase;
+        this.disconnectDelay = disconnectDelay;
+        try {
+            jsch.addIdentity(this.privateKey, this.passwordPhrase);
+            jsch.setKnownHosts(this.knownHosts);
+        } catch (JSchException e) {
+            throw new BeanInitializationException(
+                    "Error happened when initial ssh client.", e);
+        }
+        initialized = true;
+    }
 
-	@PreDestroy
-	public void destroy() {
-		if (initialized) {
-			cancelDisconnectSessionTask();
-			if (jschSession != null && jschSession.isConnected()) {
-				jschSession.disconnect();
-				jschSession = null;
-			}
-		}
-	}
+    @PreDestroy
+    public void destroy() {
+        if (initialized) {
+            cancelDisconnectSessionTask();
+            if (jschSession != null && jschSession.isConnected()) {
+                jschSession.disconnect();
+                jschSession = null;
+            }
+        }
+    }
 
-	private void connectToHost() throws JSchException {
-		cancelDisconnectSessionTask();
-		if (jschSession == null) {
-			if (port > 0) {
-				jschSession = jsch.getSession(username, host, port);
-			} else {
-				jschSession = jsch.getSession(username, host);
-			}
-		}
-		if (!jschSession.isConnected()) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Connecting to \"{}\" as user: \"{}\"", host,
-						username);
-			}
-			jschSession.connect();
-		}
-	}
+    private void connectToHost() throws JSchException {
+        cancelDisconnectSessionTask();
+        if (jschSession == null) {
+            if (port > 0) {
+                jschSession = jsch.getSession(username, host, port);
+            } else {
+                jschSession = jsch.getSession(username, host);
+            }
+        }
+        if (!jschSession.isConnected()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Connecting to \"{}\" as user: \"{}\"", host,
+                        username);
+            }
+            jschSession.connect();
+        }
+    }
 
-	public SshExecuteResult executeCommand(String command)
-			throws JSchException, IOException {
-		checkInitialize();
-		if (logger.isDebugEnabled()) {
-			logger.debug("Executing command: \"{}\"", command);
-		}
-		connectToHost();
-		try {
-			ChannelExec channel = (ChannelExec) jschSession.openChannel("exec");
-			channel.setCommand(command);
-			InputStream is = channel.getInputStream();
-			InputStream es = channel.getErrStream();
-			BufferedReader ir = new BufferedReader(new InputStreamReader(is));
-			BufferedReader er = new BufferedReader(new InputStreamReader(es));
+    public SshExecuteResult executeCommand(String command)
+            throws JSchException, IOException {
+        checkInitialize();
+        logger.debug("Executing command: \"{}\"", command);
+        connectToHost();
+        try {
+            ChannelExec channel = (ChannelExec) jschSession.openChannel("exec");
+            channel.setPty(true);
+            logger.trace("Sending command: \"{}\"", command);
+            channel.setCommand(command);
+            try (InputStream is = channel.getInputStream();
+                    InputStream es = channel.getErrStream();
+                    BufferedReader ir = new BufferedReader(
+                            new InputStreamReader(is));
+                    BufferedReader er = new BufferedReader(
+                            new InputStreamReader(es))) {
 
-			channel.connect();
-			try {
-				Collection<String> output = new ArrayList<String>();
-				Collection<String> error = new ArrayList<String>();
-				String tmp;
-				while (true) {
-					while ((tmp = ir.readLine()) != null) {
-						output.add(tmp);
-						if (logger.isTraceEnabled()) {
-							logger.trace("Server return output line: \"{}\".",
-									tmp);
-						}
-					}
-					while ((tmp = er.readLine()) != null) {
-						error.add(tmp);
-						if (logger.isTraceEnabled()) {
-							logger.trace("Server return error line: \"{}\".",
-									tmp);
-						}
-					}
-					if (channel.isClosed()) {
-						if (logger.isTraceEnabled()) {
-							logger.trace("Server return exit status: {}",
-									channel.getExitStatus());
-						}
-						SshExecuteResult result = new SshExecuteResult(
-								channel.getExitStatus(), output, error);
-						return result;
-					}
-					try {
-						Thread.sleep(1000L);
-					} catch (Exception ee) {
-					}
-				}
-			} finally {
-				try {
-					ir.close();
-					er.close();
-				} catch (IOException e) {
-					if (logger.isWarnEnabled()) {
-						logger.warn(
-								"Error happened when close output/error input stream.",
-								e);
-					}
-				} finally {
-					channel.disconnect();
-				}
-			}
-		} finally {
-			disconnectFromHost();
-		}
-	}
+                channel.connect();
+                try {
+                    Collection<String> output = new ArrayList<String>();
+                    Collection<String> error = new ArrayList<String>();
+                    String tmp;
+                    while (true) {
+                        while ((tmp = ir.readLine()) != null) {
+                            output.add(tmp);
+                            logger.trace("Server return output line: \"{}\".",
+                                    tmp);
+                        }
+                        while ((tmp = er.readLine()) != null) {
+                            error.add(tmp);
+                            logger.trace("Server return error line: \"{}\".",
+                                    tmp);
+                        }
+                        if (channel.isClosed()) {
+                            logger.trace("Server return exit status: {}",
+                                    channel.getExitStatus());
+                            SshExecuteResult result = new SshExecuteResult(
+                                    channel.getExitStatus(), output, error);
+                            return result;
+                        }
+                        try {
+                            Thread.sleep(1000L);
+                        } catch (Exception ee) {
+                        }
+                    }
+                } finally {
+                    channel.disconnect();
+                }
+            }
+        } finally {
+            disconnectFromHost();
+        }
+    }
 
-	@SuppressWarnings("unchecked")
-	private void disconnectFromHost() {
-		cancelDisconnectSessionTask();
-		Calendar c = Calendar.getInstance();
-		c.add(Calendar.SECOND, disconnectDelay);
-		if (logger.isTraceEnabled()) {
-			logger.trace("Schedule disconnect task at \"{}\".", c.getTime());
-		}
-		disconnectTaskFuture = scheduler.schedule(disconnectTask, c.getTime());
-	}
+    private void disconnectFromHost() {
+        cancelDisconnectSessionTask();
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.SECOND, disconnectDelay);
+        if (logger.isTraceEnabled()) {
+            logger.trace("Schedule disconnect task at \"{}\".", c.getTime());
+        }
+        disconnectTaskFuture = scheduler.schedule(disconnectTask, c.getTime());
+    }
 
-	private void cancelDisconnectSessionTask() {
-		if (disconnectTaskFuture != null
-				&& !(disconnectTaskFuture.isCancelled() || disconnectTaskFuture
-						.isDone())) {
-			if (logger.isTraceEnabled()) {
-				logger.trace("Cancel disconnect task.");
-			}
-			disconnectTaskFuture.cancel(false);
-		}
-	}
+    private void cancelDisconnectSessionTask() {
+        if (disconnectTaskFuture != null
+                && !(disconnectTaskFuture.isCancelled() || disconnectTaskFuture
+                        .isDone())) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("Cancel disconnect task.");
+            }
+            disconnectTaskFuture.cancel(false);
+        }
+    }
 
-	private class DisconnectTask implements Runnable {
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Runnable#run()
-		 */
-		@Override
-		public void run() {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Disconnecting from host: \"{}\"", host);
-			}
-			jschSession.disconnect();
-			jschSession = null;
-		}
-	}
+    private class DisconnectTask implements Runnable {
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Runnable#run()
+         */
+        @Override
+        public void run() {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Disconnecting from host: \"{}\"", host);
+            }
+            jschSession.disconnect();
+            jschSession = null;
+        }
+    }
 }

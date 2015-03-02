@@ -15,52 +15,33 @@ import com.mycallstation.base.filter.Operator;
  * 
  */
 class InListFilter extends BaseInFilter implements Serializable {
-	private static final long serialVersionUID = 910431459453687700L;
+    private static final long serialVersionUID = 910431459453687700L;
 
-	private final List<? extends Serializable> rightHand;
+    private final ArrayList<? extends Serializable> rightHand;
 
-	<T extends Serializable> InListFilter(String left, List<T> right,
-			boolean notFlag) {
-		super(left, notFlag);
-		this.rightHand = right;
-	}
+    <T extends Serializable> InListFilter(String left, List<T> right,
+            boolean notFlag) {
+        super(left, notFlag);
+        this.rightHand = new ArrayList<>(right);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.mycallstation.base.filter.Filter#getString()
-	 */
-	@Override
-	public String getString() {
-		StringBuilder sb = new StringBuilder();
-		if (rightHand == null || rightHand.isEmpty()) {
-			sb.append(Operator.NOT_IN.equals(operator) ? "1 = 1" : "0 = 1");
-		} else {
-			sb.append(Filter.DEFAULT_ALIAS).append(".").append(leftHand)
-					.append(" ").append(operator.getString()).append(" (");
-			boolean first = true;
-			for (@SuppressWarnings("unused")
-			Serializable rh : rightHand) {
-				if (first) {
-					first = false;
-				} else {
-					sb.append(", ");
-				}
-				sb.append("?");
-			}
-			sb.append(")");
-		}
-		return sb.toString();
-	}
+    @Override
+    protected String getString(PositionHolder positionHolder) {
+        StringBuilder sb = new StringBuilder();
+        if (rightHand == null || rightHand.isEmpty()) {
+            sb.append(Operator.NOT_IN.equals(operator) ? "1 = 1" : "0 = 1");
+        } else {
+            sb.append(Filter.DEFAULT_ALIAS).append(".").append(leftHand)
+                    .append(" ").append(operator.getString()).append(" (")
+                    .append(getParameterName(positionHolder)).append(")");
+        }
+        return sb.toString();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.mycallstation.base.filter.Filter#getValues()
-	 */
-	@Override
-	public List<Serializable> getValues() {
-		List<Serializable> ret = new ArrayList<Serializable>(rightHand);
-		return ret;
-	}
+    @Override
+    public List<Serializable> getValues() {
+        List<Serializable> ret = new ArrayList<Serializable>(1);
+        ret.add(rightHand);
+        return ret;
+    }
 }

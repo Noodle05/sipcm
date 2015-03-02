@@ -132,7 +132,7 @@ public class ProfileBean implements Serializable {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Saving user profile for \"{}\"", user);
 		}
-		if (password != null) {
+		if (password != null && !password.isEmpty()) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Password changed.");
 			}

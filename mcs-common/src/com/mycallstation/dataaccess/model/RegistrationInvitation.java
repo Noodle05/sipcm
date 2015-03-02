@@ -32,7 +32,7 @@ public class RegistrationInvitation implements IdBasedEntity<Integer>,
 	private Integer id;
 
 	@Basic
-	@Column(name = "code", length = 36, nullable = false)
+	@Column(name = "code", columnDefinition = "char", length = 36, nullable = false)
 	private String code;
 
 	@Basic

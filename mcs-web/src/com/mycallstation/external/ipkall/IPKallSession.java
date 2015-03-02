@@ -290,21 +290,19 @@ public class IPKallSession implements Serializable {
 		HttpUtils.checkResponse(request, response, logger);
 		entity = response.getEntity();
 		String charset = HttpUtils.getCharset(entity);
-		InputStream in = entity.getContent();
-		try {
-			Scanner scanner = new Scanner(in, charset);
-			String sss = scanner.findWithinHorizon(REGISTER_SUCCESS_STRING
-					+ "|" + VERIFICATION_FAILED_STRING, 2048);
-			if (VERIFICATION_FAILED_STRING.equals(sss)) {
-				throw new RecaptchaFailedException();
+		try (InputStream in = entity.getContent()){
+			try (Scanner scanner = new Scanner(in, charset)) {
+    			String sss = scanner.findWithinHorizon(REGISTER_SUCCESS_STRING
+    					+ "|" + VERIFICATION_FAILED_STRING, 2048);
+                if (VERIFICATION_FAILED_STRING.equals(sss)) {
+                    throw new RecaptchaFailedException();
+                }
+                if (REGISTER_SUCCESS_STRING.equalsIgnoreCase(sss)) {
+                    return;
+                } else {
+                    throw new RegistrationFailedException();
+                }
 			}
-			if (REGISTER_SUCCESS_STRING.equalsIgnoreCase(sss)) {
-				return;
-			} else {
-				throw new RegistrationFailedException();
-			}
-		} finally {
-			in.close();
 		}
 	}
 

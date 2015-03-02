@@ -37,7 +37,7 @@ public interface Filter {
 	public Filter appendOr(Filter filter) throws InvalidFilterException;
 
 	/**
-	 * Get string of the filter. String should HQL statement. values hold by
+	 * Get string of the filter. String should JPA statement. values hold by
 	 * question mark.
 	 * 
 	 * @return the string

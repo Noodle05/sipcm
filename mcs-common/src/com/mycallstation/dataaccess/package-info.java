@@ -4,5 +4,5 @@ package com.mycallstation.dataaccess;
 import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
-import org.jasypt.hibernate.type.EncryptedStringType;
+import org.jasypt.hibernate4.type.EncryptedStringType;
 

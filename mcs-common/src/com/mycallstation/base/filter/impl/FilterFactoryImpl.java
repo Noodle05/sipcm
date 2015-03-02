@@ -28,26 +28,11 @@ import com.mycallstation.base.filter.Sort;
 @Component("filterFactory")
 @Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
 public class FilterFactoryImpl implements FilterFactory {
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createSimpleFilter(java.lang
-	 * .String, java.io.Serializable)
-	 */
 	@Override
 	public Filter createSimpleFilter(String name, Serializable val) {
 		return createSimpleFilter(name, val, Operator.EQ);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createSimpleFilter(java.lang
-	 * .String, java.io.Serializable,
-	 * com.mycallstation.base.filter.Filter.Operator)
-	 */
 	@Override
 	public Filter createSimpleFilter(String name, Serializable val, Operator op) {
 		checkArguments(name, op);
@@ -65,25 +50,11 @@ public class FilterFactoryImpl implements FilterFactory {
 		return ret;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createSimpleFilter(java.lang
-	 * .String)
-	 */
 	@Override
 	public Filter createSimpleFilter(String strCondition) {
 		return new StringFilter(strCondition);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createBetweenFilter(java.
-	 * lang.String, java.io.Serializable, java.io.Serializable)
-	 */
 	@Override
 	public Filter createBetweenFilter(String name, Serializable val1,
 			Serializable val2) {
@@ -92,13 +63,6 @@ public class FilterFactoryImpl implements FilterFactory {
 		return filter;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createNotBetweenFilter(java
-	 * .lang.String, java.io.Serializable, java.io.Serializable)
-	 */
 	@Override
 	public Filter createNotBetweenFilter(String name, Serializable val1,
 			Serializable val2) {
@@ -107,13 +71,6 @@ public class FilterFactoryImpl implements FilterFactory {
 		return filter;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createInFilter(java.lang.
-	 * String, java.util.List)
-	 */
 	@Override
 	public <T extends Serializable> Filter createInFilter(String name,
 			List<T> values) {
@@ -121,13 +78,6 @@ public class FilterFactoryImpl implements FilterFactory {
 		return new InListFilter(name, values, false);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createInFilter(java.lang.
-	 * String, T[])
-	 */
 	@Override
 	public <T extends Serializable> Filter createInFilter(String name,
 			T... values) {
@@ -136,13 +86,6 @@ public class FilterFactoryImpl implements FilterFactory {
 				: Arrays.asList(values), false);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createNotInFilter(java.lang
-	 * .String, java.util.List)
-	 */
 	@Override
 	public Filter createNotInFilter(String name,
 			List<? extends Serializable> values) {
@@ -150,13 +93,6 @@ public class FilterFactoryImpl implements FilterFactory {
 		return new InListFilter(name, values, true);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createNotInFilter(java.lang
-	 * .String, T[])
-	 */
 	@Override
 	public <T extends Serializable> Filter createNotInFilter(String name,
 			T... values) {
@@ -165,65 +101,30 @@ public class FilterFactoryImpl implements FilterFactory {
 				: Arrays.asList(values), true);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createIsNullFilter(java.lang
-	 * .String)
-	 */
 	@Override
 	public Filter createIsNullFilter(String name) {
 		checkArguments(name);
 		return new IsNullFilter(name, false);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createIsNotNullFilter(java
-	 * .lang.String)
-	 */
 	@Override
 	public Filter createIsNotNullFilter(String name) {
 		checkArguments(name);
 		return new IsNullFilter(name, true);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createIsEmptyFilter(java.
-	 * lang.String)
-	 */
 	@Override
 	public Filter createIsEmptyFilter(String name) {
 		checkArguments(name);
 		return new IsEmptyFilter(name, false);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createIsNotEmptyFilter(java
-	 * .lang.String)
-	 */
 	@Override
 	public Filter createIsNotEmptyFilter(String name) {
 		checkArguments(name);
 		return new IsEmptyFilter(name, true);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createMemberOfFilter(java
-	 * .lang.String, java.io.Serializable)
-	 */
 	@Override
 	public <T extends Serializable> Filter createMemberOfFilter(String name,
 			T value) {
@@ -231,13 +132,6 @@ public class FilterFactoryImpl implements FilterFactory {
 		return new MemberOfFilter(name, value, false);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createNotMemberOfFilter(java
-	 * .lang.String, java.io.Serializable)
-	 */
 	@Override
 	public <T extends Serializable> Filter createNotMemberOfFilter(String name,
 			T value) {
@@ -245,36 +139,18 @@ public class FilterFactoryImpl implements FilterFactory {
 		return new MemberOfFilter(name, value, true);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createSort(java.lang.String)
-	 */
 	@Override
 	public Sort createSort(String varName) {
 		Sort ret = new SortImpl(varName);
 		return ret;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.FilterFactory#createSort(java.lang.String,
-	 * com.mycallstation.base.filter.Direction)
-	 */
 	@Override
 	public Sort createSort(String varName, Direction direction) {
 		Sort ret = new SortImpl(varName, direction);
 		return ret;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.mycallstation.base.filter.FilterFactory#createPage()
-	 */
 	@Override
 	public Page createPage() {
 		return new PageImpl();

@@ -10,45 +10,42 @@ import com.mycallstation.base.filter.Filter;
  * 
  */
 abstract class BaseFilter implements Filter {
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.Filter#appendAnd(com.mycallstation.base
-	 * .filter.Filter)
-	 */
-	@Override
-	public Filter appendAnd(Filter filter) {
-		Filter ret = this;
-		if (filter != null) {
-			ret = new AndOrFilter(this, filter, true);
-		}
-		return ret;
-	}
+    private static final String PARAM_NAME_PREFIX = "param_";
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.mycallstation.base.filter.Filter#appendOr(com.mycallstation.base.
-	 * filter.Filter)
-	 */
-	@Override
-	public Filter appendOr(Filter filter) {
-		Filter ret = this;
-		if (filter != null) {
-			ret = new AndOrFilter(this, filter, false);
-		}
-		return ret;
-	}
+    @Override
+    public Filter appendAnd(Filter filter) {
+        Filter ret = this;
+        if (filter != null) {
+            ret = new AndOrFilter(this, filter, true);
+        }
+        return ret;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return getString();
-	}
+    @Override
+    public String getString() {
+        return getString(new PositionHolder());
+    }
+
+    protected abstract String getString(PositionHolder positionHolder);
+
+    @Override
+    public Filter appendOr(Filter filter) {
+        Filter ret = this;
+        if (filter != null) {
+            ret = new AndOrFilter(this, filter, false);
+        }
+        return ret;
+    }
+
+    @Override
+    public String toString() {
+        return getString();
+    }
+
+    protected String getParameterName(PositionHolder positionHolder) {
+        StringBuilder sb = new StringBuilder(":");
+        sb.append(PARAM_NAME_PREFIX);
+        sb.append(positionHolder.getPosition());
+        return sb.toString();
+    }
 }

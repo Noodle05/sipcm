@@ -62,7 +62,7 @@
 		<echo message="Compile source code..." />
 		<ivy:cachepath pathid="lib.compile.path.id" conf="compile, provided" />
 		<!-- Compile the java code from ${src.dir} into ${build.dir} -->
-		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="lib.compile.path.id" debug="true" includeantruntime="false">
+		<javac source="${build.version}" target="${build.version}" srcdir="${src.dir}" destdir="${build.dir}" classpathref="lib.compile.path.id" debug="true" includeantruntime="false">
 			<classpath>
 				<filelist files="${common.dependency}" />
 			</classpath>

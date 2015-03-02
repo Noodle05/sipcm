@@ -15,37 +15,27 @@ import com.mycallstation.base.filter.Operator;
  * 
  */
 class IsEmptyFilter extends BaseFilter implements Serializable {
-	private static final long serialVersionUID = -7782355728640776213L;
+    private static final long serialVersionUID = -7782355728640776213L;
 
-	private final String property;
+    private final String property;
 
-	private final Operator operator;
+    private final Operator operator;
 
-	IsEmptyFilter(String name, boolean notFlag) {
-		property = name;
-		operator = notFlag ? Operator.NOT_NULL : Operator.NULL;
-	}
+    IsEmptyFilter(String name, boolean notFlag) {
+        property = name;
+        operator = notFlag ? Operator.NOT_NULL : Operator.NULL;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.mycallstation.base.filter.Filter#getString()
-	 */
-	@Override
-	public String getString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(Filter.DEFAULT_ALIAS).append(".").append(property)
-				.append(" ").append(operator.getString());
-		return sb.toString();
-	}
+    @Override
+    protected String getString(PositionHolder positionHolder) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Filter.DEFAULT_ALIAS).append(".").append(property)
+                .append(" ").append(operator.getString());
+        return sb.toString();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.mycallstation.base.filter.Filter#getValues()
-	 */
-	@Override
-	public List<Serializable> getValues() {
-		return Collections.emptyList();
-	}
+    @Override
+    public List<Serializable> getValues() {
+        return Collections.emptyList();
+    }
 }

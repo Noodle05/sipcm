@@ -33,9 +33,13 @@
 		</dependency>
 		<dependency org="commons-lang" name="commons-lang" rev="2.6"
 			conf="compile->default;foride->sources,javadoc" />
-		<dependency org="org.javassist" name="javassist" rev="3.15.0-GA"
+		<dependency org="org.javassist" name="javassist" rev="3.18.1-GA"
 			conf="runtime->default;foride->sources,javadoc" />
-		<dependency org="org.jasypt" name="jasypt" rev="1.7"
+		<dependency org="org.jasypt" name="jasypt" rev="1.9.2"
+			conf="compile->default;foride->sources,javadoc">
+			<exclude module="commons-codec" />
+		</dependency>
+		<dependency org="org.jasypt" name="jasypt-hibernate4" rev="1.9.2"
 			conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-codec" />
 		</dependency>
@@ -70,9 +74,9 @@
 		<dependency org="com.google.code.gson" name="gson" rev="2.1"
 			conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.apache.httpcomponents" name="httpcore"
-			rev="4.1.4" conf="compile->default;foride->sources,javadoc" />
+			rev="4.4" conf="compile->default;foride->sources,javadoc" />
 		<dependency org="org.apache.httpcomponents" name="httpclient"
-			rev="4.1.2" conf="compile->default;foride->sources,javadoc">
+			rev="4.4" conf="compile->default;foride->sources,javadoc">
 			<exclude module="commons-logging" />
 			<exclude module="commons-codec" />
 		</dependency>

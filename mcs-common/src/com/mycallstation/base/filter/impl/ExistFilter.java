@@ -15,45 +15,35 @@ import com.mycallstation.base.filter.Operator;
  * 
  */
 class ExistFilter extends BaseFilter implements Serializable {
-	private static final long serialVersionUID = -8938735745979348763L;
+    private static final long serialVersionUID = -8938735745979348763L;
 
-	private final StringFilter selectQuery;
+    private final StringFilter selectQuery;
 
-	private final Operator operator;
+    private final Operator operator;
 
-	ExistFilter(StringFilter selectQuery, boolean notFlag) {
-		this.selectQuery = selectQuery;
-		operator = notFlag ? Operator.NOT_EXISTS : Operator.EXISTS;
-	}
+    ExistFilter(StringFilter selectQuery, boolean notFlag) {
+        this.selectQuery = selectQuery;
+        operator = notFlag ? Operator.NOT_EXISTS : Operator.EXISTS;
+    }
 
-	public Filter getLeftHand() {
-		return null;
-	}
+    public Filter getLeftHand() {
+        return null;
+    }
 
-	public Filter getRightHand() {
-		return null;
-	}
+    public Filter getRightHand() {
+        return null;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.mycallstation.base.filter.Filter#getString()
-	 */
-	@Override
-	public String getString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(operator.getString()).append(" ")
-				.append(selectQuery.getString());
-		return sb.toString();
-	}
+    @Override
+    protected String getString(PositionHolder positionHolder) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(operator.getString()).append(" ")
+                .append(selectQuery.getString(positionHolder));
+        return sb.toString();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.mycallstation.base.filter.Filter#getValues()
-	 */
-	@Override
-	public List<Serializable> getValues() {
-		return Collections.emptyList();
-	}
+    @Override
+    public List<Serializable> getValues() {
+        return Collections.emptyList();
+    }
 }

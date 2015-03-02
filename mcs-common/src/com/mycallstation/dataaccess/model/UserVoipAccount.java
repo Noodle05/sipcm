@@ -95,7 +95,7 @@ public class UserVoipAccount extends AbstractTrackableEntity implements
 
 	@Lob
 	@Basic(fetch = FetchType.LAZY)
-	@Column(name = "auth_response", insertable = false, updatable = false)
+	@Column(name = "auth_response", columnDefinition = "blob", insertable = false, updatable = false)
 	private byte[] authResponse;
 
 	@Basic

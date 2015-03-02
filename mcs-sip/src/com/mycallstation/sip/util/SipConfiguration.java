@@ -32,10 +32,14 @@ public class SipConfiguration extends BaseConfiguration {
 	public static final String FIREWALL_PASSPHRASE = "firewall.password_phrase";
 	public static final String SSH_DISCONNECT_DELAY = "firewall.ssh.disconnect.delay";
 
-	public static final String FIREWALL_COMMAND_LISTALL_BLOCKING = "firewall.commands.list.all";
-	public static final String FIREWALL_COMMAND_LISTONE_BLOCKING = "firewall.commands.list.ip";
-	public static final String FIREWALL_COMMAND_BLOCK_ONE = "firewall.commands.block.ip";
-	public static final String FIREWALL_COMMAND_UNBLOCK_ONE = "firewall.commands.unblock.ip";
+	public static final String IPTABLES_COMMAND_LISTALL_BLOCKING = "firewall.iptables.commands.list.all";
+	public static final String IPTABLES_COMMAND_LISTONE_BLOCKING = "firewall.iptables.commands.list.ip";
+	public static final String IPTABLES_COMMAND_BLOCK_ONE = "firewall.iptables.commands.block.ip";
+	public static final String IPTABLES_COMMAND_UNBLOCK_ONE = "firewall.iptables.commands.unblock.ip";
+
+	public static final String FIREWALLD_COMMAND_BLOCK_ONE = "firewall.firewalld.commands.block.ip";
+    public static final String FIREWALLD_COMMAND_UNBLOCK_ONE = "firewall.firewalld.commands.unblock.ip";
+    public static final String FIREWALLD_COMMAND_UNBLOCK_ALL = "firewall.firewalld.commands.unblock.all";
 
 	public static final String USE_STUN = "sip.useStun";
 	public static final String STUN_SERVER = "sip.stun.server";
@@ -105,21 +109,33 @@ public class SipConfiguration extends BaseConfiguration {
 		return appConfig.getBoolean(FIREWALL_ENABLED);
 	}
 
-	public String getFirewallCommandListAll() {
-		return appConfig.getString(FIREWALL_COMMAND_LISTALL_BLOCKING);
+	public String getIpTablesCommandListAll() {
+		return appConfig.getString(IPTABLES_COMMAND_LISTALL_BLOCKING);
 	}
 
-	public String getFirewallCommandListOne() {
-		return appConfig.getString(FIREWALL_COMMAND_LISTONE_BLOCKING);
+	public String getIpTablesCommandListOne() {
+		return appConfig.getString(IPTABLES_COMMAND_LISTONE_BLOCKING);
 	}
 
-	public String getFirewallCommandBlockOne() {
-		return appConfig.getString(FIREWALL_COMMAND_BLOCK_ONE);
+	public String getIpTablesCommandBlockOne() {
+		return appConfig.getString(IPTABLES_COMMAND_BLOCK_ONE);
 	}
 
-	public String getFirewallCommandUnblockOne() {
-		return appConfig.getString(FIREWALL_COMMAND_UNBLOCK_ONE);
+	public String getIpTablesCommandUnblockOne() {
+		return appConfig.getString(IPTABLES_COMMAND_UNBLOCK_ONE);
 	}
+
+    public String getFirewalldCommandBlockOne() {
+        return appConfig.getString(FIREWALLD_COMMAND_BLOCK_ONE);
+    }
+
+    public String getFirewalldCommandUnblockOne() {
+        return appConfig.getString(FIREWALLD_COMMAND_UNBLOCK_ONE);
+    }
+
+    public String getFirewalldCommandUnblockAll() {
+        return appConfig.getString(FIREWALLD_COMMAND_UNBLOCK_ALL);
+    }
 
 	public String getPasswordPhrase() {
 		String password = appConfig.getString(FIREWALL_PASSPHRASE);

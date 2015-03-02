@@ -12,31 +12,21 @@ import java.util.List;
  * 
  */
 class StringFilter extends BaseFilter implements Serializable {
-	private static final long serialVersionUID = 8168643045904058467L;
+    private static final long serialVersionUID = 8168643045904058467L;
 
-	private final String strCondition;
+    private final String strCondition;
 
-	StringFilter(String condition) {
-		this.strCondition = condition;
-	}
+    StringFilter(String condition) {
+        this.strCondition = condition;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.mycallstation.base.filter.Filter#getString()
-	 */
-	@Override
-	public String getString() {
-		return strCondition;
-	}
+    @Override
+    protected String getString(PositionHolder positionHolder) {
+        return strCondition;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.mycallstation.base.filter.Filter#getValues()
-	 */
-	@Override
-	public List<Serializable> getValues() {
-		return Collections.emptyList();
-	}
+    @Override
+    public List<Serializable> getValues() {
+        return Collections.emptyList();
+    }
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="MyCallStation" basedir="." default="all">
    <property name="dist.dir" location="${basedir}/dist" />
+   <property name="build.version" value="1.7" />
 
    <target name="build-common">
         <ant dir="mcs-common" />

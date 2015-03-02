@@ -3,7 +3,6 @@
  */
 package com.mycallstation.dataaccess.dao.hibernate;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -12,7 +11,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.mycallstation.base.dao.hibernate.AbstractDAO;
@@ -37,7 +36,7 @@ public class UserVoipAccountDAOImpl extends AbstractDAO<UserVoipAccount, Long>
 		getHibernateTemplate().execute(new HibernateCallback<Void>() {
 			@Override
 			public Void doInHibernate(Session session)
-					throws HibernateException, SQLException {
+					throws HibernateException {
 				Query query = session
 						.createQuery("UPDATE UserVoipAccount SET register_expires = :regExpires, last_check = :lastCheck, error_code = :errorCode, error_message = :errorMessage WHERE id = :id");
 				query.setLong("id", account.getId());
@@ -64,7 +63,7 @@ public class UserVoipAccountDAOImpl extends AbstractDAO<UserVoipAccount, Long>
 		getHibernateTemplate().execute(new HibernateCallback<Void>() {
 			@Override
 			public Void doInHibernate(Session session)
-					throws HibernateException, SQLException {
+					throws HibernateException {
 				Query query = session
 						.createQuery("UPDATE UserVoipAccount SET auth_response = :authResponse WHERE id = :id");
 				query.setLong("id", account.getId());
@@ -88,7 +87,7 @@ public class UserVoipAccountDAOImpl extends AbstractDAO<UserVoipAccount, Long>
 		getHibernateTemplate().execute(new HibernateCallback<Void>() {
 			@Override
 			public Void doInHibernate(Session session)
-					throws HibernateException, SQLException {
+					throws HibernateException {
 				Query query = session
 						.createQuery("UPDATE UserVoipAccount SET register_expires = :regExpires, last_check = :lastCheck, auth_response = :authResponse, error_code = :errorCode, error_message = :errorMessage WHERE id = :id");
 				query.setLong("id", account.getId());
@@ -117,7 +116,7 @@ public class UserVoipAccountDAOImpl extends AbstractDAO<UserVoipAccount, Long>
 				new HibernateCallback<List<Long>>() {
 					@Override
 					public List<Long> doInHibernate(Session session)
-							throws HibernateException, SQLException {
+							throws HibernateException {
 						Query query = session
 								.getNamedQuery("registerClientExpires");
 						query.setInteger("minExpires", minExpires);

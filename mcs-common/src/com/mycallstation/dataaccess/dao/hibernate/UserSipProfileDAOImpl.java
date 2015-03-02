@@ -3,7 +3,6 @@
  */
 package com.mycallstation.dataaccess.dao.hibernate;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -12,7 +11,7 @@ import java.util.List;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.mycallstation.base.dao.hibernate.AbstractDAO;
@@ -40,7 +39,7 @@ public class UserSipProfileDAOImpl extends AbstractDAO<UserSipProfile, Long>
 		getHibernateTemplate().execute(new HibernateCallback<Integer>() {
 			@Override
 			public Integer doInHibernate(Session session)
-					throws HibernateException, SQLException {
+					throws HibernateException {
 				int ret = 0;
 				String queryStr = "UPDATE UserSipProfile usp SET usp.sipStatus = :sipStatus WHERE id = :id";
 				Query query = session.createQuery(queryStr);
@@ -67,7 +66,7 @@ public class UserSipProfileDAOImpl extends AbstractDAO<UserSipProfile, Long>
 		getHibernateTemplate().execute(new HibernateCallback<Integer>() {
 			@Override
 			public Integer doInHibernate(Session session)
-					throws HibernateException, SQLException {
+					throws HibernateException {
 				int ret = 0;
 				String queryStr = "UPDATE UserSipProfile usp SET usp.lastReceiveCallTime = :lastReceiveCallTime WHERE id = :id";
 				Query query = session.createQuery(queryStr);
@@ -93,7 +92,7 @@ public class UserSipProfileDAOImpl extends AbstractDAO<UserSipProfile, Long>
 				new HibernateCallback<List<Long>>() {
 					@Override
 					public List<Long> doInHibernate(Session session)
-							throws HibernateException, SQLException {
+							throws HibernateException {
 						Query query = session
 								.getNamedQuery("checkAddressBindingExpires");
 						@SuppressWarnings("unchecked")

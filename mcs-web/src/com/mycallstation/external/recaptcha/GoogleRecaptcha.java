@@ -225,9 +225,10 @@ public class GoogleRecaptcha {
 		String charset = HttpUtils.getCharset(entity);
 		String str = EntityUtils.toString(entity);
 		boolean success = false;
-		Scanner sc = new Scanner(str);
-		if (sc.findWithinHorizon("Your answer was correct", 1024) != null) {
-			success = true;
+		try(Scanner sc = new Scanner(str);) {
+    		if (sc.findWithinHorizon("Your answer was correct", 1024) != null) {
+    			success = true;
+    		}
 		}
 		if (success) {
 			if (logger.isTraceEnabled()) {
