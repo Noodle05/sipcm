@@ -156,8 +156,10 @@ public class UserServiceImpl extends AbstractService<User, Long> implements
 		Filter filter = filterFactory.createSimpleFilter("username", username,
 				Operator.IEQ);
 		User user = dao.getUniqueEntity(filter);
-		for (Role role : user.getRoles()) {
-			role.getId();
+		if (user != null) {
+			for (Role role : user.getRoles()) {
+				role.getId();
+			}
 		}
 		return user;
 	}
